@@ -11,7 +11,7 @@ install(){
     echo "[3.] install mono openjdk14 for csharp + java output"
     which apt-get && {
       sudo apt-get update -y
-      sudo apt-get neko haxe -y
+      sudo apt-get install neko haxe -y
     }
   }
   haxelib setup
