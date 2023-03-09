@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
      - name: install haxe
-       run: ./make install
+       run: ls -la && ./make install
      - name: transpile haxe into languages
        run: ./make
      - name: run tests
