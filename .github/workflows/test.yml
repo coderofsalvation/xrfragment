@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: install haxe
-        run: pwd && set && ls -la && ./make install
+        run: ./make install
       - name: transpile haxe into languages
         run: ./make
       - name: run tests
