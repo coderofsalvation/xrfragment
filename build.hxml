@@ -3,7 +3,6 @@
 
 xrfragment.Query
 -D shallow-expose
---resource stub/stub.js@stub
 -js dist/xrfragment.js
 
 --next

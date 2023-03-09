@@ -5,9 +5,14 @@ try(){ set +e; "$@" 2>/dev/null; set -e; }
 
 install(){
   which haxe || { 
+    echo -e "installing haxe..if this fails:\n\n"
     echo " 1. install haxe from haxe.org"
     echo "[2.] download neko for cpp output"
     echo "[3.] install mono openjdk14 for csharp + java output"
+    which apt-get && {
+      apt-get update -y
+      apt-get neko haxe -y
+    }
   }
   haxelib setup
   haxelib install hxcpp
