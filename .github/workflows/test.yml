@@ -6,11 +6,11 @@ on:
     - bugfix/*
 
 jobs:
-  comment:
+  test:
     runs-on: ubuntu-latest
     steps:
      - name: install haxe
-       run: ls -la && ./make install
+       run: set && ls -la && ./make install
      - name: transpile haxe into languages
        run: ./make
      - name: run tests
