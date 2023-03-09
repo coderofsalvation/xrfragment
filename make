@@ -14,7 +14,8 @@ install(){
       sudo apt-get install neko haxe -y
     }
   }
-  haxelib setup
+  mkdir ~/.haxe
+  haxelib setup ~/.haxe
   haxelib install hxcpp
   haxelib install hxjava
   haxelib install hxcs
