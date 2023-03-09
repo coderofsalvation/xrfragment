@@ -1,9 +1,14 @@
 package xrfragment;
 
+@:expose  // <- makes the class reachable from plain JavaScript
+@:keep    // <- avoids accidental removal by dead code elimination
+
 class Url {
 
+    @:keep
     private static var map:Map<String, String>;
 
+    @:keep
     private static function parseQueryMap(qs:String):Map<String, String> {
         var splitArray:Array<String>  = qs.split('&');
         var regexPlus  = ~/\+/g;  // Regex for replacing addition symbol with a space

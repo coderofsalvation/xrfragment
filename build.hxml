@@ -1,8 +1,7 @@
 -dce full
 -cp src
 
-xrfragment.Url
-xrfragment.Query
+xrfragment
 -D shallow-expose
 -js dist/xrfragment.js
 

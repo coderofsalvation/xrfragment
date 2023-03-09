@@ -14,6 +14,10 @@ EReg.prototype = {
 		this.r.s = s;
 		return this.r.m != null;
 	}
+	,split: function(s) {
+		var d = "#__delim__#";
+		return s.replace(this.r,d).split(d);
+	}
 };
 var HxOverrides = function() { };
 HxOverrides.substr = function(s,pos,len) {
@@ -71,6 +75,9 @@ Std.parseInt = function(x) {
 		}
 	}
 	return null;
+};
+var haxe_ds_StringMap = function() {
+	this.h = Object.create(null);
 };
 var haxe_iterators_ArrayIterator = function(array) {
 	this.current = 0;
@@ -275,6 +282,27 @@ xrfragment_Query.prototype = {
 			}
 		}
 	}
+};
+var xrfragment_Url = $hx_exports["xrfragment"]["Url"] = function() { };
+xrfragment_Url.parseQueryMap = function(qs) {
+	var splitArray = qs.split("&");
+	var regexPlus = new EReg("\\+","g");
+	var resultMap = new haxe_ds_StringMap();
+	var _g = 0;
+	var _g1 = splitArray.length;
+	while(_g < _g1) {
+		var i = _g++;
+		var splitByEqual = splitArray[i].split("=");
+		var key = splitByEqual[0];
+		if(splitByEqual.length == 1) {
+			resultMap.h[key] = "";
+		} else {
+			var s = regexPlus.split(splitByEqual[1]).join(" ");
+			var value = decodeURIComponent(s.split("+").join(" "));
+			resultMap.h[key] = value;
+		}
+	}
+	return resultMap;
 };
 if(typeof(performance) != "undefined" ? typeof(performance.now) == "function" : false) {
 	HxOverrides.now = performance.now.bind(performance);
