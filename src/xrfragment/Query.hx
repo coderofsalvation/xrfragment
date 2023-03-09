@@ -2,6 +2,7 @@ package xrfragment;
 
 @:expose  // <- makes the class reachable from plain JavaScript
 @:keep    // <- avoids accidental removal by dead code elimination
+          //return untyped __js__("window.location.search");
 
 #if js
   var ok:Bool = js.Syntax.code('
@@ -53,6 +54,7 @@ class Query {
     return this.q;
   }
 
+  @:keep
   public function qualify( nodename:String ): Bool {
     if( this.q.copy_all ) this.accept = true;
     if( this.include.contains(nodename) ) this.accept = true;
@@ -141,6 +143,7 @@ class Query {
     return this.q;
   }
 
+  @:keep
   public function test( property:String, ?value:Dynamic ):Void{
     if( this.preset == property ){ 
       this.parse( value, true );

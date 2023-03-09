@@ -1,13 +1,14 @@
--dce no
+-dce full
 -cp src
 
+xrfragment.Url
 xrfragment.Query
 -D shallow-expose
 -js dist/xrfragment.js
 
 --next
 
--dce no
+-dce full
 -cp src
 
 Test
@@ -17,7 +18,7 @@ Test
 
 --next
 
--dce no
+-dce full
 -cp src
 
 xrfragment.Query
@@ -25,7 +26,7 @@ xrfragment.Query
 
 --next
 
--dce no
+-dce full
 -cp src
 
 xrfragment.Query
@@ -33,7 +34,7 @@ xrfragment.Query
 
 --next
 
--dce no
+-dce full
 -cp src
 
 Test
@@ -42,7 +43,7 @@ Test
 
 #--next
 #
-#-dce no
+#-dce full
 #-cp src
 #
 #xrfragment.Query
@@ -50,7 +51,7 @@ Test
 #
 #--next
 #
-#-dce no
+#-dce full
 #-cp src
 #
 #xrfragment.Query
@@ -58,7 +59,7 @@ Test
 #
 #--next
 #
-#-dce no
+#-dce full
 #-cp src
 #
 #xrfragment.Query
@@ -66,7 +67,7 @@ Test
 #
 #--next
 #
-#-dce no
+#-dce full
 #-cp src
 #
 #xrfragment.Query
@@ -75,7 +76,7 @@ Test
 #
 #--next
 #
-#-dce no
+#-dce full
 #-cp src
 #
 #xrfragment.Query
