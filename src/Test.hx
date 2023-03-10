@@ -1,10 +1,22 @@
 import xrfragment.Query;
+import xrfragment.Url;
 
 class Test {
 
   static public function main():Void {
     trace("starting tests");
+    testUrl();
+    //testQuery();
+  }
 
+  static public function testUrl():Void {
+    var Url   = xrfragment.Url;
+    var uri:String = "http://foo.com?foo=1#bar=flop&a=1,2&b=c|d|1,2,3";
+    trace(uri);
+    trace( Url.parse(uri) );
+  }
+
+  static public function testQuery():Void {
     var Query = xrfragment.Query;
 
     trace( (new Query("foo or bar")).toObject() );

@@ -7,7 +7,6 @@ package xrfragment;
 #if js
   var ok:Bool = js.Syntax.code('
     // haxe workarounds
-
     Array.prototype.contains = Array.prototype.includes
 
     if (typeof Array.prototype.remove !== "function") {

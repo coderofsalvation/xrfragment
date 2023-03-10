@@ -2,15 +2,10 @@ var $hx_exports = typeof exports != "undefined" ? exports : typeof window != "un
 (function ($global) { "use strict";
 $hx_exports["xrfragment"] = $hx_exports["xrfragment"] || {};
 $hx_exports["xrfragment"]["Query"] = $hx_exports["xrfragment"]["Query"] || {};
-function $extend(from, fields) {
-	var proto = Object.create(from);
-	for (var name in fields) proto[name] = fields[name];
-	if( fields.toString !== Object.prototype.toString ) proto.toString = fields.toString;
-	return proto;
-}
 var EReg = function(r,opt) {
 	this.r = new RegExp(r,opt.split("u").join(""));
 };
+EReg.__name__ = true;
 EReg.prototype = {
 	match: function(s) {
 		if(this.r.global) {
@@ -20,8 +15,13 @@ EReg.prototype = {
 		this.r.s = s;
 		return this.r.m != null;
 	}
+	,split: function(s) {
+		var d = "#__delim__#";
+		return s.replace(this.r,d).split(d);
+	}
 };
 var HxOverrides = function() { };
+HxOverrides.__name__ = true;
 HxOverrides.substr = function(s,pos,len) {
 	if(len == null) {
 		len = s.length;
@@ -37,7 +37,9 @@ HxOverrides.substr = function(s,pos,len) {
 HxOverrides.now = function() {
 	return Date.now();
 };
+Math.__name__ = true;
 var Reflect = function() { };
+Reflect.__name__ = true;
 Reflect.field = function(o,field) {
 	try {
 		return o[field];
@@ -58,6 +60,10 @@ Reflect.fields = function(o) {
 	return a;
 };
 var Std = function() { };
+Std.__name__ = true;
+Std.string = function(s) {
+	return js_Boot.__string_rec(s,"");
+};
 Std.parseInt = function(x) {
 	if(x != null) {
 		var _g = 0;
@@ -79,190 +85,108 @@ Std.parseInt = function(x) {
 	return null;
 };
 var Test = function() { };
+Test.__name__ = true;
 Test.main = function() {
-	console.log("src/Test.hx:6:","starting tests");
-	var Query = xrfragment_Query;
-	console.log("src/Test.hx:10:",new xrfragment_Query("foo or bar").toObject());
-	console.log("src/Test.hx:11:",new xrfragment_Query("class:fopoer or bar foo:bar").toObject().or[0]);
-	console.log("src/Test.hx:12:",new xrfragment_Query("-skybox class:foo").toObject().or[0]);
-	console.log("src/Test.hx:13:",new xrfragment_Query("foo/flop moo or bar").toObject().or[0]);
-	console.log("src/Test.hx:14:",new xrfragment_Query("-foo/flop moo or bar").toObject().or[0]);
-	console.log("src/Test.hx:15:",new xrfragment_Query("price:>4 moo or bar").toObject().or[0]);
-	console.log("src/Test.hx:16:",new xrfragment_Query("price:>=4 moo or bar").toObject().or[0]);
-	console.log("src/Test.hx:17:",new xrfragment_Query("price:<=4 moo or bar").toObject().or[0]);
-	console.log("src/Test.hx:18:",new xrfragment_Query("price:!=4 moo or bar").toObject().or[0]);
-	var q = new xrfragment_Query("price:!=4 moo or bar");
-	var obj = q.toObject();
-	q.test("price",4);
-	var ok = !q.qualify("slkklskdf");
-	if(!ok) {
-		throw haxe_Exception.thrown("node should not be allowed");
-	}
-	q = new xrfragment_Query("price:!=3 moo or bar");
-	var obj = q.toObject();
-	q.test("price",4);
-	var ok = q.qualify("slkklskdf");
-	if(!ok) {
-		throw haxe_Exception.thrown("non-mentioned node should be allowed");
-	}
-	q = new xrfragment_Query("moo or bar");
-	var obj = q.toObject();
-	var ok = !q.qualify("slkklskdf");
-	if(!ok) {
-		throw haxe_Exception.thrown("node should not be allowed");
-	}
-	obj = q.toObject();
-	var ok = q.qualify("moo");
-	if(!ok) {
-		throw haxe_Exception.thrown("moo should be allowed");
-	}
-	var ok = q.qualify("bar");
-	if(!ok) {
-		throw haxe_Exception.thrown("bar should be allowed");
-	}
-	q = new xrfragment_Query("price:>3 moo or bar");
-	var obj = q.toObject();
-	q.test("price",4);
-	var ok = q.qualify("foo");
-	if(!ok) {
-		throw haxe_Exception.thrown("node should be allowed");
-	}
-	var ok = q.qualify("bar");
-	if(!ok) {
-		throw haxe_Exception.thrown("node should be allowed");
-	}
-	var ok = q.qualify("moo");
-	if(!ok) {
-		throw haxe_Exception.thrown("node should be allowed");
-	}
-	q = new xrfragment_Query("price:>3 price:<10 -bar");
-	var obj = q.toObject();
-	q.test("price",4);
-	var ok = q.qualify("foo");
-	if(!ok) {
-		throw haxe_Exception.thrown("node should be allowed");
-	}
-	var ok = !q.qualify("bar");
-	if(!ok) {
-		throw haxe_Exception.thrown("bar should not be allowed");
-	}
-	q.test("price",20);
-	var ok = !q.qualify("foo");
-	if(!ok) {
-		throw haxe_Exception.thrown("price 20 should not be allowed");
-	}
-	q = new xrfragment_Query("-bar");
-	var obj = q.toObject();
-	var ok = q.qualify("foo");
-	if(!ok) {
-		throw haxe_Exception.thrown("node should be allowed");
-	}
-	var ok = !q.qualify("bar");
-	if(!ok) {
-		throw haxe_Exception.thrown("bar should not be allowed");
-	}
-	q = new xrfragment_Query("title:*");
-	var obj = q.toObject();
-	var ok = !q.qualify("foo");
-	if(!ok) {
-		throw haxe_Exception.thrown("node should not be allowed");
-	}
-	q.test("foo","bar");
-	var ok = !q.qualify("foo");
-	if(!ok) {
-		throw haxe_Exception.thrown("node should not be allowed");
-	}
-	q.test("title","bar");
-	var ok = q.qualify("foo");
-	if(!ok) {
-		throw haxe_Exception.thrown("node should be allowed");
-	}
-	q = new xrfragment_Query("-bar +bar");
-	var obj = q.toObject();
-	var ok = q.qualify("foo");
-	if(!ok) {
-		throw haxe_Exception.thrown("node should be allowed");
-	}
-	var ok = q.qualify("bar");
-	if(!ok) {
-		throw haxe_Exception.thrown("bar should be allowed");
-	}
-	q = new xrfragment_Query("?discount");
-	var obj = q.toObject();
-	q.test("?discount","-foo");
-	var ok = !q.qualify("foo");
-	if(!ok) {
-		throw haxe_Exception.thrown("foo should not be allowed");
-	}
-	q = new xrfragment_Query("?");
-	q.test("?","-foo");
-	var ok = !q.qualify("foo");
-	if(!ok) {
-		throw haxe_Exception.thrown("foo should not be allowed");
-	}
-	q = new xrfragment_Query("?");
-	var ok = q.qualify("foo");
-	if(!ok) {
-		throw haxe_Exception.thrown("foo should not be allowed");
-	}
-	q = new xrfragment_Query("?discount");
-	q.test("?discount","-foo");
-	var ok = !q.qualify("foo");
-	if(!ok) {
-		throw haxe_Exception.thrown("foo should not be allowed");
-	}
-	q = new xrfragment_Query("?discount +foo");
-	var obj = q.toObject();
-	q.test("?discount","-foo");
-	var ok = !q.qualify("foo");
-	if(!ok) {
-		throw haxe_Exception.thrown("foo should not be allowed");
-	}
-	var ok = !q.qualify("foo");
-	if(!ok) {
-		throw haxe_Exception.thrown("foo should not be allowed");
-	}
-	console.log("src/Test.hx:116:","all tests passed");
+	console.log("src/Test.hx:7:","starting tests");
+	Test.testUrl();
 };
-var haxe_Exception = function(message,previous,native) {
-	Error.call(this,message);
-	this.message = message;
-	this.__previousException = previous;
-	this.__nativeException = native != null ? native : this;
+Test.testUrl = function() {
+	var Url = xrfragment_Url;
+	var uri = "http://foo.com?foo=1#bar=flop&a=1,2&b=c|d|1,2,3";
+	console.log("src/Test.hx:15:",uri);
+	var tmp = Url.parse(uri);
+	console.log("src/Test.hx:16:",tmp == null ? "null" : haxe_ds_StringMap.stringify(tmp.h));
 };
-haxe_Exception.thrown = function(value) {
-	if(((value) instanceof haxe_Exception)) {
-		return value.get_native();
-	} else if(((value) instanceof Error)) {
-		return value;
-	} else {
-		var e = new haxe_ValueException(value);
-		return e;
+var haxe_ds_StringMap = function() {
+	this.h = Object.create(null);
+};
+haxe_ds_StringMap.__name__ = true;
+haxe_ds_StringMap.stringify = function(h) {
+	var s = "{";
+	var first = true;
+	for (var key in h) {
+		if (first) first = false; else s += ',';
+		s += key + ' => ' + Std.string(h[key]);
 	}
+	return s + "}";
 };
-haxe_Exception.__super__ = Error;
-haxe_Exception.prototype = $extend(Error.prototype,{
-	get_native: function() {
-		return this.__nativeException;
-	}
-});
-var haxe_ValueException = function(value,previous,native) {
-	haxe_Exception.call(this,String(value),previous,native);
-	this.value = value;
-};
-haxe_ValueException.__super__ = haxe_Exception;
-haxe_ValueException.prototype = $extend(haxe_Exception.prototype,{
-});
 var haxe_iterators_ArrayIterator = function(array) {
 	this.current = 0;
 	this.array = array;
 };
+haxe_iterators_ArrayIterator.__name__ = true;
 haxe_iterators_ArrayIterator.prototype = {
 	hasNext: function() {
 		return this.current < this.array.length;
 	}
 	,next: function() {
 		return this.array[this.current++];
+	}
+};
+var js_Boot = function() { };
+js_Boot.__name__ = true;
+js_Boot.__string_rec = function(o,s) {
+	if(o == null) {
+		return "null";
+	}
+	if(s.length >= 5) {
+		return "<...>";
+	}
+	var t = typeof(o);
+	if(t == "function" && (o.__name__ || o.__ename__)) {
+		t = "object";
+	}
+	switch(t) {
+	case "function":
+		return "<function>";
+	case "object":
+		if(((o) instanceof Array)) {
+			var str = "[";
+			s += "\t";
+			var _g = 0;
+			var _g1 = o.length;
+			while(_g < _g1) {
+				var i = _g++;
+				str += (i > 0 ? "," : "") + js_Boot.__string_rec(o[i],s);
+			}
+			str += "]";
+			return str;
+		}
+		var tostr;
+		try {
+			tostr = o.toString;
+		} catch( _g ) {
+			return "???";
+		}
+		if(tostr != null && tostr != Object.toString && typeof(tostr) == "function") {
+			var s2 = o.toString();
+			if(s2 != "[object Object]") {
+				return s2;
+			}
+		}
+		var str = "{\n";
+		s += "\t";
+		var hasp = o.hasOwnProperty != null;
+		var k = null;
+		for( k in o ) {
+		if(hasp && !o.hasOwnProperty(k)) {
+			continue;
+		}
+		if(k == "prototype" || k == "__class__" || k == "__super__" || k == "__interfaces__" || k == "__properties__") {
+			continue;
+		}
+		if(str.length != 2) {
+			str += ", \n";
+		}
+		str += s + k + " : " + js_Boot.__string_rec(o[k],s);
+		}
+		s = s.substring(1);
+		str += "\n" + s + "}";
+		return str;
+	case "string":
+		return o;
+	default:
+		return String(o);
 	}
 };
 var xrfragment_Query = function(str) {
@@ -275,11 +199,9 @@ var xrfragment_Query = function(str) {
 		this.parse(str);
 	}
 };
+xrfragment_Query.__name__ = true;
 xrfragment_Query.prototype = {
-	toObject: function() {
-		return this.q;
-	}
-	,qualify: function(nodename) {
+	qualify: function(nodename) {
 		if(this.q.copy_all) {
 			this.accept = true;
 		}
@@ -460,12 +382,79 @@ xrfragment_Query.prototype = {
 		}
 	}
 };
+var xrfragment_Value = $hx_exports["xrfragment"]["Value"] = function() {
+};
+xrfragment_Value.__name__ = true;
+var xrfragment_Url = function() { };
+xrfragment_Url.__name__ = true;
+xrfragment_Url.parse = function(qs) {
+	var fragment = qs.split("#");
+	var splitArray = fragment[1].split("&");
+	var regexPlus = new EReg("\\+","g");
+	var resultMap = new haxe_ds_StringMap();
+	var _g = 0;
+	var _g1 = splitArray.length;
+	while(_g < _g1) {
+		var i = _g++;
+		var splitByEqual = splitArray[i].split("=");
+		var key = splitByEqual[0];
+		var v = new xrfragment_Value();
+		if(splitByEqual.length > 1) {
+			var s = regexPlus.split(splitByEqual[1]).join(" ");
+			var value = decodeURIComponent(s.split("+").join(" "));
+			xrfragment_Url.guessType(v,value);
+			if(value.split("|").length > 1) {
+				v.args = [];
+				var args = value.split("|");
+				var _g2 = 0;
+				var _g3 = args.length;
+				while(_g2 < _g3) {
+					var i1 = _g2++;
+					var x = new xrfragment_Value();
+					xrfragment_Url.guessType(x,args[i1]);
+					v.args.push(x);
+				}
+			}
+			resultMap.h[key] = v;
+		}
+	}
+	return resultMap;
+};
+xrfragment_Url.guessType = function(v,str) {
+	var isColor = new EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","");
+	var isInt = new EReg("^[0-9]+$","");
+	var isFloat = new EReg("^[0-9]+\\.[0-9]+$","");
+	v.string = str;
+	if(str.split(",").length > 1) {
+		var xyz = str.split(",");
+		if(xyz.length > 0) {
+			v.x = parseFloat(xyz[0]);
+		}
+		if(xyz.length > 1) {
+			v.y = parseFloat(xyz[1]);
+		}
+		if(xyz.length > 2) {
+			v.z = parseFloat(xyz[2]);
+		}
+	}
+	if(isColor.match(str)) {
+		v.color = str;
+	}
+	if(isFloat.match(str)) {
+		v.float = parseFloat(str);
+	}
+	if(isInt.match(str)) {
+		v.int = Std.parseInt(str);
+	}
+};
 if(typeof(performance) != "undefined" ? typeof(performance.now) == "function" : false) {
 	HxOverrides.now = performance.now.bind(performance);
 }
+String.__name__ = true;
+Array.__name__ = true;
+js_Boot.__toStr = ({ }).toString;
 var xrfragment_Query_ok = $hx_exports["xrfragment"]["Query"]["ok"] = 
     // haxe workarounds
-
     Array.prototype.contains = Array.prototype.includes
 
     if (typeof Array.prototype.remove !== "function") {

@@ -7,6 +7,8 @@ import sys as python_lib_Sys
 import functools as python_lib_Functools
 import re as python_lib_Re
 import traceback as python_lib_Traceback
+from io import StringIO as python_lib_io_StringIO
+import urllib.parse as python_lib_urllib_Parse
 
 
 class _hx_AnonObject:
@@ -62,6 +64,7 @@ class EReg:
     _hx_class_name = "EReg"
     __slots__ = ("pattern", "matchObj", "_hx_global")
     _hx_fields = ["pattern", "matchObj", "global"]
+    _hx_methods = ["split"]
 
     def __init__(self,r,opt):
         self.matchObj = None
@@ -85,6 +88,26 @@ class EReg:
                 self._hx_global = True
         self.pattern = python_lib_Re.compile(r,options)
 
+    def split(self,s):
+        if self._hx_global:
+            ret = []
+            lastEnd = 0
+            x = python_HaxeIterator(python_lib_Re.finditer(self.pattern,s))
+            while x.hasNext():
+                x1 = x.next()
+                x2 = HxString.substring(s,lastEnd,x1.start())
+                ret.append(x2)
+                lastEnd = x1.end()
+            x = HxString.substr(s,lastEnd,None)
+            ret.append(x)
+            return ret
+        else:
+            self.matchObj = python_lib_Re.search(self.pattern,s)
+            if (self.matchObj is None):
+                return [s]
+            else:
+                return [HxString.substring(s,0,self.matchObj.start()), HxString.substr(s,self.matchObj.end(),None)]
+
 
 
 class Reflect:
@@ -100,7 +123,7 @@ class Reflect:
 class Std:
     _hx_class_name = "Std"
     __slots__ = ()
-    _hx_statics = ["isOfType", "string", "parseInt"]
+    _hx_statics = ["isOfType", "string", "parseInt", "shortenPossibleNumber", "parseFloat"]
 
     @staticmethod
     def isOfType(v,t):
@@ -258,6 +281,38 @@ class Std:
                     return None
             return None
 
+    @staticmethod
+    def shortenPossibleNumber(x):
+        r = ""
+        _g = 0
+        _g1 = len(x)
+        while (_g < _g1):
+            i = _g
+            _g = (_g + 1)
+            c = ("" if (((i < 0) or ((i >= len(x))))) else x[i])
+            _g2 = HxString.charCodeAt(c,0)
+            if (_g2 is None):
+                break
+            else:
+                _g3 = _g2
+                if (((((((((((_g3 == 57) or ((_g3 == 56))) or ((_g3 == 55))) or ((_g3 == 54))) or ((_g3 == 53))) or ((_g3 == 52))) or ((_g3 == 51))) or ((_g3 == 50))) or ((_g3 == 49))) or ((_g3 == 48))) or ((_g3 == 46))):
+                    r = (("null" if r is None else r) + ("null" if c is None else c))
+                else:
+                    break
+        return r
+
+    @staticmethod
+    def parseFloat(x):
+        try:
+            return float(x)
+        except BaseException as _g:
+            None
+            if (x is not None):
+                r1 = Std.shortenPossibleNumber(x)
+                if (r1 != x):
+                    return Std.parseFloat(r1)
+            return Math.NaN
+
 
 class Float: pass
 
@@ -274,137 +329,33 @@ class Dynamic: pass
 class Test:
     _hx_class_name = "Test"
     __slots__ = ()
-    _hx_statics = ["main"]
+    _hx_statics = ["main", "testUrl"]
 
     @staticmethod
     def main():
         print("starting tests")
-        Query = xrfragment_Query
-        print(str(xrfragment_Query("foo or bar").toObject()))
-        print(str(HxOverrides.arrayGet(Reflect.field(xrfragment_Query("class:fopoer or bar foo:bar").toObject(),"or"), 0)))
-        print(str(HxOverrides.arrayGet(Reflect.field(xrfragment_Query("-skybox class:foo").toObject(),"or"), 0)))
-        print(str(HxOverrides.arrayGet(Reflect.field(xrfragment_Query("foo/flop moo or bar").toObject(),"or"), 0)))
-        print(str(HxOverrides.arrayGet(Reflect.field(xrfragment_Query("-foo/flop moo or bar").toObject(),"or"), 0)))
-        print(str(HxOverrides.arrayGet(Reflect.field(xrfragment_Query("price:>4 moo or bar").toObject(),"or"), 0)))
-        print(str(HxOverrides.arrayGet(Reflect.field(xrfragment_Query("price:>=4 moo or bar").toObject(),"or"), 0)))
-        print(str(HxOverrides.arrayGet(Reflect.field(xrfragment_Query("price:<=4 moo or bar").toObject(),"or"), 0)))
-        print(str(HxOverrides.arrayGet(Reflect.field(xrfragment_Query("price:!=4 moo or bar").toObject(),"or"), 0)))
-        q = xrfragment_Query("price:!=4 moo or bar")
-        obj = Reflect.field(q,"toObject")()
-        Reflect.field(q,"test")("price",4)
-        ok = (not Reflect.field(q,"qualify")("slkklskdf"))
-        if (not ok):
-            raise haxe_Exception.thrown("node should not be allowed")
-        q = xrfragment_Query("price:!=3 moo or bar")
-        obj = Reflect.field(q,"toObject")()
-        Reflect.field(q,"test")("price",4)
-        ok = Reflect.field(q,"qualify")("slkklskdf")
-        if (not ok):
-            raise haxe_Exception.thrown("non-mentioned node should be allowed")
-        q = xrfragment_Query("moo or bar")
-        obj = Reflect.field(q,"toObject")()
-        ok = (not Reflect.field(q,"qualify")("slkklskdf"))
-        if (not ok):
-            raise haxe_Exception.thrown("node should not be allowed")
-        obj = Reflect.field(q,"toObject")()
-        ok = Reflect.field(q,"qualify")("moo")
-        if (not ok):
-            raise haxe_Exception.thrown("moo should be allowed")
-        ok = Reflect.field(q,"qualify")("bar")
-        if (not ok):
-            raise haxe_Exception.thrown("bar should be allowed")
-        q = xrfragment_Query("price:>3 moo or bar")
-        obj = Reflect.field(q,"toObject")()
-        Reflect.field(q,"test")("price",4)
-        ok = Reflect.field(q,"qualify")("foo")
-        if (not ok):
-            raise haxe_Exception.thrown("node should be allowed")
-        ok = Reflect.field(q,"qualify")("bar")
-        if (not ok):
-            raise haxe_Exception.thrown("node should be allowed")
-        ok = Reflect.field(q,"qualify")("moo")
-        if (not ok):
-            raise haxe_Exception.thrown("node should be allowed")
-        q = xrfragment_Query("price:>3 price:<10 -bar")
-        obj = Reflect.field(q,"toObject")()
-        Reflect.field(q,"test")("price",4)
-        ok = Reflect.field(q,"qualify")("foo")
-        if (not ok):
-            raise haxe_Exception.thrown("node should be allowed")
-        ok = (not Reflect.field(q,"qualify")("bar"))
-        if (not ok):
-            raise haxe_Exception.thrown("bar should not be allowed")
-        Reflect.field(q,"test")("price",20)
-        ok = (not Reflect.field(q,"qualify")("foo"))
-        if (not ok):
-            raise haxe_Exception.thrown("price 20 should not be allowed")
-        q = xrfragment_Query("-bar")
-        obj = Reflect.field(q,"toObject")()
-        ok = Reflect.field(q,"qualify")("foo")
-        if (not ok):
-            raise haxe_Exception.thrown("node should be allowed")
-        ok = (not Reflect.field(q,"qualify")("bar"))
-        if (not ok):
-            raise haxe_Exception.thrown("bar should not be allowed")
-        q = xrfragment_Query("title:*")
-        obj = Reflect.field(q,"toObject")()
-        ok = (not Reflect.field(q,"qualify")("foo"))
-        if (not ok):
-            raise haxe_Exception.thrown("node should not be allowed")
-        Reflect.field(q,"test")("foo","bar")
-        ok = (not Reflect.field(q,"qualify")("foo"))
-        if (not ok):
-            raise haxe_Exception.thrown("node should not be allowed")
-        Reflect.field(q,"test")("title","bar")
-        ok = Reflect.field(q,"qualify")("foo")
-        if (not ok):
-            raise haxe_Exception.thrown("node should be allowed")
-        q = xrfragment_Query("-bar +bar")
-        obj = Reflect.field(q,"toObject")()
-        ok = Reflect.field(q,"qualify")("foo")
-        if (not ok):
-            raise haxe_Exception.thrown("node should be allowed")
-        ok = Reflect.field(q,"qualify")("bar")
-        if (not ok):
-            raise haxe_Exception.thrown("bar should be allowed")
-        q = xrfragment_Query("?discount")
-        obj = Reflect.field(q,"toObject")()
-        Reflect.field(q,"test")("?discount","-foo")
-        ok = (not Reflect.field(q,"qualify")("foo"))
-        if (not ok):
-            raise haxe_Exception.thrown("foo should not be allowed")
-        q = xrfragment_Query("?")
-        Reflect.field(q,"test")("?","-foo")
-        ok = (not Reflect.field(q,"qualify")("foo"))
-        if (not ok):
-            raise haxe_Exception.thrown("foo should not be allowed")
-        q = xrfragment_Query("?")
-        ok = Reflect.field(q,"qualify")("foo")
-        if (not ok):
-            raise haxe_Exception.thrown("foo should not be allowed")
-        q = xrfragment_Query("?discount")
-        Reflect.field(q,"test")("?discount","-foo")
-        ok = (not Reflect.field(q,"qualify")("foo"))
-        if (not ok):
-            raise haxe_Exception.thrown("foo should not be allowed")
-        q = xrfragment_Query("?discount +foo")
-        obj = Reflect.field(q,"toObject")()
-        Reflect.field(q,"test")("?discount","-foo")
-        ok = (not Reflect.field(q,"qualify")("foo"))
-        if (not ok):
-            raise haxe_Exception.thrown("foo should not be allowed")
-        ok = (not Reflect.field(q,"qualify")("foo"))
-        if (not ok):
-            raise haxe_Exception.thrown("foo should not be allowed")
-        print("all tests passed")
+        Test.testUrl()
+
+    @staticmethod
+    def testUrl():
+        Url = xrfragment_Url
+        uri = "http://foo.com?foo=1#bar=flop&a=1,2&b=c|d|1,2,3"
+        print(str(uri))
+        tmp = Url.parse(uri)
+        print(str(("null" if ((tmp is None)) else tmp.toString())))
+
+
+class haxe_IMap:
+    _hx_class_name = "haxe.IMap"
+    __slots__ = ()
 
 
 class haxe_Exception(Exception):
     _hx_class_name = "haxe.Exception"
-    __slots__ = ("_hx___nativeStack", "_hx___skipStack", "_hx___nativeException", "_hx___previousException")
-    _hx_fields = ["__nativeStack", "__skipStack", "__nativeException", "__previousException"]
-    _hx_methods = ["unwrap", "get_native"]
-    _hx_statics = ["caught", "thrown"]
+    __slots__ = ("_hx___nativeStack", "_hx___nativeException", "_hx___previousException")
+    _hx_fields = ["__nativeStack", "__nativeException", "__previousException"]
+    _hx_methods = ["unwrap"]
+    _hx_statics = ["caught"]
     _hx_interfaces = []
     _hx_super = Exception
 
@@ -413,7 +364,6 @@ class haxe_Exception(Exception):
         self._hx___previousException = None
         self._hx___nativeException = None
         self._hx___nativeStack = None
-        self._hx___skipStack = 0
         super().__init__(message)
         self._hx___previousException = previous
         if ((native is not None) and Std.isOfType(native,BaseException)):
@@ -430,9 +380,6 @@ class haxe_Exception(Exception):
     def unwrap(self):
         return self._hx___nativeException
 
-    def get_native(self):
-        return self._hx___nativeException
-
     @staticmethod
     def caught(value):
         if Std.isOfType(value,haxe_Exception):
@@ -441,17 +388,6 @@ class haxe_Exception(Exception):
             return haxe_Exception(str(value),None,value)
         else:
             return haxe_ValueException(value,None,value)
-
-    @staticmethod
-    def thrown(value):
-        if Std.isOfType(value,haxe_Exception):
-            return value.get_native()
-        elif Std.isOfType(value,BaseException):
-            return value
-        else:
-            e = haxe_ValueException(value)
-            e._hx___skipStack = (e._hx___skipStack + 1)
-            return e
 
 
 
@@ -492,6 +428,36 @@ class haxe_ValueException(haxe_Exception):
 
     def unwrap(self):
         return self.value
+
+
+
+class haxe_ds_StringMap:
+    _hx_class_name = "haxe.ds.StringMap"
+    __slots__ = ("h",)
+    _hx_fields = ["h"]
+    _hx_methods = ["keys", "toString"]
+    _hx_interfaces = [haxe_IMap]
+
+    def __init__(self):
+        self.h = dict()
+
+    def keys(self):
+        return python_HaxeIterator(iter(self.h.keys()))
+
+    def toString(self):
+        s_b = python_lib_io_StringIO()
+        s_b.write("{")
+        it = self.keys()
+        i = it
+        while i.hasNext():
+            i1 = i.next()
+            s_b.write(Std.string(i1))
+            s_b.write(" => ")
+            s_b.write(Std.string(Std.string(self.h.get(i1,None))))
+            if it.hasNext():
+                s_b.write(", ")
+        s_b.write("}")
+        return s_b.getvalue()
 
 
 
@@ -1518,6 +1484,88 @@ class xrfragment_Query:
             if ((((conds[0] if 0 < len(conds) else None) > 0) and ((_hx_pass > 0))) and (((fails[0] if 0 < len(fails) else None) == 0))):
                 self.accept = True
 
+
+
+class xrfragment_Value:
+    _hx_class_name = "xrfragment.Value"
+    __slots__ = ("x", "y", "z", "color", "string", "int", "float", "args")
+    _hx_fields = ["x", "y", "z", "color", "string", "int", "float", "args"]
+
+    def __init__(self):
+        self.args = None
+        self.float = None
+        self.int = None
+        self.string = None
+        self.color = None
+        self.z = None
+        self.y = None
+        self.x = None
+
+
+
+class xrfragment_Url:
+    _hx_class_name = "xrfragment.Url"
+    __slots__ = ()
+    _hx_statics = ["parse", "guessType"]
+
+    @staticmethod
+    def parse(qs):
+        fragment = qs.split("#")
+        _this = (fragment[1] if 1 < len(fragment) else None)
+        splitArray = _this.split("&")
+        regexPlus = EReg("\\+","g")
+        resultMap = haxe_ds_StringMap()
+        _g = 0
+        _g1 = len(splitArray)
+        while (_g < _g1):
+            i = _g
+            _g = (_g + 1)
+            _this = (splitArray[i] if i >= 0 and i < len(splitArray) else None)
+            splitByEqual = _this.split("=")
+            key = (splitByEqual[0] if 0 < len(splitByEqual) else None)
+            v = xrfragment_Value()
+            if (len(splitByEqual) > 1):
+                _this1 = regexPlus.split((splitByEqual[1] if 1 < len(splitByEqual) else None))
+                value = python_lib_urllib_Parse.unquote(" ".join([python_Boot.toString1(x1,'') for x1 in _this1]))
+                xrfragment_Url.guessType(v,value)
+                if (len(value.split("|")) > 1):
+                    v.args = list()
+                    args = value.split("|")
+                    _g2 = 0
+                    _g3 = len(args)
+                    while (_g2 < _g3):
+                        i1 = _g2
+                        _g2 = (_g2 + 1)
+                        x = xrfragment_Value()
+                        xrfragment_Url.guessType(x,(args[i1] if i1 >= 0 and i1 < len(args) else None))
+                        _this2 = v.args
+                        _this2.append(x)
+                resultMap.h[key] = v
+        return resultMap
+
+    @staticmethod
+    def guessType(v,_hx_str):
+        isColor = EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","")
+        isInt = EReg("^[0-9]+$","")
+        isFloat = EReg("^[0-9]+\\.[0-9]+$","")
+        v.string = _hx_str
+        if (len(_hx_str.split(",")) > 1):
+            xyz = _hx_str.split(",")
+            if (len(xyz) > 0):
+                v.x = Std.parseFloat((xyz[0] if 0 < len(xyz) else None))
+            if (len(xyz) > 1):
+                v.y = Std.parseFloat((xyz[1] if 1 < len(xyz) else None))
+            if (len(xyz) > 2):
+                v.z = Std.parseFloat((xyz[2] if 2 < len(xyz) else None))
+        isColor.matchObj = python_lib_Re.search(isColor.pattern,_hx_str)
+        if (isColor.matchObj is not None):
+            v.color = _hx_str
+        isFloat.matchObj = python_lib_Re.search(isFloat.pattern,_hx_str)
+        if (isFloat.matchObj is not None):
+            v.float = Std.parseFloat(_hx_str)
+        isInt.matchObj = python_lib_Re.search(isInt.pattern,_hx_str)
+        if (isInt.matchObj is not None):
+            v.int = Std.parseInt(_hx_str)
 
 Math.NEGATIVE_INFINITY = float("-inf")
 Math.POSITIVE_INFINITY = float("inf")
