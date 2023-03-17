@@ -1148,7 +1148,7 @@ __xrfragment_Query.prototype = _hx_e();
 __xrfragment_Query.prototype.toObject = function(self) 
   do return self.q end
 end
-__xrfragment_Query.prototype.qualify = function(self,nodename) 
+__xrfragment_Query.prototype.selected = function(self,nodename) 
   if (self.q.copy_all) then 
     self.accept = true;
   end;

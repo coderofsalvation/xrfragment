@@ -22,10 +22,12 @@ install(){
   haxelib install hscript
 }
 
-runtest(){
-  set -x
-  which python3   && python3 test/generated/test.py | awk '{ print "py: "$0 } END{ print "\n"}'
-  which node      && node test/generated/test.js    | awk '{ print "js: "$0 } END{ print "\n"}'
+tests(){
+	{
+		which python3 && python3 test/generated/test.py src/spec/*.json | awk '{ print "py: "$0 } END{ print "\n"}'
+		which node    && node test/generated/test.js    src/spec/*.json | awk '{ print "js: "$0 } END{ print "\n"}'
+	} | tee /tmp/log.txt
+  grep error /tmp/log.txt && exit 1
 }
 
 test -z $1 && { try rm dist/* ; haxe build.hxml; exit $?; }

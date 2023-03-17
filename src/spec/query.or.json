@@ -1,0 +1,4 @@
+[
+  {"fn":"query","data":"foo or bar", "expect":{ "fn":"selected","input":"foo","out":true}},
+  {"fn":"query","data":"foo or bar", "expect":{ "fn":"selected","input":"xxx","out":false}, "label":"nonselected entity"}
+]

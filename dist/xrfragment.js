@@ -76,9 +76,6 @@ Std.parseInt = function(x) {
 	}
 	return null;
 };
-var haxe_ds_StringMap = function() {
-	this.h = Object.create(null);
-};
 var haxe_iterators_ArrayIterator = function(array) {
 	this.current = 0;
 	this.array = array;
@@ -102,7 +99,7 @@ var xrfragment_Query = function(str) {
 	}
 };
 xrfragment_Query.prototype = {
-	qualify: function(nodename) {
+	selected: function(nodename) {
 		if(this.q.copy_all) {
 			this.accept = true;
 		}
@@ -290,7 +287,7 @@ xrfragment_Url.parse = function(qs) {
 	var fragment = qs.split("#");
 	var splitArray = fragment[1].split("&");
 	var regexPlus = new EReg("\\+","g");
-	var resultMap = new haxe_ds_StringMap();
+	var resultMap = { };
 	var _g = 0;
 	var _g1 = splitArray.length;
 	while(_g < _g1) {
@@ -314,7 +311,7 @@ xrfragment_Url.parse = function(qs) {
 					v.args.push(x);
 				}
 			}
-			resultMap.h[key] = v;
+			resultMap[key] = v;
 		}
 	}
 	return resultMap;

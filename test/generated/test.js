@@ -87,28 +87,59 @@ Std.parseInt = function(x) {
 var Test = function() { };
 Test.__name__ = true;
 Test.main = function() {
-	console.log("src/Test.hx:7:","starting tests");
-	Test.testUrl();
+	Test.test([{ fn : "query", expect : { fn : "selected", input : "foo", out : true}, data : "foo or bar"},{ fn : "query", expect : { fn : "selected", input : "xxx", out : false}, label : "nonselected entity", data : "foo or bar"}]);
+	Test.test([{ fn : "url", expect : { fn : "equal.string", input : "bar", out : "flop"}, data : "http://foo.com?foo=1#bar=flop&a=1,2&b=c|d|1,2,3"},{ fn : "url", expect : { fn : "equal.xy", input : "a", out : "1.22.2"}, label : "a equal.xy", data : "http://foo.com?foo=1#bar=flop&a=1.2,2.2&b=c|d|1,2,3"},{ fn : "url", expect : { fn : "equal.multi", input : "b", out : "c|d|1,2,3"}, label : "b equal.multi", data : "http://foo.com?foo=1#b=c|d|1,2,3"}]);
 };
-Test.testUrl = function() {
-	var Url = xrfragment_Url;
-	var uri = "http://foo.com?foo=1#bar=flop&a=1,2&b=c|d|1,2,3";
-	console.log("src/Test.hx:15:",uri);
-	var tmp = Url.parse(uri);
-	console.log("src/Test.hx:16:",tmp == null ? "null" : haxe_ds_StringMap.stringify(tmp.h));
-};
-var haxe_ds_StringMap = function() {
-	this.h = Object.create(null);
-};
-haxe_ds_StringMap.__name__ = true;
-haxe_ds_StringMap.stringify = function(h) {
-	var s = "{";
-	var first = true;
-	for (var key in h) {
-		if (first) first = false; else s += ',';
-		s += key + ' => ' + Std.string(h[key]);
+Test.test = function(spec) {
+	var Query = xrfragment_Query;
+	var errors = 0;
+	var _g = 0;
+	var _g1 = spec.length;
+	while(_g < _g1) {
+		var i = _g++;
+		var q = null;
+		var res = null;
+		var valid = false;
+		var item = spec[i];
+		if(item.fn == "query") {
+			q = new xrfragment_Query(item.data);
+		}
+		if(item.fn == "url") {
+			res = xrfragment_Url.parse(item.data);
+		}
+		if(item.expect.fn == "selected") {
+			valid = item.expect.out == q.selected(item.expect.input);
+		}
+		if(item.expect.fn == "equal.string") {
+			valid = item.expect.out == res[item.expect.input].string;
+		}
+		if(item.expect.fn == "equal.xy") {
+			valid = item.expect.out == Std.string(res[item.expect.input].x) + Std.string(res[item.expect.input].y);
+		}
+		if(item.expect.fn == "equal.multi") {
+			valid = Test.equalMulti(res,item);
+		}
+		var ok = valid ? "[ ✔ ] " : "[ ❌] ";
+		console.log("src/Test.hx:34:",ok + Std.string(item.fn) + ": '" + Std.string(item.data) + "'" + (item.label ? " <= " + (item.label ? item.label : item.expect.fn) : ""));
+		if(!valid) {
+			++errors;
+		}
 	}
-	return s + "}";
+	if(errors > 1) {
+		console.log("src/Test.hx:37:","\n-----\n[ ❌] " + errors + " errors :/");
+	}
+};
+Test.equalMulti = function(res,item) {
+	var target = res[item.expect.input];
+	var str = "";
+	var _g = 0;
+	var _g1 = target.args.length;
+	while(_g < _g1) {
+		var i = _g++;
+		str = str + "|" + target.args[i].string;
+	}
+	str = HxOverrides.substr(str,1,null);
+	return str == item.expect.out;
 };
 var haxe_iterators_ArrayIterator = function(array) {
 	this.current = 0;
@@ -201,7 +232,7 @@ var xrfragment_Query = function(str) {
 };
 xrfragment_Query.__name__ = true;
 xrfragment_Query.prototype = {
-	qualify: function(nodename) {
+	selected: function(nodename) {
 		if(this.q.copy_all) {
 			this.accept = true;
 		}
@@ -391,7 +422,7 @@ xrfragment_Url.parse = function(qs) {
 	var fragment = qs.split("#");
 	var splitArray = fragment[1].split("&");
 	var regexPlus = new EReg("\\+","g");
-	var resultMap = new haxe_ds_StringMap();
+	var resultMap = { };
 	var _g = 0;
 	var _g1 = splitArray.length;
 	while(_g < _g1) {
@@ -415,7 +446,7 @@ xrfragment_Url.parse = function(qs) {
 					v.args.push(x);
 				}
 			}
-			resultMap.h[key] = v;
+			resultMap[key] = v;
 		}
 	}
 	return resultMap;

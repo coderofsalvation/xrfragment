@@ -54,7 +54,7 @@ class Query {
   }
 
   @:keep
-  public function qualify( nodename:String ): Bool {
+  public function selected( nodename:String ): Bool {
     if( this.q.copy_all ) this.accept = true;
     if( this.include.contains(nodename) ) this.accept = true;
     if( this.exclude.contains(nodename) ) this.accept = false;

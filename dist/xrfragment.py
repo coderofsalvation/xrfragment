@@ -1183,7 +1183,7 @@ class xrfragment_Query:
     _hx_class_name = "xrfragment.Query"
     __slots__ = ("str", "q", "include", "exclude", "accept", "preset")
     _hx_fields = ["str", "q", "include", "exclude", "accept", "preset"]
-    _hx_methods = ["toObject", "qualify", "parse", "test"]
+    _hx_methods = ["toObject", "selected", "parse", "test"]
 
     def __init__(self,_hx_str):
         self.preset = ""
@@ -1198,7 +1198,7 @@ class xrfragment_Query:
     def toObject(self):
         return self.q
 
-    def qualify(self,nodename):
+    def selected(self,nodename):
         if Reflect.field(self.q,"copy_all"):
             self.accept = True
         if (nodename in self.include):

@@ -7,7 +7,6 @@ import sys as python_lib_Sys
 import functools as python_lib_Functools
 import re as python_lib_Re
 import traceback as python_lib_Traceback
-from io import StringIO as python_lib_io_StringIO
 import urllib.parse as python_lib_urllib_Parse
 
 
@@ -329,25 +328,57 @@ class Dynamic: pass
 class Test:
     _hx_class_name = "Test"
     __slots__ = ()
-    _hx_statics = ["main", "testUrl"]
+    _hx_statics = ["main", "test", "equalMulti"]
 
     @staticmethod
     def main():
-        print("starting tests")
-        Test.testUrl()
+        Test.test([_hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "selected", 'input': "foo", 'out': True}), 'data': "foo or bar"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "selected", 'input': "xxx", 'out': False}), 'label': "nonselected entity", 'data': "foo or bar"})])
+        Test.test([_hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.string", 'input': "bar", 'out': "flop"}), 'data': "http://foo.com?foo=1#bar=flop&a=1,2&b=c|d|1,2,3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xy", 'input': "a", 'out': "1.22.2"}), 'label': "a equal.xy", 'data': "http://foo.com?foo=1#bar=flop&a=1.2,2.2&b=c|d|1,2,3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.multi", 'input': "b", 'out': "c|d|1,2,3"}), 'label': "b equal.multi", 'data': "http://foo.com?foo=1#b=c|d|1,2,3"})])
 
     @staticmethod
-    def testUrl():
-        Url = xrfragment_Url
-        uri = "http://foo.com?foo=1#bar=flop&a=1,2&b=c|d|1,2,3"
-        print(str(uri))
-        tmp = Url.parse(uri)
-        print(str(("null" if ((tmp is None)) else tmp.toString())))
+    def test(spec):
+        Query = xrfragment_Query
+        errors = 0
+        _g = 0
+        _g1 = len(spec)
+        while (_g < _g1):
+            i = _g
+            _g = (_g + 1)
+            q = None
+            res = None
+            valid = False
+            item = (spec[i] if i >= 0 and i < len(spec) else None)
+            if (Reflect.field(item,"fn") == "query"):
+                q = xrfragment_Query(Reflect.field(item,"data"))
+            if (Reflect.field(item,"fn") == "url"):
+                res = xrfragment_Url.parse(Reflect.field(item,"data"))
+            if (Reflect.field(Reflect.field(item,"expect"),"fn") == "selected"):
+                valid = (Reflect.field(Reflect.field(item,"expect"),"out") == q.selected(Reflect.field(Reflect.field(item,"expect"),"input")))
+            if (Reflect.field(Reflect.field(item,"expect"),"fn") == "equal.string"):
+                valid = HxOverrides.eq(Reflect.field(Reflect.field(item,"expect"),"out"),Reflect.field(Reflect.field(res,Reflect.field(Reflect.field(item,"expect"),"input")),"string"))
+            if (Reflect.field(Reflect.field(item,"expect"),"fn") == "equal.xy"):
+                valid = (Reflect.field(Reflect.field(item,"expect"),"out") == ((Std.string(Reflect.field(Reflect.field(res,Reflect.field(Reflect.field(item,"expect"),"input")),"x")) + Std.string(Reflect.field(Reflect.field(res,Reflect.field(Reflect.field(item,"expect"),"input")),"y")))))
+            if (Reflect.field(Reflect.field(item,"expect"),"fn") == "equal.multi"):
+                valid = Test.equalMulti(res,item)
+            ok = ("[ ✔ ] " if valid else "[ ❌] ")
+            print(str((((((("null" if ok is None else ok) + Std.string(Reflect.field(item,"fn"))) + ": '") + Std.string(Reflect.field(item,"data"))) + "'") + HxOverrides.stringOrNull((((" <= " + HxOverrides.stringOrNull(((Reflect.field(item,"label") if (Reflect.field(item,"label")) else Reflect.field(Reflect.field(item,"expect"),"fn"))))) if (Reflect.field(item,"label")) else ""))))))
+            if (not valid):
+                errors = (errors + 1)
+        if (errors > 1):
+            print(str((("\n-----\n[ ❌] " + Std.string(errors)) + " errors :/")))
 
-
-class haxe_IMap:
-    _hx_class_name = "haxe.IMap"
-    __slots__ = ()
+    @staticmethod
+    def equalMulti(res,item):
+        target = Reflect.field(res,Reflect.field(Reflect.field(item,"expect"),"input"))
+        _hx_str = ""
+        _g = 0
+        _g1 = Reflect.field(Reflect.field(target,"args"),"length")
+        while (_g < _g1):
+            i = _g
+            _g = (_g + 1)
+            _hx_str = ((("null" if _hx_str is None else _hx_str) + "|") + HxOverrides.stringOrNull(HxOverrides.arrayGet(Reflect.field(target,"args"), i).string))
+        _hx_str = HxString.substr(_hx_str,1,None)
+        return (_hx_str == Reflect.field(Reflect.field(item,"expect"),"out"))
 
 
 class haxe_Exception(Exception):
@@ -428,36 +459,6 @@ class haxe_ValueException(haxe_Exception):
 
     def unwrap(self):
         return self.value
-
-
-
-class haxe_ds_StringMap:
-    _hx_class_name = "haxe.ds.StringMap"
-    __slots__ = ("h",)
-    _hx_fields = ["h"]
-    _hx_methods = ["keys", "toString"]
-    _hx_interfaces = [haxe_IMap]
-
-    def __init__(self):
-        self.h = dict()
-
-    def keys(self):
-        return python_HaxeIterator(iter(self.h.keys()))
-
-    def toString(self):
-        s_b = python_lib_io_StringIO()
-        s_b.write("{")
-        it = self.keys()
-        i = it
-        while i.hasNext():
-            i1 = i.next()
-            s_b.write(Std.string(i1))
-            s_b.write(" => ")
-            s_b.write(Std.string(Std.string(self.h.get(i1,None))))
-            if it.hasNext():
-                s_b.write(", ")
-        s_b.write("}")
-        return s_b.getvalue()
 
 
 
@@ -1292,7 +1293,7 @@ class xrfragment_Query:
     _hx_class_name = "xrfragment.Query"
     __slots__ = ("str", "q", "include", "exclude", "accept", "preset")
     _hx_fields = ["str", "q", "include", "exclude", "accept", "preset"]
-    _hx_methods = ["toObject", "qualify", "parse", "test"]
+    _hx_methods = ["toObject", "selected", "parse", "test"]
 
     def __init__(self,_hx_str):
         self.preset = ""
@@ -1307,7 +1308,7 @@ class xrfragment_Query:
     def toObject(self):
         return self.q
 
-    def qualify(self,nodename):
+    def selected(self,nodename):
         if Reflect.field(self.q,"copy_all"):
             self.accept = True
         if (nodename in self.include):
@@ -1514,7 +1515,7 @@ class xrfragment_Url:
         _this = (fragment[1] if 1 < len(fragment) else None)
         splitArray = _this.split("&")
         regexPlus = EReg("\\+","g")
-        resultMap = haxe_ds_StringMap()
+        resultMap = _hx_AnonObject({})
         _g = 0
         _g1 = len(splitArray)
         while (_g < _g1):
@@ -1540,7 +1541,7 @@ class xrfragment_Url:
                         xrfragment_Url.guessType(x,(args[i1] if i1 >= 0 and i1 < len(args) else None))
                         _this2 = v.args
                         _this2.append(x)
-                resultMap.h[key] = v
+                setattr(resultMap,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),v)
         return resultMap
 
     @staticmethod

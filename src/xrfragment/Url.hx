@@ -18,11 +18,11 @@ class Value {
 class Url {
 
     @:keep
-    public static function parse(qs:String):Map<String, Value> {
+    public static function parse(qs:String):haxe.DynamicAccess<Dynamic> {
        var fragment:Array<String>    = qs.split("#");
         var splitArray:Array<String>  = fragment[1].split('&');
         var regexPlus  = ~/\+/g;  // Regex for replacing addition symbol with a space
-        var resultMap = new Map<String,Value>();
+        var resultMap:haxe.DynamicAccess<Dynamic> = {};
         for (i in 0...splitArray.length) {
           var splitByEqual = splitArray[i].split('=');
           var key:String = splitByEqual[0];
