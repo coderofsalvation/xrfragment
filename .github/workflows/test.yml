@@ -17,4 +17,4 @@ jobs:
       - name: transpile haxe into languages
         run: ./make
       - name: run tests
-        run: ./make runtest
+        run: ./make tests
