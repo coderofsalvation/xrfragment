@@ -1,0 +1,6 @@
+[
+  {"fn":"query","data":"price:>=5", "expect":{ "fn":"test","input":["price","10"],"out":true}},
+  {"fn":"query","data":"price:>=15", "expect":{ "fn":"test","input":["price","10"],"out":false}},
+  {"fn":"query","data":"price:>=5", "expect":{ "fn":"test","input":["price","4"],"out":false}},
+  {"fn":"query","data":"price:>=5", "expect":{ "fn":"test","input":["price","0"],"out":false}}
+]

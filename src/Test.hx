@@ -12,8 +12,10 @@ class Spec {
 class Test {
 
   static public function main():Void {
-    test( Spec.load("src/spec/query.or.json") );
     test( Spec.load("src/spec/url.json") );
+    test( Spec.load("src/spec/query.class.json") );
+    test( Spec.load("src/spec/query.conditional.json") );
+    //test( Spec.load("src/spec/tmp.json") );
   }
 
   static public function test(spec:Array<Dynamic>):Void {
@@ -26,7 +28,7 @@ class Test {
       var item:Dynamic = spec[i];
       if( item.fn == "query"       ) q   = new Query(item.data);
       if( item.fn == "url"         ) res = Url.parse(item.data);
-      if( item.expect.fn == "selected"     ) valid = item.expect.out == q.selected( item.expect.input );
+      if( item.expect.fn == "test"         ) valid = item.expect.out == q.test( item.expect.input[0], item.expect.input[1] );
       if( item.expect.fn == "equal.string" ) valid = item.expect.out == res.get(item.expect.input).string;
       if( item.expect.fn == "equal.xy"     ) valid = item.expect.out == (Std.string(res.get(item.expect.input).x) + Std.string(res.get(item.expect.input).y) );
       if( item.expect.fn == "equal.multi"  ) valid = equalMulti(res, item);

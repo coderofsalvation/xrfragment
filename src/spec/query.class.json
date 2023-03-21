@@ -1,0 +1,14 @@
+[
+  {"fn":"query","data":"class:bar",  "expect":{ "fn":"test","input":["class","bar"],"out":true}},
+  {"fn":"query","data":".bar",       "expect":{ "fn":"test","input":["class","bar"],"out":true}, "label":".bar shorthand"},
+  {"fn":"query","data":".bar -.foo", "expect":{ "fn":"test","input":["class","foo"],"out":false}},
+  {"fn":"query","data":".bar -.foo .foo", "expect":{ "fn":"test","input":["class","foo"],"out":true}},
+  {"fn":"query","data":".bar -.bar .bar", "expect":{ "fn":"test","input":["class","bar"],"out":true}},
+  {"fn":"query","data":"foo -foo foo", "expect":{ "fn":"test","input":["id","foo"],"out":true},"label":"id:foo?"},
+  {"fn":"query","data":".foo -.foo .foo", "expect":{ "fn":"test","input":["class","foo"],"out":true},"label":"class:foo"},
+  {"fn":"query","data":".foo -.foo bar:5 .foo", "expect":{ "fn":"test","input":["class","foo"],"out":true},"label":"class:foo"},
+  {"fn":"query","data":".foo -.foo bar:>5 .foo", "expect":{ "fn":"test","input":["class","foo"],"out":true},"label":"class:foo"},
+  {"fn":"query","data":".foo -.foo bar:>5 .foo", "expect":{ "fn":"test","input":["class","foo"],"out":true},"label":"class:foo"},
+  {"fn":"query","data":".foo -.foo .foo", "expect":{ "fn":"test","input":["class","foo"],"out":true},"label":"class:foo"},
+  {"fn":"query","data":".foo -.foo .foo", "expect":{ "fn":"test","input":["id","foo"],"out":false},"label":"!id:foo"}
+]

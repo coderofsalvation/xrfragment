@@ -204,6 +204,7 @@ local Math = _hx_e()
 local Reflect = _hx_e()
 local String = _hx_e()
 local Std = _hx_e()
+local StringTools = _hx_e()
 __haxe_Exception = _hx_e()
 __haxe_NativeStackTrace = _hx_e()
 __haxe_ValueException = _hx_e()
@@ -832,55 +833,156 @@ Std.int = function(x)
     do return _hx_bit_clamp(x) end;
   end;
 end
-Std.parseInt = function(x) 
-  if (x == nil) then 
-    do return nil end;
+Std.parseFloat = function(x) 
+  if ((x == nil) or (x == "")) then 
+    do return (0/0) end;
   end;
-  local hexMatch = _G.string.match(x, "^[ \t\r\n]*([%-+]*0[xX][%da-fA-F]*)");
-  if (hexMatch ~= nil) then 
-    local sign;
-    local _g = __lua_lib_luautf8_Utf8.byte(hexMatch, 1);
-    if (_g) == 43 then 
-      sign = 1;
-    elseif (_g) == 45 then 
-      sign = -1;else
-    sign = 0; end;
-    local pos = (function() 
-      local _hx_1
-      if (sign == 0) then 
-      _hx_1 = 2; else 
-      _hx_1 = 3; end
-      return _hx_1
-    end )();
-    local len = nil;
-    if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(hexMatch)))) then 
-      len = __lua_lib_luautf8_Utf8.len(hexMatch);
+  local digitMatch = _G.string.match(x, "^ *[%.%-+]?[0-9]%d*");
+  if (digitMatch == nil) then 
+    do return (0/0) end;
+  end;
+  local pos = __lua_lib_luautf8_Utf8.len(digitMatch);
+  local len = nil;
+  if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(x)))) then 
+    len = __lua_lib_luautf8_Utf8.len(x);
+  else
+    if (len < 0) then 
+      len = __lua_lib_luautf8_Utf8.len(x) + len;
+    end;
+  end;
+  if (pos < 0) then 
+    pos = __lua_lib_luautf8_Utf8.len(x) + pos;
+  end;
+  if (pos < 0) then 
+    pos = 0;
+  end;
+  x = __lua_lib_luautf8_Utf8.sub(x, pos + 1, pos + len);
+  local decimalMatch = _G.string.match(x, "^%.%d*");
+  if (decimalMatch == nil) then 
+    decimalMatch = "";
+  end;
+  local pos = __lua_lib_luautf8_Utf8.len(decimalMatch);
+  local len = nil;
+  if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(x)))) then 
+    len = __lua_lib_luautf8_Utf8.len(x);
+  else
+    if (len < 0) then 
+      len = __lua_lib_luautf8_Utf8.len(x) + len;
+    end;
+  end;
+  if (pos < 0) then 
+    pos = __lua_lib_luautf8_Utf8.len(x) + pos;
+  end;
+  if (pos < 0) then 
+    pos = 0;
+  end;
+  x = __lua_lib_luautf8_Utf8.sub(x, pos + 1, pos + len);
+  local eMatch = _G.string.match(x, "^[eE][+%-]?%d+");
+  if (eMatch == nil) then 
+    eMatch = "";
+  end;
+  local result = _G.tonumber(Std.string(Std.string(digitMatch) .. Std.string(decimalMatch)) .. Std.string(eMatch));
+  if (result ~= nil) then 
+    do return result end;
+  else
+    do return (0/0) end;
+  end;
+end
+
+StringTools.new = {}
+StringTools.__name__ = true
+StringTools.isSpace = function(s,pos) 
+  if (((__lua_lib_luautf8_Utf8.len(s) == 0) or (pos < 0)) or (pos >= __lua_lib_luautf8_Utf8.len(s))) then 
+    do return false end;
+  end;
+  local c = __lua_lib_luautf8_Utf8.byte(s, pos + 1);
+  if (not ((c > 8) and (c < 14))) then 
+    do return c == 32 end;
+  else
+    do return true end;
+  end;
+end
+StringTools.ltrim = function(s) 
+  local l = __lua_lib_luautf8_Utf8.len(s);
+  local r = 0;
+  while ((r < l) and StringTools.isSpace(s, r)) do 
+    r = r + 1;
+  end;
+  if (r > 0) then 
+    local pos = r;
+    local len = l - r;
+    if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(s)))) then 
+      len = __lua_lib_luautf8_Utf8.len(s);
     else
       if (len < 0) then 
-        len = __lua_lib_luautf8_Utf8.len(hexMatch) + len;
+        len = __lua_lib_luautf8_Utf8.len(s) + len;
       end;
     end;
     if (pos < 0) then 
-      pos = __lua_lib_luautf8_Utf8.len(hexMatch) + pos;
+      pos = __lua_lib_luautf8_Utf8.len(s) + pos;
     end;
     if (pos < 0) then 
       pos = 0;
     end;
-    do return (function() 
-      local _hx_2
-      if (sign == -1) then 
-      _hx_2 = -1; else 
-      _hx_2 = 1; end
-      return _hx_2
-    end )() * _G.tonumber(__lua_lib_luautf8_Utf8.sub(hexMatch, pos + 1, pos + len), 16) end;
+    do return __lua_lib_luautf8_Utf8.sub(s, pos + 1, pos + len) end;
   else
-    local intMatch = _G.string.match(x, "^ *[%-+]?%d*");
-    if (intMatch ~= nil) then 
-      do return _G.tonumber(intMatch) end;
+    do return s end;
+  end;
+end
+StringTools.rtrim = function(s) 
+  local l = __lua_lib_luautf8_Utf8.len(s);
+  local r = 0;
+  while ((r < l) and StringTools.isSpace(s, (l - r) - 1)) do 
+    r = r + 1;
+  end;
+  if (r > 0) then 
+    local pos = 0;
+    local len = l - r;
+    if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(s)))) then 
+      len = __lua_lib_luautf8_Utf8.len(s);
     else
-      do return nil end;
+      if (len < 0) then 
+        len = __lua_lib_luautf8_Utf8.len(s) + len;
+      end;
+    end;
+    if (pos < 0) then 
+      pos = __lua_lib_luautf8_Utf8.len(s) + pos;
+    end;
+    if (pos < 0) then 
+      pos = 0;
+    end;
+    do return __lua_lib_luautf8_Utf8.sub(s, pos + 1, pos + len) end;
+  else
+    do return s end;
+  end;
+end
+StringTools.trim = function(s) 
+  do return StringTools.ltrim(StringTools.rtrim(s)) end;
+end
+StringTools.replace = function(s,sub,by) 
+  local idx = 1;
+  local ret = _hx_tab_array({}, 0);
+  while (idx ~= nil) do 
+    local newidx = 0;
+    if (__lua_lib_luautf8_Utf8.len(sub) > 0) then 
+      newidx = __lua_lib_luautf8_Utf8.find(s, sub, idx, true);
+    else
+      if (idx >= __lua_lib_luautf8_Utf8.len(s)) then 
+        newidx = nil;
+      else
+        newidx = idx + 1;
+      end;
+    end;
+    if (newidx ~= nil) then 
+      local match = __lua_lib_luautf8_Utf8.sub(s, idx, newidx - 1);
+      ret:push(match);
+      idx = newidx + __lua_lib_luautf8_Utf8.len(sub);
+    else
+      ret:push(__lua_lib_luautf8_Utf8.sub(s, idx, __lua_lib_luautf8_Utf8.len(s)));
+      idx = nil;
     end;
   end;
+  do return ret:join(by) end;
 end
 
 __haxe_Exception.new = function(message,previous,native) 
@@ -1132,10 +1234,8 @@ __xrfragment_Query.new = function(str)
   return self
 end
 __xrfragment_Query.super = function(self,str) 
-  self.preset = "";
-  self.accept = false;
-  self.exclude = Array.new();
-  self.include = Array.new();
+  self.isExclude = EReg.new("^-", "");
+  self.isProp = EReg.new("^.*:[><=!]?", "");
   self.q = _hx_e();
   self.str = "";
   if (str ~= nil) then 
@@ -1148,71 +1248,19 @@ __xrfragment_Query.prototype = _hx_e();
 __xrfragment_Query.prototype.toObject = function(self) 
   do return self.q end
 end
-__xrfragment_Query.prototype.selected = function(self,nodename) 
-  if (self.q.copy_all) then 
-    self.accept = true;
+__xrfragment_Query.prototype.expandAliases = function(self,token) 
+  local classAlias = EReg.new("^(-)?\\.", "");
+  if (classAlias:match(token)) then 
+    do return StringTools.replace(token, ".", "class:") end;
+  else
+    do return token end;
   end;
-  if (self.include:contains(nodename)) then 
-    self.accept = true;
-  end;
-  if (self.exclude:contains(nodename)) then 
-    self.accept = false;
-  end;
-  do return self.accept end
 end
 __xrfragment_Query.prototype.parse = function(self,str,recurse) 
   if (recurse == nil) then 
     recurse = false;
   end;
   local _gthis = self;
-  local copyAll;
-  if (recurse) then 
-    copyAll = self.q.copy_all;
-  else
-    local copyAll1;
-    local pos = 0;
-    local len = 1;
-    if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(str)))) then 
-      len = __lua_lib_luautf8_Utf8.len(str);
-    else
-      if (len < 0) then 
-        len = __lua_lib_luautf8_Utf8.len(str) + len;
-      end;
-    end;
-    if (pos < 0) then 
-      pos = __lua_lib_luautf8_Utf8.len(str) + pos;
-    end;
-    if (pos < 0) then 
-      pos = 0;
-    end;
-    if (__lua_lib_luautf8_Utf8.sub(str, pos + 1, pos + len) ~= "-") then 
-      local pos = 0;
-      local len = 1;
-      if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(str)))) then 
-        len = __lua_lib_luautf8_Utf8.len(str);
-      else
-        if (len < 0) then 
-          len = __lua_lib_luautf8_Utf8.len(str) + len;
-        end;
-      end;
-      if (pos < 0) then 
-        pos = __lua_lib_luautf8_Utf8.len(str) + pos;
-      end;
-      if (pos < 0) then 
-        pos = 0;
-      end;
-      copyAll1 = __lua_lib_luautf8_Utf8.sub(str, pos + 1, pos + len) == "?";
-    else
-      copyAll1 = true;
-    end;
-    copyAll = copyAll1 or (str == "");
-  end;
-  local isOr = EReg.new("^or$", "");
-  local isProp = EReg.new(".*:[><=!]?", "");
-  local isName = EReg.new("[^:/]", "");
-  local isExclude = EReg.new("^-", "");
-  local isInclude = EReg.new("^\\+", "");
-  local isPreset = EReg.new("^\\?", "");
   local idx = 1;
   local ret = _hx_tab_array({}, 0);
   while (idx ~= nil) do 
@@ -1236,65 +1284,15 @@ __xrfragment_Query.prototype.parse = function(self,str,recurse)
     end;
   end;
   local token = ret;
-  local ors = Array.new();
   local q = _hx_e();
-  local composeQuery = function() 
-    q = _hx_e();
-    local value = Array.new();
-    q.object = value;
-    local value = Array.new();
-    q["-object"] = value;
-    ors:push(q);
-    do return q end;
-  end;
-  composeQuery();
-  local match = nil;
-  match = function(str,prefix) 
+  local process = function(str,prefix) 
     if (prefix == nil) then 
       prefix = "";
     end;
-    if (isPreset:match(str) and not recurse) then 
-      _gthis.preset = str;
-      do return end;
-    end;
-    if (isExclude:match(str) or isInclude:match(str)) then 
-      local pos = 1;
-      local len = nil;
-      if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(str)))) then 
-        len = __lua_lib_luautf8_Utf8.len(str);
-      else
-        if (len < 0) then 
-          len = __lua_lib_luautf8_Utf8.len(str) + len;
-        end;
-      end;
-      if (pos < 0) then 
-        pos = __lua_lib_luautf8_Utf8.len(str) + pos;
-      end;
-      if (pos < 0) then 
-        pos = 0;
-      end;
-      local t = __lua_lib_luautf8_Utf8.sub(str, pos + 1, pos + len);
-      local pos = 0;
-      local len = 1;
-      if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(str)))) then 
-        len = __lua_lib_luautf8_Utf8.len(str);
-      else
-        if (len < 0) then 
-          len = __lua_lib_luautf8_Utf8.len(str) + len;
-        end;
-      end;
-      if (pos < 0) then 
-        pos = __lua_lib_luautf8_Utf8.len(str) + pos;
-      end;
-      if (pos < 0) then 
-        pos = 0;
-      end;
-      match(t, __lua_lib_luautf8_Utf8.sub(str, pos + 1, pos + len));
-      do return end;
-    end;
-    if (isProp:match(str)) then 
-      local skip = 0;
-      local type = "=";
+    str = StringTools.trim(str);
+    local value = _hx_e();
+    if (_gthis.isProp:match(str)) then 
+      local oper = "";
       local startIndex = nil;
       if (startIndex == nil) then 
         startIndex = 1;
@@ -1309,7 +1307,7 @@ __xrfragment_Query.prototype.parse = function(self,str,recurse)
         _hx_1 = -1; end
         return _hx_1
       end )() ~= -1) then 
-        type = "*";
+        oper = "*";
       end;
       local startIndex = nil;
       if (startIndex == nil) then 
@@ -1325,7 +1323,7 @@ __xrfragment_Query.prototype.parse = function(self,str,recurse)
         _hx_2 = -1; end
         return _hx_2
       end )() ~= -1) then 
-        type = ">";
+        oper = ">";
       end;
       local startIndex = nil;
       if (startIndex == nil) then 
@@ -1341,7 +1339,7 @@ __xrfragment_Query.prototype.parse = function(self,str,recurse)
         _hx_3 = -1; end
         return _hx_3
       end )() ~= -1) then 
-        type = "<";
+        oper = "<";
       end;
       local startIndex = nil;
       if (startIndex == nil) then 
@@ -1357,7 +1355,7 @@ __xrfragment_Query.prototype.parse = function(self,str,recurse)
         _hx_4 = -1; end
         return _hx_4
       end )() ~= -1) then 
-        type = "!=";
+        oper = "!=";
       end;
       local startIndex = nil;
       if (startIndex == nil) then 
@@ -1373,7 +1371,7 @@ __xrfragment_Query.prototype.parse = function(self,str,recurse)
         _hx_5 = -1; end
         return _hx_5
       end )() ~= -1) then 
-        type = ">=";
+        oper = ">=";
       end;
       local startIndex = nil;
       if (startIndex == nil) then 
@@ -1389,10 +1387,7 @@ __xrfragment_Query.prototype.parse = function(self,str,recurse)
         _hx_6 = -1; end
         return _hx_6
       end )() ~= -1) then 
-        type = "<=";
-      end;
-      if (type ~= "=") then 
-        skip = skip + __lua_lib_luautf8_Utf8.len(type);
+        oper = "<=";
       end;
       local idx = 1;
       local ret = _hx_tab_array({}, 0);
@@ -1416,13 +1411,7 @@ __xrfragment_Query.prototype.parse = function(self,str,recurse)
           idx = nil;
         end;
       end;
-      local property = ret[0];
-      local value;
-      if (Reflect.field(q, Std.string(prefix) .. Std.string(property))) then 
-        value = Reflect.field(q, Std.string(prefix) .. Std.string(property));
-      else
-        value = _hx_e();
-      end;
+      local k = ret[0];
       local idx = 1;
       local ret = _hx_tab_array({}, 0);
       while (idx ~= nil) do 
@@ -1445,40 +1434,87 @@ __xrfragment_Query.prototype.parse = function(self,str,recurse)
           idx = nil;
         end;
       end;
-      local _this = ret[1];
-      local pos = skip;
-      local len = nil;
-      if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(_this)))) then 
-        len = __lua_lib_luautf8_Utf8.len(_this);
+      local v = ret[1];
+      if (Reflect.field(q, Std.string(prefix) .. Std.string(k))) then 
+        value = Reflect.field(q, Std.string(prefix) .. Std.string(k));
+      end;
+      if (__lua_lib_luautf8_Utf8.len(oper) > 0) then 
+        local pos = __lua_lib_luautf8_Utf8.len(oper);
+        local len = nil;
+        if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(v)))) then 
+          len = __lua_lib_luautf8_Utf8.len(v);
+        else
+          if (len < 0) then 
+            len = __lua_lib_luautf8_Utf8.len(v) + len;
+          end;
+        end;
+        if (pos < 0) then 
+          pos = __lua_lib_luautf8_Utf8.len(v) + pos;
+        end;
+        if (pos < 0) then 
+          pos = 0;
+        end;
+        local value1 = Std.parseFloat(__lua_lib_luautf8_Utf8.sub(v, pos + 1, pos + len));
+        value[oper] = value1;
+        q[k] = value;
       else
-        if (len < 0) then 
-          len = __lua_lib_luautf8_Utf8.len(_this) + len;
+        local key;
+        if (_gthis.isExclude:match(k)) then 
+          local pos = 1;
+          local len = nil;
+          if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(k)))) then 
+            len = __lua_lib_luautf8_Utf8.len(k);
+          else
+            if (len < 0) then 
+              len = __lua_lib_luautf8_Utf8.len(k) + len;
+            end;
+          end;
+          if (pos < 0) then 
+            pos = __lua_lib_luautf8_Utf8.len(k) + pos;
+          end;
+          if (pos < 0) then 
+            pos = 0;
+          end;
+          key = __lua_lib_luautf8_Utf8.sub(k, pos + 1, pos + len);
+        else
+          key = k;
         end;
+        local value1 = _gthis.isExclude:match(k) == false;
+        value[Std.string(prefix) .. Std.string(key)] = value1;
+        q[v] = value;
       end;
-      if (pos < 0) then 
-        pos = __lua_lib_luautf8_Utf8.len(_this) + pos;
-      end;
-      if (pos < 0) then 
-        pos = 0;
-      end;
-      local value1 = __lua_lib_luautf8_Utf8.sub(_this, pos + 1, pos + len);
-      value[type] = value1;
-      q[Std.string(prefix) .. Std.string(property)] = value;
       do return end;
-    end;
-    if (isName:match(str)) then 
-      if (prefix == "-") then 
-        Reflect.field(q, "-object"):push(str);
-        while (Reflect.field(q, "object"):contains(str) == true) do 
-          Reflect.field(q, "object"):remove(str);
+    else
+      local value1 = (function() 
+        local _hx_7
+        if (_gthis.isExclude:match(str)) then 
+        _hx_7 = false; else 
+        _hx_7 = true; end
+        return _hx_7
+      end )();
+      value.id = value1;
+      local key;
+      if (_gthis.isExclude:match(str)) then 
+        local pos = 1;
+        local len = nil;
+        if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(str)))) then 
+          len = __lua_lib_luautf8_Utf8.len(str);
+        else
+          if (len < 0) then 
+            len = __lua_lib_luautf8_Utf8.len(str) + len;
+          end;
         end;
+        if (pos < 0) then 
+          pos = __lua_lib_luautf8_Utf8.len(str) + pos;
+        end;
+        if (pos < 0) then 
+          pos = 0;
+        end;
+        key = __lua_lib_luautf8_Utf8.sub(str, pos + 1, pos + len);
       else
-        Reflect.field(q, "object"):push(str);
-        while (Reflect.field(q, "-object"):contains(str) == true) do 
-          Reflect.field(q, "-object"):remove(str);
-        end;
+        key = str;
       end;
-      do return end;
+      q[key] = value;
     end;
   end;
   local _g = 0;
@@ -1486,102 +1522,70 @@ __xrfragment_Query.prototype.parse = function(self,str,recurse)
   while (_g < _g1) do 
     _g = _g + 1;
     local i = _g - 1;
-    if (isOr:match(token[i])) then 
-      composeQuery();
-    else
-      match(token[i]);
-    end;
+    process(self:expandAliases(token[i]));
   end;
-  local _g = 0;
-  local _g1 = ors.length;
-  while (_g < _g1) do 
-    _g = _g + 1;
-    local i = _g - 1;
-    local _or = ors[i];
-    if (Reflect.field(_or, "object") ~= nil) then 
-      self.include = self.include:concat(Reflect.field(_or, "object"));
-    end;
-    if (Reflect.field(_or, "-object") ~= nil) then 
-      self.exclude = self.exclude:concat(Reflect.field(_or, "-object"));
-    end;
-  end;
-  self.q = _hx_o({__fields__={['or']=true,copy_all=true},['or']=ors,copy_all=copyAll});
+  self.q = q;
   do return self.q end
 end
 __xrfragment_Query.prototype.test = function(self,property,value) 
-  if (self.preset == property) then 
-    self:parse(value, true);
+  local conds = 0;
+  local fails = 0;
+  local qualify = 0;
+  local testprop = function(expr) 
+    conds = conds + 1;
+    fails = fails + (function() 
+      local _hx_1
+      if (expr) then 
+      _hx_1 = 0; else 
+      _hx_1 = 1; end
+      return _hx_1
+    end )();
+    do return expr end;
+  end;
+  if (Reflect.field(self.q, value) ~= nil) then 
+    local v = Reflect.field(self.q, value);
+    if (Reflect.field(v, property) ~= nil) then 
+      do return Reflect.field(v, property) end;
+    end;
   end;
   local _g = 0;
-  local _g1 = _hx_wrap_if_string_field(self.q["or"],'length');
-  while (_g < _g1) do 
+  local _g1 = Reflect.fields(self.q);
+  local _hx_continue_1 = false;
+  while (_g < _g1.length) do repeat 
+    local k = _g1[_g];
     _g = _g + 1;
-    local i = _g - 1;
-    local _or = self.q["or"][i];
-    local conds = _hx_tab_array({[0]=0}, 1);
-    local fails = _hx_tab_array({[0]=0}, 1);
-    local pass = 0;
-    local when = (function(fails,conds) 
-      do return function(expr) 
-        local conds = conds;
-        local when = 0;
-        conds[when] = conds[when] + 1;
-        local fails = fails;
-        local when = 0;
-        fails[when] = fails[when] + (function() 
-          local _hx_1
-          if (expr) then 
-          _hx_1 = 0; else 
-          _hx_1 = 1; end
-          return _hx_1
-        end )();
-        do return expr end;
-      end end;
-    end)(fails, conds);
-    local _g = 0;
-    local _g1 = Reflect.fields(_or);
-    local _hx_continue_2 = false;
-    while (_g < _g1.length) do repeat 
-      local k = _g1[_g];
-      _g = _g + 1;
-      local orval = Reflect.field(_or, k);
-      if (k ~= property) then 
-        break;
-      end;
-      if ((Reflect.field(orval, "=") ~= nil) and when(value == Reflect.field(orval, "="))) then 
-        pass = pass + 1;
-      end;
-      if ((Reflect.field(orval, "*") ~= nil) and when(value ~= nil)) then 
-        pass = pass + 1;
-      end;
-      if ((Reflect.field(orval, ">") ~= nil) and when(value > Std.parseInt(Reflect.field(orval, ">")))) then 
-        pass = pass + 1;
-      end;
-      if ((Reflect.field(orval, "<") ~= nil) and when(value < Std.parseInt(Reflect.field(orval, "<")))) then 
-        pass = pass + 1;
-      end;
-      if ((Reflect.field(orval, ">=") ~= nil) and when(value >= Std.parseInt(Reflect.field(orval, ">=")))) then 
-        pass = pass + 1;
-      end;
-      if ((Reflect.field(orval, "<=") ~= nil) and when(value >= Std.parseInt(Reflect.field(orval, "<=")))) then 
-        pass = pass + 1;
-      end;
-      if ((Reflect.field(orval, "!=") ~= nil) and when(value ~= Std.parseInt(Reflect.field(orval, "!=")))) then 
-        pass = pass + 1;
-      end;until true
-      if _hx_continue_2 then 
-      _hx_continue_2 = false;
+    local qval = Reflect.field(self.q, k);
+    if (__lua_Boot.__instanceof(value, String)) then 
       break;
-      end;
-      
     end;
-    if ((self.accept and (conds[0] > 0)) and (fails[0] > 0)) then 
-      self.accept = false;
+    if ((Reflect.field(qval, "=") ~= nil) and testprop(value == Reflect.field(qval, "="))) then 
+      qualify = qualify + 1;
     end;
-    if (((conds[0] > 0) and (pass > 0)) and (fails[0] == 0)) then 
-      self.accept = true;
+    if ((Reflect.field(qval, "*") ~= nil) and testprop(value ~= nil)) then 
+      qualify = qualify + 1;
     end;
+    if ((Reflect.field(qval, ">") ~= nil) and testprop(value > Std.parseFloat(Reflect.field(qval, ">")))) then 
+      qualify = qualify + 1;
+    end;
+    if ((Reflect.field(qval, "<") ~= nil) and testprop(value < Std.parseFloat(Reflect.field(qval, "<")))) then 
+      qualify = qualify + 1;
+    end;
+    if ((Reflect.field(qval, ">=") ~= nil) and testprop(value >= Std.parseFloat(Reflect.field(qval, ">=")))) then 
+      qualify = qualify + 1;
+    end;
+    if ((Reflect.field(qval, "<=") ~= nil) and testprop(value >= Std.parseFloat(Reflect.field(qval, "<=")))) then 
+      qualify = qualify + 1;
+    end;
+    if ((Reflect.field(qval, "!=") ~= nil) and testprop(value ~= Std.parseFloat(Reflect.field(qval, "!=")))) then 
+      qualify = qualify + 1;
+    end;until true
+    if _hx_continue_1 then 
+    _hx_continue_1 = false;
+    break;
+    end;
+    
   end;
+  do return qualify > 0 end
 end
 
 __xrfragment_Query.prototype.__class__ =  __xrfragment_Query

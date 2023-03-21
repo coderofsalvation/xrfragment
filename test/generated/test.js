@@ -22,6 +22,13 @@ EReg.prototype = {
 };
 var HxOverrides = function() { };
 HxOverrides.__name__ = true;
+HxOverrides.cca = function(s,index) {
+	var x = s.charCodeAt(index);
+	if(x != x) {
+		return undefined;
+	}
+	return x;
+};
 HxOverrides.substr = function(s,pos,len) {
 	if(len == null) {
 		len = s.length;
@@ -84,11 +91,48 @@ Std.parseInt = function(x) {
 	}
 	return null;
 };
+var StringTools = function() { };
+StringTools.__name__ = true;
+StringTools.isSpace = function(s,pos) {
+	var c = HxOverrides.cca(s,pos);
+	if(!(c > 8 && c < 14)) {
+		return c == 32;
+	} else {
+		return true;
+	}
+};
+StringTools.ltrim = function(s) {
+	var l = s.length;
+	var r = 0;
+	while(r < l && StringTools.isSpace(s,r)) ++r;
+	if(r > 0) {
+		return HxOverrides.substr(s,r,l - r);
+	} else {
+		return s;
+	}
+};
+StringTools.rtrim = function(s) {
+	var l = s.length;
+	var r = 0;
+	while(r < l && StringTools.isSpace(s,l - r - 1)) ++r;
+	if(r > 0) {
+		return HxOverrides.substr(s,0,l - r);
+	} else {
+		return s;
+	}
+};
+StringTools.trim = function(s) {
+	return StringTools.ltrim(StringTools.rtrim(s));
+};
+StringTools.replace = function(s,sub,by) {
+	return s.split(sub).join(by);
+};
 var Test = function() { };
 Test.__name__ = true;
 Test.main = function() {
-	Test.test([{ fn : "query", expect : { fn : "selected", input : "foo", out : true}, data : "foo or bar"},{ fn : "query", expect : { fn : "selected", input : "xxx", out : false}, label : "nonselected entity", data : "foo or bar"}]);
 	Test.test([{ fn : "url", expect : { fn : "equal.string", input : "bar", out : "flop"}, data : "http://foo.com?foo=1#bar=flop&a=1,2&b=c|d|1,2,3"},{ fn : "url", expect : { fn : "equal.xy", input : "a", out : "1.22.2"}, label : "a equal.xy", data : "http://foo.com?foo=1#bar=flop&a=1.2,2.2&b=c|d|1,2,3"},{ fn : "url", expect : { fn : "equal.multi", input : "b", out : "c|d|1,2,3"}, label : "b equal.multi", data : "http://foo.com?foo=1#b=c|d|1,2,3"}]);
+	Test.test([{ fn : "query", expect : { fn : "test", input : ["class","bar"], out : true}, data : "class:bar"},{ fn : "query", expect : { fn : "test", input : ["class","bar"], out : true}, label : ".bar shorthand", data : ".bar"},{ fn : "query", expect : { fn : "test", input : ["class","foo"], out : false}, data : ".bar -.foo"},{ fn : "query", expect : { fn : "test", input : ["class","foo"], out : true}, data : ".bar -.foo .foo"},{ fn : "query", expect : { fn : "test", input : ["class","bar"], out : true}, data : ".bar -.bar .bar"},{ fn : "query", expect : { fn : "test", input : ["id","foo"], out : true}, label : "id:foo?", data : "foo -foo foo"},{ fn : "query", expect : { fn : "test", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo .foo"},{ fn : "query", expect : { fn : "test", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo bar:5 .foo"},{ fn : "query", expect : { fn : "test", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo bar:>5 .foo"},{ fn : "query", expect : { fn : "test", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo bar:>5 .foo"},{ fn : "query", expect : { fn : "test", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo .foo"},{ fn : "query", expect : { fn : "test", input : ["id","foo"], out : false}, label : "!id:foo", data : ".foo -.foo .foo"}]);
+	Test.test([{ fn : "query", expect : { fn : "test", input : ["price","10"], out : true}, data : "price:>=5"},{ fn : "query", expect : { fn : "test", input : ["price","10"], out : false}, data : "price:>=15"},{ fn : "query", expect : { fn : "test", input : ["price","4"], out : false}, data : "price:>=5"},{ fn : "query", expect : { fn : "test", input : ["price","0"], out : false}, data : "price:>=5"}]);
 };
 Test.test = function(spec) {
 	var Query = xrfragment_Query;
@@ -107,8 +151,8 @@ Test.test = function(spec) {
 		if(item.fn == "url") {
 			res = xrfragment_Url.parse(item.data);
 		}
-		if(item.expect.fn == "selected") {
-			valid = item.expect.out == q.selected(item.expect.input);
+		if(item.expect.fn == "test") {
+			valid = item.expect.out == q.test(item.expect.input[0],item.expect.input[1]);
 		}
 		if(item.expect.fn == "equal.string") {
 			valid = item.expect.out == res[item.expect.input].string;
@@ -120,13 +164,13 @@ Test.test = function(spec) {
 			valid = Test.equalMulti(res,item);
 		}
 		var ok = valid ? "[ ✔ ] " : "[ ❌] ";
-		console.log("src/Test.hx:34:",ok + Std.string(item.fn) + ": '" + Std.string(item.data) + "'" + (item.label ? " <= " + (item.label ? item.label : item.expect.fn) : ""));
+		console.log("src/Test.hx:36:",ok + Std.string(item.fn) + ": '" + Std.string(item.data) + "'" + (item.label ? " <= " + (item.label ? item.label : item.expect.fn) : ""));
 		if(!valid) {
 			++errors;
 		}
 	}
 	if(errors > 1) {
-		console.log("src/Test.hx:37:","\n-----\n[ ❌] " + errors + " errors :/");
+		console.log("src/Test.hx:39:","\n-----\n[ ❌] " + errors + " errors :/");
 	}
 };
 Test.equalMulti = function(res,item) {
@@ -221,10 +265,8 @@ js_Boot.__string_rec = function(o,s) {
 	}
 };
 var xrfragment_Query = function(str) {
-	this.preset = "";
-	this.accept = false;
-	this.exclude = [];
-	this.include = [];
+	this.isExclude = new EReg("^-","");
+	this.isProp = new EReg("^.*:[><=!]?","");
 	this.q = { };
 	if(str != null) {
 		this.parse(str);
@@ -232,185 +274,122 @@ var xrfragment_Query = function(str) {
 };
 xrfragment_Query.__name__ = true;
 xrfragment_Query.prototype = {
-	selected: function(nodename) {
-		if(this.q.copy_all) {
-			this.accept = true;
+	expandAliases: function(token) {
+		var classAlias = new EReg("^(-)?\\.","");
+		if(classAlias.match(token)) {
+			return StringTools.replace(token,".","class:");
+		} else {
+			return token;
 		}
-		if(this.include.indexOf(nodename) != -1) {
-			this.accept = true;
-		}
-		if(this.exclude.indexOf(nodename) != -1) {
-			this.accept = false;
-		}
-		return this.accept;
 	}
 	,parse: function(str,recurse) {
 		if(recurse == null) {
 			recurse = false;
 		}
 		var _gthis = this;
-		var copyAll = recurse ? this.q.copy_all : HxOverrides.substr(str,0,1) == "-" || HxOverrides.substr(str,0,1) == "?" || str == "";
-		var isOr = new EReg("^or$","");
-		var isProp = new EReg(".*:[><=!]?","");
-		var isName = new EReg("[^:/]","");
-		var isExclude = new EReg("^-","");
-		var isInclude = new EReg("^\\+","");
-		var isPreset = new EReg("^\\?","");
 		var token = str.split(" ");
-		var ors = [];
 		var q = { };
-		var composeQuery = function() {
-			q = { };
-			var value = [];
-			q["object"] = value;
-			var value = [];
-			q["-object"] = value;
-			ors.push(q);
-			return q;
-		};
-		composeQuery();
-		var match = null;
-		match = function(str,prefix) {
+		var process = function(str,prefix) {
 			if(prefix == null) {
 				prefix = "";
 			}
-			if(isPreset.match(str) && !recurse) {
-				_gthis.preset = str;
-				return;
-			}
-			if(isExclude.match(str) || isInclude.match(str)) {
-				var t = HxOverrides.substr(str,1,null);
-				match(t,HxOverrides.substr(str,0,1));
-				return;
-			}
-			if(isProp.match(str)) {
-				var skip = 0;
-				var type = "=";
+			str = StringTools.trim(str);
+			var value = { };
+			if(_gthis.isProp.match(str)) {
+				var oper = "";
 				if(str.indexOf("*") != -1) {
-					type = "*";
+					oper = "*";
 				}
 				if(str.indexOf(">") != -1) {
-					type = ">";
+					oper = ">";
 				}
 				if(str.indexOf("<") != -1) {
-					type = "<";
+					oper = "<";
 				}
 				if(str.indexOf("!=") != -1) {
-					type = "!=";
+					oper = "!=";
 				}
 				if(str.indexOf(">=") != -1) {
-					type = ">=";
+					oper = ">=";
 				}
 				if(str.indexOf("<=") != -1) {
-					type = "<=";
+					oper = "<=";
 				}
-				if(type != "=") {
-					skip += type.length;
+				var k = str.split(":")[0];
+				var v = str.split(":")[1];
+				if(q[prefix + k]) {
+					value = q[prefix + k];
 				}
-				var property = str.split(":")[0];
-				var value;
-				if(q[prefix + property]) {
-					value = q[prefix + property];
+				if(oper.length > 0) {
+					value[oper] = parseFloat(HxOverrides.substr(v,oper.length,null));
+					q[k] = value;
 				} else {
-					value = { };
-				}
-				value[type] = HxOverrides.substr(str.split(":")[1],skip,null);
-				q[prefix + property] = value;
-				return;
-			}
-			if(isName.match(str)) {
-				if(prefix == "-") {
-					q["-object"].push(str);
-					while(q["object"].contains(str) == true) q["object"].remove(str);
-				} else {
-					q["object"].push(str);
-					while(q["-object"].contains(str) == true) q["-object"].remove(str);
+					value[prefix + (_gthis.isExclude.match(k) ? HxOverrides.substr(k,1,null) : k)] = _gthis.isExclude.match(k) == false;
+					q[v] = value;
 				}
 				return;
+			} else {
+				value["id"] = _gthis.isExclude.match(str) ? false : true;
+				var key = _gthis.isExclude.match(str) ? HxOverrides.substr(str,1,null) : str;
+				q[key] = value;
 			}
 		};
 		var _g = 0;
 		var _g1 = token.length;
 		while(_g < _g1) {
 			var i = _g++;
-			if(isOr.match(token[i])) {
-				composeQuery();
-			} else {
-				match(token[i]);
-			}
+			process(this.expandAliases(token[i]));
 		}
-		var _g = 0;
-		var _g1 = ors.length;
-		while(_g < _g1) {
-			var i = _g++;
-			var or = ors[i];
-			if(Reflect.field(or,"object") != null) {
-				this.include = this.include.concat(Reflect.field(or,"object"));
-			}
-			if(Reflect.field(or,"-object") != null) {
-				this.exclude = this.exclude.concat(Reflect.field(or,"-object"));
-			}
-		}
-		this.q = { or : ors, copy_all : copyAll};
+		this.q = q;
 		return this.q;
 	}
 	,test: function(property,value) {
-		if(this.preset == property) {
-			this.parse(value,true);
+		var conds = 0;
+		var fails = 0;
+		var qualify = 0;
+		var testprop = function(expr) {
+			conds += 1;
+			fails += expr ? 0 : 1;
+			return expr;
+		};
+		if(this.q[value] != null) {
+			var v = this.q[value];
+			if(v[property] != null) {
+				return v[property];
+			}
 		}
 		var _g = 0;
-		var _g1 = this.q.or.length;
-		while(_g < _g1) {
-			var i = _g++;
-			var or = this.q.or[i];
-			var conds = [0];
-			var fails = [0];
-			var pass = 0;
-			var when = (function(fails,conds) {
-				return function(expr) {
-					conds[0] += 1;
-					fails[0] += expr ? 0 : 1;
-					return expr;
-				};
-			})(fails,conds);
-			var _g2 = 0;
-			var _g3 = Reflect.fields(or);
-			while(_g2 < _g3.length) {
-				var k = _g3[_g2];
-				++_g2;
-				var orval = Reflect.field(or,k);
-				if(k != property) {
-					continue;
-				}
-				if(Reflect.field(orval,"=") != null && when(value == Reflect.field(orval,"="))) {
-					++pass;
-				}
-				if(Reflect.field(orval,"*") != null && when(value != null)) {
-					++pass;
-				}
-				if(Reflect.field(orval,">") != null && when(value > Std.parseInt(Reflect.field(orval,">")))) {
-					++pass;
-				}
-				if(Reflect.field(orval,"<") != null && when(value < Std.parseInt(Reflect.field(orval,"<")))) {
-					++pass;
-				}
-				if(Reflect.field(orval,">=") != null && when(value >= Std.parseInt(Reflect.field(orval,">=")))) {
-					++pass;
-				}
-				if(Reflect.field(orval,"<=") != null && when(value >= Std.parseInt(Reflect.field(orval,"<=")))) {
-					++pass;
-				}
-				if(Reflect.field(orval,"!=") != null && when(value != Std.parseInt(Reflect.field(orval,"!=")))) {
-					++pass;
-				}
+		var _g1 = Reflect.fields(this.q);
+		while(_g < _g1.length) {
+			var k = _g1[_g];
+			++_g;
+			var qval = Reflect.field(this.q,k);
+			if(typeof(value) == "string") {
+				continue;
 			}
-			if(this.accept && conds[0] > 0 && fails[0] > 0) {
-				this.accept = false;
+			if(Reflect.field(qval,"=") != null && testprop(value == Reflect.field(qval,"="))) {
+				++qualify;
 			}
-			if(conds[0] > 0 && pass > 0 && fails[0] == 0) {
-				this.accept = true;
+			if(Reflect.field(qval,"*") != null && testprop(value != null)) {
+				++qualify;
+			}
+			if(Reflect.field(qval,">") != null && testprop(value > parseFloat(Reflect.field(qval,">")))) {
+				++qualify;
+			}
+			if(Reflect.field(qval,"<") != null && testprop(value < parseFloat(Reflect.field(qval,"<")))) {
+				++qualify;
+			}
+			if(Reflect.field(qval,">=") != null && testprop(value >= parseFloat(Reflect.field(qval,">=")))) {
+				++qualify;
+			}
+			if(Reflect.field(qval,"<=") != null && testprop(value >= parseFloat(Reflect.field(qval,"<=")))) {
+				++qualify;
+			}
+			if(Reflect.field(qval,"!=") != null && testprop(value != parseFloat(Reflect.field(qval,"!=")))) {
+				++qualify;
 			}
 		}
+		return qualify > 0;
 	}
 };
 var xrfragment_Value = $hx_exports["xrfragment"]["Value"] = function() {

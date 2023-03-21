@@ -39,11 +39,9 @@ package xrfragment;
 class Query {
 
   private var str:String = "";
-  private var q:Dynamic  = {};
-  private var include:Array<String> = new Array();
-  private var exclude:Array<String> = new Array();
-  private var accept:Bool = false;
-  private var preset:String = "";
+  private var q:haxe.DynamicAccess<Dynamic> = {};
+  private var isProp:EReg        = ~/^.*:[><=!]?/;
+  private var isExclude:EReg     = ~/^-/;
 
   public function new(str:String){
     if( str != null  ) this.parse(str);
@@ -53,125 +51,80 @@ class Query {
     return this.q;
   }
 
-  @:keep
-  public function selected( nodename:String ): Bool {
-    if( this.q.copy_all ) this.accept = true;
-    if( this.include.contains(nodename) ) this.accept = true;
-    if( this.exclude.contains(nodename) ) this.accept = false;
-    return this.accept;
+  public function expandAliases(token:String) : String {
+    // expand '.foo' to 'class:foo'
+    var classAlias = ~/^(-)?\./;
+    return classAlias.match(token) ? StringTools.replace(token,".","class:") : token;
   }
 
+  @:keep
   public function parse(str:String,recurse:Bool = false) : Dynamic {
 
-    var copyAll:Bool       = recurse ? this.q.copy_all : str.substr(0,1) == "-" || str.substr(0,1) == "?" || str == "";
-    var isOr:EReg          = ~/^or$/;
-    var isProp:EReg        = ~/.*:[><=!]?/;
-    var isName:EReg        = ~/[^:\/]/;
-    var isExclude:EReg     = ~/^-/;
-    var isInclude:EReg     = ~/^\+/;
-    var isPreset:EReg      = ~/^\?/;
-
     var token = str.split(" ");
-    var ors   = new Array();
     var q:haxe.DynamicAccess<Dynamic> = {};
 
-    function composeQuery() : Dynamic {
-      q = {};
-      q.set("object", new Array() );
-      q.set("-object", new Array() );
-      ors.push(q);
-      return q;
-    }
-    composeQuery();
-
-    function match(str,prefix = ""){
-      if( isPreset.match(str) && !recurse ){
-        this.preset = str;
-        return;
-      }
-      if( isExclude.match(str) || isInclude.match(str) ){
-        var t = str.substr(1);
-        match(t, str.substr(0,1) );
-        return;
-      }
+    function process(str,prefix = ""){
+      str = StringTools.trim(str);
+      var value:haxe.DynamicAccess<Dynamic> = {};
       if( isProp.match(str) ){
-        var skip = 0;
-        var type = "=";
-        if( str.indexOf("*")  != -1 ) type = "*";
-        if( str.indexOf(">")  != -1 ) type = ">";
-        if( str.indexOf("<")  != -1 ) type = "<";
-        if( str.indexOf("!=") != -1 ) type = "!=";
-        if( str.indexOf(">=") != -1 ) type = ">=";
-        if( str.indexOf("<=") != -1 ) type = "<=";
-        if( type != "=" ) skip += type.length;
-        var property = str.split(":")[0];
-        var value:haxe.DynamicAccess<Dynamic>;
-        if( q.get(prefix+property) ) value = q.get(prefix+property);
-        else value = {};
-        value[ type ] = str.split(":")[1].substr(skip);
-        q.set(prefix+property,value);
-        return;
-      }
-      if( isName.match(str) ){
-        if( prefix == '-' ){ 
-          q["-object"].push(str);
-          while( q["object"].contains(str) == true) {
-            q["object"].remove(str);
-          }
+        var oper:String = "";
+        if( str.indexOf("*")  != -1 ) oper = "*";
+        if( str.indexOf(">")  != -1 ) oper = ">";
+        if( str.indexOf("<")  != -1 ) oper = "<";
+        if( str.indexOf("!=") != -1 ) oper = "!=";
+        if( str.indexOf(">=") != -1 ) oper = ">=";
+        if( str.indexOf("<=") != -1 ) oper = "<=";
+        var k:String = str.split(":")[0];
+        var v:String = str.split(":")[1];
+        if( q.get(prefix+k) ) value = q.get(prefix+k);
+        if( oper.length > 0 ){
+          value[ oper ] = Std.parseFloat( v.substr(oper.length) );
+          q.set( k, value );
         }else{
-          q["object"].push(str);
-          while( q["-object"].contains(str) == true ){
-            q["-object"].remove(str);
-          }
+          value[ prefix+ (isExclude.match(k) ? k.substr(1) : k) ] = isExclude.match(k) == false;
+          q.set(v,value);
         }
         return;
+      }else{ // id
+        value[ "id" ] = isExclude.match(str) ? false: true;
+        q.set( (isExclude.match(str) ? str.substr(1) : str ) ,value );
       }
     }
-
-    for( i in 0...token.length ) {
-      if( isOr.match(token[i]) ){ 
-        composeQuery();
-      }else match(token[i]);
-    }
-    for ( i in 0...ors.length ) {
-      var or:Dynamic = ors[i];
-      if( Reflect.field(or,'object')  != null ) this.include = this.include.concat( Reflect.field(or,'object') );
-      if( Reflect.field(or,'-object') != null ) this.exclude = this.exclude.concat( Reflect.field(or,'-object') );
-    }
-    this.q = { or: ors, copy_all: copyAll };
+    for( i in 0...token.length ) process( expandAliases(token[i]) );
+    this.q = q;
     return this.q;
   }
 
   @:keep
-  public function test( property:String, ?value:Dynamic ):Void{
-    if( this.preset == property ){ 
-      this.parse( value, true );
-    }
-    for ( i in 0...this.q.or.length ) {
-      var or:Dynamic = this.q.or[i];
-      var conds:Int = 0;
-      var fails:Int = 0;
-      var pass:Int  = 0;
+  public function test( property:String, ?value:Dynamic ):Bool{
+    var conds:Int = 0;
+    var fails:Int = 0;
+    var qualify:Int  = 0;
 
-      var when = function(expr:Bool) : Bool {
-        conds+=1;
-        fails+= expr ? 0 : 1;
-        return expr;
-      }
-
-      for ( k in Reflect.fields(or) ){
-        var orval:Dynamic = Reflect.field(or,k);
-        if( k != property ) continue;
-        if( Reflect.field(orval,'=')  != null && when( value == Reflect.field(orval,'=')                ) ) pass += 1;
-        if( Reflect.field(orval,'*')  != null && when( value != null                                    ) ) pass += 1;
-        if( Reflect.field(orval,'>')  != null && when( value >  Std.parseInt(Reflect.field(orval,'>' )) ) ) pass += 1;  
-        if( Reflect.field(orval,'<')  != null && when( value <  Std.parseInt(Reflect.field(orval,'<' )) ) ) pass += 1;  
-        if( Reflect.field(orval,'>=') != null && when( value >= Std.parseInt(Reflect.field(orval,'>=')) ) ) pass += 1;  
-        if( Reflect.field(orval,'<=') != null && when( value >= Std.parseInt(Reflect.field(orval,'<=')) ) ) pass += 1;  
-        if( Reflect.field(orval,'!=') != null && when( value != Std.parseInt(Reflect.field(orval,'!=')) ) ) pass += 1;  
-      }
-      if( this.accept  && conds > 0 && fails  > 0  ) this.accept = false;
-      if( conds > 0    && pass  > 0 && fails ==  0 ) this.accept = true; 
+    var testprop = function(expr:Bool) : Bool {
+      conds+=1;
+      fails+= expr ? 0 : 1;
+      return expr;
     }
+
+    // class or id
+    if( q[value] != null ){
+      var v:haxe.DynamicAccess<Dynamic> = q[value];
+      if( v.get(property) != null ) return v.get(property);
+    }
+
+    // conditional props
+    for ( k in Reflect.fields(q) ){
+      var qval:Dynamic = Reflect.field(q,k);
+      if( Std.isOfType(value, String) ) continue;
+      if( Reflect.field(qval,'=')  != null && testprop( value == Reflect.field(qval,'=')                ) ) qualify += 1;
+      if( Reflect.field(qval,'*')  != null && testprop( value != null                                   ) ) qualify += 1;
+      if( Reflect.field(qval,'>')  != null && testprop( value >  Std.parseFloat(Reflect.field(qval,'>' )) ) ) qualify += 1;
+      if( Reflect.field(qval,'<')  != null && testprop( value <  Std.parseFloat(Reflect.field(qval,'<' )) ) ) qualify += 1;
+      if( Reflect.field(qval,'>=') != null && testprop( value >= Std.parseFloat(Reflect.field(qval,'>=')) ) ) qualify += 1;
+      if( Reflect.field(qval,'<=') != null && testprop( value >= Std.parseFloat(Reflect.field(qval,'<=')) ) ) qualify += 1;
+      if( Reflect.field(qval,'!=') != null && testprop( value != Std.parseFloat(Reflect.field(qval,'!=')) ) ) qualify += 1;
+    }
+    return qualify > 0;
   }
 }

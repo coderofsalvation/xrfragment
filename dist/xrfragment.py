@@ -100,7 +100,7 @@ class Reflect:
 class Std:
     _hx_class_name = "Std"
     __slots__ = ()
-    _hx_statics = ["isOfType", "string", "parseInt"]
+    _hx_statics = ["isOfType", "string", "shortenPossibleNumber", "parseFloat"]
 
     @staticmethod
     def isOfType(v,t):
@@ -193,70 +193,36 @@ class Std:
         return python_Boot.toString1(s,"")
 
     @staticmethod
-    def parseInt(x):
-        if (x is None):
-            return None
+    def shortenPossibleNumber(x):
+        r = ""
+        _g = 0
+        _g1 = len(x)
+        while (_g < _g1):
+            i = _g
+            _g = (_g + 1)
+            c = ("" if (((i < 0) or ((i >= len(x))))) else x[i])
+            _g2 = HxString.charCodeAt(c,0)
+            if (_g2 is None):
+                break
+            else:
+                _g3 = _g2
+                if (((((((((((_g3 == 57) or ((_g3 == 56))) or ((_g3 == 55))) or ((_g3 == 54))) or ((_g3 == 53))) or ((_g3 == 52))) or ((_g3 == 51))) or ((_g3 == 50))) or ((_g3 == 49))) or ((_g3 == 48))) or ((_g3 == 46))):
+                    r = (("null" if r is None else r) + ("null" if c is None else c))
+                else:
+                    break
+        return r
+
+    @staticmethod
+    def parseFloat(x):
         try:
-            return int(x)
+            return float(x)
         except BaseException as _g:
             None
-            base = 10
-            _hx_len = len(x)
-            foundCount = 0
-            sign = 0
-            firstDigitIndex = 0
-            lastDigitIndex = -1
-            previous = 0
-            _g = 0
-            _g1 = _hx_len
-            while (_g < _g1):
-                i = _g
-                _g = (_g + 1)
-                c = (-1 if ((i >= len(x))) else ord(x[i]))
-                if (((c > 8) and ((c < 14))) or ((c == 32))):
-                    if (foundCount > 0):
-                        return None
-                    continue
-                else:
-                    c1 = c
-                    if (c1 == 43):
-                        if (foundCount == 0):
-                            sign = 1
-                        elif (not (((48 <= c) and ((c <= 57))))):
-                            if (not (((base == 16) and ((((97 <= c) and ((c <= 122))) or (((65 <= c) and ((c <= 90))))))))):
-                                break
-                    elif (c1 == 45):
-                        if (foundCount == 0):
-                            sign = -1
-                        elif (not (((48 <= c) and ((c <= 57))))):
-                            if (not (((base == 16) and ((((97 <= c) and ((c <= 122))) or (((65 <= c) and ((c <= 90))))))))):
-                                break
-                    elif (c1 == 48):
-                        if (not (((foundCount == 0) or (((foundCount == 1) and ((sign != 0))))))):
-                            if (not (((48 <= c) and ((c <= 57))))):
-                                if (not (((base == 16) and ((((97 <= c) and ((c <= 122))) or (((65 <= c) and ((c <= 90))))))))):
-                                    break
-                    elif ((c1 == 120) or ((c1 == 88))):
-                        if ((previous == 48) and ((((foundCount == 1) and ((sign == 0))) or (((foundCount == 2) and ((sign != 0))))))):
-                            base = 16
-                        elif (not (((48 <= c) and ((c <= 57))))):
-                            if (not (((base == 16) and ((((97 <= c) and ((c <= 122))) or (((65 <= c) and ((c <= 90))))))))):
-                                break
-                    elif (not (((48 <= c) and ((c <= 57))))):
-                        if (not (((base == 16) and ((((97 <= c) and ((c <= 122))) or (((65 <= c) and ((c <= 90))))))))):
-                            break
-                if (((foundCount == 0) and ((sign == 0))) or (((foundCount == 1) and ((sign != 0))))):
-                    firstDigitIndex = i
-                foundCount = (foundCount + 1)
-                lastDigitIndex = i
-                previous = c
-            if (firstDigitIndex <= lastDigitIndex):
-                digits = HxString.substring(x,firstDigitIndex,(lastDigitIndex + 1))
-                try:
-                    return (((-1 if ((sign == -1)) else 1)) * int(digits,base))
-                except BaseException as _g:
-                    return None
-            return None
+            if (x is not None):
+                r1 = Std.shortenPossibleNumber(x)
+                if (r1 != x):
+                    return Std.parseFloat(r1)
+            return Math.NaN
 
 
 class Float: pass
@@ -269,6 +235,53 @@ class Bool: pass
 
 
 class Dynamic: pass
+
+
+class StringTools:
+    _hx_class_name = "StringTools"
+    __slots__ = ()
+    _hx_statics = ["isSpace", "ltrim", "rtrim", "trim", "replace"]
+
+    @staticmethod
+    def isSpace(s,pos):
+        if (((len(s) == 0) or ((pos < 0))) or ((pos >= len(s)))):
+            return False
+        c = HxString.charCodeAt(s,pos)
+        if (not (((c > 8) and ((c < 14))))):
+            return (c == 32)
+        else:
+            return True
+
+    @staticmethod
+    def ltrim(s):
+        l = len(s)
+        r = 0
+        while ((r < l) and StringTools.isSpace(s,r)):
+            r = (r + 1)
+        if (r > 0):
+            return HxString.substr(s,r,(l - r))
+        else:
+            return s
+
+    @staticmethod
+    def rtrim(s):
+        l = len(s)
+        r = 0
+        while ((r < l) and StringTools.isSpace(s,((l - r) - 1))):
+            r = (r + 1)
+        if (r > 0):
+            return HxString.substr(s,0,(l - r))
+        else:
+            return s
+
+    @staticmethod
+    def trim(s):
+        return StringTools.ltrim(StringTools.rtrim(s))
+
+    @staticmethod
+    def replace(s,sub,by):
+        _this = (list(s) if ((sub == "")) else s.split(sub))
+        return by.join([python_Boot.toString1(x1,'') for x1 in _this])
 
 
 class haxe_Exception(Exception):
@@ -855,11 +868,7 @@ class python_HaxeIterator:
 class python_internal_ArrayImpl:
     _hx_class_name = "python.internal.ArrayImpl"
     __slots__ = ()
-    _hx_statics = ["get_length", "concat", "copy", "iterator", "keyValueIterator", "indexOf", "lastIndexOf", "join", "toString", "pop", "push", "unshift", "remove", "contains", "shift", "slice", "sort", "splice", "map", "filter", "insert", "reverse", "_get", "_set"]
-
-    @staticmethod
-    def get_length(x):
-        return len(x)
+    _hx_statics = ["concat", "copy", "iterator", "keyValueIterator", "indexOf", "lastIndexOf", "join", "toString", "pop", "push", "unshift", "remove", "contains", "shift", "slice", "sort", "splice", "map", "filter", "insert", "reverse", "_get"]
 
     @staticmethod
     def concat(a1,a2):
@@ -991,23 +1000,11 @@ class python_internal_ArrayImpl:
         else:
             return None
 
-    @staticmethod
-    def _set(x,idx,v):
-        l = len(x)
-        while (l < idx):
-            x.append(None)
-            l = (l + 1)
-        if (l == idx):
-            x.append(v)
-        else:
-            x[idx] = v
-        return v
-
 
 class HxOverrides:
     _hx_class_name = "HxOverrides"
     __slots__ = ()
-    _hx_statics = ["eq", "stringOrNull", "push", "length", "arrayGet"]
+    _hx_statics = ["eq", "stringOrNull", "arrayGet"]
 
     @staticmethod
     def eq(a,b):
@@ -1021,22 +1018,6 @@ class HxOverrides:
             return "null"
         else:
             return s
-
-    @staticmethod
-    def push(x,e):
-        if isinstance(x,list):
-            _this = x
-            _this.append(e)
-            return len(_this)
-        return x.push(e)
-
-    @staticmethod
-    def length(x):
-        if isinstance(x,str):
-            return len(x)
-        elif isinstance(x,list):
-            return len(x)
-        return x.length
 
     @staticmethod
     def arrayGet(a,i):
@@ -1068,7 +1049,7 @@ class python_internal_MethodClosure:
 class HxString:
     _hx_class_name = "HxString"
     __slots__ = ()
-    _hx_statics = ["split", "charCodeAt", "charAt", "lastIndexOf", "toUpperCase", "toLowerCase", "indexOf", "indexOfImpl", "toString", "get_length", "substring", "substr"]
+    _hx_statics = ["split", "charCodeAt", "charAt", "lastIndexOf", "toUpperCase", "toLowerCase", "indexOf", "indexOfImpl", "toString", "substring", "substr"]
 
     @staticmethod
     def split(s,d):
@@ -1148,10 +1129,6 @@ class HxString:
         return s
 
     @staticmethod
-    def get_length(s):
-        return len(s)
-
-    @staticmethod
     def substring(s,startIndex,endIndex = None):
         if (startIndex < 0):
             startIndex = 0
@@ -1181,15 +1158,13 @@ class HxString:
 
 class xrfragment_Query:
     _hx_class_name = "xrfragment.Query"
-    __slots__ = ("str", "q", "include", "exclude", "accept", "preset")
-    _hx_fields = ["str", "q", "include", "exclude", "accept", "preset"]
-    _hx_methods = ["toObject", "selected", "parse", "test"]
+    __slots__ = ("str", "q", "isProp", "isExclude")
+    _hx_fields = ["str", "q", "isProp", "isExclude"]
+    _hx_methods = ["toObject", "expandAliases", "parse", "test"]
 
     def __init__(self,_hx_str):
-        self.preset = ""
-        self.accept = False
-        self.exclude = list()
-        self.include = list()
+        self.isExclude = EReg("^-","")
+        self.isProp = EReg("^.*:[><=!]?","")
         self.q = _hx_AnonObject({})
         self.str = ""
         if (_hx_str is not None):
@@ -1198,182 +1173,122 @@ class xrfragment_Query:
     def toObject(self):
         return self.q
 
-    def selected(self,nodename):
-        if Reflect.field(self.q,"copy_all"):
-            self.accept = True
-        if (nodename in self.include):
-            self.accept = True
-        if (nodename in self.exclude):
-            self.accept = False
-        return self.accept
+    def expandAliases(self,token):
+        classAlias = EReg("^(-)?\\.","")
+        classAlias.matchObj = python_lib_Re.search(classAlias.pattern,token)
+        if (classAlias.matchObj is not None):
+            return StringTools.replace(token,".","class:")
+        else:
+            return token
 
     def parse(self,_hx_str,recurse = None):
         if (recurse is None):
             recurse = False
         _gthis = self
-        copyAll = (Reflect.field(self.q,"copy_all") if recurse else (((HxString.substr(_hx_str,0,1) == "-") or ((HxString.substr(_hx_str,0,1) == "?"))) or ((_hx_str == ""))))
-        isOr = EReg("^or$","")
-        isProp = EReg(".*:[><=!]?","")
-        isName = EReg("[^:/]","")
-        isExclude = EReg("^-","")
-        isInclude = EReg("^\\+","")
-        isPreset = EReg("^\\?","")
         token = _hx_str.split(" ")
-        ors = list()
         q = _hx_AnonObject({})
-        def _hx_local_0():
-            nonlocal q
-            q = _hx_AnonObject({})
-            value = list()
-            setattr(q,(("_hx_" + "object") if (("object" in python_Boot.keywords)) else (("_hx_" + "object") if (((((len("object") > 2) and ((ord("object"[0]) == 95))) and ((ord("object"[1]) == 95))) and ((ord("object"[(len("object") - 1)]) != 95)))) else "object")),value)
-            value = list()
-            setattr(q,(("_hx_" + "-object") if (("-object" in python_Boot.keywords)) else (("_hx_" + "-object") if (((((len("-object") > 2) and ((ord("-object"[0]) == 95))) and ((ord("-object"[1]) == 95))) and ((ord("-object"[(len("-object") - 1)]) != 95)))) else "-object")),value)
-            ors.append(q)
-            return q
-        composeQuery = _hx_local_0
-        composeQuery()
-        match = None
-        def _hx_local_2(_hx_str,prefix = None):
+        def _hx_local_0(_hx_str,prefix = None):
             if (prefix is None):
                 prefix = ""
-            isPreset.matchObj = python_lib_Re.search(isPreset.pattern,_hx_str)
-            if ((isPreset.matchObj is not None) and (not recurse)):
-                _gthis.preset = _hx_str
-                return
-            match1 = None
-            isExclude.matchObj = python_lib_Re.search(isExclude.pattern,_hx_str)
-            if (isExclude.matchObj is None):
-                isInclude.matchObj = python_lib_Re.search(isInclude.pattern,_hx_str)
-                match1 = (isInclude.matchObj is not None)
-            else:
-                match1 = True
-            if match1:
-                t = HxString.substr(_hx_str,1,None)
-                match(t,HxString.substr(_hx_str,0,1))
-                return
-            isProp.matchObj = python_lib_Re.search(isProp.pattern,_hx_str)
-            if (isProp.matchObj is not None):
-                skip = 0
-                _hx_type = "="
+            _hx_str = StringTools.trim(_hx_str)
+            value = _hx_AnonObject({})
+            _this = _gthis.isProp
+            _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+            if (_this.matchObj is not None):
+                oper = ""
                 startIndex = None
                 if (((_hx_str.find("*") if ((startIndex is None)) else HxString.indexOfImpl(_hx_str,"*",startIndex))) != -1):
-                    _hx_type = "*"
+                    oper = "*"
                 startIndex = None
                 if (((_hx_str.find(">") if ((startIndex is None)) else HxString.indexOfImpl(_hx_str,">",startIndex))) != -1):
-                    _hx_type = ">"
+                    oper = ">"
                 startIndex = None
                 if (((_hx_str.find("<") if ((startIndex is None)) else HxString.indexOfImpl(_hx_str,"<",startIndex))) != -1):
-                    _hx_type = "<"
+                    oper = "<"
                 startIndex = None
                 if (((_hx_str.find("!=") if ((startIndex is None)) else HxString.indexOfImpl(_hx_str,"!=",startIndex))) != -1):
-                    _hx_type = "!="
+                    oper = "!="
                 startIndex = None
                 if (((_hx_str.find(">=") if ((startIndex is None)) else HxString.indexOfImpl(_hx_str,">=",startIndex))) != -1):
-                    _hx_type = ">="
+                    oper = ">="
                 startIndex = None
                 if (((_hx_str.find("<=") if ((startIndex is None)) else HxString.indexOfImpl(_hx_str,"<=",startIndex))) != -1):
-                    _hx_type = "<="
-                if (_hx_type != "="):
-                    skip = (skip + len(_hx_type))
-                property = HxOverrides.arrayGet(_hx_str.split(":"), 0)
-                value = None
-                if Reflect.field(q,(("null" if prefix is None else prefix) + ("null" if property is None else property))):
-                    value = Reflect.field(q,(("null" if prefix is None else prefix) + ("null" if property is None else property)))
+                    oper = "<="
+                k = HxOverrides.arrayGet(_hx_str.split(":"), 0)
+                v = HxOverrides.arrayGet(_hx_str.split(":"), 1)
+                if Reflect.field(q,(("null" if prefix is None else prefix) + ("null" if k is None else k))):
+                    value = Reflect.field(q,(("null" if prefix is None else prefix) + ("null" if k is None else k)))
+                if (len(oper) > 0):
+                    value1 = Std.parseFloat(HxString.substr(v,len(oper),None))
+                    setattr(value,(("_hx_" + oper) if ((oper in python_Boot.keywords)) else (("_hx_" + oper) if (((((len(oper) > 2) and ((ord(oper[0]) == 95))) and ((ord(oper[1]) == 95))) and ((ord(oper[(len(oper) - 1)]) != 95)))) else oper)),value1)
+                    setattr(q,(("_hx_" + k) if ((k in python_Boot.keywords)) else (("_hx_" + k) if (((((len(k) > 2) and ((ord(k[0]) == 95))) and ((ord(k[1]) == 95))) and ((ord(k[(len(k) - 1)]) != 95)))) else k)),value)
                 else:
-                    value = _hx_AnonObject({})
-                value1 = HxString.substr(HxOverrides.arrayGet(_hx_str.split(":"), 1),skip,None)
-                setattr(value,(("_hx_" + _hx_type) if ((_hx_type in python_Boot.keywords)) else (("_hx_" + _hx_type) if (((((len(_hx_type) > 2) and ((ord(_hx_type[0]) == 95))) and ((ord(_hx_type[1]) == 95))) and ((ord(_hx_type[(len(_hx_type) - 1)]) != 95)))) else _hx_type)),value1)
-                key = (("null" if prefix is None else prefix) + ("null" if property is None else property))
+                    _this = _gthis.isExclude
+                    _this.matchObj = python_lib_Re.search(_this.pattern,k)
+                    key = (("null" if prefix is None else prefix) + HxOverrides.stringOrNull(((HxString.substr(k,1,None) if ((_this.matchObj is not None)) else k))))
+                    _this = _gthis.isExclude
+                    _this.matchObj = python_lib_Re.search(_this.pattern,k)
+                    value1 = ((_this.matchObj is not None) == False)
+                    setattr(value,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),value1)
+                    setattr(q,(("_hx_" + v) if ((v in python_Boot.keywords)) else (("_hx_" + v) if (((((len(v) > 2) and ((ord(v[0]) == 95))) and ((ord(v[1]) == 95))) and ((ord(v[(len(v) - 1)]) != 95)))) else v)),value)
+                return
+            else:
+                _this = _gthis.isExclude
+                _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+                value1 = (False if ((_this.matchObj is not None)) else True)
+                setattr(value,(("_hx_" + "id") if (("id" in python_Boot.keywords)) else (("_hx_" + "id") if (((((len("id") > 2) and ((ord("id"[0]) == 95))) and ((ord("id"[1]) == 95))) and ((ord("id"[(len("id") - 1)]) != 95)))) else "id")),value1)
+                _this = _gthis.isExclude
+                _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+                key = (HxString.substr(_hx_str,1,None) if ((_this.matchObj is not None)) else _hx_str)
                 setattr(q,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),value)
-                return
-            isName.matchObj = python_lib_Re.search(isName.pattern,_hx_str)
-            if (isName.matchObj is not None):
-                if (prefix == "-"):
-                    Reflect.field(Reflect.field(q,"-object"),"push")(_hx_str)
-                    while (Reflect.field(Reflect.field(q,"object"),"contains")(_hx_str) == True):
-                        Reflect.field(Reflect.field(q,"object"),"remove")(_hx_str)
-                else:
-                    Reflect.field(Reflect.field(q,"object"),"push")(_hx_str)
-                    while (Reflect.field(Reflect.field(q,"-object"),"contains")(_hx_str) == True):
-                        Reflect.field(Reflect.field(q,"-object"),"remove")(_hx_str)
-                return
-        match = _hx_local_2
+        process = _hx_local_0
         _g = 0
         _g1 = len(token)
         while (_g < _g1):
             i = _g
             _g = (_g + 1)
-            isOr.matchObj = python_lib_Re.search(isOr.pattern,(token[i] if i >= 0 and i < len(token) else None))
-            if (isOr.matchObj is not None):
-                composeQuery()
-            else:
-                match((token[i] if i >= 0 and i < len(token) else None))
-        _g = 0
-        _g1 = len(ors)
-        while (_g < _g1):
-            i = _g
-            _g = (_g + 1)
-            _hx_or = (ors[i] if i >= 0 and i < len(ors) else None)
-            if (Reflect.field(_hx_or,"object") is not None):
-                self.include = (self.include + Reflect.field(_hx_or,"object"))
-            if (Reflect.field(_hx_or,"-object") is not None):
-                self.exclude = (self.exclude + Reflect.field(_hx_or,"-object"))
-        self.q = _hx_AnonObject({'_hx_or': ors, 'copy_all': copyAll})
+            process(self.expandAliases((token[i] if i >= 0 and i < len(token) else None)))
+        self.q = q
         return self.q
 
     def test(self,property,value = None):
-        if (self.preset == property):
-            self.parse(value,True)
+        conds = 0
+        fails = 0
+        qualify = 0
+        def _hx_local_2(expr):
+            nonlocal conds
+            nonlocal fails
+            conds = (conds + 1)
+            fails = (fails + (0 if expr else 1))
+            return expr
+        testprop = _hx_local_2
+        if (Reflect.field(self.q,value) is not None):
+            v = Reflect.field(self.q,value)
+            if (Reflect.field(v,property) is not None):
+                return Reflect.field(v,property)
         _g = 0
-        _g1 = Reflect.field(Reflect.field(self.q,"or"),"length")
-        while (_g < _g1):
-            i = _g
+        _g1 = python_Boot.fields(self.q)
+        while (_g < len(_g1)):
+            k = (_g1[_g] if _g >= 0 and _g < len(_g1) else None)
             _g = (_g + 1)
-            _hx_or = HxOverrides.arrayGet(Reflect.field(self.q,"or"), i)
-            conds = [0]
-            fails = [0]
-            _hx_pass = 0
-            def _hx_local_7(fails,conds):
-                def _hx_local_0(expr):
-                    _hx_local_1 = conds
-                    _hx_local_2 = 0
-                    _hx_local_3 = (_hx_local_1[_hx_local_2] if _hx_local_2 >= 0 and _hx_local_2 < len(_hx_local_1) else None)
-                    python_internal_ArrayImpl._set(_hx_local_1, _hx_local_2, (_hx_local_3 + 1))
-                    (_hx_local_1[_hx_local_2] if _hx_local_2 >= 0 and _hx_local_2 < len(_hx_local_1) else None)
-                    _hx_local_4 = fails
-                    _hx_local_5 = 0
-                    _hx_local_6 = (_hx_local_4[_hx_local_5] if _hx_local_5 >= 0 and _hx_local_5 < len(_hx_local_4) else None)
-                    python_internal_ArrayImpl._set(_hx_local_4, _hx_local_5, (_hx_local_6 + (0 if expr else 1)))
-                    (_hx_local_4[_hx_local_5] if _hx_local_5 >= 0 and _hx_local_5 < len(_hx_local_4) else None)
-                    return expr
-                return _hx_local_0
-            when = _hx_local_7(fails,conds)
-            _g2 = 0
-            _g3 = python_Boot.fields(_hx_or)
-            while (_g2 < len(_g3)):
-                k = (_g3[_g2] if _g2 >= 0 and _g2 < len(_g3) else None)
-                _g2 = (_g2 + 1)
-                orval = Reflect.field(_hx_or,k)
-                if (k != property):
-                    continue
-                if ((Reflect.field(orval,"=") is not None) and when(HxOverrides.eq(value,Reflect.field(orval,"=")))):
-                    _hx_pass = (_hx_pass + 1)
-                if ((Reflect.field(orval,"*") is not None) and when((value is not None))):
-                    _hx_pass = (_hx_pass + 1)
-                if ((Reflect.field(orval,">") is not None) and when((value > Std.parseInt(Reflect.field(orval,">"))))):
-                    _hx_pass = (_hx_pass + 1)
-                if ((Reflect.field(orval,"<") is not None) and when((value < Std.parseInt(Reflect.field(orval,"<"))))):
-                    _hx_pass = (_hx_pass + 1)
-                if ((Reflect.field(orval,">=") is not None) and when((value >= Std.parseInt(Reflect.field(orval,">="))))):
-                    _hx_pass = (_hx_pass + 1)
-                if ((Reflect.field(orval,"<=") is not None) and when((value >= Std.parseInt(Reflect.field(orval,"<="))))):
-                    _hx_pass = (_hx_pass + 1)
-                if ((Reflect.field(orval,"!=") is not None) and when((value != Std.parseInt(Reflect.field(orval,"!="))))):
-                    _hx_pass = (_hx_pass + 1)
-            if ((self.accept and (((conds[0] if 0 < len(conds) else None) > 0))) and (((fails[0] if 0 < len(fails) else None) > 0))):
-                self.accept = False
-            if ((((conds[0] if 0 < len(conds) else None) > 0) and ((_hx_pass > 0))) and (((fails[0] if 0 < len(fails) else None) == 0))):
-                self.accept = True
+            qval = Reflect.field(self.q,k)
+            if Std.isOfType(value,str):
+                continue
+            if ((Reflect.field(qval,"=") is not None) and testprop(HxOverrides.eq(value,Reflect.field(qval,"=")))):
+                qualify = (qualify + 1)
+            if ((Reflect.field(qval,"*") is not None) and testprop((value is not None))):
+                qualify = (qualify + 1)
+            if ((Reflect.field(qval,">") is not None) and testprop((value > Std.parseFloat(Reflect.field(qval,">"))))):
+                qualify = (qualify + 1)
+            if ((Reflect.field(qval,"<") is not None) and testprop((value < Std.parseFloat(Reflect.field(qval,"<"))))):
+                qualify = (qualify + 1)
+            if ((Reflect.field(qval,">=") is not None) and testprop((value >= Std.parseFloat(Reflect.field(qval,">="))))):
+                qualify = (qualify + 1)
+            if ((Reflect.field(qval,"<=") is not None) and testprop((value >= Std.parseFloat(Reflect.field(qval,"<="))))):
+                qualify = (qualify + 1)
+            if ((Reflect.field(qval,"!=") is not None) and testprop((value != Std.parseFloat(Reflect.field(qval,"!="))))):
+                qualify = (qualify + 1)
+        return (qualify > 0)
 
 
 Math.NEGATIVE_INFINITY = float("-inf")
