@@ -1004,7 +1004,7 @@ class python_internal_ArrayImpl:
 class HxOverrides:
     _hx_class_name = "HxOverrides"
     __slots__ = ()
-    _hx_statics = ["eq", "stringOrNull", "arrayGet"]
+    _hx_statics = ["eq", "stringOrNull", "push", "arrayGet"]
 
     @staticmethod
     def eq(a,b):
@@ -1018,6 +1018,14 @@ class HxOverrides:
             return "null"
         else:
             return s
+
+    @staticmethod
+    def push(x,e):
+        if isinstance(x,list):
+            _this = x
+            _this.append(e)
+            return len(_this)
+        return x.push(e)
 
     @staticmethod
     def arrayGet(a,i):
@@ -1158,11 +1166,13 @@ class HxString:
 
 class xrfragment_Query:
     _hx_class_name = "xrfragment.Query"
-    __slots__ = ("str", "q", "isProp", "isExclude")
-    _hx_fields = ["str", "q", "isProp", "isExclude"]
-    _hx_methods = ["toObject", "expandAliases", "parse", "test"]
+    __slots__ = ("str", "q", "isProp", "isExclude", "isClass", "isNumber")
+    _hx_fields = ["str", "q", "isProp", "isExclude", "isClass", "isNumber"]
+    _hx_methods = ["toObject", "expandAliases", "parse", "test", "testProperty"]
 
     def __init__(self,_hx_str):
+        self.isNumber = EReg("^[0-9\\.]+$","")
+        self.isClass = EReg("^[-]?class$","")
         self.isExclude = EReg("^-","")
         self.isProp = EReg("^.*:[><=!]?","")
         self.q = _hx_AnonObject({})
@@ -1191,7 +1201,13 @@ class xrfragment_Query:
             if (prefix is None):
                 prefix = ""
             _hx_str = StringTools.trim(_hx_str)
-            value = _hx_AnonObject({})
+            k = HxOverrides.arrayGet(_hx_str.split(":"), 0)
+            v = HxOverrides.arrayGet(_hx_str.split(":"), 1)
+            _hx_filter = _hx_AnonObject({})
+            if Reflect.field(q,(("null" if prefix is None else prefix) + ("null" if k is None else k))):
+                _hx_filter = Reflect.field(q,(("null" if prefix is None else prefix) + ("null" if k is None else k)))
+            value = (Reflect.field(_hx_filter,"rules") if ((Reflect.field(_hx_filter,"rules") is not None)) else list())
+            setattr(_hx_filter,(("_hx_" + "rules") if (("rules" in python_Boot.keywords)) else (("_hx_" + "rules") if (((((len("rules") > 2) and ((ord("rules"[0]) == 95))) and ((ord("rules"[1]) == 95))) and ((ord("rules"[(len("rules") - 1)]) != 95)))) else "rules")),value)
             _this = _gthis.isProp
             _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
             if (_this.matchObj is not None):
@@ -1206,41 +1222,48 @@ class xrfragment_Query:
                 if (((_hx_str.find("<") if ((startIndex is None)) else HxString.indexOfImpl(_hx_str,"<",startIndex))) != -1):
                     oper = "<"
                 startIndex = None
-                if (((_hx_str.find("!=") if ((startIndex is None)) else HxString.indexOfImpl(_hx_str,"!=",startIndex))) != -1):
-                    oper = "!="
-                startIndex = None
                 if (((_hx_str.find(">=") if ((startIndex is None)) else HxString.indexOfImpl(_hx_str,">=",startIndex))) != -1):
                     oper = ">="
                 startIndex = None
                 if (((_hx_str.find("<=") if ((startIndex is None)) else HxString.indexOfImpl(_hx_str,"<=",startIndex))) != -1):
                     oper = "<="
-                k = HxOverrides.arrayGet(_hx_str.split(":"), 0)
-                v = HxOverrides.arrayGet(_hx_str.split(":"), 1)
-                if Reflect.field(q,(("null" if prefix is None else prefix) + ("null" if k is None else k))):
-                    value = Reflect.field(q,(("null" if prefix is None else prefix) + ("null" if k is None else k)))
-                if (len(oper) > 0):
-                    value1 = Std.parseFloat(HxString.substr(v,len(oper),None))
-                    setattr(value,(("_hx_" + oper) if ((oper in python_Boot.keywords)) else (("_hx_" + oper) if (((((len(oper) > 2) and ((ord(oper[0]) == 95))) and ((ord(oper[1]) == 95))) and ((ord(oper[(len(oper) - 1)]) != 95)))) else oper)),value1)
-                    setattr(q,(("_hx_" + k) if ((k in python_Boot.keywords)) else (("_hx_" + k) if (((((len(k) > 2) and ((ord(k[0]) == 95))) and ((ord(k[1]) == 95))) and ((ord(k[(len(k) - 1)]) != 95)))) else k)),value)
+                _this = _gthis.isExclude
+                _this.matchObj = python_lib_Re.search(_this.pattern,k)
+                if (_this.matchObj is not None):
+                    oper = "!="
+                    k = HxString.substr(k,1,None)
                 else:
-                    _this = _gthis.isExclude
-                    _this.matchObj = python_lib_Re.search(_this.pattern,k)
-                    key = (("null" if prefix is None else prefix) + HxOverrides.stringOrNull(((HxString.substr(k,1,None) if ((_this.matchObj is not None)) else k))))
-                    _this = _gthis.isExclude
-                    _this.matchObj = python_lib_Re.search(_this.pattern,k)
-                    value1 = ((_this.matchObj is not None) == False)
-                    setattr(value,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),value1)
-                    setattr(q,(("_hx_" + v) if ((v in python_Boot.keywords)) else (("_hx_" + v) if (((((len(v) > 2) and ((ord(v[0]) == 95))) and ((ord(v[1]) == 95))) and ((ord(v[(len(v) - 1)]) != 95)))) else v)),value)
+                    v = HxString.substr(v,len(oper),None)
+                if (len(oper) == 0):
+                    oper = "="
+                _this = _gthis.isClass
+                _this.matchObj = python_lib_Re.search(_this.pattern,k)
+                if (_this.matchObj is not None):
+                    key = (("null" if prefix is None else prefix) + ("null" if k is None else k))
+                    value = (oper != "!=")
+                    setattr(_hx_filter,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),value)
+                    setattr(q,(("_hx_" + v) if ((v in python_Boot.keywords)) else (("_hx_" + v) if (((((len(v) > 2) and ((ord(v[0]) == 95))) and ((ord(v[1]) == 95))) and ((ord(v[(len(v) - 1)]) != 95)))) else v)),_hx_filter)
+                else:
+                    rule = _hx_AnonObject({})
+                    _this = _gthis.isNumber
+                    _this.matchObj = python_lib_Re.search(_this.pattern,v)
+                    if (_this.matchObj is not None):
+                        value = Std.parseFloat(v)
+                        setattr(rule,(("_hx_" + oper) if ((oper in python_Boot.keywords)) else (("_hx_" + oper) if (((((len(oper) > 2) and ((ord(oper[0]) == 95))) and ((ord(oper[1]) == 95))) and ((ord(oper[(len(oper) - 1)]) != 95)))) else oper)),value)
+                    else:
+                        setattr(rule,(("_hx_" + oper) if ((oper in python_Boot.keywords)) else (("_hx_" + oper) if (((((len(oper) > 2) and ((ord(oper[0]) == 95))) and ((ord(oper[1]) == 95))) and ((ord(oper[(len(oper) - 1)]) != 95)))) else oper)),v)
+                    Reflect.field(Reflect.field(_hx_filter,"rules"),"push")(rule)
+                    setattr(q,(("_hx_" + k) if ((k in python_Boot.keywords)) else (("_hx_" + k) if (((((len(k) > 2) and ((ord(k[0]) == 95))) and ((ord(k[1]) == 95))) and ((ord(k[(len(k) - 1)]) != 95)))) else k)),_hx_filter)
                 return
             else:
                 _this = _gthis.isExclude
                 _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
-                value1 = (False if ((_this.matchObj is not None)) else True)
-                setattr(value,(("_hx_" + "id") if (("id" in python_Boot.keywords)) else (("_hx_" + "id") if (((((len("id") > 2) and ((ord("id"[0]) == 95))) and ((ord("id"[1]) == 95))) and ((ord("id"[(len("id") - 1)]) != 95)))) else "id")),value1)
+                value = (False if ((_this.matchObj is not None)) else True)
+                setattr(_hx_filter,(("_hx_" + "id") if (("id" in python_Boot.keywords)) else (("_hx_" + "id") if (((((len("id") > 2) and ((ord("id"[0]) == 95))) and ((ord("id"[1]) == 95))) and ((ord("id"[(len("id") - 1)]) != 95)))) else "id")),value)
                 _this = _gthis.isExclude
                 _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
                 key = (HxString.substr(_hx_str,1,None) if ((_this.matchObj is not None)) else _hx_str)
-                setattr(q,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),value)
+                setattr(q,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),_hx_filter)
         process = _hx_local_0
         _g = 0
         _g1 = len(token)
@@ -1251,13 +1274,33 @@ class xrfragment_Query:
         self.q = q
         return self.q
 
-    def test(self,property,value = None):
+    def test(self,obj = None):
+        qualify = False
+        _g = 0
+        _g1 = python_Boot.fields(obj)
+        while (_g < len(_g1)):
+            k = (_g1[_g] if _g >= 0 and _g < len(_g1) else None)
+            _g = (_g + 1)
+            v = Std.string(Reflect.field(obj,k))
+            if self.testProperty(k,v):
+                qualify = True
+        _g = 0
+        _g1 = python_Boot.fields(obj)
+        while (_g < len(_g1)):
+            k = (_g1[_g] if _g >= 0 and _g < len(_g1) else None)
+            _g = (_g + 1)
+            v = Std.string(Reflect.field(obj,k))
+            if self.testProperty(k,v,True):
+                qualify = False
+        return qualify
+
+    def testProperty(self,property,value,exclude = None):
         conds = 0
         fails = 0
         qualify = 0
         def _hx_local_2(expr):
-            nonlocal conds
             nonlocal fails
+            nonlocal conds
             conds = (conds + 1)
             fails = (fails + (0 if expr else 1))
             return expr
@@ -1271,23 +1314,30 @@ class xrfragment_Query:
         while (_g < len(_g1)):
             k = (_g1[_g] if _g >= 0 and _g < len(_g1) else None)
             _g = (_g + 1)
-            qval = Reflect.field(self.q,k)
-            if Std.isOfType(value,str):
+            _hx_filter = Reflect.field(self.q,k)
+            if (Reflect.field(_hx_filter,"rules") is None):
                 continue
-            if ((Reflect.field(qval,"=") is not None) and testprop(HxOverrides.eq(value,Reflect.field(qval,"=")))):
-                qualify = (qualify + 1)
-            if ((Reflect.field(qval,"*") is not None) and testprop((value is not None))):
-                qualify = (qualify + 1)
-            if ((Reflect.field(qval,">") is not None) and testprop((value > Std.parseFloat(Reflect.field(qval,">"))))):
-                qualify = (qualify + 1)
-            if ((Reflect.field(qval,"<") is not None) and testprop((value < Std.parseFloat(Reflect.field(qval,"<"))))):
-                qualify = (qualify + 1)
-            if ((Reflect.field(qval,">=") is not None) and testprop((value >= Std.parseFloat(Reflect.field(qval,">="))))):
-                qualify = (qualify + 1)
-            if ((Reflect.field(qval,"<=") is not None) and testprop((value >= Std.parseFloat(Reflect.field(qval,"<="))))):
-                qualify = (qualify + 1)
-            if ((Reflect.field(qval,"!=") is not None) and testprop((value != Std.parseFloat(Reflect.field(qval,"!="))))):
-                qualify = (qualify + 1)
+            rules = Reflect.field(_hx_filter,"rules")
+            _g2 = 0
+            while (_g2 < len(rules)):
+                rule = (rules[_g2] if _g2 >= 0 and _g2 < len(rules) else None)
+                _g2 = (_g2 + 1)
+                if exclude:
+                    if (((Reflect.field(rule,"!=") is not None) and testprop((Std.string(value) == Std.string(Reflect.field(rule,"!="))))) and exclude):
+                        qualify = (qualify + 1)
+                else:
+                    if ((Reflect.field(rule,"*") is not None) and testprop((Std.parseFloat(value) is not None))):
+                        qualify = (qualify + 1)
+                    if ((Reflect.field(rule,">") is not None) and testprop((Std.parseFloat(value) > Std.parseFloat(Reflect.field(rule,">"))))):
+                        qualify = (qualify + 1)
+                    if ((Reflect.field(rule,"<") is not None) and testprop((Std.parseFloat(value) < Std.parseFloat(Reflect.field(rule,"<"))))):
+                        qualify = (qualify + 1)
+                    if ((Reflect.field(rule,">=") is not None) and testprop((Std.parseFloat(value) >= Std.parseFloat(Reflect.field(rule,">="))))):
+                        qualify = (qualify + 1)
+                    if ((Reflect.field(rule,"<=") is not None) and testprop((Std.parseFloat(value) <= Std.parseFloat(Reflect.field(rule,"<="))))):
+                        qualify = (qualify + 1)
+                    if ((Reflect.field(rule,"=") is not None) and ((testprop((value == Reflect.field(rule,"="))) or testprop((Std.parseFloat(value) == Std.parseFloat(Reflect.field(rule,"="))))))):
+                        qualify = (qualify + 1)
         return (qualify > 0)
 
 

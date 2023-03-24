@@ -131,8 +131,8 @@ var Test = function() { };
 Test.__name__ = true;
 Test.main = function() {
 	Test.test([{ fn : "url", expect : { fn : "equal.string", input : "bar", out : "flop"}, data : "http://foo.com?foo=1#bar=flop&a=1,2&b=c|d|1,2,3"},{ fn : "url", expect : { fn : "equal.xy", input : "a", out : "1.22.2"}, label : "a equal.xy", data : "http://foo.com?foo=1#bar=flop&a=1.2,2.2&b=c|d|1,2,3"},{ fn : "url", expect : { fn : "equal.multi", input : "b", out : "c|d|1,2,3"}, label : "b equal.multi", data : "http://foo.com?foo=1#b=c|d|1,2,3"}]);
-	Test.test([{ fn : "query", expect : { fn : "test", input : ["class","bar"], out : true}, data : "class:bar"},{ fn : "query", expect : { fn : "test", input : ["class","bar"], out : true}, label : ".bar shorthand", data : ".bar"},{ fn : "query", expect : { fn : "test", input : ["class","foo"], out : false}, data : ".bar -.foo"},{ fn : "query", expect : { fn : "test", input : ["class","foo"], out : true}, data : ".bar -.foo .foo"},{ fn : "query", expect : { fn : "test", input : ["class","bar"], out : true}, data : ".bar -.bar .bar"},{ fn : "query", expect : { fn : "test", input : ["id","foo"], out : true}, label : "id:foo?", data : "foo -foo foo"},{ fn : "query", expect : { fn : "test", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo .foo"},{ fn : "query", expect : { fn : "test", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo bar:5 .foo"},{ fn : "query", expect : { fn : "test", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo bar:>5 .foo"},{ fn : "query", expect : { fn : "test", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo bar:>5 .foo"},{ fn : "query", expect : { fn : "test", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo .foo"},{ fn : "query", expect : { fn : "test", input : ["id","foo"], out : false}, label : "!id:foo", data : ".foo -.foo .foo"}]);
-	Test.test([{ fn : "query", expect : { fn : "test", input : ["price","10"], out : true}, data : "price:>=5"},{ fn : "query", expect : { fn : "test", input : ["price","10"], out : false}, data : "price:>=15"},{ fn : "query", expect : { fn : "test", input : ["price","4"], out : false}, data : "price:>=5"},{ fn : "query", expect : { fn : "test", input : ["price","0"], out : false}, data : "price:>=5"}]);
+	Test.test([{ fn : "query", expect : { fn : "testProperty", input : ["class","bar"], out : true}, data : "class:bar"},{ fn : "query", expect : { fn : "testProperty", input : ["class","bar"], out : true}, label : ".bar shorthand", data : ".bar"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : false}, data : ".bar -.foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, data : ".bar -.foo .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","bar"], out : true}, data : ".bar -.bar .bar"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo bar:5 .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo bar:>5 .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo bar:>5 .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["id","foo"], out : false}, label : "!id:foo", data : ".foo -.foo .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["id","foo"], out : true}, label : "id:foo?", data : "foo -foo foo"}]);
+	Test.test([{ fn : "query", expect : { fn : "testProperty", input : ["price","10"], out : true}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","10"], out : false}, data : "price:>=15"},{ fn : "query", expect : { fn : "testProperty", input : ["price","4"], out : false}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","0"], out : false}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","1"], out : false}, label : "price=1", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["price","0"], out : true}, label : "price=0", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["price","6"], out : true}, label : "price=6", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, data : "tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : false}, data : "-tag:foo"},{ fn : "query", expect : { fn : "testPropertyExclude", input : ["tag","foo"], out : true}, label : "testExclude", data : "-tag:foo"},{ fn : "query", expect : { fn : "test", input : [{ price : 5}], out : true}, data : ".foo price:5 -tag:foo"},{ fn : "query", expect : { fn : "test", input : [{ tag : "foo", price : 5}], out : false}, data : ".foo price:5 -tag:foo"}]);
 };
 Test.test = function(spec) {
 	var Query = xrfragment_Query;
@@ -152,7 +152,13 @@ Test.test = function(spec) {
 			res = xrfragment_Url.parse(item.data);
 		}
 		if(item.expect.fn == "test") {
-			valid = item.expect.out == q.test(item.expect.input[0],item.expect.input[1]);
+			valid = item.expect.out == q.test(item.expect.input[0]);
+		}
+		if(item.expect.fn == "testProperty") {
+			valid = item.expect.out == q.testProperty(item.expect.input[0],item.expect.input[1]);
+		}
+		if(item.expect.fn == "testPropertyExclude") {
+			valid = item.expect.out == q.testProperty(item.expect.input[0],item.expect.input[1],true);
 		}
 		if(item.expect.fn == "equal.string") {
 			valid = item.expect.out == res[item.expect.input].string;
@@ -164,13 +170,13 @@ Test.test = function(spec) {
 			valid = Test.equalMulti(res,item);
 		}
 		var ok = valid ? "[ ✔ ] " : "[ ❌] ";
-		console.log("src/Test.hx:36:",ok + Std.string(item.fn) + ": '" + Std.string(item.data) + "'" + (item.label ? " <= " + (item.label ? item.label : item.expect.fn) : ""));
+		console.log("src/Test.hx:38:",ok + Std.string(item.fn) + ": '" + Std.string(item.data) + "'" + (item.label ? "    (" + (item.label ? item.label : item.expect.fn) + ")" : ""));
 		if(!valid) {
 			++errors;
 		}
 	}
 	if(errors > 1) {
-		console.log("src/Test.hx:39:","\n-----\n[ ❌] " + errors + " errors :/");
+		console.log("src/Test.hx:41:","\n-----\n[ ❌] " + errors + " errors :/");
 	}
 };
 Test.equalMulti = function(res,item) {
@@ -265,6 +271,8 @@ js_Boot.__string_rec = function(o,s) {
 	}
 };
 var xrfragment_Query = function(str) {
+	this.isNumber = new EReg("^[0-9\\.]+$","");
+	this.isClass = new EReg("^[-]?class$","");
 	this.isExclude = new EReg("^-","");
 	this.isProp = new EReg("^.*:[><=!]?","");
 	this.q = { };
@@ -294,7 +302,13 @@ xrfragment_Query.prototype = {
 				prefix = "";
 			}
 			str = StringTools.trim(str);
-			var value = { };
+			var k = str.split(":")[0];
+			var v = str.split(":")[1];
+			var filter = { };
+			if(q[prefix + k]) {
+				filter = q[prefix + k];
+			}
+			filter["rules"] = filter["rules"] != null ? filter["rules"] : [];
 			if(_gthis.isProp.match(str)) {
 				var oper = "";
 				if(str.indexOf("*") != -1) {
@@ -306,32 +320,39 @@ xrfragment_Query.prototype = {
 				if(str.indexOf("<") != -1) {
 					oper = "<";
 				}
-				if(str.indexOf("!=") != -1) {
-					oper = "!=";
-				}
 				if(str.indexOf(">=") != -1) {
 					oper = ">=";
 				}
 				if(str.indexOf("<=") != -1) {
 					oper = "<=";
 				}
-				var k = str.split(":")[0];
-				var v = str.split(":")[1];
-				if(q[prefix + k]) {
-					value = q[prefix + k];
-				}
-				if(oper.length > 0) {
-					value[oper] = parseFloat(HxOverrides.substr(v,oper.length,null));
-					q[k] = value;
+				if(_gthis.isExclude.match(k)) {
+					oper = "!=";
+					k = HxOverrides.substr(k,1,null);
 				} else {
-					value[prefix + (_gthis.isExclude.match(k) ? HxOverrides.substr(k,1,null) : k)] = _gthis.isExclude.match(k) == false;
-					q[v] = value;
+					v = HxOverrides.substr(v,oper.length,null);
+				}
+				if(oper.length == 0) {
+					oper = "=";
+				}
+				if(_gthis.isClass.match(k)) {
+					filter[prefix + k] = oper != "!=";
+					q[v] = filter;
+				} else {
+					var rule = { };
+					if(_gthis.isNumber.match(v)) {
+						rule[oper] = parseFloat(v);
+					} else {
+						rule[oper] = v;
+					}
+					filter["rules"].push(rule);
+					q[k] = filter;
 				}
 				return;
 			} else {
-				value["id"] = _gthis.isExclude.match(str) ? false : true;
+				filter["id"] = _gthis.isExclude.match(str) ? false : true;
 				var key = _gthis.isExclude.match(str) ? HxOverrides.substr(str,1,null) : str;
-				q[key] = value;
+				q[key] = filter;
 			}
 		};
 		var _g = 0;
@@ -343,7 +364,31 @@ xrfragment_Query.prototype = {
 		this.q = q;
 		return this.q;
 	}
-	,test: function(property,value) {
+	,test: function(obj) {
+		var qualify = false;
+		var _g = 0;
+		var _g1 = Reflect.fields(obj);
+		while(_g < _g1.length) {
+			var k = _g1[_g];
+			++_g;
+			var v = Std.string(Reflect.field(obj,k));
+			if(this.testProperty(k,v)) {
+				qualify = true;
+			}
+		}
+		var _g = 0;
+		var _g1 = Reflect.fields(obj);
+		while(_g < _g1.length) {
+			var k = _g1[_g];
+			++_g;
+			var v = Std.string(Reflect.field(obj,k));
+			if(this.testProperty(k,v,true)) {
+				qualify = false;
+			}
+		}
+		return qualify;
+	}
+	,testProperty: function(property,value,exclude) {
 		var conds = 0;
 		var fails = 0;
 		var qualify = 0;
@@ -363,30 +408,39 @@ xrfragment_Query.prototype = {
 		while(_g < _g1.length) {
 			var k = _g1[_g];
 			++_g;
-			var qval = Reflect.field(this.q,k);
-			if(typeof(value) == "string") {
+			var filter = Reflect.field(this.q,k);
+			if(filter.rules == null) {
 				continue;
 			}
-			if(Reflect.field(qval,"=") != null && testprop(value == Reflect.field(qval,"="))) {
-				++qualify;
-			}
-			if(Reflect.field(qval,"*") != null && testprop(value != null)) {
-				++qualify;
-			}
-			if(Reflect.field(qval,">") != null && testprop(value > parseFloat(Reflect.field(qval,">")))) {
-				++qualify;
-			}
-			if(Reflect.field(qval,"<") != null && testprop(value < parseFloat(Reflect.field(qval,"<")))) {
-				++qualify;
-			}
-			if(Reflect.field(qval,">=") != null && testprop(value >= parseFloat(Reflect.field(qval,">=")))) {
-				++qualify;
-			}
-			if(Reflect.field(qval,"<=") != null && testprop(value >= parseFloat(Reflect.field(qval,"<=")))) {
-				++qualify;
-			}
-			if(Reflect.field(qval,"!=") != null && testprop(value != parseFloat(Reflect.field(qval,"!=")))) {
-				++qualify;
+			var rules = filter.rules;
+			var _g2 = 0;
+			while(_g2 < rules.length) {
+				var rule = rules[_g2];
+				++_g2;
+				if(exclude) {
+					if(Reflect.field(rule,"!=") != null && testprop((value == null ? "null" : "" + value) == Std.string(Reflect.field(rule,"!="))) && exclude) {
+						++qualify;
+					}
+				} else {
+					if(Reflect.field(rule,"*") != null && testprop(parseFloat(value) != null)) {
+						++qualify;
+					}
+					if(Reflect.field(rule,">") != null && testprop(parseFloat(value) > parseFloat(Reflect.field(rule,">")))) {
+						++qualify;
+					}
+					if(Reflect.field(rule,"<") != null && testprop(parseFloat(value) < parseFloat(Reflect.field(rule,"<")))) {
+						++qualify;
+					}
+					if(Reflect.field(rule,">=") != null && testprop(parseFloat(value) >= parseFloat(Reflect.field(rule,">=")))) {
+						++qualify;
+					}
+					if(Reflect.field(rule,"<=") != null && testprop(parseFloat(value) <= parseFloat(Reflect.field(rule,"<=")))) {
+						++qualify;
+					}
+					if(Reflect.field(rule,"=") != null && (testprop(value == Reflect.field(rule,"=")) || testprop(parseFloat(value) == parseFloat(Reflect.field(rule,"="))))) {
+						++qualify;
+					}
+				}
 			}
 		}
 		return qualify > 0;

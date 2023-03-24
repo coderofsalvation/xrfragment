@@ -14,7 +14,7 @@ class Test {
   static public function main():Void {
     test( Spec.load("src/spec/url.json") );
     test( Spec.load("src/spec/query.class.json") );
-    test( Spec.load("src/spec/query.conditional.json") );
+    test( Spec.load("src/spec/query.rules.json") );
     //test( Spec.load("src/spec/tmp.json") );
   }
 
@@ -28,12 +28,14 @@ class Test {
       var item:Dynamic = spec[i];
       if( item.fn == "query"       ) q   = new Query(item.data);
       if( item.fn == "url"         ) res = Url.parse(item.data);
-      if( item.expect.fn == "test"         ) valid = item.expect.out == q.test( item.expect.input[0], item.expect.input[1] );
-      if( item.expect.fn == "equal.string" ) valid = item.expect.out == res.get(item.expect.input).string;
-      if( item.expect.fn == "equal.xy"     ) valid = item.expect.out == (Std.string(res.get(item.expect.input).x) + Std.string(res.get(item.expect.input).y) );
-      if( item.expect.fn == "equal.multi"  ) valid = equalMulti(res, item);
+      if( item.expect.fn == "test"         ) valid = item.expect.out == q.test( item.expect.input[0] );
+      if( item.expect.fn == "testProperty"        ) valid = item.expect.out == q.testProperty( item.expect.input[0], item.expect.input[1] );
+      if( item.expect.fn == "testPropertyExclude" ) valid = item.expect.out == q.testProperty( item.expect.input[0], item.expect.input[1], true );
+      if( item.expect.fn == "equal.string"        ) valid = item.expect.out == res.get(item.expect.input).string;
+      if( item.expect.fn == "equal.xy"            ) valid = item.expect.out == (Std.string(res.get(item.expect.input).x) + Std.string(res.get(item.expect.input).y) );
+      if( item.expect.fn == "equal.multi"         ) valid = equalMulti(res, item);
       var ok:String = valid ? "[ ✔ ] " : "[ ❌] ";
-      trace( ok + item.fn + ": '" + item.data + "'" + (item.label ? " <= " + (item.label?item.label:item.expect.fn) : ""));
+      trace( ok + item.fn + ": '" + item.data + "'" + (item.label ? "    (" + (item.label?item.label:item.expect.fn) +")" : ""));
 			if( !valid ) errors += 1;
     }
 		if( errors > 1 ) trace("\n-----\n[ ❌] "+errors+" errors :/");

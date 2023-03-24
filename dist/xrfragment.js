@@ -42,26 +42,6 @@ HxOverrides.substr = function(s,pos,len) {
 HxOverrides.now = function() {
 	return Date.now();
 };
-var Reflect = function() { };
-Reflect.field = function(o,field) {
-	try {
-		return o[field];
-	} catch( _g ) {
-		return null;
-	}
-};
-Reflect.fields = function(o) {
-	var a = [];
-	if(o != null) {
-		var hasOwnProperty = Object.prototype.hasOwnProperty;
-		for( var f in o ) {
-		if(f != "__id__" && f != "hx__closures__" && hasOwnProperty.call(o,f)) {
-			a.push(f);
-		}
-		}
-	}
-	return a;
-};
 var Std = function() { };
 Std.parseInt = function(x) {
 	if(x != null) {
@@ -131,6 +111,8 @@ haxe_iterators_ArrayIterator.prototype = {
 	}
 };
 var xrfragment_Query = function(str) {
+	this.isNumber = new EReg("^[0-9\\.]+$","");
+	this.isClass = new EReg("^[-]?class$","");
 	this.isExclude = new EReg("^-","");
 	this.isProp = new EReg("^.*:[><=!]?","");
 	this.q = { };
@@ -159,7 +141,13 @@ xrfragment_Query.prototype = {
 				prefix = "";
 			}
 			str = StringTools.trim(str);
-			var value = { };
+			var k = str.split(":")[0];
+			var v = str.split(":")[1];
+			var filter = { };
+			if(q[prefix + k]) {
+				filter = q[prefix + k];
+			}
+			filter["rules"] = filter["rules"] != null ? filter["rules"] : [];
 			if(_gthis.isProp.match(str)) {
 				var oper = "";
 				if(str.indexOf("*") != -1) {
@@ -171,32 +159,39 @@ xrfragment_Query.prototype = {
 				if(str.indexOf("<") != -1) {
 					oper = "<";
 				}
-				if(str.indexOf("!=") != -1) {
-					oper = "!=";
-				}
 				if(str.indexOf(">=") != -1) {
 					oper = ">=";
 				}
 				if(str.indexOf("<=") != -1) {
 					oper = "<=";
 				}
-				var k = str.split(":")[0];
-				var v = str.split(":")[1];
-				if(q[prefix + k]) {
-					value = q[prefix + k];
-				}
-				if(oper.length > 0) {
-					value[oper] = parseFloat(HxOverrides.substr(v,oper.length,null));
-					q[k] = value;
+				if(_gthis.isExclude.match(k)) {
+					oper = "!=";
+					k = HxOverrides.substr(k,1,null);
 				} else {
-					value[prefix + (_gthis.isExclude.match(k) ? HxOverrides.substr(k,1,null) : k)] = _gthis.isExclude.match(k) == false;
-					q[v] = value;
+					v = HxOverrides.substr(v,oper.length,null);
+				}
+				if(oper.length == 0) {
+					oper = "=";
+				}
+				if(_gthis.isClass.match(k)) {
+					filter[prefix + k] = oper != "!=";
+					q[v] = filter;
+				} else {
+					var rule = { };
+					if(_gthis.isNumber.match(v)) {
+						rule[oper] = parseFloat(v);
+					} else {
+						rule[oper] = v;
+					}
+					filter["rules"].push(rule);
+					q[k] = filter;
 				}
 				return;
 			} else {
-				value["id"] = _gthis.isExclude.match(str) ? false : true;
+				filter["id"] = _gthis.isExclude.match(str) ? false : true;
 				var key = _gthis.isExclude.match(str) ? HxOverrides.substr(str,1,null) : str;
-				q[key] = value;
+				q[key] = filter;
 			}
 		};
 		var _g = 0;
@@ -207,54 +202,6 @@ xrfragment_Query.prototype = {
 		}
 		this.q = q;
 		return this.q;
-	}
-	,test: function(property,value) {
-		var conds = 0;
-		var fails = 0;
-		var qualify = 0;
-		var testprop = function(expr) {
-			conds += 1;
-			fails += expr ? 0 : 1;
-			return expr;
-		};
-		if(this.q[value] != null) {
-			var v = this.q[value];
-			if(v[property] != null) {
-				return v[property];
-			}
-		}
-		var _g = 0;
-		var _g1 = Reflect.fields(this.q);
-		while(_g < _g1.length) {
-			var k = _g1[_g];
-			++_g;
-			var qval = Reflect.field(this.q,k);
-			if(typeof(value) == "string") {
-				continue;
-			}
-			if(Reflect.field(qval,"=") != null && testprop(value == Reflect.field(qval,"="))) {
-				++qualify;
-			}
-			if(Reflect.field(qval,"*") != null && testprop(value != null)) {
-				++qualify;
-			}
-			if(Reflect.field(qval,">") != null && testprop(value > parseFloat(Reflect.field(qval,">")))) {
-				++qualify;
-			}
-			if(Reflect.field(qval,"<") != null && testprop(value < parseFloat(Reflect.field(qval,"<")))) {
-				++qualify;
-			}
-			if(Reflect.field(qval,">=") != null && testprop(value >= parseFloat(Reflect.field(qval,">=")))) {
-				++qualify;
-			}
-			if(Reflect.field(qval,"<=") != null && testprop(value >= parseFloat(Reflect.field(qval,"<=")))) {
-				++qualify;
-			}
-			if(Reflect.field(qval,"!=") != null && testprop(value != parseFloat(Reflect.field(qval,"!=")))) {
-				++qualify;
-			}
-		}
-		return qualify > 0;
 	}
 };
 var xrfragment_Value = $hx_exports["xrfragment"]["Value"] = function() {

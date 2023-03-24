@@ -42,6 +42,8 @@ class Query {
   private var q:haxe.DynamicAccess<Dynamic> = {};
   private var isProp:EReg        = ~/^.*:[><=!]?/;
   private var isExclude:EReg     = ~/^-/;
+  private var isClass:EReg       = ~/^[-]?class$/;
+  private var isNumber:EReg      = ~/^[0-9\.]+$/;
 
   public function new(str:String){
     if( str != null  ) this.parse(str);
@@ -65,29 +67,40 @@ class Query {
 
     function process(str,prefix = ""){
       str = StringTools.trim(str);
-      var value:haxe.DynamicAccess<Dynamic> = {};
+      var k:String = str.split(":")[0];
+      var v:String = str.split(":")[1];
+      // retrieve existing filter if any
+      var filter:haxe.DynamicAccess<Dynamic> = {};
+      if( q.get(prefix+k) ) filter = q.get(prefix+k);
+      filter['rules'] = filter['rules'] != null ? filter['rules'] : new Array<Dynamic>();
+
       if( isProp.match(str) ){
         var oper:String = "";
         if( str.indexOf("*")  != -1 ) oper = "*";
         if( str.indexOf(">")  != -1 ) oper = ">";
         if( str.indexOf("<")  != -1 ) oper = "<";
-        if( str.indexOf("!=") != -1 ) oper = "!=";
         if( str.indexOf(">=") != -1 ) oper = ">=";
         if( str.indexOf("<=") != -1 ) oper = "<=";
-        var k:String = str.split(":")[0];
-        var v:String = str.split(":")[1];
-        if( q.get(prefix+k) ) value = q.get(prefix+k);
-        if( oper.length > 0 ){
-          value[ oper ] = Std.parseFloat( v.substr(oper.length) );
-          q.set( k, value );
+        if( isExclude.match(k) ){
+          oper = "!=";
+          k = k.substr(1); // convert "-foo" into "foo" 
+        }else v = v.substr(oper.length); // change ">=foo" into "foo" (strip operator)
+        if( oper.length == 0 ) oper = "=";
+
+        if( isClass.match(k) ){
+          filter[ prefix+ k ] = oper != "!=";
+          q.set(v,filter);
         }else{
-          value[ prefix+ (isExclude.match(k) ? k.substr(1) : k) ] = isExclude.match(k) == false;
-          q.set(v,value);
+          var rule:haxe.DynamicAccess<Dynamic> = {};
+          if( isNumber.match(v) ) rule[ oper ] = Std.parseFloat(v);
+          else rule[oper] = v;
+          filter['rules'].push( rule );
+          q.set( k, filter );
         }
         return;
       }else{ // id
-        value[ "id" ] = isExclude.match(str) ? false: true;
-        q.set( (isExclude.match(str) ? str.substr(1) : str ) ,value );
+        filter[ "id" ] = isExclude.match(str) ? false: true;
+        q.set( (isExclude.match(str) ? str.substr(1) : str ) ,filter );
       }
     }
     for( i in 0...token.length ) process( expandAliases(token[i]) );
@@ -95,8 +108,21 @@ class Query {
     return this.q;
   }
 
-  @:keep
-  public function test( property:String, ?value:Dynamic ):Bool{
+  public function test( ?obj:Dynamic ):Bool{
+    var qualify:Bool = false;
+    // first apply includes, then excludes
+    for ( k in Reflect.fields(obj) ){
+      var v:String = Std.string( Reflect.field(obj,k) );
+      if( testProperty( k, v) ) qualify = true;
+    }
+    for ( k in Reflect.fields(obj) ){
+      var v:String = Std.string( Reflect.field(obj,k) );
+      if( testProperty( k, v, true) ) qualify = false;
+    }
+    return qualify;
+  }
+
+  public function testProperty( property:String, value:String, ?exclude:Bool ):Bool{
     var conds:Int = 0;
     var fails:Int = 0;
     var qualify:Int  = 0;
@@ -113,17 +139,28 @@ class Query {
       if( v.get(property) != null ) return v.get(property);
     }
 
-    // conditional props
+    // conditional rules
     for ( k in Reflect.fields(q) ){
-      var qval:Dynamic = Reflect.field(q,k);
-      if( Std.isOfType(value, String) ) continue;
-      if( Reflect.field(qval,'=')  != null && testprop( value == Reflect.field(qval,'=')                ) ) qualify += 1;
-      if( Reflect.field(qval,'*')  != null && testprop( value != null                                   ) ) qualify += 1;
-      if( Reflect.field(qval,'>')  != null && testprop( value >  Std.parseFloat(Reflect.field(qval,'>' )) ) ) qualify += 1;
-      if( Reflect.field(qval,'<')  != null && testprop( value <  Std.parseFloat(Reflect.field(qval,'<' )) ) ) qualify += 1;
-      if( Reflect.field(qval,'>=') != null && testprop( value >= Std.parseFloat(Reflect.field(qval,'>=')) ) ) qualify += 1;
-      if( Reflect.field(qval,'<=') != null && testprop( value >= Std.parseFloat(Reflect.field(qval,'<=')) ) ) qualify += 1;
-      if( Reflect.field(qval,'!=') != null && testprop( value != Std.parseFloat(Reflect.field(qval,'!=')) ) ) qualify += 1;
+      var filter:Dynamic = Reflect.field(q,k);
+      if( filter.rules == null  ) continue;
+      var rules:Array<Dynamic> = filter.rules;
+
+      for( rule in rules ){
+        //if( Std.isOfType(value, String) ) contiggnue;
+        if( exclude ){
+          if( Reflect.field(rule,'!=') != null && testprop( Std.string(value) == Std.string(Reflect.field(rule,'!='))) && exclude ) qualify += 1;
+        }else{
+          if( Reflect.field(rule,'*')  != null && testprop( Std.parseFloat(value) != null                                   ) ) qualify += 1;
+          if( Reflect.field(rule,'>')  != null && testprop( Std.parseFloat(value) >  Std.parseFloat(Reflect.field(rule,'>' )) ) ) qualify += 1;
+          if( Reflect.field(rule,'<')  != null && testprop( Std.parseFloat(value) <  Std.parseFloat(Reflect.field(rule,'<' )) ) ) qualify += 1;
+          if( Reflect.field(rule,'>=') != null && testprop( Std.parseFloat(value) >= Std.parseFloat(Reflect.field(rule,'>=')) ) ) qualify += 1;
+          if( Reflect.field(rule,'<=') != null && testprop( Std.parseFloat(value) <= Std.parseFloat(Reflect.field(rule,'<=')) ) ) qualify += 1;
+          if( Reflect.field(rule,'=')  != null && (
+            testprop( value == Reflect.field(rule,'='))                   ||
+            testprop( Std.parseFloat(value) == Std.parseFloat(Reflect.field(rule,'=')))
+          )) qualify += 1;
+        }
+      }
     }
     return qualify > 0;
   }
