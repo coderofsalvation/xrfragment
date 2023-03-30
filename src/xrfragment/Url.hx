@@ -3,16 +3,20 @@ package xrfragment;
 @:expose  // <- makes the class reachable from plain JavaScript
 @:keep    // <- avoids accidental removal by dead code elimination
 
-class Value {
-  public var x:Float;
-  public var y:Float;
-  public var z:Float;
-  public var color:String;
-  public var string:String;
-  public var int:Int;
-  public var float:Float;
-  public var args:Array<Value>;
-  public function new(){}
+                                //  # URI Value types
+                                //  
+                                //  | type | info | format | example                          |
+class Value {                   //  |------|------|-------------------------------------------|
+  public var x:Float;           //  |vector| x,y,z| comma-separated    | #pos=1,2,3           |
+  public var y:Float;           // 
+  public var z:Float;           //
+  public var color:String;      //  |string| color| FFFFFF (hex)      | #fog=5m,FFAACC        |
+  public var string:String;     //  |string|      |                   | #q=-sun               |
+  public var int:Int;           //  |int   |      | [-]x[xxxxx]       | #price:>=100          |
+  public var float:Float;       //  |float |      | [-]x[.xxxx] (ieee)| #prio=-20
+  public var args:Array<Value>; //  |array | mixed| \|-separated      | #pos=0,0,0|90,0,0     |
+  public function new(){}       //  
+                                //  > in general type-limitations will piggyback JSON limitations (IEEE floatsize e.g.)
 }
 
 class Url {
