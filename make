@@ -30,5 +30,10 @@ tests(){
   grep error /tmp/log.txt && exit 1 || exit 0
 }
 
+doc(){
+  extract(){ cat $1 | awk '/\/\/  / { gsub(".*//  ","",$0); print $0; }'; }
+  extract src/xrfragment/Url.hx > doc/url.md
+}
+
 test -z $1 && { try rm dist/* ; haxe build.hxml; exit $?; }
 test -z $1 || "$@"
