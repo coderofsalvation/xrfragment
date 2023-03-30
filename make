@@ -1,5 +1,6 @@
 #!/bin/sh
 set -e
+VERSION=1.0.0
 
 try(){ set +e; "$@" 2>/dev/null; set -e; }
 
@@ -23,16 +24,16 @@ install(){
 }
 
 tests(){
-	{
-		which python3 && python3 test/generated/test.py src/spec/*.json | awk '{ print "py: "$0 } END{ print "\n"}'
-		which node    && node test/generated/test.js    src/spec/*.json | awk '{ print "js: "$0 } END{ print "\n"}'
-	} | tee /tmp/log.txt
-  grep error /tmp/log.txt && exit 1 || exit 0
+  {
+  	which python3 && python3 test/generated/test.py src/spec/*.json | awk '{ print "py: "$0 } END{ print "\n"}'
+  	which node    && node test/generated/test.js    src/spec/*.json | awk '{ print "js: "$0 } END{ print "\n"}'
+  } | awk '$2 ~ /src/ { $2=sprintf("%-30s",$2); print $0; } 1' | tee /tmp/log.txt
+  grep error /tmp/log.txt && exit 1 || exit 
 }
 
 doc(){
-    extract(){ cat $1 | awk '/\/\/  / { gsub(".*//  ","",$0); gsub("# ","\n# ",$0);print $0; }'; }
-  extract src/xrfragment/Url.hx > doc/url.md
+  extract(){ cat $1 | awk '/\/\/  / { gsub(".*//  ","",$0); gsub("# ","\n# ",$0);print $0; }'; }
+  { echo "> version $VERSION\n" && extract src/xrfragment/Url.hx; } > doc/url.md
 }
 
 test -z $1 && { try rm dist/* ; haxe build.hxml; exit $?; }

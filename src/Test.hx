@@ -11,16 +11,18 @@ class Spec {
 
 class Test {
 
+  static var errors:Int = 0;
+
   static public function main():Void {
     test( Spec.load("src/spec/url.json") );
     test( Spec.load("src/spec/query.class.json") );
     test( Spec.load("src/spec/query.rules.json") );
     //test( Spec.load("src/spec/tmp.json") );
+		if( errors > 1 ) trace("\n-----\n[ ❌] "+errors+" errors :/");
   }
 
   static public function test(spec:Array<Dynamic>):Void {
     var Query = xrfragment.Query;
-		var errors:Int = 0;
     for( i in 0...spec.length ){
       var q:Query      = null;
       var res:haxe.DynamicAccess<Dynamic>  = null;
@@ -31,6 +33,7 @@ class Test {
       if( item.expect.fn == "test"         ) valid = item.expect.out == q.test( item.expect.input[0] );
       if( item.expect.fn == "testProperty"        ) valid = item.expect.out == q.testProperty( item.expect.input[0], item.expect.input[1] );
       if( item.expect.fn == "testPropertyExclude" ) valid = item.expect.out == q.testProperty( item.expect.input[0], item.expect.input[1], true );
+      if( item.expect.fn == "testParsed"          ) valid = item.expect.out == res.exists(item.expect.input);
       if( item.expect.fn == "equal.string"        ) valid = item.expect.out == res.get(item.expect.input).string;
       if( item.expect.fn == "equal.xy"            ) valid = item.expect.out == (Std.string(res.get(item.expect.input).x) + Std.string(res.get(item.expect.input).y) );
       if( item.expect.fn == "equal.multi"         ) valid = equalMulti(res, item);
@@ -38,17 +41,18 @@ class Test {
       trace( ok + item.fn + ": '" + item.data + "'" + (item.label ? "    (" + (item.label?item.label:item.expect.fn) +")" : ""));
 			if( !valid ) errors += 1;
     }
-		if( errors > 1 ) trace("\n-----\n[ ❌] "+errors+" errors :/");
   }
 
 	static public function equalMulti(res:haxe.DynamicAccess<Dynamic>, item:Dynamic):Bool {
+trace(res);
     var target:Dynamic = res.get(item.expect.input);
     var str:String     = "";
+		if( !target ) return false;
 		for( i in 0...target.args.length ){
 			str = str + "|" + target.args[i].string;
 		}
 		str = str.substr(1);
-    return str == item.expect.out;
+    return item.expect.out ? str == item.expect.out : false;
 	}
 
   static public function testUrl():Void {

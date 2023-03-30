@@ -1,5 +1,6 @@
 [
-  {"fn":"url","data":"http://foo.com?foo=1#bar=flop&a=1,2&b=c|d|1,2,3", "expect":{ "fn":"equal.string","input":"bar","out":"flop"}},
-  {"fn":"url","data":"http://foo.com?foo=1#bar=flop&a=1.2,2.2&b=c|d|1,2,3", "expect":{ "fn":"equal.xy",    "input":"a","out":"1.22.2"},"label":"a equal.xy"},
-  {"fn":"url","data":"http://foo.com?foo=1#b=c|d|1,2,3", "expect":{ "fn":"equal.multi", "input":"b","out":"c|d|1,2,3"},"label":"b equal.multi"}
+  {"fn":"url","data":"http://foo.com?foo=1#pos=flop", "expect":{ "fn":"equal.string","input":"pos","out":"flop"}},
+  {"fn":"url","data":"http://foo.com?foo=1#pos=1.2,2.2", "expect":{ "fn":"equal.xy",    "input":"pos","out":"1.22.2"},"label":"a equal.xy"},
+  {"fn":"url","data":"http://foo.com?foo=1#prio=foo", "expect":{ "fn":"testParsed", "input":"prio","out":false},"label":"drop incompatible type"},
+  {"fn":"url","data":"http://foo.com?foo=1#pos=c|d|1,2,3", "expect":{ "fn":"equal.multi", "input":"pos","out":"c|d|1,2,3"},"label":"b equal.multi"}
 ]

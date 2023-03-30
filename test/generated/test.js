@@ -130,13 +130,15 @@ StringTools.replace = function(s,sub,by) {
 var Test = function() { };
 Test.__name__ = true;
 Test.main = function() {
-	Test.test([{ fn : "url", expect : { fn : "equal.string", input : "bar", out : "flop"}, data : "http://foo.com?foo=1#bar=flop&a=1,2&b=c|d|1,2,3"},{ fn : "url", expect : { fn : "equal.xy", input : "a", out : "1.22.2"}, label : "a equal.xy", data : "http://foo.com?foo=1#bar=flop&a=1.2,2.2&b=c|d|1,2,3"},{ fn : "url", expect : { fn : "equal.multi", input : "b", out : "c|d|1,2,3"}, label : "b equal.multi", data : "http://foo.com?foo=1#b=c|d|1,2,3"}]);
+	Test.test([{ fn : "url", expect : { fn : "equal.string", input : "pos", out : "flop"}, data : "http://foo.com?foo=1#pos=flop"},{ fn : "url", expect : { fn : "equal.xy", input : "pos", out : "1.22.2"}, label : "a equal.xy", data : "http://foo.com?foo=1#pos=1.2,2.2"},{ fn : "url", expect : { fn : "testParsed", input : "prio", out : false}, label : "drop incompatible type", data : "http://foo.com?foo=1#prio=foo"},{ fn : "url", expect : { fn : "equal.multi", input : "pos", out : "c|d|1,2,3"}, label : "b equal.multi", data : "http://foo.com?foo=1#pos=c|d|1,2,3"}]);
 	Test.test([{ fn : "query", expect : { fn : "testProperty", input : ["class","bar"], out : true}, data : "class:bar"},{ fn : "query", expect : { fn : "testProperty", input : ["class","bar"], out : true}, label : ".bar shorthand", data : ".bar"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : false}, data : ".bar -.foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, data : ".bar -.foo .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","bar"], out : true}, data : ".bar -.bar .bar"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo bar:5 .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo bar:>5 .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo bar:>5 .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["id","foo"], out : false}, label : "!id:foo", data : ".foo -.foo .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["id","foo"], out : true}, label : "id:foo?", data : "foo -foo foo"}]);
 	Test.test([{ fn : "query", expect : { fn : "testProperty", input : ["price","10"], out : true}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","10"], out : false}, data : "price:>=15"},{ fn : "query", expect : { fn : "testProperty", input : ["price","4"], out : false}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","0"], out : false}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","1"], out : false}, label : "price=1", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["price","0"], out : true}, label : "price=0", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["price","6"], out : true}, label : "price=6", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, data : "tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : false}, data : "-tag:foo"},{ fn : "query", expect : { fn : "testPropertyExclude", input : ["tag","foo"], out : true}, label : "testExclude", data : "-tag:foo"},{ fn : "query", expect : { fn : "test", input : [{ price : 5}], out : true}, data : ".foo price:5 -tag:foo"},{ fn : "query", expect : { fn : "test", input : [{ tag : "foo", price : 5}], out : false}, data : ".foo price:5 -tag:foo"}]);
+	if(Test.errors > 1) {
+		console.log("src/Test.hx:21:","\n-----\n[ ❌] " + Test.errors + " errors :/");
+	}
 };
 Test.test = function(spec) {
 	var Query = xrfragment_Query;
-	var errors = 0;
 	var _g = 0;
 	var _g1 = spec.length;
 	while(_g < _g1) {
@@ -160,6 +162,9 @@ Test.test = function(spec) {
 		if(item.expect.fn == "testPropertyExclude") {
 			valid = item.expect.out == q.testProperty(item.expect.input[0],item.expect.input[1],true);
 		}
+		if(item.expect.fn == "testParsed") {
+			valid = item.expect.out == Object.prototype.hasOwnProperty.call(res,item.expect.input);
+		}
 		if(item.expect.fn == "equal.string") {
 			valid = item.expect.out == res[item.expect.input].string;
 		}
@@ -170,18 +175,19 @@ Test.test = function(spec) {
 			valid = Test.equalMulti(res,item);
 		}
 		var ok = valid ? "[ ✔ ] " : "[ ❌] ";
-		console.log("src/Test.hx:38:",ok + Std.string(item.fn) + ": '" + Std.string(item.data) + "'" + (item.label ? "    (" + (item.label ? item.label : item.expect.fn) + ")" : ""));
+		console.log("src/Test.hx:41:",ok + Std.string(item.fn) + ": '" + Std.string(item.data) + "'" + (item.label ? "    (" + (item.label ? item.label : item.expect.fn) + ")" : ""));
 		if(!valid) {
-			++errors;
+			Test.errors += 1;
 		}
-	}
-	if(errors > 1) {
-		console.log("src/Test.hx:41:","\n-----\n[ ❌] " + errors + " errors :/");
 	}
 };
 Test.equalMulti = function(res,item) {
+	console.log("src/Test.hx:47:",res);
 	var target = res[item.expect.input];
 	var str = "";
+	if(!target) {
+		return false;
+	}
 	var _g = 0;
 	var _g1 = target.args.length;
 	while(_g < _g1) {
@@ -189,7 +195,11 @@ Test.equalMulti = function(res,item) {
 		str = str + "|" + target.args[i].string;
 	}
 	str = HxOverrides.substr(str,1,null);
-	return str == item.expect.out;
+	if(item.expect.out) {
+		return str == item.expect.out;
+	} else {
+		return false;
+	}
 };
 var haxe_iterators_ArrayIterator = function(array) {
 	this.current = 0;
@@ -446,12 +456,12 @@ xrfragment_Query.prototype = {
 		return qualify > 0;
 	}
 };
-var xrfragment_Value = $hx_exports["xrfragment"]["Value"] = function() {
-};
-xrfragment_Value.__name__ = true;
-var xrfragment_Url = function() { };
+var xrfragment_Url = $hx_exports["xrfragment"]["Url"] = function() { };
 xrfragment_Url.__name__ = true;
 xrfragment_Url.parse = function(qs) {
+	var Frag_h = Object.create(null);
+	Frag_h["pos"] = xrfragment_Type.isVector;
+	Frag_h["prio"] = xrfragment_Type.isInt;
 	var fragment = qs.split("#");
 	var splitArray = fragment[1].split("&");
 	var regexPlus = new EReg("\\+","g");
@@ -466,28 +476,33 @@ xrfragment_Url.parse = function(qs) {
 		if(splitByEqual.length > 1) {
 			var s = regexPlus.split(splitByEqual[1]).join(" ");
 			var value = decodeURIComponent(s.split("+").join(" "));
-			xrfragment_Url.guessType(v,value);
-			if(value.split("|").length > 1) {
-				v.args = [];
-				var args = value.split("|");
-				var _g2 = 0;
-				var _g3 = args.length;
-				while(_g2 < _g3) {
-					var i1 = _g2++;
-					var x = new xrfragment_Value();
-					xrfragment_Url.guessType(x,args[i1]);
-					v.args.push(x);
+			if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
+				if(Frag_h[key].match(value)) {
+					xrfragment_Url.guessType(v,value);
+					if(value.split("|").length > 1) {
+						v.args = [];
+						var args = value.split("|");
+						var _g2 = 0;
+						var _g3 = args.length;
+						while(_g2 < _g3) {
+							var i1 = _g2++;
+							var x = new xrfragment_Value();
+							xrfragment_Url.guessType(x,args[i1]);
+							v.args.push(x);
+						}
+					}
+					resultMap[key] = v;
+				} else {
+					console.log("src/xrfragment/Url.hx:46:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
 				}
+			} else {
+				console.log("src/xrfragment/Url.hx:47:","[ i ] fragment '" + key + "' does not exist or has no type defined (yet)");
 			}
-			resultMap[key] = v;
 		}
 	}
 	return resultMap;
 };
 xrfragment_Url.guessType = function(v,str) {
-	var isColor = new EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","");
-	var isInt = new EReg("^[0-9]+$","");
-	var isFloat = new EReg("^[0-9]+\\.[0-9]+$","");
 	v.string = str;
 	if(str.split(",").length > 1) {
 		var xyz = str.split(",");
@@ -498,25 +513,31 @@ xrfragment_Url.guessType = function(v,str) {
 			v.y = parseFloat(xyz[1]);
 		}
 		if(xyz.length > 2) {
-			v.z = parseFloat(xyz[2]);
+			v.y = parseFloat(xyz[2]);
 		}
 	}
-	if(isColor.match(str)) {
+	if(xrfragment_Type.isColor.match(str)) {
 		v.color = str;
 	}
-	if(isFloat.match(str)) {
+	if(xrfragment_Type.isFloat.match(str)) {
 		v.float = parseFloat(str);
 	}
-	if(isInt.match(str)) {
+	if(xrfragment_Type.isInt.match(str)) {
 		v.int = Std.parseInt(str);
 	}
 };
+var xrfragment_Value = function() {
+};
+xrfragment_Value.__name__ = true;
+var xrfragment_Type = function() { };
+xrfragment_Type.__name__ = true;
 if(typeof(performance) != "undefined" ? typeof(performance.now) == "function" : false) {
 	HxOverrides.now = performance.now.bind(performance);
 }
 String.__name__ = true;
 Array.__name__ = true;
 js_Boot.__toStr = ({ }).toString;
+Test.errors = 0;
 var xrfragment_Query_ok = $hx_exports["xrfragment"]["Query"]["ok"] = 
     // haxe workarounds
     Array.prototype.contains = Array.prototype.includes
@@ -546,6 +567,11 @@ var xrfragment_Query_ok = $hx_exports["xrfragment"]["Query"]["ok"] =
       }
     }
   ;
+xrfragment_Url.error = "";
+xrfragment_Type.isColor = new EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","");
+xrfragment_Type.isInt = new EReg("^[0-9]+$","");
+xrfragment_Type.isFloat = new EReg("^[0-9]+\\.[0-9]+$","");
+xrfragment_Type.isVector = new EReg("([,]+|\\w)","");
 Test.main();
 })({});
 var xrfragment = $hx_exports["xrfragment"];

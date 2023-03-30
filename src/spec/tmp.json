@@ -1,0 +1,5 @@
+[
+  {"fn":"query","data":"tag:foo", "expect":{ "fn":"testProperty","input":["tag","foo"],"out":true}},
+  {"fn":"query","data":"-tag:foo", "expect":{ "fn":"testProperty","input":["tag","foo"],"out":false}},
+  {"fn":"query","data":"-tag:foo", "expect":{ "fn":"testPropertyExclude","input":["tag","foo"],"out":true}}
+]
