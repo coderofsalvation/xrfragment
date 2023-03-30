@@ -44,7 +44,6 @@ class Test {
   }
 
 	static public function equalMulti(res:haxe.DynamicAccess<Dynamic>, item:Dynamic):Bool {
-trace(res);
     var target:Dynamic = res.get(item.expect.input);
     var str:String     = "";
 		if( !target ) return false;

@@ -425,7 +425,6 @@ class Test:
 
     @staticmethod
     def equalMulti(res,item):
-        print(str(res))
         target = Reflect.field(res,Reflect.field(Reflect.field(item,"expect"),"input"))
         _hx_str = ""
         if (not target):

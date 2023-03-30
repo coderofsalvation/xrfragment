@@ -182,7 +182,6 @@ Test.test = function(spec) {
 	}
 };
 Test.equalMulti = function(res,item) {
-	console.log("src/Test.hx:47:",res);
 	var target = res[item.expect.input];
 	var str = "";
 	if(!target) {
