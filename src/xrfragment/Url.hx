@@ -6,7 +6,7 @@ package xrfragment;
                                 //  # URI Value types
                                 //  
                                 //  | type | info | format | example                          |
-class Value {                   //  |------|------|-------------------------------------------|
+class Value {                   //  |------|------|--------|----------------------------------|
   public var x:Float;           //  |vector| x,y,z| comma-separated    | #pos=1,2,3           |
   public var y:Float;           // 
   public var z:Float;           //

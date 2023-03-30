@@ -1,7 +1,7 @@
 # URI Value types
 
 | type | info | format | example                          |
-|------|------|-------------------------------------------|
+|------|------|--------|----------------------------------|
 |vector| x,y,z| comma-separated    | #pos=1,2,3           |
 |string| color| FFFFFF (hex)      | #fog=5m,FFAACC        |
 |string|      |                   | #q=-sun               |
