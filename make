@@ -31,7 +31,7 @@ tests(){
 }
 
 doc(){
-  extract(){ cat $1 | awk '/\/\/  / { gsub(".*//  ","",$0); print $0; }'; }
+    extract(){ cat $1 | awk '/\/\/  / { gsub(".*//  ","",$0); gsub("# ","\n# ",$0);print $0; }'; }
   extract src/xrfragment/Url.hx > doc/url.md
 }
 
