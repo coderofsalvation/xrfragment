@@ -48,8 +48,8 @@ the gist of it:
 |string| color| FFFFFF (hex)      | #fog=5m,FFAACC        |
 |string|      |                   | #q=-sun               |
 |int   |      | [-]x[xxxxx]       | #price:>=100          |
-|float |      | [-]x[.xxxx] (ieee)| #prio=-20
-|array | mixed| \|-separated      | #pos=0,0,0|90,0,0     |
+|float |      | [-]x[.xxxx] (ieee)| #prio=-20             |
+|array | mixed| \|-separated      | #pos=0,0,0\|90,0,0    |
 
 > rule for thumb: type-limitations will piggyback JSON limitations (IEEE floatsize e.g.)
 

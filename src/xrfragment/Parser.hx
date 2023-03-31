@@ -63,8 +63,8 @@ class Value {                                                              //  |
   public var color:String;                                                 //  |string| color| FFFFFF (hex)      | #fog=5m,FFAACC        |
   public var string:String;                                                //  |string|      |                   | #q=-sun               |
   public var int:Int;                                                      //  |int   |      | [-]x[xxxxx]       | #price:>=100          |
-  public var float:Float;                                                  //  |float |      | [-]x[.xxxx] (ieee)| #prio=-20
-  public var args:Array<Value>;                                            //  |array | mixed| \|-separated      | #pos=0,0,0|90,0,0     |
+  public var float:Float;                                                  //  |float |      | [-]x[.xxxx] (ieee)| #prio=-20             |
+  public var args:Array<Value>;                                            //  |array | mixed| \|-separated      | #pos=0,0,0\|90,0,0    |
   public function new(){}                                                  //  
                                                                            //  > rule for thumb: type-limitations will piggyback JSON limitations (IEEE floatsize e.g.)
 }
