@@ -1,5 +1,5 @@
-<link rel="stylesheet" href="https://2wa.isvery.ninja/css/style.css"></link>
-<link href="https://fonts.cdnfonts.com/css/montserrat" rel="stylesheet">
+<link rel="stylesheet" href="https://2wa.isvery.ninja/css/style.css"/>
+<link href="https://fonts.cdnfonts.com/css/montserrat" rel="stylesheet"/>
 
 [![Actions Status](https://github.com/coderofsalvation/xrfragment/workflows/test/badge.svg)](https://github.com/coderofsalvation/xrfragment/actions)
 

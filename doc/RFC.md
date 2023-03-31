@@ -14,13 +14,14 @@
 
 # XR Fragments (key/value params)
  
-> ⛁ = supported in 3D asset-file (custom property or projection)<br>
-> ⚂ = supported in navigator URI (`document.location.href` e.g.)<br>
+> ⛁ = define in 3D asset-file (as custom property or default projection)<br>
+> ☇ = mutable, using navigator URI (`document.location.href` e.g.)<br>
 
 | param   | type          | scope(s) | category          | notes                            |
 |---------|---------------|-------|--------------------|---------------------------------|
 | prio    | int (-10..1)  | ⛁     | Asset loading / linking | \#static allow client to ignore lower-prio objects in the renderloop, to compensate frame-drop/cpu/gpu-overload scenario’soc/notes/prio.md |
-| pos     | 3D vector     | ⛁ ⚂   |HREF navigation/portals |  |
+| pos     | 3D vector     | ⛁ ☇   |HREF navigation/portals |  |
+| q       | string        | ⛁     |Query Selector |  |
 
 
 # XR Fragments parser
@@ -56,6 +57,7 @@ the gist of it:
 1. integers are detected using regex `/^[0-9]+$/`
 1. floats are detected using regex `/^[0-9]+\.[0-9]+$/`
 1. vectors are detected using regex `/[,]/` (but can also be an string referring to an entity-ID in the asset)
+1. anything else is string  `/.*/`
 
 # Tests
  
