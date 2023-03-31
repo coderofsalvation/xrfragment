@@ -80,4 +80,4 @@ class Type {                                                               //
 
 //  # Tests
 //   
-//  the spec is tested with [JSON unittests](src/spec) consumed by [Test.hx](src/Test.hx) to cross-test all languages.
+//  the spec is tested with [JSON unittests](./../src/spec) consumed by [Test.hx](./../src/Test.hx) to cross-test all languages.
