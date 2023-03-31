@@ -14,8 +14,8 @@
 
 # XR Fragments (key/value params)
  
-⛁  = fragment support through 3D asset-file (custom property)<br>
-⚂  = fragment support through navigator URI (`document.location.href` e.g.)<br>
+> ⛁ = fragment support through 3D asset-file (custom property)<br>
+> ⚂ = fragment support through navigator URI (`document.location.href` e.g.)<br>
 
 | param   | type          | scope(s) | category          | notes                            |
 |---------|---------------|-------|--------------------|---------------------------------|
