@@ -1370,6 +1370,7 @@ class xrfragment_Parser:
         Frag = haxe_ds_StringMap()
         Frag.h["prio"] = xrfragment_Type.isInt
         Frag.h["pos"] = xrfragment_Type.isVector
+        Frag.h["q"] = xrfragment_Type.isString
         if (key in Frag.h):
             _this = Frag.h.get(key,None)
             _this.matchObj = python_lib_Re.search(_this.pattern,value)
@@ -1441,7 +1442,7 @@ class xrfragment_Value:
 class xrfragment_Type:
     _hx_class_name = "xrfragment.Type"
     __slots__ = ()
-    _hx_statics = ["isColor", "isInt", "isFloat", "isVector"]
+    _hx_statics = ["isColor", "isInt", "isFloat", "isVector", "isString"]
 
 
 class xrfragment_Query:
@@ -1579,8 +1580,8 @@ class xrfragment_Query:
         fails = 0
         qualify = 0
         def _hx_local_2(expr):
-            nonlocal fails
             nonlocal conds
+            nonlocal fails
             conds = (conds + 1)
             fails = (fails + (0 if expr else 1))
             return expr
@@ -1661,5 +1662,6 @@ xrfragment_Type.isColor = EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","")
 xrfragment_Type.isInt = EReg("^[0-9]+$","")
 xrfragment_Type.isFloat = EReg("^[0-9]+\\.[0-9]+$","")
 xrfragment_Type.isVector = EReg("([,]+|\\w)","")
+xrfragment_Type.isString = EReg(".*","")
 
 Test.main()

@@ -1,7 +1,6 @@
 var $hx_exports = typeof exports != "undefined" ? exports : typeof window != "undefined" ? window : typeof self != "undefined" ? self : this;
 (function ($global) { "use strict";
 $hx_exports["xrfragment"] = $hx_exports["xrfragment"] || {};
-$hx_exports["xrfragment"]["Query"] = $hx_exports["xrfragment"]["Query"] || {};
 var EReg = function(r,opt) {
 	this.r = new RegExp(r,opt.split("u").join(""));
 };
@@ -285,6 +284,7 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	var Frag_h = Object.create(null);
 	Frag_h["prio"] = xrfragment_Type.isInt;
 	Frag_h["pos"] = xrfragment_Type.isVector;
+	Frag_h["q"] = xrfragment_Type.isString;
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		if(Frag_h[key].match(value)) {
 			var v = new xrfragment_Value();
@@ -303,11 +303,11 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 			}
 			resultMap[key] = v;
 		} else {
-			console.log("src/xrfragment/Parser.hx:33:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:34:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 	} else {
-		console.log("src/xrfragment/Parser.hx:34:","[ i ] fragment '" + key + "' does not exist or has no type defined (yet)");
+		console.log("src/xrfragment/Parser.hx:35:","[ i ] fragment '" + key + "' does not exist or has no type defined (yet)");
 		return false;
 	}
 	return true;
@@ -341,19 +341,23 @@ var xrfragment_Value = function() {
 xrfragment_Value.__name__ = true;
 var xrfragment_Type = function() { };
 xrfragment_Type.__name__ = true;
-var xrfragment_Query = function(str) {
+var xrfragment_Query = $hx_exports["xrfragment"]["Query"] = function(str) {
 	this.isNumber = new EReg("^[0-9\\.]+$","");
 	this.isClass = new EReg("^[-]?class$","");
 	this.isExclude = new EReg("^-","");
 	this.isProp = new EReg("^.*:[><=!]?","");
 	this.q = { };
+	this.str = "";
 	if(str != null) {
 		this.parse(str);
 	}
 };
 xrfragment_Query.__name__ = true;
 xrfragment_Query.prototype = {
-	expandAliases: function(token) {
+	toObject: function() {
+		return this.q;
+	}
+	,expandAliases: function(token) {
 		var classAlias = new EReg("^(-)?\\.","");
 		if(classAlias.match(token)) {
 			return StringTools.replace(token,".","class:");
@@ -550,35 +554,7 @@ xrfragment_Type.isColor = new EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","");
 xrfragment_Type.isInt = new EReg("^[0-9]+$","");
 xrfragment_Type.isFloat = new EReg("^[0-9]+\\.[0-9]+$","");
 xrfragment_Type.isVector = new EReg("([,]+|\\w)","");
-var xrfragment_Query_ok = $hx_exports["xrfragment"]["Query"]["ok"] = 
-    // haxe workarounds
-    Array.prototype.contains = Array.prototype.includes
-
-    if (typeof Array.prototype.remove !== "function") {
-      Array.prototype.remove = function (item) {
-        const oldLength = this.length
-        let newLength = 0
-
-        for (let i = 0; i < oldLength; i++) {
-          const entry = this[i]
-          if (entry === item) {
-            let newLength = i++
-
-            while (i !== this.length) {
-              const entry = this[i]
-              if (entry !== item) this[newLength++] = entry
-              i++
-            }
-
-            this.length = newLength
-            for (let i = newLength; i < oldLength; i++) delete this[i]
-            return true
-          }
-        }
-        return false
-      }
-    }
-  ;
+xrfragment_Type.isString = new EReg(".*","");
 Test.main();
 })({});
 var xrfragment = $hx_exports["xrfragment"];

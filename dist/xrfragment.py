@@ -1299,8 +1299,8 @@ class xrfragment_Query:
         fails = 0
         qualify = 0
         def _hx_local_2(expr):
-            nonlocal fails
-            nonlocal conds
+
+
             conds = (conds + 1)
             fails = (fails + (0 if expr else 1))
             return expr

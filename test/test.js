@@ -1,28 +1,18 @@
 
 // in the browser use this instead of require():
 // 
-//   <script src="Query.js"></script>
+//   <script src="dist/xrfragment.js"></script>
 //	 <script>
-//	    var q = new hgltf.Query()
+//	    var XR = xrfragment;
 //   </script>
 
-var hgltf = require('../Query').hgltf
-var q     = new hgltf.Query()
+var XF = require('../dist/xrfragment').xrfragment
 
+let print = (e) => console.log( JSON.stringify(e, null, 1) + "\n" )
 
-var res = q.parse("") 
-if( !res.copy_all ) throw 'empty string should always set copy_all to true'
+print( XF.URI.parse('://foo.com/1.gltf#pos=1,2,3&q=-.foo') );
 
-console.log( q.parse("") )
-console.log( JSON.stringify(q.parse("foo:*"), null, 2) )
-return
-console.log( q.parse("-skybox -plane") )
-console.log( q.parse("foo or bar") );
-console.log( q.parse("class:fopoer or bar foo:bar").or[0] );
-console.log( q.parse("-skybox class:foo").or[0] );
-console.log( q.parse("foo/flop moo or bar").or[0] );
-console.log( q.parse("-foo/flop moo or bar").or[0] );
-console.log( q.parse("price:>4 moo or bar").or[0] );
-console.log( q.parse("price:>=4 moo or bar").or[0] );
-console.log( q.parse("price:<=4 moo or bar").or[0] );
-console.log( q.parse("price:!=4 moo or bar").or[0] );
+// query
+let q = new XF.Query();
+print( q.parse("-.foo -plane") )
+print( q.parse("price:>2")     )

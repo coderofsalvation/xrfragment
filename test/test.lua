@@ -1,1 +1,1 @@
-require "../Query"
+#XR = require("../dist/xrfragment")

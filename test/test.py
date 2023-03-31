@@ -1,14 +1,7 @@
-from Query import hgltf_Query
+# PYTHONPATH=./dist python test/test.py  
 
-q = hgltf_Query()
+from xrfragment import xrfragment_Query
 
-print( q.parse("foo or bar") )
-print( q.parse("foo or bar") )
-print( q.parse("class:fopoer or bar foo:bar") )
-print( q.parse("-skybox class:foo") )
-print( q.parse("foo/flop moo or bar") )
-print( q.parse("-foo/flop moo or bar") )
-print( q.parse("price:>4 moo or bar") )
-print( q.parse("price:>=4 moo or bar") )
-print( q.parse("price:<=4 moo or bar") )
-print( q.parse("price:!=4 moo or bar") )
+q = xrfragment_Query(".foo")
+
+print( q.toObject() )

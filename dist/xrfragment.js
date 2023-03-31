@@ -1,10 +1,10 @@
 var $hx_exports = typeof exports != "undefined" ? exports : typeof window != "undefined" ? window : typeof self != "undefined" ? self : this;
 (function ($global) { "use strict";
 $hx_exports["xrfragment"] = $hx_exports["xrfragment"] || {};
-$hx_exports["xrfragment"]["Query"] = $hx_exports["xrfragment"]["Query"] || {};
 var EReg = function(r,opt) {
 	this.r = new RegExp(r,opt.split("u").join(""));
 };
+EReg.__name__ = true;
 EReg.prototype = {
 	match: function(s) {
 		if(this.r.global) {
@@ -20,6 +20,7 @@ EReg.prototype = {
 	}
 };
 var HxOverrides = function() { };
+HxOverrides.__name__ = true;
 HxOverrides.cca = function(s,index) {
 	var x = s.charCodeAt(index);
 	if(x != x) {
@@ -42,7 +43,33 @@ HxOverrides.substr = function(s,pos,len) {
 HxOverrides.now = function() {
 	return Date.now();
 };
+Math.__name__ = true;
+var Reflect = function() { };
+Reflect.__name__ = true;
+Reflect.field = function(o,field) {
+	try {
+		return o[field];
+	} catch( _g ) {
+		return null;
+	}
+};
+Reflect.fields = function(o) {
+	var a = [];
+	if(o != null) {
+		var hasOwnProperty = Object.prototype.hasOwnProperty;
+		for( var f in o ) {
+		if(f != "__id__" && f != "hx__closures__" && hasOwnProperty.call(o,f)) {
+			a.push(f);
+		}
+		}
+	}
+	return a;
+};
 var Std = function() { };
+Std.__name__ = true;
+Std.string = function(s) {
+	return js_Boot.__string_rec(s,"");
+};
 Std.parseInt = function(x) {
 	if(x != null) {
 		var _g = 0;
@@ -64,6 +91,7 @@ Std.parseInt = function(x) {
 	return null;
 };
 var StringTools = function() { };
+StringTools.__name__ = true;
 StringTools.isSpace = function(s,pos) {
 	var c = HxOverrides.cca(s,pos);
 	if(!(c > 8 && c < 14)) {
@@ -102,6 +130,7 @@ var haxe_iterators_ArrayIterator = function(array) {
 	this.current = 0;
 	this.array = array;
 };
+haxe_iterators_ArrayIterator.__name__ = true;
 haxe_iterators_ArrayIterator.prototype = {
 	hasNext: function() {
 		return this.current < this.array.length;
@@ -110,11 +139,79 @@ haxe_iterators_ArrayIterator.prototype = {
 		return this.array[this.current++];
 	}
 };
+var js_Boot = function() { };
+js_Boot.__name__ = true;
+js_Boot.__string_rec = function(o,s) {
+	if(o == null) {
+		return "null";
+	}
+	if(s.length >= 5) {
+		return "<...>";
+	}
+	var t = typeof(o);
+	if(t == "function" && (o.__name__ || o.__ename__)) {
+		t = "object";
+	}
+	switch(t) {
+	case "function":
+		return "<function>";
+	case "object":
+		if(((o) instanceof Array)) {
+			var str = "[";
+			s += "\t";
+			var _g = 0;
+			var _g1 = o.length;
+			while(_g < _g1) {
+				var i = _g++;
+				str += (i > 0 ? "," : "") + js_Boot.__string_rec(o[i],s);
+			}
+			str += "]";
+			return str;
+		}
+		var tostr;
+		try {
+			tostr = o.toString;
+		} catch( _g ) {
+			return "???";
+		}
+		if(tostr != null && tostr != Object.toString && typeof(tostr) == "function") {
+			var s2 = o.toString();
+			if(s2 != "[object Object]") {
+				return s2;
+			}
+		}
+		var str = "{\n";
+		s += "\t";
+		var hasp = o.hasOwnProperty != null;
+		var k = null;
+		for( k in o ) {
+		if(hasp && !o.hasOwnProperty(k)) {
+			continue;
+		}
+		if(k == "prototype" || k == "__class__" || k == "__super__" || k == "__interfaces__" || k == "__properties__") {
+			continue;
+		}
+		if(str.length != 2) {
+			str += ", \n";
+		}
+		str += s + k + " : " + js_Boot.__string_rec(o[k],s);
+		}
+		s = s.substring(1);
+		str += "\n" + s + "}";
+		return str;
+	case "string":
+		return o;
+	default:
+		return String(o);
+	}
+};
 var xrfragment_Parser = $hx_exports["xrfragment"]["Parser"] = function() { };
+xrfragment_Parser.__name__ = true;
 xrfragment_Parser.parse = function(key,value,resultMap) {
 	var Frag_h = Object.create(null);
 	Frag_h["prio"] = xrfragment_Type.isInt;
 	Frag_h["pos"] = xrfragment_Type.isVector;
+	Frag_h["q"] = xrfragment_Type.isString;
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		if(Frag_h[key].match(value)) {
 			var v = new xrfragment_Value();
@@ -133,11 +230,11 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 			}
 			resultMap[key] = v;
 		} else {
-			console.log("src/xrfragment/Parser.hx:33:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:34:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 	} else {
-		console.log("src/xrfragment/Parser.hx:34:","[ i ] fragment '" + key + "' does not exist or has no type defined (yet)");
+		console.log("src/xrfragment/Parser.hx:35:","[ i ] fragment '" + key + "' does not exist or has no type defined (yet)");
 		return false;
 	}
 	return true;
@@ -168,19 +265,26 @@ xrfragment_Parser.guessType = function(v,str) {
 };
 var xrfragment_Value = function() {
 };
+xrfragment_Value.__name__ = true;
 var xrfragment_Type = function() { };
-var xrfragment_Query = function(str) {
+xrfragment_Type.__name__ = true;
+var xrfragment_Query = $hx_exports["xrfragment"]["Query"] = function(str) {
 	this.isNumber = new EReg("^[0-9\\.]+$","");
 	this.isClass = new EReg("^[-]?class$","");
 	this.isExclude = new EReg("^-","");
 	this.isProp = new EReg("^.*:[><=!]?","");
 	this.q = { };
+	this.str = "";
 	if(str != null) {
 		this.parse(str);
 	}
 };
+xrfragment_Query.__name__ = true;
 xrfragment_Query.prototype = {
-	expandAliases: function(token) {
+	toObject: function() {
+		return this.q;
+	}
+	,expandAliases: function(token) {
 		var classAlias = new EReg("^(-)?\\.","");
 		if(classAlias.match(token)) {
 			return StringTools.replace(token,".","class:");
@@ -262,8 +366,90 @@ xrfragment_Query.prototype = {
 		this.q = q;
 		return this.q;
 	}
+	,test: function(obj) {
+		var qualify = false;
+		var _g = 0;
+		var _g1 = Reflect.fields(obj);
+		while(_g < _g1.length) {
+			var k = _g1[_g];
+			++_g;
+			var v = Std.string(Reflect.field(obj,k));
+			if(this.testProperty(k,v)) {
+				qualify = true;
+			}
+		}
+		var _g = 0;
+		var _g1 = Reflect.fields(obj);
+		while(_g < _g1.length) {
+			var k = _g1[_g];
+			++_g;
+			var v = Std.string(Reflect.field(obj,k));
+			if(this.testProperty(k,v,true)) {
+				qualify = false;
+			}
+		}
+		return qualify;
+	}
+	,testProperty: function(property,value,exclude) {
+		var conds = 0;
+		var fails = 0;
+		var qualify = 0;
+		var testprop = function(expr) {
+			conds += 1;
+			fails += expr ? 0 : 1;
+			return expr;
+		};
+		if(this.q[value] != null) {
+			var v = this.q[value];
+			if(v[property] != null) {
+				return v[property];
+			}
+		}
+		var _g = 0;
+		var _g1 = Reflect.fields(this.q);
+		while(_g < _g1.length) {
+			var k = _g1[_g];
+			++_g;
+			var filter = Reflect.field(this.q,k);
+			if(filter.rules == null) {
+				continue;
+			}
+			var rules = filter.rules;
+			var _g2 = 0;
+			while(_g2 < rules.length) {
+				var rule = rules[_g2];
+				++_g2;
+				if(exclude) {
+					if(Reflect.field(rule,"!=") != null && testprop((value == null ? "null" : "" + value) == Std.string(Reflect.field(rule,"!="))) && exclude) {
+						++qualify;
+					}
+				} else {
+					if(Reflect.field(rule,"*") != null && testprop(parseFloat(value) != null)) {
+						++qualify;
+					}
+					if(Reflect.field(rule,">") != null && testprop(parseFloat(value) > parseFloat(Reflect.field(rule,">")))) {
+						++qualify;
+					}
+					if(Reflect.field(rule,"<") != null && testprop(parseFloat(value) < parseFloat(Reflect.field(rule,"<")))) {
+						++qualify;
+					}
+					if(Reflect.field(rule,">=") != null && testprop(parseFloat(value) >= parseFloat(Reflect.field(rule,">=")))) {
+						++qualify;
+					}
+					if(Reflect.field(rule,"<=") != null && testprop(parseFloat(value) <= parseFloat(Reflect.field(rule,"<=")))) {
+						++qualify;
+					}
+					if(Reflect.field(rule,"=") != null && (testprop(value == Reflect.field(rule,"=")) || testprop(parseFloat(value) == parseFloat(Reflect.field(rule,"="))))) {
+						++qualify;
+					}
+				}
+			}
+		}
+		return qualify > 0;
+	}
 };
 var xrfragment_URI = $hx_exports["xrfragment"]["URI"] = function() { };
+xrfragment_URI.__name__ = true;
 xrfragment_URI.parse = function(qs) {
 	var fragment = qs.split("#");
 	var splitArray = fragment[1].split("&");
@@ -286,39 +472,14 @@ xrfragment_URI.parse = function(qs) {
 if(typeof(performance) != "undefined" ? typeof(performance.now) == "function" : false) {
 	HxOverrides.now = performance.now.bind(performance);
 }
+String.__name__ = true;
+Array.__name__ = true;
+js_Boot.__toStr = ({ }).toString;
 xrfragment_Parser.error = "";
 xrfragment_Type.isColor = new EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","");
 xrfragment_Type.isInt = new EReg("^[0-9]+$","");
 xrfragment_Type.isFloat = new EReg("^[0-9]+\\.[0-9]+$","");
 xrfragment_Type.isVector = new EReg("([,]+|\\w)","");
-var xrfragment_Query_ok = $hx_exports["xrfragment"]["Query"]["ok"] = 
-    // haxe workarounds
-    Array.prototype.contains = Array.prototype.includes
-
-    if (typeof Array.prototype.remove !== "function") {
-      Array.prototype.remove = function (item) {
-        const oldLength = this.length
-        let newLength = 0
-
-        for (let i = 0; i < oldLength; i++) {
-          const entry = this[i]
-          if (entry === item) {
-            let newLength = i++
-
-            while (i !== this.length) {
-              const entry = this[i]
-              if (entry !== item) this[newLength++] = entry
-              i++
-            }
-
-            this.length = newLength
-            for (let i = newLength; i < oldLength; i++) delete this[i]
-            return true
-          }
-        }
-        return false
-      }
-    }
-  ;
+xrfragment_Type.isString = new EReg(".*","");
 })({});
 var xrfragment = $hx_exports["xrfragment"];

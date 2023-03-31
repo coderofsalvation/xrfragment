@@ -1,8 +1,6 @@
 package xrfragment;
 
-@:expose  // <- makes the class reachable from plain JavaScript
-@:keep    // <- avoids accidental removal by dead code elimination
-          //return untyped __js__("window.location.search");
+//return untyped __js__("window.location.search");
 
 #if js
   var ok:Bool = js.Syntax.code('
@@ -36,6 +34,8 @@ package xrfragment;
   ');
 #end
 
+@:expose  // <- makes the class reachable from plain JavaScript
+@:keep    // <- avoids accidental removal by dead code elimination
 class Query {
 
   private var str:String = "";
@@ -59,7 +59,6 @@ class Query {
     return classAlias.match(token) ? StringTools.replace(token,".","class:") : token;
   }
 
-  @:keep
   public function parse(str:String,recurse:Bool = false) : Dynamic {
 
     var token = str.split(" ");
@@ -108,6 +107,7 @@ class Query {
     return this.q;
   }
 
+  @:keep
   public function test( ?obj:Dynamic ):Bool{
     var qualify:Bool = false;
     // first apply includes, then excludes
@@ -122,6 +122,7 @@ class Query {
     return qualify;
   }
 
+  @:keep
   public function testProperty( property:String, value:String, ?exclude:Bool ):Bool{
     var conds:Int = 0;
     var fails:Int = 0;

@@ -2,18 +2,18 @@ package xrfragment;
 
 @:expose                                                                   // <- makes the class reachable from plain JavaScript
 @:keep                                                                     // <- avoids accidental removal by dead code elimination
-
 class Parser {                                                             //  # XR Fragments (key/value params)
     public static var error:String = "";                                   //   
-                                                                           //  > ⛁ = supported in 3D asset-file (custom property or projection)<br>
-                                                                           //  > ⚂ = supported in navigator URI (`document.location.href` e.g.)<br>
+                                                                           //  > ⛁ = define in 3D asset-file (as custom property or default projection)<br>
+                                                                           //  > ☇ = mutable, using navigator URI (`document.location.href` e.g.)<br>
     @:keep                                                                 //  
     public static function parse(key:String,value:String,resultMap:haxe.DynamicAccess<Dynamic>):Bool {
       var Frag:Map<String, EReg> = new Map<String, EReg>();                //  | param   | type          | scope(s) | category          | notes                            |
                                                                            //  |---------|---------------|-------|--------------------|---------------------------------|
       Frag.set("prio", Type.isInt);                                        //  | prio    | int (-10..1)  | ⛁     | Asset loading / linking | #include doc/notes/prio.md |
 
-      Frag.set("pos",  Type.isVector);                                     //  | pos     | 3D vector     | ⛁ ⚂   |HREF navigation/portals |  |
+      Frag.set("pos",  Type.isVector);                                     //  | pos     | 3D vector     | ⛁ ☇   |HREF navigation/portals |  |
+      Frag.set("q",  Type.isString);                                       //  | q       | string        | ⛁     |Query Selector |  |
                                                                            //  
                                                                            //  # XR Fragments parser
       if( Frag.exists(key) ){                                              //  note: community parsers will prolly outperform this initial parser :)
@@ -74,6 +74,7 @@ class Type {                                                               //
   static public var isInt:EReg    = ~/^[0-9]+$/;                           //  1. integers are detected using regex `/^[0-9]+$/`
   static public var isFloat:EReg  = ~/^[0-9]+\.[0-9]+$/;                   //  1. floats are detected using regex `/^[0-9]+\.[0-9]+$/`
   static public var isVector:EReg = ~/([,]+|\w)/;                          //  1. vectors are detected using regex `/[,]/` (but can also be an string referring to an entity-ID in the asset)
+  static public var isString:EReg = ~/.*/;                                 //  1. anything else is string  `/.*/`
 }
 
 //  # Tests
