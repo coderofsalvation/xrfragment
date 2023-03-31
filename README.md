@@ -2,9 +2,9 @@
 
 # available implementations
 
-* [javascript](dist/xrfragment.js)
-* [python](dist/xrfragment.py)
-* [lua](dist/xrfragment.lua)
+* [javascript](dist/xrfragment.js) [(+example)](test/test.js)
+* [python](dist/xrfragment.py) [(+example)](test/test.py)
+* [lua](dist/xrfragment.lua) [(+example)](test/test.lua)
 * [haXe](src/xrfragment)
 
 # docs
