@@ -1,3 +1,5 @@
+[![Actions Status](https://github.com/coderofsalvation/xrfragment/workflows/test/badge.svg)](https://github.com/coderofsalvation/xrfragment/actions)
+
 # usage
 
 # available implementations

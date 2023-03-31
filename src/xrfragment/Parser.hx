@@ -2,7 +2,8 @@ package xrfragment;
 
 @:expose                                                                   // <- makes the class reachable from plain JavaScript
 @:keep                                                                     // <- avoids accidental removal by dead code elimination
-                                                                           //  [![build](https://github.com/coderofsalvation/xrfragment/workflows/test/badge.svg)](https://github.com/coderofsalvation/xrfragment)
+                                                                           //
+                                                                           //  [![Actions Status](https://github.com/coderofsalvation/xrfragment/workflows/test/badge.svg)](https://github.com/coderofsalvation/xrfragment/actions)
 class Parser {                                                             //  # XR Fragments (key/value params)
     public static var error:String = "";                                   //   
                                                                            //  > ⛁ = supported in 3D asset-file (custom property or projection)<br>
