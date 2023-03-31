@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/doc/style.css"/>
+<link rel="stylesheet" href="doc/style.css"/>
 <link href="https://fonts.cdnfonts.com/css/montserrat" rel="stylesheet"/>
 
 [![Actions Status](https://github.com/coderofsalvation/xrfragment/workflows/test/badge.svg)](https://github.com/coderofsalvation/xrfragment/actions)
