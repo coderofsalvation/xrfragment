@@ -1,10 +1,10 @@
 
 
-# `protocol://domain.com/some3d.asset#pos=1,0,0&prio=-5`
+# `://foo.com/my3d.asset#pos=1,0,0&prio=-5`
 
 # URI parser
 
-> icanhazcode? yes, see [URI.hx](./../src/xrfragment/URI.hx)
+> icanhazcode? yes, see [URI.hx](https://github.com/coderofsalvation/xrfragment/blob/main/src/xrfragment/URI.hx)
 
 1. fragment URI starts with `#`
 1. fragments are split by `&`
@@ -14,8 +14,8 @@
 
 # XR Fragments (key/value params)
  
-> ⛁ = fragment support through 3D asset-file (custom property)<br>
-> ⚂ = fragment support through navigator URI (`document.location.href` e.g.)<br>
+> ⛁ = supported in 3D asset-file (custom property or projection)<br>
+> ⚂ = supported in navigator URI (`document.location.href` e.g.)<br>
 
 | param   | type          | scope(s) | category          | notes                            |
 |---------|---------------|-------|--------------------|---------------------------------|
@@ -25,7 +25,7 @@
 
 # XR Fragments parser
 note: community parsers will prolly outperform this initial parser :)
-> icanhazcode? yes, see [Parser.hx](./../src/xrfragment/Parser.hx)
+> icanhazcode? yes, see [Parser.hx](https://github.com/coderofsalvation/xrfragment/blob/main/src/xrfragment/Parser.hx)
 
 the gist of it:
 1. each key has a regex to validate its value-type (see regexes) 
