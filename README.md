@@ -5,6 +5,7 @@
 * [javascript](dist/xrfragment.js)
 * [python](dist/xrfragment.py)
 * [lua](dist/xrfragment.lua)
+* [haXe](src/xrfragment)
 
 # docs
 
