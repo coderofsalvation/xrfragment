@@ -36,9 +36,14 @@ doc(){
     cat $1 | awk '/\/\/  / { 
       gsub(".*//  ","",$0); 
       gsub("# ","\n# ",$0);
-      if( match($0,/^#include /) ){ system("cat "$2); next; }
       if( match($0,/^#code /)    ){ print "```\n"; system("cat "$2); print "```\n"; next; }
       if( match($0,/^#sh /)      ){ $1=""; system($0); next; }
+      if( match($0,/#include /) ) { 
+        o=$0; gsub(/.*#include/,"#include",$0); f=$2; $0=o; 
+        cmd="cat "f 
+        cmd | getline text; close(cmd)
+        gsub(/#include \w/, text)
+      }
       print $0; 
     }'
   }

@@ -113,8 +113,8 @@ haxe_iterators_ArrayIterator.prototype = {
 var xrfragment_Parser = $hx_exports["xrfragment"]["Parser"] = function() { };
 xrfragment_Parser.parse = function(key,value,resultMap) {
 	var Frag_h = Object.create(null);
-	Frag_h["pos"] = xrfragment_Type.isVector;
 	Frag_h["prio"] = xrfragment_Type.isInt;
+	Frag_h["pos"] = xrfragment_Type.isVector;
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		if(Frag_h[key].match(value)) {
 			var v = new xrfragment_Value();
@@ -133,11 +133,11 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 			}
 			resultMap[key] = v;
 		} else {
-			console.log("src/xrfragment/Parser.hx:32:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:33:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 	} else {
-		console.log("src/xrfragment/Parser.hx:33:","[ i ] fragment '" + key + "' does not exist or has no type defined (yet)");
+		console.log("src/xrfragment/Parser.hx:34:","[ i ] fragment '" + key + "' does not exist or has no type defined (yet)");
 		return false;
 	}
 	return true;

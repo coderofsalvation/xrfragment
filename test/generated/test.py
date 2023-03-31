@@ -1368,8 +1368,8 @@ class xrfragment_Parser:
     @staticmethod
     def parse(key,value,resultMap):
         Frag = haxe_ds_StringMap()
-        Frag.h["pos"] = xrfragment_Type.isVector
         Frag.h["prio"] = xrfragment_Type.isInt
+        Frag.h["pos"] = xrfragment_Type.isVector
         if (key in Frag.h):
             _this = Frag.h.get(key,None)
             _this.matchObj = python_lib_Re.search(_this.pattern,value)

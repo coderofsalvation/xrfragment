@@ -8,10 +8,11 @@ class Parser {                                                             //  #
 
     @:keep
     public static function parse(key:String,value:String,resultMap:haxe.DynamicAccess<Dynamic>):Bool {
-                                                                           //  | param   | type          | category                | example          |
-			var Frag:Map<String, EReg> = new Map<String, EReg>();                //  |---------|---------------|-------------------------|------------------|
-			Frag.set("pos",  Type.isVector);                                     //  | pos     | 3D vector     | HREF navigation/portals | `#pos=1,0,1` or `#pos=foo` |
-			Frag.set("prio", Type.isInt);                                        //  | prio    | int (-10..1)  | Asset linking           | `#prio=-5` |
+			var Frag:Map<String, EReg> = new Map<String, EReg>();                //  | param   | type          | category                | notes                   |
+                                                                           //  |---------|---------------|-------------------------|-------------------------|
+			Frag.set("prio", Type.isInt);                                        //  | prio    | int (-10..1)  | Asset loading / linking | #include doc/notes/prio.md |
+
+			Frag.set("pos",  Type.isVector);                                     //  | pos     | 3D vector     | HREF navigation/portals |  |
 											                                                     //  
                                                                            //  # XR Fragments parser
       if( Frag.exists(key) ){                                              //  
@@ -51,7 +52,7 @@ class Parser {                                                             //  #
     }
 
 }
-																																					 //  # Value types
+																																					 //  # Parser Value types
 																																					 //  
 											                                                     //  | type | info | format | example                          |
 class Value {                                                              //  |------|------|--------|----------------------------------|
