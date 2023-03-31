@@ -3,26 +3,22 @@ package xrfragment;
 @:expose                                                                   // <- makes the class reachable from plain JavaScript
 @:keep                                                                     // <- avoids accidental removal by dead code elimination
 
-class Parser {
-
-		public static var error:String = "";
+class Parser {                                                             //  # XR Fragments (key/value params)
+		public static var error:String = "";                                   //   
 
     @:keep
     public static function parse(key:String,value:String,resultMap:haxe.DynamicAccess<Dynamic>):Bool {
-                                                                           //  # XR Fragments (key/value params)
-                                                                           //   
                                                                            //  | param   | type          | category                | example          |
 			var Frag:Map<String, EReg> = new Map<String, EReg>();                //  |---------|---------------|-------------------------|------------------|
 			Frag.set("pos",  Type.isVector);                                     //  | pos     | 3D vector     | HREF navigation/portals | `#pos=1,0,1` or `#pos=foo` |
 			Frag.set("prio", Type.isInt);                                        //  | prio    | int (-10..1)  | Asset linking           | `#prio=-5` |
 											                                                     //  
-
-                                                                           //  # XR Fragments parser (the gist of it)         
+                                                                           //  # XR Fragments parser
       if( Frag.exists(key) ){                                              //  
-        if( Frag.get(key).match(value) ){                                  //  1. each key has a regex to validate its value-type (see regexes)
-          var v:Value = new Value();
-          guessType(v, value);
-          // multiple/fallback values
+        if( Frag.get(key).match(value) ){                                  //  > icanhazcode? yes, see [Parser.hx](./../src/xrfragment/Parser.hx)
+          var v:Value = new Value();                                       //  
+          guessType(v, value);                                             //  the gist of it:
+          // process multiple/fallback values                              //  1. each key has a regex to validate its value-type (see regexes) 
           if( value.split("|").length > 1 ){                               //  1. `|` is used to split multiple/fallback values
             v.args = new Array<Value>();
             var args:Array<String> = value.split("|");

@@ -133,11 +133,11 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 			}
 			resultMap[key] = v;
 		} else {
-			console.log("src/xrfragment/Parser.hx:36:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:32:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 	} else {
-		console.log("src/xrfragment/Parser.hx:37:","[ i ] fragment '" + key + "' does not exist or has no type defined (yet)");
+		console.log("src/xrfragment/Parser.hx:33:","[ i ] fragment '" + key + "' does not exist or has no type defined (yet)");
 		return false;
 	}
 	return true;

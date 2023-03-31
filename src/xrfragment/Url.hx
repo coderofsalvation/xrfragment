@@ -9,12 +9,13 @@ class Url {
 
 		public static var error:String = "";
 
-    @:keep                                                                 //  # URI parser (the gist of it)
+    @:keep                                                                 //  # URI parser
     public static function parse(qs:String):haxe.DynamicAccess<Dynamic> {  //  
-      var fragment:Array<String>    = qs.split("#");                       //  1. fragment URI starts with `#`
-      var splitArray:Array<String>  = fragment[1].split('&');              //  1. fragments are split by `&`
-      var resultMap:haxe.DynamicAccess<Dynamic> = {};
-      for (i in 0...splitArray.length) {
+      var fragment:Array<String>    = qs.split("#");                       //  > icanhazcode? yes, see [Url.hx](./../src/xrfragment/Url.hx)
+      var splitArray:Array<String>  = fragment[1].split('&');              //  
+      var resultMap:haxe.DynamicAccess<Dynamic> = {};                      //  1. fragment URI starts with `#`
+        for (i in 0...splitArray.length) {                                 //  1. fragments are split by `&`
+
         var splitByEqual = splitArray[i].split('=');                       //  1. `=` is used to split fragment key/values 
         var regexPlus  = ~/\+/g;                                           //  1. fragment-values are urlencoded (space becomes `+` using `encodeUriComponent` e.g.)
         var key:String = splitByEqual[0];
