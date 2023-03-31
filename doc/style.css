@@ -20,7 +20,7 @@
     --gradient-2: linear-gradient(45deg, #dc2454 0%, #944a9d 21%, #4824dc 50%,#dc2454 70%, #944a9d 88%, #4824dc 100%);
 }
 
-h1 {
+body>h1:nth-child(1) {
     display:none;
 }
 
@@ -275,8 +275,10 @@ nav.hide {
   opacity:0;
 }
 
-ul {
-	margin-left:30px;
+ul, ol {
+	margin-left:30px !important;
+    margin-top: 35px !important;
+    margin-bottom: 35px !important;
 }
 ul:nth-child(1){
 	margin:0;
@@ -284,7 +286,7 @@ ul:nth-child(1){
 
 ul,li{
 	text-decoration:none !important;
-	list-style:none;
+	/*list-style:none;*/
 	padding-left:10px;
 	padding-right:10px;
 }
