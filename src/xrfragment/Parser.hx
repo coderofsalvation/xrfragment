@@ -2,23 +2,22 @@ package xrfragment;
 
 @:expose                                                                   // <- makes the class reachable from plain JavaScript
 @:keep                                                                     // <- avoids accidental removal by dead code elimination
-
+                                                                           //  [https://github.com/coderofsalvation/xrfragment/workflows/test/badge.svg](https://github.com/coderofsalvation/xrfragment)
 class Parser {                                                             //  # XR Fragments (key/value params)
     public static var error:String = "";                                   //   
-                                                                           //  ```
-                                                                           //  ⛁  = fragment in 3D asset-file (custom property)
-                                                                           //  ⚂  = fragment in navigator URI (`document.location.href` e.g.)
-    @:keep                                                                 //  ```
+                                                                           //  > ⛁ = supported in 3D asset-file (custom property or projection)<br>
+                                                                           //  > ⚂ = supported in navigator URI (`document.location.href` e.g.)<br>
+    @:keep                                                                 //  
     public static function parse(key:String,value:String,resultMap:haxe.DynamicAccess<Dynamic>):Bool {
-      var Frag:Map<String, EReg> = new Map<String, EReg>();                //  | param   | type          | scope | navigator override |category                | notes                   |
-                                                                           //  |---------|---------------|-------|--------------------|-------------------------|
-      Frag.set("prio", Type.isInt);                                        //  | prio    | int (-10..1)  | ⛁ | Asset loading / linking | #include doc/notes/prio.md |
+      var Frag:Map<String, EReg> = new Map<String, EReg>();                //  | param   | type          | scope(s) | category          | notes                            |
+                                                                           //  |---------|---------------|-------|--------------------|---------------------------------|
+      Frag.set("prio", Type.isInt);                                        //  | prio    | int (-10..1)  | ⛁     | Asset loading / linking | #include doc/notes/prio.md |
 
-      Frag.set("pos",  Type.isVector);                                     //  | pos     | 3D vector     | HREF navigation/portals |  |
+      Frag.set("pos",  Type.isVector);                                     //  | pos     | 3D vector     | ⛁ ⚂   |HREF navigation/portals |  |
                                                                            //  
                                                                            //  # XR Fragments parser
       if( Frag.exists(key) ){                                              //  note: community parsers will prolly outperform this initial parser :)
-        if( Frag.get(key).match(value) ){                                  //  > icanhazcode? yes, see [Parser.hx](./../src/xrfragment/Parser.hx)
+        if( Frag.get(key).match(value) ){                                  //  > icanhazcode? yes, see [Parser.hx](https://github.com/coderofsalvation/xrfragment/blob/main/src/xrfragment/Parser.hx)
           var v:Value = new Value();                                       //  
           guessType(v, value);                                             //  the gist of it:
           // process multiple/fallback values                              //  1. each key has a regex to validate its value-type (see regexes) 
