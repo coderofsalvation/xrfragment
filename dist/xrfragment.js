@@ -263,8 +263,8 @@ xrfragment_Query.prototype = {
 		return this.q;
 	}
 };
-var xrfragment_Url = $hx_exports["xrfragment"]["Url"] = function() { };
-xrfragment_Url.parse = function(qs) {
+var xrfragment_URI = $hx_exports["xrfragment"]["URI"] = function() { };
+xrfragment_URI.parse = function(qs) {
 	var fragment = qs.split("#");
 	var splitArray = fragment[1].split("&");
 	var resultMap = { };
@@ -320,6 +320,5 @@ var xrfragment_Query_ok = $hx_exports["xrfragment"]["Query"]["ok"] =
       }
     }
   ;
-xrfragment_Url.error = "";
 })({});
 var xrfragment = $hx_exports["xrfragment"];

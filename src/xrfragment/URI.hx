@@ -5,7 +5,7 @@ import xrfragment.Parser;
 @:expose                                                                   // <- makes the class reachable from plain JavaScript
 @:keep                                                                     // <- avoids accidental removal by dead code elimination
                                                                            //  
-                                                                           //  example URI: `://domain.com/some3d.asset#pos=1,0,0&prio=-5
+                                                                           //  example URI: `://domain.com/some3d.asset#pos=1,0,0&prio=-5`
 class URI {
     @:keep                                                                 //  # URI parser
     public static function parse(qs:String):haxe.DynamicAccess<Dynamic> {  //  
