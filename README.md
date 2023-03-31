@@ -2,7 +2,7 @@
 
 # docs
 
-* [Url](doc/url.md)
+* [RFC](doc/RFC.md)
 
 # development
 

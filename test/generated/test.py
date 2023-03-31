@@ -1360,6 +1360,90 @@ class HxString:
             return s[startIndex:(startIndex + _hx_len)]
 
 
+class xrfragment_Parser:
+    _hx_class_name = "xrfragment.Parser"
+    __slots__ = ()
+    _hx_statics = ["error", "parse", "guessType"]
+
+    @staticmethod
+    def parse(key,value,resultMap):
+        Frag = haxe_ds_StringMap()
+        Frag.h["pos"] = xrfragment_Type.isVector
+        Frag.h["prio"] = xrfragment_Type.isInt
+        if (key in Frag.h):
+            _this = Frag.h.get(key,None)
+            _this.matchObj = python_lib_Re.search(_this.pattern,value)
+            if (_this.matchObj is not None):
+                v = xrfragment_Value()
+                xrfragment_Parser.guessType(v,value)
+                if (len(value.split("|")) > 1):
+                    v.args = list()
+                    args = value.split("|")
+                    _g = 0
+                    _g1 = len(args)
+                    while (_g < _g1):
+                        i = _g
+                        _g = (_g + 1)
+                        x = xrfragment_Value()
+                        xrfragment_Parser.guessType(x,(args[i] if i >= 0 and i < len(args) else None))
+                        _this = v.args
+                        _this.append(x)
+                setattr(resultMap,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),v)
+            else:
+                print(str((((("[ i ] fragment '" + ("null" if key is None else key)) + "' has incompatible value (") + ("null" if value is None else value)) + ")")))
+                return False
+        else:
+            print(str((("[ i ] fragment '" + ("null" if key is None else key)) + "' does not exist or has no type defined (yet)")))
+            return False
+        return True
+
+    @staticmethod
+    def guessType(v,_hx_str):
+        v.string = _hx_str
+        if (len(_hx_str.split(",")) > 1):
+            xyz = _hx_str.split(",")
+            if (len(xyz) > 0):
+                v.x = Std.parseFloat((xyz[0] if 0 < len(xyz) else None))
+            if (len(xyz) > 1):
+                v.y = Std.parseFloat((xyz[1] if 1 < len(xyz) else None))
+            if (len(xyz) > 2):
+                v.y = Std.parseFloat((xyz[2] if 2 < len(xyz) else None))
+        _this = xrfragment_Type.isColor
+        _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+        if (_this.matchObj is not None):
+            v.color = _hx_str
+        _this = xrfragment_Type.isFloat
+        _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+        if (_this.matchObj is not None):
+            v.float = Std.parseFloat(_hx_str)
+        _this = xrfragment_Type.isInt
+        _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+        if (_this.matchObj is not None):
+            v.int = Std.parseInt(_hx_str)
+
+
+class xrfragment_Value:
+    _hx_class_name = "xrfragment.Value"
+    __slots__ = ("x", "y", "color", "string", "int", "float", "args")
+    _hx_fields = ["x", "y", "color", "string", "int", "float", "args"]
+
+    def __init__(self):
+        self.args = None
+        self.float = None
+        self.int = None
+        self.string = None
+        self.color = None
+        self.y = None
+        self.x = None
+
+
+
+class xrfragment_Type:
+    _hx_class_name = "xrfragment.Type"
+    __slots__ = ()
+    _hx_statics = ["isColor", "isInt", "isFloat", "isVector"]
+
+
 class xrfragment_Query:
     _hx_class_name = "xrfragment.Query"
     __slots__ = ("str", "q", "isProp", "isExclude", "isClass", "isNumber")
@@ -1495,8 +1579,8 @@ class xrfragment_Query:
         fails = 0
         qualify = 0
         def _hx_local_2(expr):
-            nonlocal conds
             nonlocal fails
+            nonlocal conds
             conds = (conds + 1)
             fails = (fails + (0 if expr else 1))
             return expr
@@ -1541,17 +1625,13 @@ class xrfragment_Query:
 class xrfragment_Url:
     _hx_class_name = "xrfragment.Url"
     __slots__ = ()
-    _hx_statics = ["error", "parse", "guessType"]
+    _hx_statics = ["error", "parse"]
 
     @staticmethod
     def parse(qs):
-        Frag = haxe_ds_StringMap()
-        Frag.h["pos"] = xrfragment_Type.isVector
-        Frag.h["prio"] = xrfragment_Type.isInt
         fragment = qs.split("#")
         _this = (fragment[1] if 1 < len(fragment) else None)
         splitArray = _this.split("&")
-        regexPlus = EReg("\\+","g")
         resultMap = _hx_AnonObject({})
         _g = 0
         _g1 = len(splitArray)
@@ -1560,80 +1640,13 @@ class xrfragment_Url:
             _g = (_g + 1)
             _this = (splitArray[i] if i >= 0 and i < len(splitArray) else None)
             splitByEqual = _this.split("=")
+            regexPlus = EReg("\\+","g")
             key = (splitByEqual[0] if 0 < len(splitByEqual) else None)
-            v = xrfragment_Value()
             if (len(splitByEqual) > 1):
                 _this1 = regexPlus.split((splitByEqual[1] if 1 < len(splitByEqual) else None))
                 value = python_lib_urllib_Parse.unquote(" ".join([python_Boot.toString1(x1,'') for x1 in _this1]))
-                if (key in Frag.h):
-                    _this2 = Frag.h.get(key,None)
-                    _this2.matchObj = python_lib_Re.search(_this2.pattern,value)
-                    if (_this2.matchObj is not None):
-                        xrfragment_Url.guessType(v,value)
-                        if (len(value.split("|")) > 1):
-                            v.args = list()
-                            args = value.split("|")
-                            _g2 = 0
-                            _g3 = len(args)
-                            while (_g2 < _g3):
-                                i1 = _g2
-                                _g2 = (_g2 + 1)
-                                x = xrfragment_Value()
-                                xrfragment_Url.guessType(x,(args[i1] if i1 >= 0 and i1 < len(args) else None))
-                                _this3 = v.args
-                                _this3.append(x)
-                        setattr(resultMap,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),v)
-                    else:
-                        print(str((((("[ i ] fragment '" + ("null" if key is None else key)) + "' has incompatible value (") + ("null" if value is None else value)) + ")")))
-                else:
-                    print(str((("[ i ] fragment '" + ("null" if key is None else key)) + "' does not exist or has no type defined (yet)")))
+                ok = xrfragment_Parser.parse(key,value,resultMap)
         return resultMap
-
-    @staticmethod
-    def guessType(v,_hx_str):
-        v.string = _hx_str
-        if (len(_hx_str.split(",")) > 1):
-            xyz = _hx_str.split(",")
-            if (len(xyz) > 0):
-                v.x = Std.parseFloat((xyz[0] if 0 < len(xyz) else None))
-            if (len(xyz) > 1):
-                v.y = Std.parseFloat((xyz[1] if 1 < len(xyz) else None))
-            if (len(xyz) > 2):
-                v.y = Std.parseFloat((xyz[2] if 2 < len(xyz) else None))
-        _this = xrfragment_Type.isColor
-        _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
-        if (_this.matchObj is not None):
-            v.color = _hx_str
-        _this = xrfragment_Type.isFloat
-        _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
-        if (_this.matchObj is not None):
-            v.float = Std.parseFloat(_hx_str)
-        _this = xrfragment_Type.isInt
-        _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
-        if (_this.matchObj is not None):
-            v.int = Std.parseInt(_hx_str)
-
-
-class xrfragment_Value:
-    _hx_class_name = "xrfragment.Value"
-    __slots__ = ("x", "y", "color", "string", "int", "float", "args")
-    _hx_fields = ["x", "y", "color", "string", "int", "float", "args"]
-
-    def __init__(self):
-        self.args = None
-        self.float = None
-        self.int = None
-        self.string = None
-        self.color = None
-        self.y = None
-        self.x = None
-
-
-
-class xrfragment_Type:
-    _hx_class_name = "xrfragment.Type"
-    __slots__ = ()
-    _hx_statics = ["isColor", "isInt", "isFloat", "isVector"]
 
 Math.NEGATIVE_INFINITY = float("-inf")
 Math.POSITIVE_INFINITY = float("inf")
@@ -1643,10 +1656,11 @@ Math.PI = python_lib_Math.pi
 Test.errors = 0
 python_Boot.keywords = set(["and", "del", "from", "not", "with", "as", "elif", "global", "or", "yield", "assert", "else", "if", "pass", "None", "break", "except", "import", "raise", "True", "class", "exec", "in", "return", "False", "continue", "finally", "is", "try", "def", "for", "lambda", "while"])
 python_Boot.prefixLength = len("_hx_")
-xrfragment_Url.error = ""
+xrfragment_Parser.error = ""
 xrfragment_Type.isColor = EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","")
 xrfragment_Type.isInt = EReg("^[0-9]+$","")
 xrfragment_Type.isFloat = EReg("^[0-9]+\\.[0-9]+$","")
 xrfragment_Type.isVector = EReg("([,]+|\\w)","")
+xrfragment_Url.error = ""
 
 Test.main()

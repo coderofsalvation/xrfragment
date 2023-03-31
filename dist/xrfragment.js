@@ -110,6 +110,65 @@ haxe_iterators_ArrayIterator.prototype = {
 		return this.array[this.current++];
 	}
 };
+var xrfragment_Parser = $hx_exports["xrfragment"]["Parser"] = function() { };
+xrfragment_Parser.parse = function(key,value,resultMap) {
+	var Frag_h = Object.create(null);
+	Frag_h["pos"] = xrfragment_Type.isVector;
+	Frag_h["prio"] = xrfragment_Type.isInt;
+	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
+		if(Frag_h[key].match(value)) {
+			var v = new xrfragment_Value();
+			xrfragment_Parser.guessType(v,value);
+			if(value.split("|").length > 1) {
+				v.args = [];
+				var args = value.split("|");
+				var _g = 0;
+				var _g1 = args.length;
+				while(_g < _g1) {
+					var i = _g++;
+					var x = new xrfragment_Value();
+					xrfragment_Parser.guessType(x,args[i]);
+					v.args.push(x);
+				}
+			}
+			resultMap[key] = v;
+		} else {
+			console.log("src/xrfragment/Parser.hx:36:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
+			return false;
+		}
+	} else {
+		console.log("src/xrfragment/Parser.hx:37:","[ i ] fragment '" + key + "' does not exist or has no type defined (yet)");
+		return false;
+	}
+	return true;
+};
+xrfragment_Parser.guessType = function(v,str) {
+	v.string = str;
+	if(str.split(",").length > 1) {
+		var xyz = str.split(",");
+		if(xyz.length > 0) {
+			v.x = parseFloat(xyz[0]);
+		}
+		if(xyz.length > 1) {
+			v.y = parseFloat(xyz[1]);
+		}
+		if(xyz.length > 2) {
+			v.y = parseFloat(xyz[2]);
+		}
+	}
+	if(xrfragment_Type.isColor.match(str)) {
+		v.color = str;
+	}
+	if(xrfragment_Type.isFloat.match(str)) {
+		v.float = parseFloat(str);
+	}
+	if(xrfragment_Type.isInt.match(str)) {
+		v.int = Std.parseInt(str);
+	}
+};
+var xrfragment_Value = function() {
+};
+var xrfragment_Type = function() { };
 var xrfragment_Query = function(str) {
 	this.isNumber = new EReg("^[0-9\\.]+$","");
 	this.isClass = new EReg("^[-]?class$","");
@@ -206,79 +265,32 @@ xrfragment_Query.prototype = {
 };
 var xrfragment_Url = $hx_exports["xrfragment"]["Url"] = function() { };
 xrfragment_Url.parse = function(qs) {
-	var Frag_h = Object.create(null);
-	Frag_h["pos"] = xrfragment_Type.isVector;
-	Frag_h["prio"] = xrfragment_Type.isInt;
 	var fragment = qs.split("#");
 	var splitArray = fragment[1].split("&");
-	var regexPlus = new EReg("\\+","g");
 	var resultMap = { };
 	var _g = 0;
 	var _g1 = splitArray.length;
 	while(_g < _g1) {
 		var i = _g++;
 		var splitByEqual = splitArray[i].split("=");
+		var regexPlus = new EReg("\\+","g");
 		var key = splitByEqual[0];
-		var v = new xrfragment_Value();
 		if(splitByEqual.length > 1) {
 			var s = regexPlus.split(splitByEqual[1]).join(" ");
 			var value = decodeURIComponent(s.split("+").join(" "));
-			if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
-				if(Frag_h[key].match(value)) {
-					xrfragment_Url.guessType(v,value);
-					if(value.split("|").length > 1) {
-						v.args = [];
-						var args = value.split("|");
-						var _g2 = 0;
-						var _g3 = args.length;
-						while(_g2 < _g3) {
-							var i1 = _g2++;
-							var x = new xrfragment_Value();
-							xrfragment_Url.guessType(x,args[i1]);
-							v.args.push(x);
-						}
-					}
-					resultMap[key] = v;
-				} else {
-					console.log("src/xrfragment/Url.hx:46:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
-				}
-			} else {
-				console.log("src/xrfragment/Url.hx:47:","[ i ] fragment '" + key + "' does not exist or has no type defined (yet)");
-			}
+			var ok = xrfragment_Parser.parse(key,value,resultMap);
 		}
 	}
 	return resultMap;
 };
-xrfragment_Url.guessType = function(v,str) {
-	v.string = str;
-	if(str.split(",").length > 1) {
-		var xyz = str.split(",");
-		if(xyz.length > 0) {
-			v.x = parseFloat(xyz[0]);
-		}
-		if(xyz.length > 1) {
-			v.y = parseFloat(xyz[1]);
-		}
-		if(xyz.length > 2) {
-			v.y = parseFloat(xyz[2]);
-		}
-	}
-	if(xrfragment_Type.isColor.match(str)) {
-		v.color = str;
-	}
-	if(xrfragment_Type.isFloat.match(str)) {
-		v.float = parseFloat(str);
-	}
-	if(xrfragment_Type.isInt.match(str)) {
-		v.int = Std.parseInt(str);
-	}
-};
-var xrfragment_Value = function() {
-};
-var xrfragment_Type = function() { };
 if(typeof(performance) != "undefined" ? typeof(performance.now) == "function" : false) {
 	HxOverrides.now = performance.now.bind(performance);
 }
+xrfragment_Parser.error = "";
+xrfragment_Type.isColor = new EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","");
+xrfragment_Type.isInt = new EReg("^[0-9]+$","");
+xrfragment_Type.isFloat = new EReg("^[0-9]+\\.[0-9]+$","");
+xrfragment_Type.isVector = new EReg("([,]+|\\w)","");
 var xrfragment_Query_ok = $hx_exports["xrfragment"]["Query"]["ok"] = 
     // haxe workarounds
     Array.prototype.contains = Array.prototype.includes
@@ -309,9 +321,5 @@ var xrfragment_Query_ok = $hx_exports["xrfragment"]["Query"]["ok"] =
     }
   ;
 xrfragment_Url.error = "";
-xrfragment_Type.isColor = new EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","");
-xrfragment_Type.isInt = new EReg("^[0-9]+$","");
-xrfragment_Type.isFloat = new EReg("^[0-9]+\\.[0-9]+$","");
-xrfragment_Type.isVector = new EReg("([,]+|\\w)","");
 })({});
 var xrfragment = $hx_exports["xrfragment"];
