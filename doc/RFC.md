@@ -14,9 +14,13 @@
 
 # XR Fragments (key/value params)
  
-| param   | type          | category                | notes                   |
-|---------|---------------|-------------------------|-------------------------|
-| prio    | int (-10..1)  | Asset loading / linking | \#static allow client to ignore lower-prio objects in the renderloop, to compensate frame-drop/cpu/gpu-overload scenario’soc/notes/prio.md |
+```
+⛁  = fragment in 3D asset-file (custom property)
+⚂  = fragment in navigator URI (`document.location.href` e.g.)
+```
+| param   | type          | scope | navigator override |category                | notes                   |
+|---------|---------------|-------|--------------------|-------------------------|
+| prio    | int (-10..1)  | ⛁ | Asset loading / linking | \#static allow client to ignore lower-prio objects in the renderloop, to compensate frame-drop/cpu/gpu-overload scenario’soc/notes/prio.md |
 | pos     | 3D vector     | HREF navigation/portals |  |
 
 

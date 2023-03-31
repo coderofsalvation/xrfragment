@@ -5,12 +5,14 @@ package xrfragment;
 
 class Parser {                                                             //  # XR Fragments (key/value params)
     public static var error:String = "";                                   //   
-
-    @:keep
+                                                                           //  ```
+                                                                           //  ⛁  = fragment in 3D asset-file (custom property)
+                                                                           //  ⚂  = fragment in navigator URI (`document.location.href` e.g.)
+    @:keep                                                                 //  ```
     public static function parse(key:String,value:String,resultMap:haxe.DynamicAccess<Dynamic>):Bool {
-      var Frag:Map<String, EReg> = new Map<String, EReg>();                //  | param   | type          | category                | notes                   |
-                                                                           //  |---------|---------------|-------------------------|-------------------------|
-      Frag.set("prio", Type.isInt);                                        //  | prio    | int (-10..1)  | Asset loading / linking | #include doc/notes/prio.md |
+      var Frag:Map<String, EReg> = new Map<String, EReg>();                //  | param   | type          | scope | navigator override |category                | notes                   |
+                                                                           //  |---------|---------------|-------|--------------------|-------------------------|
+      Frag.set("prio", Type.isInt);                                        //  | prio    | int (-10..1)  | ⛁ | Asset loading / linking | #include doc/notes/prio.md |
 
       Frag.set("pos",  Type.isVector);                                     //  | pos     | 3D vector     | HREF navigation/portals |  |
                                                                            //  
