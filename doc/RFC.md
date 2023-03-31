@@ -1,6 +1,6 @@
 
-##
-# example URI: `://domain.com/some3d.asset#pos=1,0,0&prio=-5`
+
+# `protocol://domain.com/some3d.asset#pos=1,0,0&prio=-5`
 
 # URI parser
 
