@@ -9,7 +9,7 @@ class Url {
 
 		public static var error:String = "";
 
-    @:keep                                                                 //  # Url parser (the gist of it)
+    @:keep                                                                 //  # URI parser (the gist of it)
     public static function parse(qs:String):haxe.DynamicAccess<Dynamic> {  //  
       var fragment:Array<String>    = qs.split("#");                       //  1. fragment URI starts with `#`
       var splitArray:Array<String>  = fragment[1].split('&');              //  1. fragments are split by `&`

@@ -17,7 +17,7 @@ class Parser {
 			Frag.set("prio", Type.isInt);                                        //  | prio    | int (-10..1)  | Asset linking           | `#prio=-5` |
 											                                                     //  
 
-                                                                           //  # Fragment parser (the gist of it)         
+                                                                           //  # XR Fragments parser (the gist of it)         
       if( Frag.exists(key) ){                                              //  
         if( Frag.get(key).match(value) ){                                  //  1. each key has a regex to validate its value-type (see regexes)
           var v:Value = new Value();
