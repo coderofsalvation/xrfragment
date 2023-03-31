@@ -11,7 +11,6 @@
 1. `=` is used to split fragment key/values 
 1. fragment-values are urlencoded (space becomes `+` using `encodeUriComponent` e.g.)
 1. every recognized fragment key/value-pair is added to a central map/associative array/object
-[![Actions Status](https://github.com/coderofsalvation/xrfragment/workflows/test/badge.svg)](https://github.com/coderofsalvation/xrfragment/actions)
 
 # XR Fragments (key/value params)
  
