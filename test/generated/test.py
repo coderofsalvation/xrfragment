@@ -400,7 +400,7 @@ class Test:
             if (Reflect.field(item,"fn") == "query"):
                 q = xrfragment_Query(Reflect.field(item,"data"))
             if (Reflect.field(item,"fn") == "url"):
-                res = xrfragment_Url.parse(Reflect.field(item,"data"))
+                res = xrfragment_URI.parse(Reflect.field(item,"data"))
             if (Reflect.field(Reflect.field(item,"expect"),"fn") == "test"):
                 valid = (Reflect.field(Reflect.field(item,"expect"),"out") == q.test(HxOverrides.arrayGet(Reflect.field(Reflect.field(item,"expect"),"input"), 0)))
             if (Reflect.field(Reflect.field(item,"expect"),"fn") == "testProperty"):
@@ -1622,10 +1622,10 @@ class xrfragment_Query:
 
 
 
-class xrfragment_Url:
-    _hx_class_name = "xrfragment.Url"
+class xrfragment_URI:
+    _hx_class_name = "xrfragment.URI"
     __slots__ = ()
-    _hx_statics = ["error", "parse"]
+    _hx_statics = ["parse"]
 
     @staticmethod
     def parse(qs):
@@ -1661,6 +1661,5 @@ xrfragment_Type.isColor = EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","")
 xrfragment_Type.isInt = EReg("^[0-9]+$","")
 xrfragment_Type.isFloat = EReg("^[0-9]+\\.[0-9]+$","")
 xrfragment_Type.isVector = EReg("([,]+|\\w)","")
-xrfragment_Url.error = ""
 
 Test.main()

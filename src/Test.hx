@@ -1,5 +1,5 @@
 import xrfragment.Query;
-import xrfragment.Url;
+import xrfragment.URI;
 
 class Spec {
   macro public static function load(path : String) {
@@ -29,7 +29,7 @@ class Test {
       var valid:Bool     = false;
       var item:Dynamic = spec[i];
       if( item.fn == "query"       ) q   = new Query(item.data);
-      if( item.fn == "url"         ) res = Url.parse(item.data);
+      if( item.fn == "url"         ) res = URI.parse(item.data);
       if( item.expect.fn == "test"         ) valid = item.expect.out == q.test( item.expect.input[0] );
       if( item.expect.fn == "testProperty"        ) valid = item.expect.out == q.testProperty( item.expect.input[0], item.expect.input[1] );
       if( item.expect.fn == "testPropertyExclude" ) valid = item.expect.out == q.testProperty( item.expect.input[0], item.expect.input[1], true );
@@ -55,10 +55,10 @@ class Test {
 	}
 
   static public function testUrl():Void {
-    var Url   = xrfragment.Url;
-    var uri:String = "http://foo.com?foo=1#bar=flop&a=1,2&b=c|d|1,2,3";
-    trace(uri);
-    trace( Url.parse(uri) );
+    var Uri   = xrfragment.URI;
+    var url:String = "http://foo.com?foo=1#bar=flop&a=1,2&b=c|d|1,2,3";
+    trace(url);
+    trace( Uri.parse(url) );
   }
 
   static public function testQuery():Void {

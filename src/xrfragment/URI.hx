@@ -4,14 +4,12 @@ import xrfragment.Parser;
 
 @:expose                                                                   // <- makes the class reachable from plain JavaScript
 @:keep                                                                     // <- avoids accidental removal by dead code elimination
-
-class Url {
-
-		public static var error:String = "";
-
+                                                                           //  
+                                                                           //  example URI: `://domain.com/some3d.asset#pos=1,0,0&prio=-5
+class URI {
     @:keep                                                                 //  # URI parser
     public static function parse(qs:String):haxe.DynamicAccess<Dynamic> {  //  
-      var fragment:Array<String>    = qs.split("#");                       //  > icanhazcode? yes, see [Url.hx](./../src/xrfragment/Url.hx)
+      var fragment:Array<String>    = qs.split("#");                       //  > icanhazcode? yes, see [URI.hx](./../src/xrfragment/URI.hx)
       var splitArray:Array<String>  = fragment[1].split('&');              //  
       var resultMap:haxe.DynamicAccess<Dynamic> = {};                      //  1. fragment URI starts with `#`
         for (i in 0...splitArray.length) {                                 //  1. fragments are split by `&`
@@ -27,5 +25,4 @@ class Url {
       }
       return resultMap;
     }
-
 }

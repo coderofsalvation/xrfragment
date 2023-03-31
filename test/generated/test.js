@@ -151,7 +151,7 @@ Test.test = function(spec) {
 			q = new xrfragment_Query(item.data);
 		}
 		if(item.fn == "url") {
-			res = xrfragment_Url.parse(item.data);
+			res = xrfragment_URI.parse(item.data);
 		}
 		if(item.expect.fn == "test") {
 			valid = item.expect.out == q.test(item.expect.input[0]);
@@ -517,9 +517,9 @@ xrfragment_Query.prototype = {
 		return qualify > 0;
 	}
 };
-var xrfragment_Url = $hx_exports["xrfragment"]["Url"] = function() { };
-xrfragment_Url.__name__ = true;
-xrfragment_Url.parse = function(qs) {
+var xrfragment_URI = $hx_exports["xrfragment"]["URI"] = function() { };
+xrfragment_URI.__name__ = true;
+xrfragment_URI.parse = function(qs) {
 	var fragment = qs.split("#");
 	var splitArray = fragment[1].split("&");
 	var resultMap = { };
@@ -579,7 +579,6 @@ var xrfragment_Query_ok = $hx_exports["xrfragment"]["Query"]["ok"] =
       }
     }
   ;
-xrfragment_Url.error = "";
 Test.main();
 })({});
 var xrfragment = $hx_exports["xrfragment"];
