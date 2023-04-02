@@ -12,22 +12,22 @@
 # by changing the regexes
 #
 /\$\(/                   { cmd=$0; 
-													 gsub(/^.*\$\(/,"",cmd); 
-													 gsub(/\).*/,"",cmd);
-													 cmd | getline stdout; close(cmd);
+                           gsub(/^.*\$\(/,"",cmd); 
+                           gsub(/\).*/,"",cmd);
+                           cmd | getline stdout; close(cmd);
                            sub(/\$\(.*\)/,stdout);
                          } 
-/\/\*\*/ 			           { doc=1; sub(/^.*\/\*/,""); }
+/\/\*\*/                 { doc=1; sub(/^.*\/\*/,""); }
 doc && /\*\//            { doc=0;
-							           	 sub(/[[:space:]]*\*\/.*/,"");
-							           	 sub(/^[[:space:]]*\*[[:space:]]?/,"");
-							           	 print
-							           }
+                           sub(/[[:space:]]*\*\/.*/,"");
+                           sub(/^[[:space:]]*\*[[:space:]]?/,"");
+                           print
+                         }
 doc && /^[[:space:]]*\*/ { sub(/^[[:space:]]*\*[[:space:]]?/,""); 
-													 print 
+                           print 
                          }
 !doc && /\/\/  /         { sub(".*//  ",""); 
-													 sub("# ","\n# ");
-													 sub("> ","\n> ");
-													 print
-												 }
+                           sub("# ","\n# ");
+                           sub("> ","\n> ");
+                           print
+                         }
