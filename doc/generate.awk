@@ -8,6 +8,9 @@
 #
 #  var foo; //  comment with 2 leading spaces is markdown too $(date)
 #
+# easily refactorable to hash-based languages (py/bash/perl/lua e.g.) 
+# by changing the regexes
+#
 /\$\(/                   { cmd=$0; 
 													 gsub(/^.*\$\(/,"",cmd); 
 													 gsub(/\).*/,"",cmd);

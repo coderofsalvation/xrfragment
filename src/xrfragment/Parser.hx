@@ -53,14 +53,14 @@ class Parser {
     @:keep
     public static function guessType(v:Value, str:String):Void {
       v.string = str;
-      if( str.split(",").length > 1){                                     ///  1. `,` assumes 1D/2D/3D vector-values like x[,y[,z]]
-        var xyz:Array<String> = str.split(",");                           ///  1. parseFloat(..) and parseInt(..) is applied to vector/float and int values 
-        if( xyz.length > 0 ) v.x = Std.parseFloat(xyz[0]);                ///  1. anything else will be treated as string-value 
-        if( xyz.length > 1 ) v.y = Std.parseFloat(xyz[1]);                ///  1. incompatible value-types will be dropped / not used
-        if( xyz.length > 2 ) v.y = Std.parseFloat(xyz[2]);                ///  
-      }                                                                   ///  > the xrfragment specification should stay simple enough
-                                                                          ///  > for anyone to write a parser using either regexes or grammar/lexers
-      if( Type.isColor.match(str) ) v.color = str;                        ///  > therefore expressions/comprehensions are not supported (max wildcard/comparison operators for queries e.g.)
+      if( str.split(",").length > 1){                                      //  1. `,` assumes 1D/2D/3D vector-values like x[,y[,z]]
+        var xyz:Array<String> = str.split(",");                            //  1. parseFloat(..) and parseInt(..) is applied to vector/float and int values 
+        if( xyz.length > 0 ) v.x = Std.parseFloat(xyz[0]);                 //  1. anything else will be treated as string-value 
+        if( xyz.length > 1 ) v.y = Std.parseFloat(xyz[1]);                 //  1. incompatible value-types will be dropped / not used
+        if( xyz.length > 2 ) v.y = Std.parseFloat(xyz[2]);                 //  
+      }                                                                    //  > the xrfragment specification should stay simple enough
+                                                                           //  > for anyone to write a parser using either regexes or grammar/lexers
+      if( Type.isColor.match(str) ) v.color = str;                         //  > therefore expressions/comprehensions are not supported (max wildcard/comparison operators for queries e.g.)
       if( Type.isFloat.match(str) ) v.float = Std.parseFloat(str);
       if( Type.isInt.match(str)   ) v.int   = Std.parseInt(str);
     }
