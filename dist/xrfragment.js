@@ -212,6 +212,7 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	Frag_h["prio"] = xrfragment_Type.isInt;
 	Frag_h["pos"] = xrfragment_Type.isVector;
 	Frag_h["q"] = xrfragment_Type.isString;
+	var vec = "1,2,3";
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		if(Frag_h[key].match(value)) {
 			var v = new xrfragment_Value();
@@ -230,11 +231,11 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 			}
 			resultMap[key] = v;
 		} else {
-			console.log("src/xrfragment/Parser.hx:34:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:47:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 	} else {
-		console.log("src/xrfragment/Parser.hx:35:","[ i ] fragment '" + key + "' does not exist or has no type defined (yet)");
+		console.log("src/xrfragment/Parser.hx:48:","[ i ] fragment '" + key + "' does not exist or has no type defined (yet)");
 		return false;
 	}
 	return true;

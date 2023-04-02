@@ -1371,6 +1371,7 @@ class xrfragment_Parser:
         Frag.h["prio"] = xrfragment_Type.isInt
         Frag.h["pos"] = xrfragment_Type.isVector
         Frag.h["q"] = xrfragment_Type.isString
+        vec = "1,2,3"
         if (key in Frag.h):
             _this = Frag.h.get(key,None)
             _this.matchObj = python_lib_Re.search(_this.pattern,value)
@@ -1580,8 +1581,8 @@ class xrfragment_Query:
         fails = 0
         qualify = 0
         def _hx_local_2(expr):
-            nonlocal conds
             nonlocal fails
+            nonlocal conds
             conds = (conds + 1)
             fails = (fails + (0 if expr else 1))
             return expr
