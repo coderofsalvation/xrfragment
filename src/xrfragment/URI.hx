@@ -22,7 +22,9 @@ import xrfragment.Parser;
  *
  * > Example: `://foo.com/my3d.asset#pos=1,0,0&prio=-5&t=0,100|100,200`
  *
- * <br>Explanation:<br>
+ * <br>
+ * | Explanation | |
+ * |-|-|
  * | `x=1,2,3` | vector/coordinate argument e.g. |
  * | `x=foo\|bar\|1\,2,3\|1.0` | the `\|` character is used for:<br>1.specifying `n` arguments for xrfragment `x`<br>2. fallback urls (`src=https://x.co/f.gltf\|xyz://f.gltf`)<br>3. roundrobin of values (in case provided arguments exceeds `n` of `x` for #1) when triggered by browser URI (clicking `href` e.g.)|
  * | `.mygroup` | query-alias for `class:mygroup` |
