@@ -4,7 +4,7 @@
 
 > version 1.0.0
 
-date: 2023-04-06T18:29:21+0200<br>
+date: 2023-04-06T18:29:50+0200<br>
 [![Actions Status](https://github.com/coderofsalvation/xrfragment/workflows/test/badge.svg)](https://github.com/coderofsalvation/xrfragment/actions)
 
 # XRFragment Grammar 
@@ -15,6 +15,7 @@ date: 2023-04-06T18:29:21+0200<br>
     sub-delims  = "," / "|" / "="
 ```
 <br>
+
 > Example: `://foo.com/my3d.asset#pos=1,0,0&prio=-5&t=0,100|100,200`
 
 Hasslefree 3D vector-data (`,`), multi-protocol/fallback-linking & dynamic values (`|`), and CSS-piggybacking (`.mygroup`) 
