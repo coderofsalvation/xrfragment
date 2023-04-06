@@ -23,6 +23,7 @@ import xrfragment.Parser;
  * > Example: `://foo.com/my3d.asset#pos=1,0,0&prio=-5&t=0,100|100,200`
  *
  * <br>
+ *
  * | Explanation | |
  * |-|-|
  * | `x=1,2,3` | vector/coordinate argument e.g. |

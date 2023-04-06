@@ -4,7 +4,7 @@
 
 > version 1.0.0
 
-date: 2023-04-06T18:31:05+0200<br>
+date: 2023-04-06T18:31:24+0200<br>
 [![Actions Status](https://github.com/coderofsalvation/xrfragment/workflows/test/badge.svg)](https://github.com/coderofsalvation/xrfragment/actions)
 
 # XRFragment Grammar 
@@ -19,6 +19,7 @@ date: 2023-04-06T18:31:05+0200<br>
 > Example: `://foo.com/my3d.asset#pos=1,0,0&prio=-5&t=0,100|100,200`
 
 <br>
+
 | Explanation | |
 |-|-|
 | `x=1,2,3` | vector/coordinate argument e.g. |
