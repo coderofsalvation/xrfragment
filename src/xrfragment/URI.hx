@@ -27,7 +27,8 @@ import xrfragment.Parser;
  * | Explanation | |
  * |-|-|
  * | `x=1,2,3` | vector/coordinate argument e.g. |
- * | `x=foo\|bar\|1\,2,3\|1.0` | the `\|` character is used for:<br>1.specifying `n` arguments for xrfragment `x`<br>2. fallback urls (`src=https://x.co/f.gltf\|xyz://f.gltf`)<br>3. roundrobin of values (in case provided arguments exceeds `n` of `x` for #1) when triggered by browser URI (clicking `href` e.g.)|
+ * | `x=foo\|bar|1,2,3|1.0` | the `\|` character is used for:<br>1.specifying `n` arguments for xrfragment `x`<br>2. roundrobin of values (in case provided arguments exceeds `n` of `x` for #1) when triggered by browser URI (clicking `href` e.g.)|
+ * | `https://x.co/1.gltf||xyz://x.co/1.gltf` | multi-protocol/fallback urls  |
  * | `.mygroup` | query-alias for `class:mygroup` |
  *
  * > Focus: hasslefree 3D vector-data (`,`), multi-protocol/fallback-linking & dynamic values (`|`), and CSS-piggybacking (`.mygroup`) 
