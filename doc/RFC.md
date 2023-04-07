@@ -4,7 +4,7 @@
 
 > version 1.0.0
 
-date: 2023-04-06T18:37:15+0200<br>
+date: 2023-04-07T13:38:59+0200<br>
 [![Actions Status](https://github.com/coderofsalvation/xrfragment/workflows/test/badge.svg)](https://github.com/coderofsalvation/xrfragment/actions)
 
 # XRFragment Grammar 
@@ -54,7 +54,6 @@ date: 2023-04-06T18:37:15+0200<br>
 
 # XR Fragments parser
 
-note: community parsers will prolly outperform this initial parser :)
 > icanhazcode? yes, see [Parser.hx](https://github.com/coderofsalvation/xrfragment/blob/main/src/xrfragment/Parser.hx)
 the gist of it:
 
