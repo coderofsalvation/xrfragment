@@ -25,7 +25,6 @@ class Parser {
       /**
        * # XR Fragments parser
        *
-       * note: community parsers will prolly outperform this initial parser :)
        * > icanhazcode? yes, see [Parser.hx](https://github.com/coderofsalvation/xrfragment/blob/main/src/xrfragment/Parser.hx)
        * the gist of it:
        */
