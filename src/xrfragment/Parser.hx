@@ -32,13 +32,13 @@ class Parser {
         if( Frag.get(key).match(value) ){                                  //  1. each key has a regex to validate its value-type (see regexes) 
           var v:Value = new Value();
           guessType(v, value);                                             //  1. extract the type
-          // process multiple/fallback values                              
-          if( value.split("|").length > 1 ){                               //  1. use `|` on stringvalues, to split multiple/fallback values
+          // process multiple values                              
+          if( value.split("|").length > 1 ){                               //  1. use `|` on stringvalues, to split multiple values
             v.args = new Array<Value>();
             var args:Array<String> = value.split("|");
             for( i in 0...args.length){
               var x:Value = new Value();
-              guessType(x, args[i]);                                       //  1. for each multiple/fallback value, guess the type
+              guessType(x, args[i]);                                       //  1. for each multiple value, guess the type
               v.args.push( x );
             }
           }

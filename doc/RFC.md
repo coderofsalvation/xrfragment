@@ -4,7 +4,7 @@
 
 > version 1.0.0
 
-date: 2023-04-07T13:38:59+0200<br>
+date: 2023-04-07T13:41:47+0200<br>
 [![Actions Status](https://github.com/coderofsalvation/xrfragment/workflows/test/badge.svg)](https://github.com/coderofsalvation/xrfragment/actions)
 
 # XRFragment Grammar 
@@ -60,8 +60,8 @@ the gist of it:
 1. check if param exist
 1. each key has a regex to validate its value-type (see regexes) 
 1. extract the type
-1. use `|` on stringvalues, to split multiple/fallback values
-1. for each multiple/fallback value, guess the type
+1. use `|` on stringvalues, to split multiple values
+1. for each multiple value, guess the type
 1. `,` assumes 1D/2D/3D vector-values like x[,y[,z]]
 1. parseFloat(..) and parseInt(..) is applied to vector/float and int values 
 1. anything else will be treated as string-value 
