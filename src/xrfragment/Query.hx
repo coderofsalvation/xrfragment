@@ -59,6 +59,10 @@ class Query {
     return classAlias.match(token) ? StringTools.replace(token,".","class:") : token;
   }
 
+  public function get() : Dynamic {
+    return this.q;
+  }
+
   public function parse(str:String,recurse:Bool = false) : Dynamic {
 
     var token = str.split(" ");
@@ -103,8 +107,7 @@ class Query {
       }
     }
     for( i in 0...token.length ) process( expandAliases(token[i]) );
-    this.q = q;
-    return this.q;
+    return this.q = q;
   }
 
   @:keep

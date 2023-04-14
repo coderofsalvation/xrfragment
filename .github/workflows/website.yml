@@ -1,0 +1,21 @@
+name: Deploy to GitHub Pages
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: main
+      - name: Build
+        run: cp test/test.html doc/.
+        working-directory: ./
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+					github_token: ${{ secrets.GITHUB_TOKEN }}
+					publish_dir: ./doc
