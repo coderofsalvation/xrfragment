@@ -1570,6 +1570,11 @@ __xrfragment_Parser.parse = function(key,value,resultMap)
   else
     Frag_h.src_session = value1;
   end;
+  if ((__lua_lib_luautf8_Utf8.len(value) == 0) and (Frag_h[key] == nil)) then 
+    local value = __xrfragment_XRF.new(key, __xrfragment_XRF.PV_EXECUTE);
+    resultMap[key] = value;
+    do return true end;
+  end;
   if (Frag_h[key] ~= nil) then 
     local ret = Frag_h[key];
     if (ret == __haxe_ds_StringMap.tnull) then 
@@ -1577,12 +1582,12 @@ __xrfragment_Parser.parse = function(key,value,resultMap)
     end;
     local v = __xrfragment_XRF.new(key, ret);
     if (not v:validate(value)) then 
-      __haxe_Log.trace(Std.string(Std.string(Std.string(Std.string("[ i ] fragment '") .. Std.string(key)) .. Std.string("' has incompatible value (")) .. Std.string(value)) .. Std.string(")"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=66,className="xrfragment.Parser",methodName="parse"}));
+      __haxe_Log.trace(Std.string(Std.string(Std.string(Std.string("[ i ] fragment '") .. Std.string(key)) .. Std.string("' has incompatible value (")) .. Std.string(value)) .. Std.string(")"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=70,className="xrfragment.Parser",methodName="parse"}));
       do return false end;
     end;
     resultMap[key] = v;
   else
-    __haxe_Log.trace(Std.string(Std.string("[ i ] fragment '") .. Std.string(key)) .. Std.string("' does not exist or has no type typed (yet)"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=70,className="xrfragment.Parser",methodName="parse"}));
+    __haxe_Log.trace(Std.string(Std.string("[ i ] fragment '") .. Std.string(key)) .. Std.string("' does not exist or has no type typed (yet)"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=74,className="xrfragment.Parser",methodName="parse"}));
     do return false end;
   end;
   do return true end;
@@ -2071,10 +2076,11 @@ __xrfragment_URI.parse = function(qs,browser_override)
     local splitByEqual = ret;
     local regexPlus = EReg.new("\\+", "g");
     local key = splitByEqual[0];
+    local value = "";
     if (splitByEqual.length > 1) then 
-      local value = StringTools.urlDecode(regexPlus:split(splitByEqual[1]):join(" "));
-      local ok = __xrfragment_Parser.parse(key, value, resultMap);
+      value = StringTools.urlDecode(regexPlus:split(splitByEqual[1]):join(" "));
     end;
+    local ok = __xrfragment_Parser.parse(key, value, resultMap);
   end;
   if (browser_override) then 
     local _g = 0;
@@ -2313,29 +2319,31 @@ local _hx_static_init = function()
   
   __xrfragment_XRF.ASSET_OBJ = 2;
   
-  __xrfragment_XRF.PV_OVERRIDE = 4;
+  __xrfragment_XRF.QUERY_OPERATOR = 4;
   
-  __xrfragment_XRF.QUERY_OPERATOR = 8;
+  __xrfragment_XRF.PROMPT = 8;
   
-  __xrfragment_XRF.PROMPT = 16;
+  __xrfragment_XRF.ROUNDROBIN = 16;
   
-  __xrfragment_XRF.ROUNDROBIN = 32;
+  __xrfragment_XRF.BROWSER_OVERRIDE = 32;
   
-  __xrfragment_XRF.BROWSER_OVERRIDE = 64;
+  __xrfragment_XRF.PV_OVERRIDE = 64;
   
-  __xrfragment_XRF.T_INT = 256;
+  __xrfragment_XRF.PV_EXECUTE = 128;
   
-  __xrfragment_XRF.T_VECTOR2 = 1024;
+  __xrfragment_XRF.T_INT = 512;
   
-  __xrfragment_XRF.T_VECTOR3 = 2048;
+  __xrfragment_XRF.T_VECTOR2 = 2048;
   
-  __xrfragment_XRF.T_URL = 4096;
+  __xrfragment_XRF.T_VECTOR3 = 4096;
   
-  __xrfragment_XRF.T_PREDEFINED_VIEW = 8192;
+  __xrfragment_XRF.T_URL = 8192;
   
-  __xrfragment_XRF.T_STRING = 16384;
+  __xrfragment_XRF.T_PREDEFINED_VIEW = 16384;
   
-  __xrfragment_XRF.T_STRING_OBJ = 32768;
+  __xrfragment_XRF.T_STRING = 32768;
+  
+  __xrfragment_XRF.T_STRING_OBJ = 65536;
   
   __xrfragment_XRF.isColor = EReg.new("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", "");
   

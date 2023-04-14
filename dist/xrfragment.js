@@ -243,15 +243,19 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	Frag_h["unit"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["description"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["src_session"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.BROWSER_OVERRIDE | xrfragment_XRF.PROMPT;
+	if(value.length == 0 && !Object.prototype.hasOwnProperty.call(Frag_h,key)) {
+		resultMap[key] = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE);
+		return true;
+	}
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		var v = new xrfragment_XRF(key,Frag_h[key]);
 		if(!v.validate(value)) {
-			console.log("src/xrfragment/Parser.hx:66:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:70:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 		resultMap[key] = v;
 	} else {
-		console.log("src/xrfragment/Parser.hx:70:","[ i ] fragment '" + key + "' does not exist or has no type typed (yet)");
+		console.log("src/xrfragment/Parser.hx:74:","[ i ] fragment '" + key + "' does not exist or has no type typed (yet)");
 		return false;
 	}
 	return true;
@@ -451,11 +455,12 @@ xrfragment_URI.parse = function(qs,browser_override) {
 		var splitByEqual = splitArray[i].split("=");
 		var regexPlus = new EReg("\\+","g");
 		var key = splitByEqual[0];
+		var value = "";
 		if(splitByEqual.length > 1) {
 			var s = regexPlus.split(splitByEqual[1]).join(" ");
-			var value = decodeURIComponent(s.split("+").join(" "));
-			var ok = xrfragment_Parser.parse(key,value,resultMap);
+			value = decodeURIComponent(s.split("+").join(" "));
 		}
+		var ok = xrfragment_Parser.parse(key,value,resultMap);
 	}
 	if(browser_override) {
 		var _g = 0;
@@ -552,18 +557,19 @@ js_Boot.__toStr = ({ }).toString;
 xrfragment_Parser.error = "";
 xrfragment_XRF.ASSET = 1;
 xrfragment_XRF.ASSET_OBJ = 2;
-xrfragment_XRF.PV_OVERRIDE = 4;
-xrfragment_XRF.QUERY_OPERATOR = 8;
-xrfragment_XRF.PROMPT = 16;
-xrfragment_XRF.ROUNDROBIN = 32;
-xrfragment_XRF.BROWSER_OVERRIDE = 64;
-xrfragment_XRF.T_INT = 256;
-xrfragment_XRF.T_VECTOR2 = 1024;
-xrfragment_XRF.T_VECTOR3 = 2048;
-xrfragment_XRF.T_URL = 4096;
-xrfragment_XRF.T_PREDEFINED_VIEW = 8192;
-xrfragment_XRF.T_STRING = 16384;
-xrfragment_XRF.T_STRING_OBJ = 32768;
+xrfragment_XRF.QUERY_OPERATOR = 4;
+xrfragment_XRF.PROMPT = 8;
+xrfragment_XRF.ROUNDROBIN = 16;
+xrfragment_XRF.BROWSER_OVERRIDE = 32;
+xrfragment_XRF.PV_OVERRIDE = 64;
+xrfragment_XRF.PV_EXECUTE = 128;
+xrfragment_XRF.T_INT = 512;
+xrfragment_XRF.T_VECTOR2 = 2048;
+xrfragment_XRF.T_VECTOR3 = 4096;
+xrfragment_XRF.T_URL = 8192;
+xrfragment_XRF.T_PREDEFINED_VIEW = 16384;
+xrfragment_XRF.T_STRING = 32768;
+xrfragment_XRF.T_STRING_OBJ = 65536;
 xrfragment_XRF.isColor = new EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","");
 xrfragment_XRF.isInt = new EReg("^[0-9]+$","");
 xrfragment_XRF.isFloat = new EReg("^[0-9]+\\.[0-9]+$","");

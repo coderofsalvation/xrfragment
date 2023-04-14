@@ -1,5 +1,6 @@
 import xrfragment.Query;
 import xrfragment.URI;
+import xrfragment.XRF;
 
 class Spec {
   macro public static function load(path : String) {
@@ -34,6 +35,7 @@ class Test {
       if( item.expect.fn == "testProperty"        ) valid = item.expect.out == q.testProperty( item.expect.input[0], item.expect.input[1] );
       if( item.expect.fn == "testPropertyExclude" ) valid = item.expect.out == q.testProperty( item.expect.input[0], item.expect.input[1], true );
       if( item.expect.fn == "testParsed"          ) valid = item.expect.out == res.exists(item.expect.input);
+      if( item.expect.fn == "testPredefinedView"  ) valid = res.exists(item.expect.input) && item.expect.out == res.get(item.expect.input).is( XRF.PV_EXECUTE) ;
       if( item.expect.fn == "testBrowserOverride" ) valid = item.expect.out == (URI.parse(item.data,true)).exists(item.expect.input);
       if( item.expect.fn == "equal.string"        ) valid = res.get(item.expect.input) && item.expect.out == res.get(item.expect.input).string;
       if( item.expect.fn == "equal.xy"            ) valid = equalXY(res,item);

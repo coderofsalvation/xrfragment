@@ -60,6 +60,10 @@ class Parser {
        * > icanhazcode? yes, see [Parser.hx](https://github.com/coderofsalvation/xrfragment/blob/main/src/xrfragment/Parser.hx)
        * the gist of it:
        */
+			if( value.length == 0 && !Frag.exists(key) ){
+				resultMap.set(key, new XRF(key, XRF.PV_EXECUTE ) );
+				return true;
+			}
       if( Frag.exists(key) ){                                              //  1. check if param exist
         var v:XRF = new XRF(key, Frag.get(key));
         if( !v.validate(value) ){

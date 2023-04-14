@@ -51,16 +51,18 @@ class URI {
         var splitByEqual = splitArray[i].split('=');                       //  1. for each fragment split on `=` to separate key/values 
         var regexPlus  = ~/\+/g;                                           //  1. fragment-values are urlencoded (space becomes `+` using `encodeUriComponent` e.g.)
         var key:String = splitByEqual[0];
-
+				var value:String = "";
         if (splitByEqual.length > 1) {
-          var value:String = StringTools.urlDecode(regexPlus.split(splitByEqual[1]).join(" "));
-          var ok:Bool = Parser.parse(key,value,resultMap);                 //  1. every recognized fragment key/value-pair is added to a central map/associative array/object
+          value = StringTools.urlDecode(regexPlus.split(splitByEqual[1]).join(" "));
         }
+				var ok:Bool = Parser.parse(key,value,resultMap);                 //  1. every recognized fragment key/value-pair is added to a central map/associative array/object
       }
       if( browser_override ){
         for (key in resultMap.keys()) {
             var xrf:XRF = resultMap.get(key);
-            if( !xrf.is( XRF.BROWSER_OVERRIDE ) ) resultMap.remove(key);
+            if( !xrf.is( XRF.BROWSER_OVERRIDE ) ){ 
+							resultMap.remove(key);
+						}
         }
       }
       return resultMap;
