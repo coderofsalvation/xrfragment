@@ -3,7 +3,7 @@
     <link rel="stylesheet" href="https://unpkg.com/axist@latest/dist/axist.min.css" />
   </head>
   <body>
-    <script src="./dist/xrfragment.js"></script>
+    <script src="dist/xrfragment.js"></script>
 		<script>
 		  var DOMReady = function(a,b,c){b=document,c='addEventListener';b[c]?b[c]('DOMContentLoaded',a):window.attachEvent('onload',a)}
 
@@ -33,7 +33,7 @@
 				
 				addEventListener("hashchange", (e) => log( XRF.URI.parse( document.location.href, true ) ) );
 
-				document.location.hash = "#pos=0,0,0"
+				document.location.hash = "#t=1,100"
 
 		 	})
 
@@ -101,7 +101,8 @@
 		 					<tr>
 		 						<td colspan="2" style="border=bottom:none;color:#666">
 		 							<br><br>
-									ps. see <a href="https://hackmd.io/r-w6JaRgR8OJkbaHiQ8pmQ?both#Asset-linking-fragments" target="_blank">the documentation here</a>
+		 							ps1. you can test BROWSER_OVERRIDE-enabled fragments (<i>#t=1,200</i> or <i>#fog=2m|FFAABB</i> e.g.) by updating the url<br><br>
+									ps2. see <a href="https://hackmd.io/r-w6JaRgR8OJkbaHiQ8pmQ?both#Asset-linking-fragments" target="_blank">the documentation here</a>
 		 						</td>
 		 					</tr>
 		 				</table>
