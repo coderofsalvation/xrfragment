@@ -7,6 +7,7 @@ import sys as python_lib_Sys
 import functools as python_lib_Functools
 import re as python_lib_Re
 import traceback as python_lib_Traceback
+import urllib.parse as python_lib_urllib_Parse
 
 
 class _hx_AnonObject:
@@ -62,6 +63,7 @@ class EReg:
     _hx_class_name = "EReg"
     __slots__ = ("pattern", "matchObj", "_hx_global")
     _hx_fields = ["pattern", "matchObj", "global"]
+    _hx_methods = ["split"]
 
     def __init__(self,r,opt):
         self.matchObj = None
@@ -85,22 +87,53 @@ class EReg:
                 self._hx_global = True
         self.pattern = python_lib_Re.compile(r,options)
 
+    def split(self,s):
+        if self._hx_global:
+            ret = []
+            lastEnd = 0
+            x = python_HaxeIterator(python_lib_Re.finditer(self.pattern,s))
+            while x.hasNext():
+                x1 = x.next()
+                x2 = HxString.substring(s,lastEnd,x1.start())
+                ret.append(x2)
+                lastEnd = x1.end()
+            x = HxString.substr(s,lastEnd,None)
+            ret.append(x)
+            return ret
+        else:
+            self.matchObj = python_lib_Re.search(self.pattern,s)
+            if (self.matchObj is None):
+                return [s]
+            else:
+                return [HxString.substring(s,0,self.matchObj.start()), HxString.substr(s,self.matchObj.end(),None)]
+
 
 
 class Reflect:
     _hx_class_name = "Reflect"
     __slots__ = ()
-    _hx_statics = ["field"]
+    _hx_statics = ["field", "deleteField"]
 
     @staticmethod
     def field(o,field):
         return python_Boot.field(o,field)
 
+    @staticmethod
+    def deleteField(o,field):
+        if (field in python_Boot.keywords):
+            field = ("_hx_" + field)
+        elif ((((len(field) > 2) and ((ord(field[0]) == 95))) and ((ord(field[1]) == 95))) and ((ord(field[(len(field) - 1)]) != 95))):
+            field = ("_hx_" + field)
+        if (not python_Boot.hasField(o,field)):
+            return False
+        o.__delattr__(field)
+        return True
+
 
 class Std:
     _hx_class_name = "Std"
     __slots__ = ()
-    _hx_statics = ["isOfType", "string", "shortenPossibleNumber", "parseFloat"]
+    _hx_statics = ["isOfType", "string", "parseInt", "shortenPossibleNumber", "parseFloat"]
 
     @staticmethod
     def isOfType(v,t):
@@ -191,6 +224,72 @@ class Std:
     @staticmethod
     def string(s):
         return python_Boot.toString1(s,"")
+
+    @staticmethod
+    def parseInt(x):
+        if (x is None):
+            return None
+        try:
+            return int(x)
+        except BaseException as _g:
+            None
+            base = 10
+            _hx_len = len(x)
+            foundCount = 0
+            sign = 0
+            firstDigitIndex = 0
+            lastDigitIndex = -1
+            previous = 0
+            _g = 0
+            _g1 = _hx_len
+            while (_g < _g1):
+                i = _g
+                _g = (_g + 1)
+                c = (-1 if ((i >= len(x))) else ord(x[i]))
+                if (((c > 8) and ((c < 14))) or ((c == 32))):
+                    if (foundCount > 0):
+                        return None
+                    continue
+                else:
+                    c1 = c
+                    if (c1 == 43):
+                        if (foundCount == 0):
+                            sign = 1
+                        elif (not (((48 <= c) and ((c <= 57))))):
+                            if (not (((base == 16) and ((((97 <= c) and ((c <= 122))) or (((65 <= c) and ((c <= 90))))))))):
+                                break
+                    elif (c1 == 45):
+                        if (foundCount == 0):
+                            sign = -1
+                        elif (not (((48 <= c) and ((c <= 57))))):
+                            if (not (((base == 16) and ((((97 <= c) and ((c <= 122))) or (((65 <= c) and ((c <= 90))))))))):
+                                break
+                    elif (c1 == 48):
+                        if (not (((foundCount == 0) or (((foundCount == 1) and ((sign != 0))))))):
+                            if (not (((48 <= c) and ((c <= 57))))):
+                                if (not (((base == 16) and ((((97 <= c) and ((c <= 122))) or (((65 <= c) and ((c <= 90))))))))):
+                                    break
+                    elif ((c1 == 120) or ((c1 == 88))):
+                        if ((previous == 48) and ((((foundCount == 1) and ((sign == 0))) or (((foundCount == 2) and ((sign != 0))))))):
+                            base = 16
+                        elif (not (((48 <= c) and ((c <= 57))))):
+                            if (not (((base == 16) and ((((97 <= c) and ((c <= 122))) or (((65 <= c) and ((c <= 90))))))))):
+                                break
+                    elif (not (((48 <= c) and ((c <= 57))))):
+                        if (not (((base == 16) and ((((97 <= c) and ((c <= 122))) or (((65 <= c) and ((c <= 90))))))))):
+                            break
+                if (((foundCount == 0) and ((sign == 0))) or (((foundCount == 1) and ((sign != 0))))):
+                    firstDigitIndex = i
+                foundCount = (foundCount + 1)
+                lastDigitIndex = i
+                previous = c
+            if (firstDigitIndex <= lastDigitIndex):
+                digits = HxString.substring(x,firstDigitIndex,(lastDigitIndex + 1))
+                try:
+                    return (((-1 if ((sign == -1)) else 1)) * int(digits,base))
+                except BaseException as _g:
+                    return None
+            return None
 
     @staticmethod
     def shortenPossibleNumber(x):
@@ -284,6 +383,11 @@ class StringTools:
         return by.join([python_Boot.toString1(x1,'') for x1 in _this])
 
 
+class haxe_IMap:
+    _hx_class_name = "haxe.IMap"
+    __slots__ = ()
+
+
 class haxe_Exception(Exception):
     _hx_class_name = "haxe.Exception"
     __slots__ = ("_hx___nativeStack", "_hx___nativeException", "_hx___previousException")
@@ -365,6 +469,17 @@ class haxe_ValueException(haxe_Exception):
 
 
 
+class haxe_ds_StringMap:
+    _hx_class_name = "haxe.ds.StringMap"
+    __slots__ = ("h",)
+    _hx_fields = ["h"]
+    _hx_interfaces = [haxe_IMap]
+
+    def __init__(self):
+        self.h = dict()
+
+
+
 class haxe_iterators_ArrayIterator:
     _hx_class_name = "haxe.iterators.ArrayIterator"
     __slots__ = ("array", "current")
@@ -418,7 +533,7 @@ class haxe_iterators_ArrayKeyValueIterator:
 class python_Boot:
     _hx_class_name = "python.Boot"
     __slots__ = ()
-    _hx_statics = ["keywords", "toString1", "fields", "simpleField", "field", "getInstanceFields", "getSuperClass", "getClassFields", "prefixLength", "unhandleKeywords"]
+    _hx_statics = ["keywords", "toString1", "fields", "simpleField", "hasField", "field", "getInstanceFields", "getSuperClass", "getClassFields", "prefixLength", "unhandleKeywords"]
 
     @staticmethod
     def toString1(o,s):
@@ -581,6 +696,12 @@ class python_Boot:
             return getattr(o,field1)
         else:
             return None
+
+    @staticmethod
+    def hasField(o,field):
+        if isinstance(o,_hx_AnonObject):
+            return o._hx_hasattr(field)
+        return hasattr(o,(("_hx_" + field) if ((field in python_Boot.keywords)) else (("_hx_" + field) if (((((len(field) > 2) and ((ord(field[0]) == 95))) and ((ord(field[1]) == 95))) and ((ord(field[(len(field) - 1)]) != 95)))) else field)))
 
     @staticmethod
     def field(o,field):
@@ -1164,11 +1285,58 @@ class HxString:
             return s[startIndex:(startIndex + _hx_len)]
 
 
+class xrfragment_Parser:
+    _hx_class_name = "xrfragment.Parser"
+    __slots__ = ()
+    _hx_statics = ["error", "parse"]
+
+    @staticmethod
+    def parse(key,value,resultMap):
+        Frag = haxe_ds_StringMap()
+        Frag.h["prio"] = (xrfragment_XRF.ASSET_OBJ | xrfragment_XRF.T_INT)
+        Frag.h["#"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_PREDEFINED_VIEW)
+        Frag.h["class"] = (xrfragment_XRF.ASSET_OBJ | xrfragment_XRF.T_STRING)
+        Frag.h["src"] = (xrfragment_XRF.ASSET_OBJ | xrfragment_XRF.T_URL)
+        Frag.h["src_audio"] = (xrfragment_XRF.ASSET_OBJ | xrfragment_XRF.T_URL)
+        Frag.h["src_shader"] = (xrfragment_XRF.ASSET_OBJ | xrfragment_XRF.T_URL)
+        Frag.h["src_env"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_URL)
+        Frag.h["src_env_audio"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_URL)
+        Frag.h["pos"] = (((xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.T_STRING_OBJ)
+        Frag.h["href"] = ((xrfragment_XRF.ASSET_OBJ | xrfragment_XRF.T_URL) | xrfragment_XRF.T_PREDEFINED_VIEW)
+        Frag.h["q"] = (xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING)
+        Frag.h["scale"] = (((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_INT)
+        Frag.h["rot"] = (((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_VECTOR3)
+        Frag.h["translate"] = (((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_VECTOR3)
+        Frag.h["visible"] = (((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_INT)
+        Frag.h["t"] = ((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.BROWSER_OVERRIDE)
+        Frag.h["gravity"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3)
+        Frag.h["physics"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3)
+        Frag.h["scroll"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_STRING)
+        Frag.h["fov"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_INT) | xrfragment_XRF.BROWSER_OVERRIDE)
+        Frag.h["clip"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.BROWSER_OVERRIDE)
+        Frag.h["fog"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_STRING) | xrfragment_XRF.BROWSER_OVERRIDE)
+        Frag.h["namespace"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
+        Frag.h["SPFX"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
+        Frag.h["unit"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
+        Frag.h["description"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
+        Frag.h["src_session"] = ((((xrfragment_XRF.ASSET | xrfragment_XRF.T_URL) | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.BROWSER_OVERRIDE) | xrfragment_XRF.PROMPT)
+        if (key in Frag.h):
+            v = xrfragment_XRF(key,Frag.h.get(key,None))
+            if (not v.validate(value)):
+                print(str((((("[ i ] fragment '" + ("null" if key is None else key)) + "' has incompatible value (") + ("null" if value is None else value)) + ")")))
+                return False
+            setattr(resultMap,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),v)
+        else:
+            print(str((("[ i ] fragment '" + ("null" if key is None else key)) + "' does not exist or has no type typed (yet)")))
+            return False
+        return True
+
+
 class xrfragment_Query:
     _hx_class_name = "xrfragment.Query"
     __slots__ = ("str", "q", "isProp", "isExclude", "isClass", "isNumber")
     _hx_fields = ["str", "q", "isProp", "isExclude", "isClass", "isNumber"]
-    _hx_methods = ["toObject", "expandAliases", "parse", "test", "testProperty"]
+    _hx_methods = ["toObject", "expandAliases", "get", "parse", "test", "testProperty"]
 
     def __init__(self,_hx_str):
         self.isNumber = EReg("^[0-9\\.]+$","")
@@ -1190,6 +1358,9 @@ class xrfragment_Query:
             return StringTools.replace(token,".","class:")
         else:
             return token
+
+    def get(self):
+        return self.q
 
     def parse(self,_hx_str,recurse = None):
         if (recurse is None):
@@ -1271,8 +1442,12 @@ class xrfragment_Query:
             i = _g
             _g = (_g + 1)
             process(self.expandAliases((token[i] if i >= 0 and i < len(token) else None)))
-        self.q = q
-        return self.q
+        def _hx_local_2():
+            def _hx_local_1():
+                self.q = q
+                return self.q
+            return _hx_local_1()
+        return _hx_local_2()
 
     def test(self,obj = None):
         qualify = False
@@ -1341,6 +1516,116 @@ class xrfragment_Query:
         return (qualify > 0)
 
 
+
+class xrfragment_URI:
+    _hx_class_name = "xrfragment.URI"
+    __slots__ = ()
+    _hx_statics = ["parse"]
+
+    @staticmethod
+    def parse(qs,browser_override):
+        fragment = qs.split("#")
+        _this = (fragment[1] if 1 < len(fragment) else None)
+        splitArray = _this.split("&")
+        resultMap = _hx_AnonObject({})
+        _g = 0
+        _g1 = len(splitArray)
+        while (_g < _g1):
+            i = _g
+            _g = (_g + 1)
+            _this = (splitArray[i] if i >= 0 and i < len(splitArray) else None)
+            splitByEqual = _this.split("=")
+            regexPlus = EReg("\\+","g")
+            key = (splitByEqual[0] if 0 < len(splitByEqual) else None)
+            if (len(splitByEqual) > 1):
+                _this1 = regexPlus.split((splitByEqual[1] if 1 < len(splitByEqual) else None))
+                value = python_lib_urllib_Parse.unquote(" ".join([python_Boot.toString1(x1,'') for x1 in _this1]))
+                ok = xrfragment_Parser.parse(key,value,resultMap)
+        if browser_override:
+            _g = 0
+            _g1 = python_Boot.fields(resultMap)
+            while (_g < len(_g1)):
+                key = (_g1[_g] if _g >= 0 and _g < len(_g1) else None)
+                _g = (_g + 1)
+                xrf = Reflect.field(resultMap,key)
+                if (not xrf._hx_is(xrfragment_XRF.BROWSER_OVERRIDE)):
+                    Reflect.deleteField(resultMap,key)
+        return resultMap
+
+
+class xrfragment_XRF:
+    _hx_class_name = "xrfragment.XRF"
+    __slots__ = ("fragment", "flags", "x", "y", "z", "color", "string", "int", "float", "args", "query")
+    _hx_fields = ["fragment", "flags", "x", "y", "z", "color", "string", "int", "float", "args", "query"]
+    _hx_methods = ["is", "validate", "guessType"]
+    _hx_statics = ["ASSET", "ASSET_OBJ", "PV_OVERRIDE", "QUERY_OPERATOR", "PROMPT", "ROUNDROBIN", "BROWSER_OVERRIDE", "T_INT", "T_VECTOR2", "T_VECTOR3", "T_URL", "T_PREDEFINED_VIEW", "T_STRING", "T_STRING_OBJ", "isColor", "isInt", "isFloat"]
+
+    def __init__(self,_fragment,_flags):
+        self.query = None
+        self.args = None
+        self.float = None
+        self.int = None
+        self.string = None
+        self.color = None
+        self.z = None
+        self.y = None
+        self.x = None
+        self.fragment = _fragment
+        self.flags = _flags
+
+    def _hx_is(self,flag):
+        return (((self.flags & flag)) != 0)
+
+    def validate(self,value):
+        self.guessType(self,value)
+        if (len(value.split("|")) > 1):
+            self.args = list()
+            args = value.split("|")
+            _g = 0
+            _g1 = len(args)
+            while (_g < _g1):
+                i = _g
+                _g = (_g + 1)
+                x = xrfragment_XRF(self.fragment,self.flags)
+                self.guessType(x,(args[i] if i >= 0 and i < len(args) else None))
+                _this = self.args
+                _this.append(x)
+        if (self.fragment == "q"):
+            self.query = xrfragment_Query(value).get()
+        ok = True
+        if (not Std.isOfType(self.args,list)):
+            if (self._hx_is(xrfragment_XRF.T_VECTOR3) and (not (((Std.isOfType(self.x,Float) and Std.isOfType(self.y,Float)) and Std.isOfType(self.z,Float))))):
+                ok = False
+            if (self._hx_is(xrfragment_XRF.T_VECTOR2) and (not ((Std.isOfType(self.x,Float) and Std.isOfType(self.y,Float))))):
+                ok = False
+            if (self._hx_is(xrfragment_XRF.T_INT) and (not Std.isOfType(self.int,Int))):
+                ok = False
+        return ok
+
+    def guessType(self,v,_hx_str):
+        v.string = _hx_str
+        if (len(_hx_str.split(",")) > 1):
+            xyz = _hx_str.split(",")
+            if (len(xyz) > 0):
+                v.x = Std.parseFloat((xyz[0] if 0 < len(xyz) else None))
+            if (len(xyz) > 1):
+                v.y = Std.parseFloat((xyz[1] if 1 < len(xyz) else None))
+            if (len(xyz) > 2):
+                v.z = Std.parseFloat((xyz[2] if 2 < len(xyz) else None))
+        _this = xrfragment_XRF.isColor
+        _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+        if (_this.matchObj is not None):
+            v.color = _hx_str
+        _this = xrfragment_XRF.isFloat
+        _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+        if (_this.matchObj is not None):
+            v.float = Std.parseFloat(_hx_str)
+        _this = xrfragment_XRF.isInt
+        _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+        if (_this.matchObj is not None):
+            v.int = Std.parseInt(_hx_str)
+
+
 Math.NEGATIVE_INFINITY = float("-inf")
 Math.POSITIVE_INFINITY = float("inf")
 Math.NaN = float("nan")
@@ -1348,3 +1633,21 @@ Math.PI = python_lib_Math.pi
 
 python_Boot.keywords = set(["and", "del", "from", "not", "with", "as", "elif", "global", "or", "yield", "assert", "else", "if", "pass", "None", "break", "except", "import", "raise", "True", "class", "exec", "in", "return", "False", "continue", "finally", "is", "try", "def", "for", "lambda", "while"])
 python_Boot.prefixLength = len("_hx_")
+xrfragment_Parser.error = ""
+xrfragment_XRF.ASSET = 1
+xrfragment_XRF.ASSET_OBJ = 2
+xrfragment_XRF.PV_OVERRIDE = 4
+xrfragment_XRF.QUERY_OPERATOR = 8
+xrfragment_XRF.PROMPT = 16
+xrfragment_XRF.ROUNDROBIN = 32
+xrfragment_XRF.BROWSER_OVERRIDE = 64
+xrfragment_XRF.T_INT = 256
+xrfragment_XRF.T_VECTOR2 = 1024
+xrfragment_XRF.T_VECTOR3 = 2048
+xrfragment_XRF.T_URL = 4096
+xrfragment_XRF.T_PREDEFINED_VIEW = 8192
+xrfragment_XRF.T_STRING = 16384
+xrfragment_XRF.T_STRING_OBJ = 32768
+xrfragment_XRF.isColor = EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","")
+xrfragment_XRF.isInt = EReg("^[0-9]+$","")
+xrfragment_XRF.isFloat = EReg("^[0-9]+\\.[0-9]+$","")

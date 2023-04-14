@@ -29,18 +29,30 @@ class Test {
       var valid:Bool     = false;
       var item:Dynamic = spec[i];
       if( item.fn == "query"       ) q   = new Query(item.data);
-      if( item.fn == "url"         ) res = URI.parse(item.data);
+      if( item.fn == "url"         ) res = URI.parse(item.data,false);
       if( item.expect.fn == "test"         ) valid = item.expect.out == q.test( item.expect.input[0] );
       if( item.expect.fn == "testProperty"        ) valid = item.expect.out == q.testProperty( item.expect.input[0], item.expect.input[1] );
       if( item.expect.fn == "testPropertyExclude" ) valid = item.expect.out == q.testProperty( item.expect.input[0], item.expect.input[1], true );
       if( item.expect.fn == "testParsed"          ) valid = item.expect.out == res.exists(item.expect.input);
-      if( item.expect.fn == "equal.string"        ) valid = item.expect.out == res.get(item.expect.input).string;
-      if( item.expect.fn == "equal.xy"            ) valid = item.expect.out == (Std.string(res.get(item.expect.input).x) + Std.string(res.get(item.expect.input).y) );
+      if( item.expect.fn == "testBrowserOverride" ) valid = item.expect.out == (URI.parse(item.data,true)).exists(item.expect.input);
+      if( item.expect.fn == "equal.string"        ) valid = res.get(item.expect.input) && item.expect.out == res.get(item.expect.input).string;
+      if( item.expect.fn == "equal.xy"            ) valid = equalXY(res,item);
+      if( item.expect.fn == "equal.xyz"           ) valid = equalXYZ(res,item);
       if( item.expect.fn == "equal.multi"         ) valid = equalMulti(res, item);
       var ok:String = valid ? "[ ✔ ] " : "[ ❌] ";
       trace( ok + item.fn + ": '" + item.data + "'" + (item.label ? "    (" + (item.label?item.label:item.expect.fn) +")" : ""));
 			if( !valid ) errors += 1;
     }
+  }
+
+	static public function equalXY(res:haxe.DynamicAccess<Dynamic>, item:Dynamic):Bool {
+    if( !item.expect.out && !res.get(item.expect.input) ) return true;
+    else return res.get(item.expect.input) && item.expect.out == (Std.string(res.get(item.expect.input).x) +","+ Std.string(res.get(item.expect.input).y) );
+  }
+
+	static public function equalXYZ(res:haxe.DynamicAccess<Dynamic>, item:Dynamic):Bool {
+    if( !item.expect.out && !res.get(item.expect.input) ) return true;
+    else return res.get(item.expect.input) && item.expect.out == (Std.string(res.get(item.expect.input).x) +","+ Std.string(res.get(item.expect.input).y)+","+ Std.string(res.get(item.expect.input).z));
   }
 
 	static public function equalMulti(res:haxe.DynamicAccess<Dynamic>, item:Dynamic):Bool {
@@ -58,7 +70,7 @@ class Test {
     var Uri   = xrfragment.URI;
     var url:String = "http://foo.com?foo=1#bar=flop&a=1,2&b=c|d|1,2,3";
     trace(url);
-    trace( Uri.parse(url) );
+    trace( Uri.parse(url,false) );
   }
 
   static public function testQuery():Void {

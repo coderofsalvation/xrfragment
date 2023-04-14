@@ -1,38 +1,36 @@
 -dce full
 -cp src
-
 xrfragment
 -D shallow-expose
 -js dist/xrfragment.js
 
 --next
-
 -dce full
 -cp src
-
 Test
 -D shallow-expose
 -m Test
 -js test/generated/test.js
 
 --next
-
 -dce full
 -cp src
-
-xrfragment.Query
+xrfragment
 -lua dist/xrfragment.lua
 
 --next
-
 -dce full
 -cp src
-
-xrfragment.Query
+xrfragment
 -python dist/xrfragment.py
 
---next
+#--next
+#-dce full
+#-cp src
+#xrfragment
+#-cpp dist/xrfragment.cpp
 
+--next
 -dce full
 -cp src
 
@@ -53,8 +51,6 @@ Test
 #-dce full
 #-cp src
 #
-#xrfragment.Query
-#-cpp dist/xrfragment.cpp
 #
 #--next
 #

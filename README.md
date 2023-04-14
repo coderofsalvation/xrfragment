@@ -7,14 +7,11 @@
 
 # available implementations
 
-* [javascript](dist/xrfragment.js) [(+example)](test/test.js)
-* [python](dist/xrfragment.py) [(+example)](test/test.py)
-* [lua](dist/xrfragment.lua) [(+example)](test/test.lua)
+* [lua (handwritten)](dist/xrfragment.lua) [(+example)](src/xrfragment/Parser.lua)
 * [haXe](src/xrfragment)
-
-# docs
-
-* [RFC](doc/RFC.md)
+  * [javascript](dist/xrfragment.js) [(+example)](test/test.js)
+  * [python](dist/xrfragment.py) [(+example)](test/test.py)
+  * [lua](dist/xrfragment.lua) [(+example)](test/test.lua)
 
 # development
 
