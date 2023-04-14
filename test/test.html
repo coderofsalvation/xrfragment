@@ -34,7 +34,7 @@
 				
 				addEventListener("hashchange", (e) => log( XRF.URI.parse( document.location.href, true ) ) );
 
-				document.location.hash = "#t=1,100"
+				if( document.location.hash.length < 2 ) document.location.hash = "#t=1,100"
 
 		 	})
 
