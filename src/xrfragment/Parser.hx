@@ -39,6 +39,7 @@ class Parser {
       Frag.set("gravity",       XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR3                  );
       Frag.set("physics",       XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR3                  );
       Frag.set("scroll",        XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_STRING                   );
+      Frag.set(".",             XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_STRING                   );
 
       // category: device / viewport settings
       Frag.set("fov",           XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_INT     | XRF.BROWSER_OVERRIDE );
@@ -60,10 +61,18 @@ class Parser {
        * > icanhazcode? yes, see [Parser.hx](https://github.com/coderofsalvation/xrfragment/blob/main/src/xrfragment/Parser.hx)
        * the gist of it:
        */
+
+			// special cases: predefined views & assign/binds
 			if( value.length == 0 && !Frag.exists(key) ){
-				resultMap.set(key, new XRF(key, XRF.PV_EXECUTE ) );
+				resultMap.set(key, new XRF(key, XRF.PV_EXECUTE | XRF.BROWSER_OVERRIDE ) );
 				return true;
 			}
+			//if( key.split(".").length > 1 && value.split(".").length > 1 ){
+			//	resultMap.set(key, new XRF(key, T_STRING_OBJ_PROP ) );
+			//	return true;
+			//}
+
+			// regular fragments:
       if( Frag.exists(key) ){                                              //  1. check if param exist
         var v:XRF = new XRF(key, Frag.get(key));
         if( !v.validate(value) ){

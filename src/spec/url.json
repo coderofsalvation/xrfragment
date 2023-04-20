@@ -6,5 +6,7 @@
   {"fn":"url","data":"http://foo.com?foo=1#pos=c|d|1,2,3", "expect":{ "fn":"equal.multi", "input":"pos","out":"c|d|1,2,3"},"label":"b equal.multi"},
   {"fn":"url","data":"http://foo.com?foo=1#t=2,500", "expect":{ "fn":"testBrowserOverride", "input":"t","out":true},"label":"browser URI can override t (defined in asset)"},
   {"fn":"url","data":"http://foo.com?foo=1#q=-bar", "expect":{ "fn":"testBrowserOverride", "input":"q","out":false},"label":"browser URI cannot override q (defined in asset)"},
-  {"fn":"url","data":"http://foo.com?foo=1#mypredefinedview", "expect":{ "fn":"testPredefinedView", "input":"mypredefinedview","out":true},"label":"test predefined view executed"}
+  {"fn":"url","data":"http://foo.com?foo=1#mypredefinedview", "expect":{ "fn":"testPredefinedView", "input":"mypredefinedview","out":true},"label":"test predefined view executed"},
+  {"fn":"url","data":"http://foo.com?foo=1#mypredefinedview&another", "expect":{ "fn":"testPredefinedView", "input":"another","out":true},"label":"test predefined view executed (multiple)"},
+  {"fn":"url","data":"http://foo.com?foo=1#mypredefinedview&another", "expect":{ "fn":"testPredefinedView", "input":"mypredefinedview","out":true},"label":"test predefined view executed (multiple)"}
 ]

@@ -28,6 +28,7 @@ class XRF {
 	public static var T_PREDEFINED_VIEW:Int = 16384;
 	public static var T_STRING:Int          = 32768;
 	public static var T_STRING_OBJ:Int      = 65536;
+	public static var T_STRING_OBJ_PROP:Int = 131072;
 
   // regexes
   public static var isColor:EReg  = ~/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/; //  1. hex colors are detected using regex `/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/`

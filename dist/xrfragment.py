@@ -1312,6 +1312,7 @@ class xrfragment_Parser:
         Frag.h["gravity"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3)
         Frag.h["physics"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3)
         Frag.h["scroll"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_STRING)
+        Frag.h["."] = ((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_STRING)
         Frag.h["fov"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_INT) | xrfragment_XRF.BROWSER_OVERRIDE)
         Frag.h["clip"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.BROWSER_OVERRIDE)
         Frag.h["fog"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_STRING) | xrfragment_XRF.BROWSER_OVERRIDE)
@@ -1321,7 +1322,7 @@ class xrfragment_Parser:
         Frag.h["description"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
         Frag.h["src_session"] = ((((xrfragment_XRF.ASSET | xrfragment_XRF.T_URL) | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.BROWSER_OVERRIDE) | xrfragment_XRF.PROMPT)
         if ((len(value) == 0) and (not (key in Frag.h))):
-            value1 = xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE)
+            value1 = xrfragment_XRF(key,(xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.BROWSER_OVERRIDE))
             setattr(resultMap,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),value1)
             return True
         if (key in Frag.h):
