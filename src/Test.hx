@@ -37,6 +37,8 @@ class Test {
       if( item.expect.fn == "testParsed"          ) valid = item.expect.out == res.exists(item.expect.input);
       if( item.expect.fn == "testPredefinedView"  ) valid = res.exists(item.expect.input) && item.expect.out == res.get(item.expect.input).is( XRF.PV_EXECUTE) ;
       if( item.expect.fn == "testBrowserOverride" ) valid = item.expect.out == (URI.parse(item.data,true)).exists(item.expect.input);
+      if( item.expect.fn == "testPropertyAssign"  ) valid = res.exists(item.expect.input) && item.expect.out == res.get(item.expect.input).is( XRF.PROP_BIND) ;
+      if( item.expect.fn == "testBrowserOverride" ) valid = item.expect.out == (URI.parse(item.data,true)).exists(item.expect.input);
       if( item.expect.fn == "equal.string"        ) valid = res.get(item.expect.input) && item.expect.out == res.get(item.expect.input).string;
       if( item.expect.fn == "equal.xy"            ) valid = equalXY(res,item);
       if( item.expect.fn == "equal.xyz"           ) valid = equalXYZ(res,item);

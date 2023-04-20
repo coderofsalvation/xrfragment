@@ -14,18 +14,14 @@ class Parser {
       var Frag:Map<String, Int> = new Map<String, Int>();
 
       // category: asset loading linking 
-      Frag.set("prio",          XRF.ASSET_OBJ | XRF.T_INT             );
+      Frag.set("prio",          XRF.ASSET | XRF.T_INT             );
       Frag.set("#",             XRF.ASSET     | XRF.T_PREDEFINED_VIEW );
-      Frag.set("class",         XRF.ASSET_OBJ | XRF.T_STRING          );
-      Frag.set("src",           XRF.ASSET_OBJ | XRF.T_URL             );
-      Frag.set("src_audio",     XRF.ASSET_OBJ | XRF.T_URL             );
-      Frag.set("src_shader",    XRF.ASSET_OBJ | XRF.T_URL             );
-      Frag.set("src_env",       XRF.ASSET     | XRF.T_URL             );
-      Frag.set("src_env_audio", XRF.ASSET     | XRF.T_URL             );
+      Frag.set("class",         XRF.ASSET | XRF.T_STRING          );
+      Frag.set("src",           XRF.ASSET | XRF.T_URL             );
 
       // category: href navigation / portals / teleporting
       Frag.set("pos",           XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.T_STRING_OBJ   );
-      Frag.set("href",          XRF.ASSET_OBJ | XRF.T_URL | XRF.T_PREDEFINED_VIEW                  );
+      Frag.set("href",          XRF.ASSET | XRF.T_URL | XRF.T_PREDEFINED_VIEW                  );
 
       // category: query selector | object manipulation
       Frag.set("q",             XRF.PV_OVERRIDE | XRF.T_STRING                                        );
@@ -39,7 +35,6 @@ class Parser {
       Frag.set("gravity",       XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR3                  );
       Frag.set("physics",       XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR3                  );
       Frag.set("scroll",        XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_STRING                   );
-      Frag.set(".",             XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_STRING                   );
 
       // category: device / viewport settings
       Frag.set("fov",           XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_INT     | XRF.BROWSER_OVERRIDE );
@@ -62,15 +57,15 @@ class Parser {
        * the gist of it:
        */
 
-			// special cases: predefined views & assign/binds
+			// dynamic fragments cases: predefined views & assign/binds
 			if( value.length == 0 && !Frag.exists(key) ){
 				resultMap.set(key, new XRF(key, XRF.PV_EXECUTE | XRF.BROWSER_OVERRIDE ) );
 				return true;
 			}
-			//if( key.split(".").length > 1 && value.split(".").length > 1 ){
-			//	resultMap.set(key, new XRF(key, T_STRING_OBJ_PROP ) );
-			//	return true;
-			//}
+			if( key.split(".").length > 1 && value.split(".").length > 1 ){
+				resultMap.set(key, new XRF(key, XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_STRING | XRF.PROP_BIND ) );
+				return true;
+			}
 
 			// regular fragments:
       if( Frag.exists(key) ){                                              //  1. check if param exist

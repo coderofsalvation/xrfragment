@@ -9,8 +9,8 @@ class XRF {
   // public static inline readonly ASSET 
 
 	// scope types (powers of 2)
-	public static var ASSET:Int            = 1;    // fragment is immutable (typed in asset) globally
-	public static var ASSET_OBJ:Int        = 2;    // fragment is immutable (typed in object in asset)
+	public static var ASSET:Int            = 1;    // fragment is immutable
+	public static var PROP_BIND:Int        = 2;    // fragment binds/controls one property with another 
 	public static var QUERY_OPERATOR:Int   = 4;    // fragment will be applied to result of queryselecto
 	public static var PROMPT:Int           = 8;    // ask user whether this fragment value can be changed
 	public static var ROUNDROBIN:Int       = 16;   // evaluation of this (multi) value can be roundrobined

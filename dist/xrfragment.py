@@ -1293,16 +1293,12 @@ class xrfragment_Parser:
     @staticmethod
     def parse(key,value,resultMap):
         Frag = haxe_ds_StringMap()
-        Frag.h["prio"] = (xrfragment_XRF.ASSET_OBJ | xrfragment_XRF.T_INT)
+        Frag.h["prio"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_INT)
         Frag.h["#"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_PREDEFINED_VIEW)
-        Frag.h["class"] = (xrfragment_XRF.ASSET_OBJ | xrfragment_XRF.T_STRING)
-        Frag.h["src"] = (xrfragment_XRF.ASSET_OBJ | xrfragment_XRF.T_URL)
-        Frag.h["src_audio"] = (xrfragment_XRF.ASSET_OBJ | xrfragment_XRF.T_URL)
-        Frag.h["src_shader"] = (xrfragment_XRF.ASSET_OBJ | xrfragment_XRF.T_URL)
-        Frag.h["src_env"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_URL)
-        Frag.h["src_env_audio"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_URL)
+        Frag.h["class"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
+        Frag.h["src"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_URL)
         Frag.h["pos"] = (((xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.T_STRING_OBJ)
-        Frag.h["href"] = ((xrfragment_XRF.ASSET_OBJ | xrfragment_XRF.T_URL) | xrfragment_XRF.T_PREDEFINED_VIEW)
+        Frag.h["href"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.T_URL) | xrfragment_XRF.T_PREDEFINED_VIEW)
         Frag.h["q"] = (xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING)
         Frag.h["scale"] = (((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_INT)
         Frag.h["rot"] = (((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_VECTOR3)
@@ -1312,7 +1308,6 @@ class xrfragment_Parser:
         Frag.h["gravity"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3)
         Frag.h["physics"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3)
         Frag.h["scroll"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_STRING)
-        Frag.h["."] = ((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_STRING)
         Frag.h["fov"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_INT) | xrfragment_XRF.BROWSER_OVERRIDE)
         Frag.h["clip"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.BROWSER_OVERRIDE)
         Frag.h["fog"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_STRING) | xrfragment_XRF.BROWSER_OVERRIDE)
@@ -1323,6 +1318,10 @@ class xrfragment_Parser:
         Frag.h["src_session"] = ((((xrfragment_XRF.ASSET | xrfragment_XRF.T_URL) | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.BROWSER_OVERRIDE) | xrfragment_XRF.PROMPT)
         if ((len(value) == 0) and (not (key in Frag.h))):
             value1 = xrfragment_XRF(key,(xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.BROWSER_OVERRIDE))
+            setattr(resultMap,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),value1)
+            return True
+        if ((len(key.split(".")) > 1) and ((len(value.split(".")) > 1))):
+            value1 = xrfragment_XRF(key,(((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_STRING) | xrfragment_XRF.PROP_BIND))
             setattr(resultMap,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),value1)
             return True
         if (key in Frag.h):
@@ -1564,7 +1563,7 @@ class xrfragment_XRF:
     __slots__ = ("fragment", "flags", "x", "y", "z", "color", "string", "int", "float", "args", "query")
     _hx_fields = ["fragment", "flags", "x", "y", "z", "color", "string", "int", "float", "args", "query"]
     _hx_methods = ["is", "validate", "guessType"]
-    _hx_statics = ["ASSET", "ASSET_OBJ", "QUERY_OPERATOR", "PROMPT", "ROUNDROBIN", "BROWSER_OVERRIDE", "PV_OVERRIDE", "PV_EXECUTE", "T_INT", "T_VECTOR2", "T_VECTOR3", "T_URL", "T_PREDEFINED_VIEW", "T_STRING", "T_STRING_OBJ", "isColor", "isInt", "isFloat"]
+    _hx_statics = ["ASSET", "PROP_BIND", "QUERY_OPERATOR", "PROMPT", "ROUNDROBIN", "BROWSER_OVERRIDE", "PV_OVERRIDE", "PV_EXECUTE", "T_INT", "T_VECTOR2", "T_VECTOR3", "T_URL", "T_PREDEFINED_VIEW", "T_STRING", "T_STRING_OBJ", "isColor", "isInt", "isFloat"]
 
     def __init__(self,_fragment,_flags):
         self.query = None
@@ -1641,7 +1640,7 @@ python_Boot.keywords = set(["and", "del", "from", "not", "with", "as", "elif", "
 python_Boot.prefixLength = len("_hx_")
 xrfragment_Parser.error = ""
 xrfragment_XRF.ASSET = 1
-xrfragment_XRF.ASSET_OBJ = 2
+xrfragment_XRF.PROP_BIND = 2
 xrfragment_XRF.QUERY_OPERATOR = 4
 xrfragment_XRF.PROMPT = 8
 xrfragment_XRF.ROUNDROBIN = 16

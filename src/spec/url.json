@@ -8,5 +8,7 @@
   {"fn":"url","data":"http://foo.com?foo=1#q=-bar", "expect":{ "fn":"testBrowserOverride", "input":"q","out":false},"label":"browser URI cannot override q (defined in asset)"},
   {"fn":"url","data":"http://foo.com?foo=1#mypredefinedview", "expect":{ "fn":"testPredefinedView", "input":"mypredefinedview","out":true},"label":"test predefined view executed"},
   {"fn":"url","data":"http://foo.com?foo=1#mypredefinedview&another", "expect":{ "fn":"testPredefinedView", "input":"another","out":true},"label":"test predefined view executed (multiple)"},
-  {"fn":"url","data":"http://foo.com?foo=1#mypredefinedview&another", "expect":{ "fn":"testPredefinedView", "input":"mypredefinedview","out":true},"label":"test predefined view executed (multiple)"}
+  {"fn":"url","data":"http://foo.com?foo=1#mypredefinedview&another", "expect":{ "fn":"testPredefinedView", "input":"mypredefinedview","out":true},"label":"test predefined view executed (multiple)"},
+  {"fn":"url","data":"#cube.position.x=music.position.x", "expect":{ "fn":"testPropertyAssign", "input":"cube.position.x","out":true},"label":"test data assign"},
+  {"fn":"url","data":"#cube.position.x=@music.position.x", "expect":{ "fn":"testPropertyAssign", "input":"cube.position.x","out":true},"label":"test one-way data bind"}
 ]

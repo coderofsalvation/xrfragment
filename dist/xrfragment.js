@@ -216,16 +216,12 @@ var xrfragment_Parser = $hx_exports["xrfragment"]["Parser"] = function() { };
 xrfragment_Parser.__name__ = true;
 xrfragment_Parser.parse = function(key,value,resultMap) {
 	var Frag_h = Object.create(null);
-	Frag_h["prio"] = xrfragment_XRF.ASSET_OBJ | xrfragment_XRF.T_INT;
+	Frag_h["prio"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_INT;
 	Frag_h["#"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_PREDEFINED_VIEW;
-	Frag_h["class"] = xrfragment_XRF.ASSET_OBJ | xrfragment_XRF.T_STRING;
-	Frag_h["src"] = xrfragment_XRF.ASSET_OBJ | xrfragment_XRF.T_URL;
-	Frag_h["src_audio"] = xrfragment_XRF.ASSET_OBJ | xrfragment_XRF.T_URL;
-	Frag_h["src_shader"] = xrfragment_XRF.ASSET_OBJ | xrfragment_XRF.T_URL;
-	Frag_h["src_env"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL;
-	Frag_h["src_env_audio"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL;
+	Frag_h["class"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
+	Frag_h["src"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL;
 	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING_OBJ;
-	Frag_h["href"] = xrfragment_XRF.ASSET_OBJ | xrfragment_XRF.T_URL | xrfragment_XRF.T_PREDEFINED_VIEW;
+	Frag_h["href"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.T_PREDEFINED_VIEW;
 	Frag_h["q"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING;
 	Frag_h["scale"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_INT;
 	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3;
@@ -235,7 +231,6 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	Frag_h["gravity"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3;
 	Frag_h["physics"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3;
 	Frag_h["scroll"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING;
-	Frag_h["."] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING;
 	Frag_h["fov"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_INT | xrfragment_XRF.BROWSER_OVERRIDE;
 	Frag_h["clip"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.BROWSER_OVERRIDE;
 	Frag_h["fog"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.BROWSER_OVERRIDE;
@@ -248,15 +243,19 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 		resultMap[key] = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.BROWSER_OVERRIDE);
 		return true;
 	}
+	if(key.split(".").length > 1 && value.split(".").length > 1) {
+		resultMap[key] = new xrfragment_XRF(key,xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.PROP_BIND);
+		return true;
+	}
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		var v = new xrfragment_XRF(key,Frag_h[key]);
 		if(!v.validate(value)) {
-			console.log("src/xrfragment/Parser.hx:79:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:74:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 		resultMap[key] = v;
 	} else {
-		console.log("src/xrfragment/Parser.hx:83:","[ i ] fragment '" + key + "' does not exist or has no type typed (yet)");
+		console.log("src/xrfragment/Parser.hx:78:","[ i ] fragment '" + key + "' does not exist or has no type typed (yet)");
 		return false;
 	}
 	return true;
@@ -557,7 +556,7 @@ Array.__name__ = true;
 js_Boot.__toStr = ({ }).toString;
 xrfragment_Parser.error = "";
 xrfragment_XRF.ASSET = 1;
-xrfragment_XRF.ASSET_OBJ = 2;
+xrfragment_XRF.PROP_BIND = 2;
 xrfragment_XRF.QUERY_OPERATOR = 4;
 xrfragment_XRF.PROMPT = 8;
 xrfragment_XRF.ROUNDROBIN = 16;
