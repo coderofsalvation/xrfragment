@@ -5,7 +5,6 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 		<link type="text/css" rel="stylesheet" href="main.css">
-    <script src="./../../dist/xrfragment.js"></script>
 	</head>
 	<body>
 		<!-- Import maps polyfill -->
@@ -23,6 +22,7 @@
 		<script type="module">
 			import * as THREE from 'three';
 
+			import xrfragment from './../../../dist/xrfragment.module.js';
 			import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 			import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
 			import { BoxLineGeometry } from 'three/addons/geometries/BoxLineGeometry.js';
@@ -41,7 +41,7 @@
 			let stats, statsMesh;
 
 			const parameters = {
-				scale: 0.3,
+				light: 1.0,
 			};
 
 			init();
@@ -50,27 +50,17 @@
 			function init() {
 
 				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0xcccccc );
 
-				camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 10 );
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 2000 );
 
-				let room = new THREE.LineSegments(
-					new BoxLineGeometry( 6, 6, 6, 10, 10, 10 ).translate( 0, 3, 0 ),
-					new THREE.LineBasicMaterial( { color: 0x202020 } )
-				);
-				scene.add( room );
-
-				let floor = new THREE.Mesh(
-					new THREE.PlaneGeometry( 4.8, 4.8, 2, 2 ).rotateX( - Math.PI / 2 ),
-					new THREE.MeshBasicMaterial( { color: 0x404040, transparent: true, opacity: 0.25 } )
-				);
-				scene.add( floor );
 
 				let model;
-				const loader = new GLTFLoader().setPath( './../assets/')
+				const loader = new GLTFLoader().setPath( './../../assets/')
 				loader.load( 'example1.gltf', function ( gltf ) {
 					gltf.scene.position.y = 1.5
 					gltf.scene.position.z = -1
-					gltf.scene.scale.x = gltf.scene.scale.y = gltf.scene.scale.z = parameters.scale
+					gltf.scene.scale.x = gltf.scene.scale.y = gltf.scene.scale.z = 1;
 
 					const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
 					function recursivelySetChildrenUnlit(mesh,cb) {
@@ -83,18 +73,30 @@
 					}
 
 					let XRF = xrfragment;
-					// turn unlit
 					gltf.scene.traverse( (mesh) => {
 						if( mesh.userData ){
 							let frag = {}
 							for( let k in mesh.userData ) XRF.Parser.parse( k, mesh.userData[k], frag )
-							if( Object.keys(frag).length > 0 ) console.dir(frag)
+							if( Object.keys(frag).length > 0 ){
+								for( let k in frag ){
+									if( k == "env" ){
+										console.dir(frag[k])
+										let env = mesh.getObjectByName(frag[k].string)
+										env.material.map.mapping = THREE.EquirectangularReflectionMapping;
+										scene.environment = env.material.map
+										scene.texture = env.material.map
+										renderer.toneMapping = THREE.ACESFilmicToneMapping;
+										renderer.toneMappingExposure = 1;
+									}
+								}
+							}
 						}
 						if (mesh instanceof THREE.Mesh) {
 						  if (mesh.material && mesh.material.map) {
-						  	mesh.material = new THREE.MeshBasicMaterial({ map: mesh.material.map });
-						  	mesh.material.dithering = true
-						  	mesh.material.map.anisotropy = maxAnisotropy;
+								// turn unlit
+						  	//mesh.material = new THREE.MeshBasicMaterial({ map: mesh.material.map });
+						  	//mesh.material.dithering = true
+						  	//mesh.material.map.anisotropy = maxAnisotropy;
 						  }
 						}
 					})
@@ -111,6 +113,7 @@
 				renderer.autoClear = false;
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.outputEncoding = THREE.sRGBEncoding;
 				renderer.xr.enabled = true;
 				document.body.appendChild( renderer.domElement );
 
@@ -126,7 +129,7 @@
 
 				controls.screenSpacePanning = false;
 
-				controls.minDistance = 1;
+				controls.minDistance = 0.1;
 				controls.maxDistance = 5000;
 				controls.maxPolarAngle = Math.PI / 2;
 				controls.target = new THREE.Vector3(0,1.6,0)
@@ -159,14 +162,11 @@
 				// GUI
 
 				function onChange() {
-					model.scale.x = model.scale.y = model.scale.z = parameters.scale;
-				}
-
-				function onThicknessChange() {
+						renderer.toneMappingExposure = parameters.light;
 				}
 
 				const gui = new GUI( { width: 300 } );
-				gui.add( parameters, 'scale', 0.0, 1.0, parameters.scale ).onChange( onChange );
+				gui.add( parameters, 'light', 0.2, 3.0, 0.1 ).onChange( onChange );
 				gui.domElement.style.visibility = 'hidden';
 
 				const group = new InteractiveGroup( renderer, camera );

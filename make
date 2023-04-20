@@ -35,5 +35,16 @@ doc(){
 												  src/xrfragment/Parser.hx > doc/RFC.md
 }
 
-test -z $1 && { try rm dist/* ; haxe build.hxml; sed -i 's|.*nonlocal .*||g' dist/xrfragment.py; exit $?; }
+build(){
+  try rm dist/* 
+  haxe build.hxml
+  ok=$?
+  sed -i 's|.*nonlocal .*||g' dist/xrfragment.py
+  # add js module
+  cp dist/xrfragment.js dist/xrfragment.module.js
+  echo "export default xrfragment;" >> dist/xrfragment.module.js
+  exit $ok
+}
+
+test -z $1 && build 
 test -z $1 || "$@"
