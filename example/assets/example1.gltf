@@ -14,7 +14,8 @@
                 "sid_settings" : {
                     "compositor_reset" : 1
                 },
-                "unit" : "1m"
+                "unit" : "1m",
+                "env" : "forest"
             },
             "name" : "Scene",
             "nodes" : [
@@ -23,11 +24,23 @@
                 2,
                 3,
                 4,
-                5
+                5,
+                6
             ]
         }
     ],
     "nodes" : [
+        {
+            "extras" : {
+                "class" : "env"
+            },
+            "name" : "environmentMap",
+            "translation" : [
+                -4.311032772064209,
+                6.866905689239502,
+                -23.580101013183594
+            ]
+        },
         {
             "mesh" : 0,
             "name" : "background",

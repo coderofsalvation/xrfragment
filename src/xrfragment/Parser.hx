@@ -29,6 +29,7 @@ class Parser {
       Frag.set("rot",           XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 );
       Frag.set("translate",     XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 );
       Frag.set("visible",       XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_INT     );
+      Frag.set("env",           XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_STRING     );
 
       // category: animation
       Frag.set("t",             XRF.ASSET | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR2 | XRF.BROWSER_OVERRIDE );
