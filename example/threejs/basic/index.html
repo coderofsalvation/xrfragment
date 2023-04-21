@@ -4,9 +4,16 @@
 		<title>three.js vr - sandbox</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="./../../assets/axist.min.css" />
 		<link type="text/css" rel="stylesheet" href="main.css">
+    <link type="text/css" rel="stylesheet" href="./../../assets/style.css"/>
 	</head>
 	<body>
+    <div id="overlay">
+      <img src="./../../assets/logo.png" class="logo"/>
+			<input type="submit" value="load 3D asset"></input>
+    </div>
+		
 		<!-- Import maps polyfill -->
 		<!-- Remove this when import maps will be widely supported -->
 		<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
@@ -23,6 +30,7 @@
 			import * as THREE from 'three';
 
 			import xrfragment from './../../../dist/xrfragment.module.js';
+			import { loadFile }   from './../../assets/utils.js';
 			import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 			import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
 			import { BoxLineGeometry } from 'three/addons/geometries/BoxLineGeometry.js';
@@ -57,7 +65,11 @@
 
 				let model;
 				const loader = new GLTFLoader().setPath( './../../assets/')
-				loader.load( 'example1.gltf', function ( gltf ) {
+				let loadGLTF = function ( gltf ) {
+					if( model ){ 
+						scene.remove(model)
+						//model.dispose()
+					}
 					gltf.scene.position.y = 1.5
 					gltf.scene.position.z = -1
 					gltf.scene.scale.x = gltf.scene.scale.y = gltf.scene.scale.z = 1;
@@ -105,7 +117,8 @@
 
 					render();
 
-				});
+				};
+				loader.load( 'example1.gltf', loadGLTF ); 
 
 				//const torusGeometry = new THREE.TorusKnotGeometry( ...Object.values( parameters ) );
 
@@ -194,6 +207,12 @@
 				statsMesh.rotation.y = Math.PI / 4;
 				statsMesh.scale.setScalar( 2.5 );
 				group.add( statsMesh );
+
+				let fileLoaders = loadFile({
+					".gltf": (file) => file.arrayBuffer().then( (data) => loader.parse( data, '', loadGLTF, console.error ) ),
+					".glb":  (file) => loader.parse( file.arrayBuffer(), '', loadGLTF, console.error )
+				})
+				document.querySelector("#overlay > input").addEventListener("click", fileLoaders )
 
 			}
 

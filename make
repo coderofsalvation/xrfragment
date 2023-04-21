@@ -35,6 +35,11 @@ doc(){
 												  src/xrfragment/Parser.hx > doc/RFC.md
 }
 
+server(){
+  test -f cert.pem || openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem
+  http-server -c-1 -S -C cert.pem .
+}
+
 build(){
   try rm dist/* 
   haxe build.hxml
