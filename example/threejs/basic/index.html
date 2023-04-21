@@ -210,7 +210,7 @@
 
 				let fileLoaders = loadFile({
 					".gltf": (file) => file.arrayBuffer().then( (data) => loader.parse( data, '', loadGLTF, console.error ) ),
-					".glb":  (file) => loader.parse( file.arrayBuffer(), '', loadGLTF, console.error )
+					".glb":  (file) => file.arrayBuffer().then( (data) => loader.parse( data, '', loadGLTF, console.error ) )
 				})
 				document.querySelector("#overlay > input").addEventListener("click", fileLoaders )
 
