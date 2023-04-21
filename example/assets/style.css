@@ -1,0 +1,29 @@
+:root {
+    --primary: #6839dc;
+    --light-primary: #ea23cf;
+    --secondary: #872eff;
+    --light-secondary: #ce7df2;
+    --red: red;
+    --black: #424280;
+    --white: #fdfdfd;
+    --dark-gray: #343334;
+		--gray: #ecf7ff47;
+    --light-gray: #efefef;
+    --lighter-gray: #e4e2fb96;
+    --font-sans-serif: system-ui, -apple-system, segoe ui, roboto, ubuntu, helvetica, cantarell, noto sans, sans-serif;
+    --font-monospace: menlo, monaco, lucida console, liberation mono, dejavu sans mono, bitstream vera sans mono, courier new, monospace, serif;
+    --border-radius: 0.2rem;
+}
+
+.small{
+	font-size:12px;
+}
+
+textarea, select, input {
+	background: linear-gradient( var(--lighter-gray), var(--gray) ) !important;
+}
+
+.title {
+  border-bottom: 2px solid var(--secondary);
+  padding-bottom: 20px;
+}
