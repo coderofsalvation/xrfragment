@@ -1498,12 +1498,6 @@ __xrfragment_Parser.parse = function(key,value,resultMap)
   else
     Frag_h.physics = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_STRING);
-  if (value1 == nil) then 
-    Frag_h.scroll = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.scroll = value1;
-  end;
   local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_INT),__xrfragment_XRF.BROWSER_OVERRIDE);
   if (value1 == nil) then 
     Frag_h.fov = __haxe_ds_StringMap.tnull;
@@ -1530,9 +1524,9 @@ __xrfragment_Parser.parse = function(key,value,resultMap)
   end;
   local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
   if (value1 == nil) then 
-    Frag_h.SPFX = __haxe_ds_StringMap.tnull;
+    Frag_h.SPDX = __haxe_ds_StringMap.tnull;
   else
-    Frag_h.SPFX = value1;
+    Frag_h.SPDX = value1;
   end;
   local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
   if (value1 == nil) then 
@@ -1548,9 +1542,9 @@ __xrfragment_Parser.parse = function(key,value,resultMap)
   end;
   local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_URL),__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.BROWSER_OVERRIDE),__xrfragment_XRF.PROMPT);
   if (value1 == nil) then 
-    Frag_h.src_session = __haxe_ds_StringMap.tnull;
+    Frag_h.session = __haxe_ds_StringMap.tnull;
   else
-    Frag_h.src_session = value1;
+    Frag_h.session = value1;
   end;
   if ((__lua_lib_luautf8_Utf8.len(value) == 0) and (Frag_h[key] == nil)) then 
     local value = __xrfragment_XRF.new(key, _hx_bit.bor(__xrfragment_XRF.PV_EXECUTE,__xrfragment_XRF.BROWSER_OVERRIDE));
@@ -1619,12 +1613,12 @@ __xrfragment_Parser.parse = function(key,value,resultMap)
     end;
     local v = __xrfragment_XRF.new(key, ret);
     if (not v:validate(value)) then 
-      __haxe_Log.trace(Std.string(Std.string(Std.string(Std.string("[ i ] fragment '") .. Std.string(key)) .. Std.string("' has incompatible value (")) .. Std.string(value)) .. Std.string(")"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=75,className="xrfragment.Parser",methodName="parse"}));
+      __haxe_Log.trace(Std.string(Std.string(Std.string(Std.string("[ i ] fragment '") .. Std.string(key)) .. Std.string("' has incompatible value (")) .. Std.string(value)) .. Std.string(")"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=74,className="xrfragment.Parser",methodName="parse"}));
       do return false end;
     end;
     resultMap[key] = v;
   else
-    __haxe_Log.trace(Std.string(Std.string("[ i ] fragment '") .. Std.string(key)) .. Std.string("' does not exist or has no type typed (yet)"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=79,className="xrfragment.Parser",methodName="parse"}));
+    __haxe_Log.trace(Std.string(Std.string("[ i ] fragment '") .. Std.string(key)) .. Std.string("' does not exist or has no type typed (yet)"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=78,className="xrfragment.Parser",methodName="parse"}));
     do return false end;
   end;
   do return true end;

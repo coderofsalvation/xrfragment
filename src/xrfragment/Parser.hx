@@ -23,7 +23,7 @@ class Parser {
       Frag.set("pos",           XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.T_STRING_OBJ   );
       Frag.set("href",          XRF.ASSET | XRF.T_URL | XRF.T_PREDEFINED_VIEW                  );
 
-      // category: query selector | object manipulation
+      // category: query selector / object manipulation
       Frag.set("q",             XRF.PV_OVERRIDE | XRF.T_STRING                                        );
       Frag.set("scale",         XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_INT     );
       Frag.set("rot",           XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 );
@@ -35,7 +35,6 @@ class Parser {
       Frag.set("t",             XRF.ASSET | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR2 | XRF.BROWSER_OVERRIDE );
       Frag.set("gravity",       XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR3                  );
       Frag.set("physics",       XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR3                  );
-      Frag.set("scroll",        XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_STRING                   );
 
       // category: device / viewport settings
       Frag.set("fov",           XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_INT     | XRF.BROWSER_OVERRIDE );
@@ -44,12 +43,12 @@ class Parser {
 
       // category: author / metadata
       Frag.set("namespace",     XRF.ASSET | XRF.T_STRING                                  );
-      Frag.set("SPFX",          XRF.ASSET | XRF.T_STRING                                  );
+      Frag.set("SPDX",          XRF.ASSET | XRF.T_STRING                                  );
       Frag.set("unit",          XRF.ASSET | XRF.T_STRING                                  );
       Frag.set("description",   XRF.ASSET | XRF.T_STRING                                  );
 
       // category: multiparty
-      Frag.set("src_session",   XRF.ASSET | XRF.T_URL | XRF.PV_OVERRIDE | XRF.BROWSER_OVERRIDE | XRF.PROMPT );
+      Frag.set("session",   XRF.ASSET | XRF.T_URL | XRF.PV_OVERRIDE | XRF.BROWSER_OVERRIDE | XRF.PROMPT );
 
       /**
        * # XR Fragments parser

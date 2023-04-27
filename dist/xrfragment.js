@@ -231,15 +231,14 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.BROWSER_OVERRIDE;
 	Frag_h["gravity"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3;
 	Frag_h["physics"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3;
-	Frag_h["scroll"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING;
 	Frag_h["fov"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_INT | xrfragment_XRF.BROWSER_OVERRIDE;
 	Frag_h["clip"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.BROWSER_OVERRIDE;
 	Frag_h["fog"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.BROWSER_OVERRIDE;
 	Frag_h["namespace"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["SPFX"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
+	Frag_h["SPDX"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["unit"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["description"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["src_session"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.BROWSER_OVERRIDE | xrfragment_XRF.PROMPT;
+	Frag_h["session"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.BROWSER_OVERRIDE | xrfragment_XRF.PROMPT;
 	if(value.length == 0 && !Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		resultMap[key] = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.BROWSER_OVERRIDE);
 		return true;
@@ -251,12 +250,12 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		var v = new xrfragment_XRF(key,Frag_h[key]);
 		if(!v.validate(value)) {
-			console.log("src/xrfragment/Parser.hx:75:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:74:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 		resultMap[key] = v;
 	} else {
-		console.log("src/xrfragment/Parser.hx:79:","[ i ] fragment '" + key + "' does not exist or has no type typed (yet)");
+		console.log("src/xrfragment/Parser.hx:78:","[ i ] fragment '" + key + "' does not exist or has no type typed (yet)");
 		return false;
 	}
 	return true;
