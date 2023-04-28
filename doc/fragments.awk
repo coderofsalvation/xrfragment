@@ -14,7 +14,7 @@ END{
   print ""
   print ASSET" = value(s) can only defined in 3D asset (immutable)<br>"
 	print OVERRIDE" = value(s) can be overwritten in certain context<br>"
-  print ROUNDROBIN" = multiple values will be roundrobin'ed<br>"
+  print ROUNDROBIN" = multiple values will be roundrobin'ed (`#pos=0,0,0|1,0,0` e.g.)<br>"
   print PV_OVERRIDE" = value(s) can be overwritten by [predefined_view](#predefined_view)<br>"
   print BROWSER_OVERRIDE" = value(s) can be overwritten when user clicks `href` (value) or top-level URL change(see [How it works](#How%20it%20works))<br>"
   print EMBED_OVERRIDE" = value(s) can be overwritten when 3D asset is embedded/linked as `src` value<br>"
