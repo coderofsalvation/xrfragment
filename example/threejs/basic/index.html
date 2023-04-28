@@ -12,8 +12,16 @@
     <div id="overlay">
       <img src="./../../assets/logo.png" class="logo"/>
 			<input type="submit" value="load 3D asset"></input>
+			<input type="text" list="urls" value="./example/asset/example1.gltf"/>
+			<datalist id="urls" x-data="{ urls: ['./example/asset/example1.gltf'] }" >
+				 <template x-for="url in urls">
+						<option x-text="url"></option>
+				</template>
+			</datalist>
     </div>
+		<textarea style="display:none"></textarea>
 		
+		<script async src="./../../assets/alpine.min.js"></script>
 		<!-- Import maps polyfill -->
 		<!-- Remove this when import maps will be widely supported -->
 		<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
@@ -30,7 +38,7 @@
 			import * as THREE from 'three';
 
 			import xrfragment from './../../../dist/xrfragment.module.js';
-			import { loadFile }   from './../../assets/utils.js';
+			import { loadFile, setupConsole }   from './../../assets/utils.js';
 			import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 			import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
 			import { BoxLineGeometry } from 'three/addons/geometries/BoxLineGeometry.js';
@@ -172,6 +180,8 @@
 				controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
 				scene.add( controllerGrip2 );
 
+        setupConsole( document.querySelector('textarea') )
+
 				// GUI
 
 				function onChange() {
@@ -212,7 +222,7 @@
 					".gltf": (file) => file.arrayBuffer().then( (data) => loader.parse( data, '', loadGLTF, console.error ) ),
 					".glb":  (file) => file.arrayBuffer().then( (data) => loader.parse( data, '', loadGLTF, console.error ) )
 				})
-				document.querySelector("#overlay > input").addEventListener("click", fileLoaders )
+				document.querySelector("#overlay > input[type=submit]").addEventListener("click", fileLoaders )
 
 			}
 

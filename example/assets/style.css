@@ -20,7 +20,7 @@
 }
 
 textarea, select, input[type="text"] {
-	background: linear-gradient( var(--lighter-gray), var(--gray) ) !important;
+	background: transparent; /* linear-gradient( var(--lighter-gray), var(--gray) ) !important; */
 }
 
 input[type="submit"] {
@@ -56,4 +56,16 @@ input[type="submit"] {
 	position: absolute;
 	right: 9px;
 	top: 8px;
+}
+
+#overlay > input[type="text"]{
+    height: 29px;
+    font-size: 14px;
+    position: absolute;
+    left: 280px;
+    top: 9px;
+    padding: 5px;
+    width: 40%;
+    background: #f0f0f0;
+    border-color: #Ccc;
 }
