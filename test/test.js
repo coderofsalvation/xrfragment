@@ -16,3 +16,6 @@ print( XF.URI.parse('://foo.com/1.gltf#pos=1.0,2.0,3.0&q=-.foo&t=1,100',true) );
 let q = new XF.Query();
 print( q.parse("-.foo -plane") )
 print( q.parse("price:>2")     )
+
+frags    = XF.URI.parse('#my_view&t=1,2')
+console.dir(XF)

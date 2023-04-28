@@ -4,7 +4,7 @@
 
 > version 1.0.0
 
-date: 2023-04-07T13:41:47+0200<br>
+date: 2023-04-27T22:44:39+0200<br>
 [![Actions Status](https://github.com/coderofsalvation/xrfragment/workflows/test/badge.svg)](https://github.com/coderofsalvation/xrfragment/actions)
 
 # XRFragment Grammar 
@@ -40,58 +40,10 @@ date: 2023-04-07T13:41:47+0200<br>
 1. fragment-values are urlencoded (space becomes `+` using `encodeUriComponent` e.g.)
 1. every recognized fragment key/value-pair is added to a central map/associative array/object
 
-# XR Fragments (key/value params)
-
-> ⛁ = define in 3D asset-file (as custom property or default projection)<br>
-> ☇ = mutable, using navigator URI (`document.location.href` e.g.)<br>
-
-| param   | type          | scope(s) | category          | notes                            |
-|---------|---------------|-------|--------------------|---------------------------------|
-| prio    | int (-10..1)  | ⛁     | Asset loading / linking | \#static allow client to ignore lower-prio objects in the renderloop, to compensate frame-drop/cpu/gpu-overload scenario’s |
-| pos     | 3D vector     | ⛁ ☇   |HREF navigation/portals |  |
-| q       | string        | ⛁     |Query Selector |  |
-
-
 # XR Fragments parser
 
 > icanhazcode? yes, see [Parser.hx](https://github.com/coderofsalvation/xrfragment/blob/main/src/xrfragment/Parser.hx)
 the gist of it:
 
 1. check if param exist
-1. each key has a regex to validate its value-type (see regexes) 
-1. extract the type
-1. use `|` on stringvalues, to split multiple values
-1. for each multiple value, guess the type
-1. `,` assumes 1D/2D/3D vector-values like x[,y[,z]]
-1. parseFloat(..) and parseInt(..) is applied to vector/float and int values 
-1. anything else will be treated as string-value 
-1. incompatible value-types will be dropped / not used
-
-
-> the xrfragment specification should stay simple enough
-
-> for anyone to write a parser using either regexes or grammar/lexers
-
-> therefore expressions/comprehensions are not supported (max wildcard/comparison operators for queries e.g.)
-
-# Parser Value types
-
-| type | info | format | example                          |
-|------|------|--------|----------------------------------|
-|vector| x,y,z| comma-separated    | #pos=1,2,3           |
-|string| color| FFFFFF (hex)      | #fog=5m,FFAACC        |
-|string|      |                   | #q=-sun               |
-|int   |      | [-]x[xxxxx]       | #price:>=100          |
-|float |      | [-]x[.xxxx] (ieee)| #prio=-20             |
-|array | mixed| \|-separated      | #pos=0,0,0\|90,0,0    |
-
-
-> rule for thumb: type-limitations will piggyback JSON limitations (IEEE floatsize e.g.)
-Regexes:
-
-1. hex colors are detected using regex `/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/`
-1. integers are detected using regex `/^[0-9]+$/`
-1. floats are detected using regex `/^[0-9]+\.[0-9]+$/`
-1. vectors are detected using regex `/[,]/` (but can also be an string referring to an entity-ID in the asset)
-1. anything else is string  `/.*/`
 

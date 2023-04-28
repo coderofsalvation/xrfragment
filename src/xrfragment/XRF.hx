@@ -1,5 +1,7 @@
 package xrfragment;
 
+@:expose                                                                   // <- makes the class reachable from plain JavaScript
+@:keep                                                                     // <- avoids accidental removal by dead code elimination
 class XRF {
 
   /*

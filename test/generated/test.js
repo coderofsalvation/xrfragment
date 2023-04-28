@@ -341,15 +341,14 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.BROWSER_OVERRIDE;
 	Frag_h["gravity"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3;
 	Frag_h["physics"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3;
-	Frag_h["scroll"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING;
 	Frag_h["fov"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_INT | xrfragment_XRF.BROWSER_OVERRIDE;
 	Frag_h["clip"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.BROWSER_OVERRIDE;
 	Frag_h["fog"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.BROWSER_OVERRIDE;
 	Frag_h["namespace"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["SPFX"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
+	Frag_h["SPDX"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["unit"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["description"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["src_session"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.BROWSER_OVERRIDE | xrfragment_XRF.PROMPT;
+	Frag_h["session"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.BROWSER_OVERRIDE | xrfragment_XRF.PROMPT;
 	if(value.length == 0 && !Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		resultMap[key] = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.BROWSER_OVERRIDE);
 		return true;
@@ -361,12 +360,12 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		var v = new xrfragment_XRF(key,Frag_h[key]);
 		if(!v.validate(value)) {
-			console.log("src/xrfragment/Parser.hx:75:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:74:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 		resultMap[key] = v;
 	} else {
-		console.log("src/xrfragment/Parser.hx:79:","[ i ] fragment '" + key + "' does not exist or has no type typed (yet)");
+		console.log("src/xrfragment/Parser.hx:78:","[ i ] fragment '" + key + "' does not exist or has no type typed (yet)");
 		return false;
 	}
 	return true;
@@ -587,11 +586,17 @@ xrfragment_URI.parse = function(qs,browser_override) {
 	}
 	return resultMap;
 };
-var xrfragment_XRF = function(_fragment,_flags) {
+var xrfragment_XRF = $hx_exports["xrfragment"]["XRF"] = function(_fragment,_flags) {
 	this.fragment = _fragment;
 	this.flags = _flags;
 };
 xrfragment_XRF.__name__ = true;
+xrfragment_XRF.set = function(flag,flags) {
+	return flags | flag;
+};
+xrfragment_XRF.unset = function(flag,flags) {
+	return flags & ~flag;
+};
 xrfragment_XRF.prototype = {
 	is: function(flag) {
 		return (this.flags & flag) != 0;
@@ -675,16 +680,23 @@ xrfragment_XRF.ROUNDROBIN = 16;
 xrfragment_XRF.BROWSER_OVERRIDE = 32;
 xrfragment_XRF.PV_OVERRIDE = 64;
 xrfragment_XRF.PV_EXECUTE = 128;
+xrfragment_XRF.T_COLOR = 256;
 xrfragment_XRF.T_INT = 512;
+xrfragment_XRF.T_FLOAT = 1024;
 xrfragment_XRF.T_VECTOR2 = 2048;
 xrfragment_XRF.T_VECTOR3 = 4096;
 xrfragment_XRF.T_URL = 8192;
 xrfragment_XRF.T_PREDEFINED_VIEW = 16384;
 xrfragment_XRF.T_STRING = 32768;
 xrfragment_XRF.T_STRING_OBJ = 65536;
+xrfragment_XRF.T_STRING_OBJ_PROP = 131072;
 xrfragment_XRF.isColor = new EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","");
 xrfragment_XRF.isInt = new EReg("^[0-9]+$","");
 xrfragment_XRF.isFloat = new EReg("^[0-9]+\\.[0-9]+$","");
+xrfragment_XRF.isVector = new EReg("([,]+|\\w)","");
+xrfragment_XRF.isUrl = new EReg("(://)?\\..*","");
+xrfragment_XRF.isUrlOrPretypedView = new EReg("(^#|://)?\\..*","");
+xrfragment_XRF.isString = new EReg(".*","");
 Test.main();
 })({});
 var xrfragment = $hx_exports["xrfragment"];

@@ -2137,7 +2137,14 @@ __xrfragment_XRF.super = function(self,_fragment,_flags)
   self.fragment = _fragment;
   self.flags = _flags;
 end
+_hx_exports["xrfragment"]["XRF"] = __xrfragment_XRF
 __xrfragment_XRF.__name__ = true
+__xrfragment_XRF.set = function(flag,flags) 
+  do return _hx_bit.bor(flags,flag) end;
+end
+__xrfragment_XRF.unset = function(flag,flags) 
+  do return _hx_bit.band(flags,_hx_bit.bnot(flag)) end;
+end
 __xrfragment_XRF.prototype = _hx_e();
 __xrfragment_XRF.prototype.is = function(self,flag) 
   do return (_hx_bit.band(self.flags,flag)) ~= 0 end
@@ -2362,7 +2369,11 @@ local _hx_static_init = function()
   
   __xrfragment_XRF.PV_EXECUTE = 128;
   
+  __xrfragment_XRF.T_COLOR = 256;
+  
   __xrfragment_XRF.T_INT = 512;
+  
+  __xrfragment_XRF.T_FLOAT = 1024;
   
   __xrfragment_XRF.T_VECTOR2 = 2048;
   
@@ -2376,11 +2387,21 @@ local _hx_static_init = function()
   
   __xrfragment_XRF.T_STRING_OBJ = 65536;
   
+  __xrfragment_XRF.T_STRING_OBJ_PROP = 131072;
+  
   __xrfragment_XRF.isColor = EReg.new("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", "");
   
   __xrfragment_XRF.isInt = EReg.new("^[0-9]+$", "");
   
   __xrfragment_XRF.isFloat = EReg.new("^[0-9]+\\.[0-9]+$", "");
+  
+  __xrfragment_XRF.isVector = EReg.new("([,]+|\\w)", "");
+  
+  __xrfragment_XRF.isUrl = EReg.new("(://)?\\..*", "");
+  
+  __xrfragment_XRF.isUrlOrPretypedView = EReg.new("(^#|://)?\\..*", "");
+  
+  __xrfragment_XRF.isString = EReg.new(".*", "");
   
   
 end

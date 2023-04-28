@@ -1563,7 +1563,7 @@ class xrfragment_XRF:
     __slots__ = ("fragment", "flags", "x", "y", "z", "color", "string", "int", "float", "args", "query")
     _hx_fields = ["fragment", "flags", "x", "y", "z", "color", "string", "int", "float", "args", "query"]
     _hx_methods = ["is", "validate", "guessType"]
-    _hx_statics = ["ASSET", "PROP_BIND", "QUERY_OPERATOR", "PROMPT", "ROUNDROBIN", "BROWSER_OVERRIDE", "PV_OVERRIDE", "PV_EXECUTE", "T_INT", "T_VECTOR2", "T_VECTOR3", "T_URL", "T_PREDEFINED_VIEW", "T_STRING", "T_STRING_OBJ", "isColor", "isInt", "isFloat"]
+    _hx_statics = ["ASSET", "PROP_BIND", "QUERY_OPERATOR", "PROMPT", "ROUNDROBIN", "BROWSER_OVERRIDE", "PV_OVERRIDE", "PV_EXECUTE", "T_COLOR", "T_INT", "T_FLOAT", "T_VECTOR2", "T_VECTOR3", "T_URL", "T_PREDEFINED_VIEW", "T_STRING", "T_STRING_OBJ", "T_STRING_OBJ_PROP", "isColor", "isInt", "isFloat", "isVector", "isUrl", "isUrlOrPretypedView", "isString", "set", "unset"]
 
     def __init__(self,_fragment,_flags):
         self.query = None
@@ -1630,6 +1630,14 @@ class xrfragment_XRF:
         if (_this.matchObj is not None):
             v.int = Std.parseInt(_hx_str)
 
+    @staticmethod
+    def set(flag,flags):
+        return (flags | flag)
+
+    @staticmethod
+    def unset(flag,flags):
+        return (flags & ~flag)
+
 
 Math.NEGATIVE_INFINITY = float("-inf")
 Math.POSITIVE_INFINITY = float("inf")
@@ -1647,13 +1655,20 @@ xrfragment_XRF.ROUNDROBIN = 16
 xrfragment_XRF.BROWSER_OVERRIDE = 32
 xrfragment_XRF.PV_OVERRIDE = 64
 xrfragment_XRF.PV_EXECUTE = 128
+xrfragment_XRF.T_COLOR = 256
 xrfragment_XRF.T_INT = 512
+xrfragment_XRF.T_FLOAT = 1024
 xrfragment_XRF.T_VECTOR2 = 2048
 xrfragment_XRF.T_VECTOR3 = 4096
 xrfragment_XRF.T_URL = 8192
 xrfragment_XRF.T_PREDEFINED_VIEW = 16384
 xrfragment_XRF.T_STRING = 32768
 xrfragment_XRF.T_STRING_OBJ = 65536
+xrfragment_XRF.T_STRING_OBJ_PROP = 131072
 xrfragment_XRF.isColor = EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","")
 xrfragment_XRF.isInt = EReg("^[0-9]+$","")
 xrfragment_XRF.isFloat = EReg("^[0-9]+\\.[0-9]+$","")
+xrfragment_XRF.isVector = EReg("([,]+|\\w)","")
+xrfragment_XRF.isUrl = EReg("(://)?\\..*","")
+xrfragment_XRF.isUrlOrPretypedView = EReg("(^#|://)?\\..*","")
+xrfragment_XRF.isString = EReg(".*","")

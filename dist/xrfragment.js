@@ -476,11 +476,17 @@ xrfragment_URI.parse = function(qs,browser_override) {
 	}
 	return resultMap;
 };
-var xrfragment_XRF = function(_fragment,_flags) {
+var xrfragment_XRF = $hx_exports["xrfragment"]["XRF"] = function(_fragment,_flags) {
 	this.fragment = _fragment;
 	this.flags = _flags;
 };
 xrfragment_XRF.__name__ = true;
+xrfragment_XRF.set = function(flag,flags) {
+	return flags | flag;
+};
+xrfragment_XRF.unset = function(flag,flags) {
+	return flags & ~flag;
+};
 xrfragment_XRF.prototype = {
 	is: function(flag) {
 		return (this.flags & flag) != 0;
@@ -563,15 +569,22 @@ xrfragment_XRF.ROUNDROBIN = 16;
 xrfragment_XRF.BROWSER_OVERRIDE = 32;
 xrfragment_XRF.PV_OVERRIDE = 64;
 xrfragment_XRF.PV_EXECUTE = 128;
+xrfragment_XRF.T_COLOR = 256;
 xrfragment_XRF.T_INT = 512;
+xrfragment_XRF.T_FLOAT = 1024;
 xrfragment_XRF.T_VECTOR2 = 2048;
 xrfragment_XRF.T_VECTOR3 = 4096;
 xrfragment_XRF.T_URL = 8192;
 xrfragment_XRF.T_PREDEFINED_VIEW = 16384;
 xrfragment_XRF.T_STRING = 32768;
 xrfragment_XRF.T_STRING_OBJ = 65536;
+xrfragment_XRF.T_STRING_OBJ_PROP = 131072;
 xrfragment_XRF.isColor = new EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","");
 xrfragment_XRF.isInt = new EReg("^[0-9]+$","");
 xrfragment_XRF.isFloat = new EReg("^[0-9]+\\.[0-9]+$","");
+xrfragment_XRF.isVector = new EReg("([,]+|\\w)","");
+xrfragment_XRF.isUrl = new EReg("(://)?\\..*","");
+xrfragment_XRF.isUrlOrPretypedView = new EReg("(^#|://)?\\..*","");
+xrfragment_XRF.isString = new EReg(".*","");
 })({});
 var xrfragment = $hx_exports["xrfragment"];
