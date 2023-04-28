@@ -15,31 +15,31 @@ class Parser {
 
       // category: asset loading linking 
       Frag.set("prio",          XRF.ASSET | XRF.T_INT             );
-      Frag.set("#",             XRF.ASSET     | XRF.T_PREDEFINED_VIEW );
+      Frag.set("#",             XRF.ASSET | XRF.T_PREDEFINED_VIEW );
       Frag.set("class",         XRF.ASSET | XRF.T_STRING          );
       Frag.set("src",           XRF.ASSET | XRF.T_URL             );
 
       // category: href navigation / portals / teleporting
-      Frag.set("pos",           XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.T_STRING_OBJ   );
+      Frag.set("pos",           XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.T_STRING_OBJ | XRF.EMBED_OVERRIDE  );
       Frag.set("href",          XRF.ASSET | XRF.T_URL | XRF.T_PREDEFINED_VIEW                  );
 
       // category: query selector / object manipulation
-      Frag.set("q",             XRF.PV_OVERRIDE | XRF.T_STRING                                        );
-      Frag.set("scale",         XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_INT     );
-      Frag.set("rot",           XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 );
-      Frag.set("translate",     XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 );
-      Frag.set("visible",       XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_INT     );
-      Frag.set("env",           XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_STRING     );
+      Frag.set("q",             XRF.PV_OVERRIDE | XRF.T_STRING | XRF.EMBED_OVERRIDE                   );
+      Frag.set("scale",         XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_INT     | XRF.EMBED_OVERRIDE );
+      Frag.set("rot",           XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.EMBED_OVERRIDE );
+      Frag.set("translate",     XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.EMBED_OVERRIDE );
+      Frag.set("visible",       XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_INT     | XRF.EMBED_OVERRIDE );
+      Frag.set("env",           XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_STRING | XRF.EMBED_OVERRIDE );
 
       // category: animation
-      Frag.set("t",             XRF.ASSET | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR2 | XRF.BROWSER_OVERRIDE );
-      Frag.set("gravity",       XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR3                  );
-      Frag.set("physics",       XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR3                  );
+      Frag.set("t",             XRF.ASSET | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR2 | XRF.BROWSER_OVERRIDE | XRF.EMBED_OVERRIDE);
+      Frag.set("gravity",       XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR3 | XRF.EMBED_OVERRIDE );
+      Frag.set("physics",       XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR3 | XRF.EMBED_OVERRIDE );
 
       // category: device / viewport settings
-      Frag.set("fov",           XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_INT     | XRF.BROWSER_OVERRIDE );
-      Frag.set("clip",          XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR2 | XRF.BROWSER_OVERRIDE );
-      Frag.set("fog",           XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_STRING  | XRF.BROWSER_OVERRIDE );
+      Frag.set("fov",           XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_INT     | XRF.BROWSER_OVERRIDE | XRF.EMBED_OVERRIDE );
+      Frag.set("clip",          XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR2 | XRF.BROWSER_OVERRIDE | XRF.EMBED_OVERRIDE );
+      Frag.set("fog",           XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_STRING  | XRF.BROWSER_OVERRIDE | XRF.EMBED_OVERRIDE );
 
       // category: author / metadata
       Frag.set("namespace",     XRF.ASSET | XRF.T_STRING                                  );
@@ -48,7 +48,7 @@ class Parser {
       Frag.set("description",   XRF.ASSET | XRF.T_STRING                                  );
 
       // category: multiparty
-      Frag.set("session",   XRF.ASSET | XRF.T_URL | XRF.PV_OVERRIDE | XRF.BROWSER_OVERRIDE | XRF.PROMPT );
+      Frag.set("session",   XRF.ASSET | XRF.T_URL | XRF.PV_OVERRIDE | XRF.BROWSER_OVERRIDE | XRF.EMBED_OVERRIDE | XRF.PROMPT );
 
       /**
        * # XR Fragments parser

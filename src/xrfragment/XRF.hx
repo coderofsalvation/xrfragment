@@ -11,26 +11,27 @@ class XRF {
   // public static inline readonly ASSET 
 
 	// scope types (powers of 2)
-	public static var ASSET:Int            = 1;    // fragment is immutable
-	public static var PROP_BIND:Int        = 2;    // fragment binds/controls one property with another 
-	public static var QUERY_OPERATOR:Int   = 4;    // fragment will be applied to result of queryselecto
-	public static var PROMPT:Int           = 8;    // ask user whether this fragment value can be changed
-	public static var ROUNDROBIN:Int       = 16;   // evaluation of this (multi) value can be roundrobined
-	public static var BROWSER_OVERRIDE:Int = 32;   // fragment can be overriden by (manual) browser URI change
-	public static var PV_OVERRIDE:Int      = 64;   // fragment can be overriden when specified in predefined view value
-	public static var PV_EXECUTE:Int       = 128;  // fragment can be overriden by (manual) browser URI change
+	public static var ASSET:Int               = 1;       // fragment is immutable
+	public static var PROP_BIND:Int           = 2;       // fragment binds/controls one property with another 
+	public static var QUERY_OPERATOR:Int      = 4;       // fragment will be applied to result of queryselecto
+	public static var PROMPT:Int              = 8;       // ask user whether this fragment value can be changed
+	public static var ROUNDROBIN:Int          = 16;      // evaluation of this (multi) value can be roundrobined
+	public static var BROWSER_OVERRIDE:Int    = 32;      // fragment can be overridden by (manual) browser URI change
+	public static var EMBED_OVERRIDE:Int      = 64;      // fragment can be overridden by an embedded URL
+	public static var PV_OVERRIDE:Int         = 128;     // fragment can be overridden when specified in predefined view value
+	public static var PV_EXECUTE:Int          = 256;     // fragment can be overridden by (manual) browser URI change
 
 	// high-level value-types (powers of 2)
-	public static var T_COLOR:Int           = 256;
-	public static var T_INT:Int             = 512;
-	public static var T_FLOAT:Int           = 1024;
-	public static var T_VECTOR2:Int         = 2048;
-	public static var T_VECTOR3:Int         = 4096;
-	public static var T_URL:Int             = 8192;
-	public static var T_PREDEFINED_VIEW:Int = 16384;
-	public static var T_STRING:Int          = 32768;
-	public static var T_STRING_OBJ:Int      = 65536;
-	public static var T_STRING_OBJ_PROP:Int = 131072;
+	public static var T_COLOR:Int             = 8192;
+	public static var T_INT:Int               = 16384;
+	public static var T_FLOAT:Int             = 32768;
+	public static var T_VECTOR2:Int           = 65536;
+	public static var T_VECTOR3:Int           = 131072;
+	public static var T_URL:Int               = 262144;
+	public static var T_PREDEFINED_VIEW:Int   = 524288;
+	public static var T_STRING:Int            = 1048576;
+	public static var T_STRING_OBJ:Int        = 2097152;
+	public static var T_STRING_OBJ_PROP:Int   = 4194304;
 
   // regexes
   public static var isColor:EReg  = ~/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/; //  1. hex colors are detected using regex `/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/`

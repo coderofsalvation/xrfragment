@@ -1,17 +1,26 @@
 BEGIN{
   ROUNDROBIN="🎲"
   ASSET="🔒"
-  PV_OVERRIDE="🔓"
+  OVERRIDE="🔓"
+  PV_OVERRIDE="💥"
   BROWSER_OVERRIDE="👩"
   PROMPT="✋?"
-  BROWSER_OVERRIDE_TOPLEVEL="🌐"
-  print ROUNDROBIN" = multiple values will be roundrobin'ed<br>"
-  print ASSET" = value(s) can only defined in 3D asset (immutable)<br>"
-  print PV_OVERRIDE" = value(s) can be overwritten by [predefined_view](#predefined_view)<br>"
-  print BROWSER_OVERRIDE" = value(s) can be overwritten by [URL browser_override](#browser_override)<br>"
-  print PROMPT" = value(s) can be overwritten only offering confirmation/undo to user<br><br>"
-  print "| fragment | type | write access | scope |"
+  EMBED_OVERRIDE="🔗"
+  print "| fragment | type | access       | scope |"
   print "|----------|------|--------------|-------|"
+}
+
+END{
+  print ""
+  print ASSET" = value(s) can only defined in 3D asset (immutable)<br>"
+	print OVERRIDE" = value(s) can be overwritten in certain context<br>"
+  print ROUNDROBIN" = multiple values will be roundrobin'ed<br>"
+  print PV_OVERRIDE" = value(s) can be overwritten by [predefined_view](#predefined_view)<br>"
+  print BROWSER_OVERRIDE" = value(s) can be overwritten when user clicks `href` (value) or top-level URL change(see [How it works](#How%20it%20works))<br>"
+  print EMBED_OVERRIDE" = value(s) can be overwritten when 3D asset is embedded/linked as `src` value<br>"
+  print PROMPT" = value(s) can be overwritten by offering confirmation/undo to user<br><br>"
+  print ""
+	print "for more info see [How it works](#How%20it%20works)"
 }
 
 /category:/    {
@@ -26,7 +35,7 @@ BEGIN{
   gsub(/.*\("/,"",$1)
   gsub(/".*/,"",$1)
   type="string"
-  perms=""
+  perms = $0 ~ /OVERRIDE/ ? OVERRIDE : ASSET
   frag=$1
   $1=""
   if( $0 ~ /T_INT/             ) type="int"
@@ -36,9 +45,9 @@ BEGIN{
   if( $0 ~ /T_URL/             ) type="[url](#url                         ) "
   if( $0 ~ /T_PREDEFINED_VIEW/ ) type="[predefined view](#predefined_view ) "
   if( $0 ~ /ROUNDROBIN/        ) perms=perms" "ROUNDROBIN
-  if( $0 ~ /ASSET/             ) perms=perms" "ASSET
   if( $0 ~ /PV_OVERRIDE/       ) perms=perms" "PV_OVERRIDE
   if( $0 ~ /BROWSER_OVERRIDE/  ) perms=perms" "BROWSER_OVERRIDE
+  if( $0 ~ /EMBED_OVERRIDE/    ) perms=perms" "EMBED_OVERRIDE
   if( $0 ~ /PROMPT/            ) perms=perms" "PROMPT
   print "| **"frag"** |" type "|" perms "|" scope "|"
 }
