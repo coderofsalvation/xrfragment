@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js vr - sandbox</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="./../../assets/axist.min.css" />
+		<link type="text/css" rel="stylesheet" href="main.css">
+    <link type="text/css" rel="stylesheet" href="./../../assets/style.css"/>
+	</head>
+	<body>
+    <div id="overlay">
+      <img src="./../../assets/logo.png" class="logo"/>
+			<input type="submit" value="load 3D asset"></input>
+			<input type="text" list="urls" value="./example/asset/example1.gltf"/>
+			<datalist id="urls" x-data="{ urls: ['./example/asset/example1.gltf'] }" >
+				 <template x-for="url in urls">
+						<option x-text="url"></option>
+				</template>
+			</datalist>
+    </div>
+		<textarea style="display:none"></textarea>
+		
+		<script async src="./../../assets/alpine.min.js"></script>
+		<!-- Import maps polyfill -->
+		<!-- Remove this when import maps will be widely supported -->
+		<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "https://unpkg.com/three@0.151.3/build/three.module.js",
+					"three/addons/": "https://unpkg.com/three@0.151.3/examples/jsm/"
+				}
+			}
+		</script>
+
+		<script type="module">
+			import * as THREE from 'three';
+
+			import xrfragment from './../../../dist/xrfragment.module.js';
+			import { loadFile, setupConsole }   from './../../assets/utils.js';
+			import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+			import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
+			import { BoxLineGeometry } from 'three/addons/geometries/BoxLineGeometry.js';
+			import { Reflector } from 'three/addons/objects/Reflector.js';
+			import { VRButton } from 'three/addons/webxr/VRButton.js';
+			import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+			import { HTMLMesh } from 'three/addons/interactive/HTMLMesh.js';
+			import { InteractiveGroup } from 'three/addons/interactive/InteractiveGroup.js';
+			import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
+			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+			import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+			import Stats from 'three/addons/libs/stats.module.js';
+
+			let camera, scene, renderer, controls;
+			let reflector;
+			let stats, statsMesh;
+
+			const parameters = {
+				light: 1.0,
+			};
+
+			init();
+			animate();
+
+			function init() {
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0xcccccc );
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 2000 );
+
+
+				let model;
+				const loader = new GLTFLoader().setPath( './../../assets/')
+				let loadGLTF = function ( gltf ) {
+					if( model ){ 
+						scene.remove(model)
+						//model.dispose()
+					}
+					gltf.scene.position.y = 1.5
+					gltf.scene.position.z = -1
+					gltf.scene.scale.x = gltf.scene.scale.y = gltf.scene.scale.z = 1;
+
+					const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+					function recursivelySetChildrenUnlit(mesh,cb) {
+							cb(mesh)
+							if (mesh.children) {
+									for (var i = 0; i < mesh.children.length; i++) {
+											recursivelySetChildrenUnlit(mesh.children[i],cb);
+									}
+							}
+					}
+
+					let XRF = xrfragment;
+          XRF.Parser.debug= true;
+
+					gltf.scene.traverse( (mesh) => {
+						if( mesh.userData ){
+							let frag = {}
+							for( let k in mesh.userData ) XRF.Parser.parse( k, mesh.userData[k], frag )
+							if( Object.keys(frag).length > 0 ){
+								for( let k in frag ){
+									if( k == "env" ){
+										console.dir(frag[k])
+										let env = mesh.getObjectByName(frag[k].string)
+										env.material.map.mapping = THREE.EquirectangularReflectionMapping;
+										scene.environment = env.material.map
+										scene.texture = env.material.map
+										renderer.toneMapping = THREE.ACESFilmicToneMapping;
+										renderer.toneMappingExposure = 1;
+									}
+								}
+							}
+						}
+						if (mesh instanceof THREE.Mesh) {
+						  if (mesh.material && mesh.material.map) {
+								// turn unlit
+						  	//mesh.material = new THREE.MeshBasicMaterial({ map: mesh.material.map });
+						  	//mesh.material.dithering = true
+						  	//mesh.material.map.anisotropy = maxAnisotropy;
+						  }
+						}
+					})
+
+					scene.add( model = gltf.scene );
+
+					render();
+
+				};
+				loader.load( 'example1.gltf', loadGLTF ); 
+
+				//const torusGeometry = new THREE.TorusKnotGeometry( ...Object.values( parameters ) );
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.autoClear = false;
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.outputEncoding = THREE.sRGBEncoding;
+				renderer.xr.enabled = true;
+				document.body.appendChild( renderer.domElement );
+
+				document.body.appendChild( VRButton.createButton( renderer ) );
+
+				window.addEventListener( 'resize', onWindowResize );
+
+				// setup mouse controls
+				controls = new OrbitControls( camera, renderer.domElement );
+				controls.listenToKeyEvents( window ); // optional
+				controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+				controls.dampingFactor = 0.1;
+
+				controls.screenSpacePanning = false;
+
+				controls.minDistance = 0.1;
+				controls.maxDistance = 5000;
+				controls.maxPolarAngle = Math.PI / 2;
+				controls.target = new THREE.Vector3(0,1.6,0)
+
+				camera.position.set( 0, 1.6, 1.5 );
+				controls.update()
+
+				const geometry = new THREE.BufferGeometry();
+				geometry.setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 5 ) ] );
+
+				const controller1 = renderer.xr.getController( 0 );
+				controller1.add( new THREE.Line( geometry ) );
+				scene.add( controller1 );
+
+				const controller2 = renderer.xr.getController( 1 );
+				controller2.add( new THREE.Line( geometry ) );
+				scene.add( controller2 );
+
+
+				const controllerModelFactory = new XRControllerModelFactory();
+
+				const controllerGrip1 = renderer.xr.getControllerGrip( 0 );
+				controllerGrip1.add( controllerModelFactory.createControllerModel( controllerGrip1 ) );
+				scene.add( controllerGrip1 );
+
+				const controllerGrip2 = renderer.xr.getControllerGrip( 1 );
+				controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
+				scene.add( controllerGrip2 );
+
+        setupConsole( document.querySelector('textarea') )
+
+				// GUI
+
+				function onChange() {
+						renderer.toneMappingExposure = parameters.light;
+				}
+
+				const gui = new GUI( { width: 300 } );
+				gui.add( parameters, 'light', 0.2, 3.0, 0.1 ).onChange( onChange );
+				gui.domElement.style.visibility = 'hidden';
+
+				const group = new InteractiveGroup( renderer, camera );
+				scene.add( group );
+
+				const mesh = new HTMLMesh( gui.domElement );
+				mesh.position.x = - 0.75;
+				mesh.position.y = 1.5;
+				mesh.position.z = - 0.5;
+				mesh.rotation.y = Math.PI / 4;
+				mesh.scale.setScalar( 2 );
+				group.add( mesh );
+
+
+				// Add stats.js
+				stats = new Stats();
+				stats.dom.style.width = '80px';
+				stats.dom.style.height = '48px';
+				document.body.appendChild( stats.dom );
+
+				statsMesh = new HTMLMesh( stats.dom );
+				statsMesh.position.x = - 0.75;
+				statsMesh.position.y = 2;
+				statsMesh.position.z = - 0.6;
+				statsMesh.rotation.y = Math.PI / 4;
+				statsMesh.scale.setScalar( 2.5 );
+				group.add( statsMesh );
+
+				let fileLoaders = loadFile({
+					".gltf": (file) => file.arrayBuffer().then( (data) => loader.parse( data, '', loadGLTF, console.error ) ),
+					".glb":  (file) => file.arrayBuffer().then( (data) => loader.parse( data, '', loadGLTF, console.error ) )
+				})
+				document.querySelector("#overlay > input[type=submit]").addEventListener("click", fileLoaders )
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function animate() {
+
+				renderer.setAnimationLoop( render );
+
+			}
+
+			function render() {
+
+				const time = performance.now() * 0.0002;
+				//const torus = scene.getObjectByName( 'torus' );
+				//torus.rotation.x = time * 0.4;
+				//torus.rotation.y = time;
+
+				controls.update()
+				renderer.render( scene, camera );
+				stats.update();
+
+				// Canvas elements doesn't trigger DOM updates, so we have to update the texture
+				statsMesh.material.map.update();
+
+			}
+
+		</script>
+	</body>
+</html>

@@ -19,6 +19,7 @@
 				</template>
 			</datalist>
     </div>
+    <a id="source" href="">source</a> 
 		<textarea style="display:none"></textarea>
 		
 		<script async src="./../../assets/alpine.min.js"></script>
@@ -37,7 +38,8 @@
 		<script type="module">
 			import * as THREE from 'three';
 
-			import xrfragment from './../../../dist/xrfragment.module.js';
+			import xrfragment from './../../../dist/xrfragment.three.js';
+
 			import { loadFile, setupConsole }   from './../../assets/utils.js';
 			import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 			import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
@@ -70,7 +72,37 @@
 
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 2000 );
 
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.autoClear = false;
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.outputEncoding = THREE.sRGBEncoding;
+				renderer.xr.enabled = true;
+				document.body.appendChild( renderer.domElement );
 
+				document.body.appendChild( VRButton.createButton( renderer ) );
+
+				window.addEventListener( 'resize', onWindowResize );
+
+        // enable XR fragments
+        xrfragment.init({            
+          THREE,
+          camera,
+          scene,
+          renderer,
+          debug: true,
+          loaders: [ GLTFLoader ],   // which assets to check for fragments?
+        })
+
+        xrfragment.env = (xrf,v,mesh,model,scene,renderer,THREE) => {
+          xrf(v,mesh,model,scene,renderer,THREE)
+        }
+
+        xrfragment.name = (xrf,v,mesh,model,scene,renderer,THREE) => {
+          console.log("hello custom property 'name'")
+        }
+
+        // load 3D asset
 				let model;
 				const loader = new GLTFLoader().setPath( './../../assets/')
 				let loadGLTF = function ( gltf ) {
@@ -92,35 +124,6 @@
 							}
 					}
 
-					let XRF = xrfragment;
-					gltf.scene.traverse( (mesh) => {
-						if( mesh.userData ){
-							let frag = {}
-							for( let k in mesh.userData ) XRF.Parser.parse( k, mesh.userData[k], frag )
-							if( Object.keys(frag).length > 0 ){
-								for( let k in frag ){
-									if( k == "env" ){
-										console.dir(frag[k])
-										let env = mesh.getObjectByName(frag[k].string)
-										env.material.map.mapping = THREE.EquirectangularReflectionMapping;
-										scene.environment = env.material.map
-										scene.texture = env.material.map
-										renderer.toneMapping = THREE.ACESFilmicToneMapping;
-										renderer.toneMappingExposure = 1;
-									}
-								}
-							}
-						}
-						if (mesh instanceof THREE.Mesh) {
-						  if (mesh.material && mesh.material.map) {
-								// turn unlit
-						  	//mesh.material = new THREE.MeshBasicMaterial({ map: mesh.material.map });
-						  	//mesh.material.dithering = true
-						  	//mesh.material.map.anisotropy = maxAnisotropy;
-						  }
-						}
-					})
-
 					scene.add( model = gltf.scene );
 
 					render();
@@ -128,19 +131,6 @@
 				};
 				loader.load( 'example1.gltf', loadGLTF ); 
 
-				//const torusGeometry = new THREE.TorusKnotGeometry( ...Object.values( parameters ) );
-
-				renderer = new THREE.WebGLRenderer( { antialias: true } );
-				renderer.autoClear = false;
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				renderer.outputEncoding = THREE.sRGBEncoding;
-				renderer.xr.enabled = true;
-				document.body.appendChild( renderer.domElement );
-
-				document.body.appendChild( VRButton.createButton( renderer ) );
-
-				window.addEventListener( 'resize', onWindowResize );
 
 				// setup mouse controls
 				controls = new OrbitControls( camera, renderer.domElement );

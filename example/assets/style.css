@@ -70,3 +70,13 @@ input[type="submit"] {
     background: #f0f0f0;
     border-color: #Ccc;
 }
+
+a#source{
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  color: #888;
+  font-weight: bold;
+  font-family: sans-serif;
+  text-decoration: underline;
+}
