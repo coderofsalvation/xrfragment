@@ -62,10 +62,11 @@ input[type="submit"] {
     height: 29px;
     font-size: 14px;
     position: absolute;
-    left: 280px;
+    left: 200px;
     top: 9px;
-    padding: 5px;
-    width: 40%;
+    max-width:550px;
+    padding: 5px 0px 5px 0px;
+    width: calc( 63% - 200px);
     background: #f0f0f0;
     border-color: #Ccc;
 }

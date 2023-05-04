@@ -1432,7 +1432,7 @@ __xrfragment_Parser.parse = function(key,value,resultMap)
   else
     Frag_h.src = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.PV_OVERRIDE,__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.T_STRING_OBJ);
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.PV_OVERRIDE,__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.T_STRING_OBJ),__xrfragment_XRF.EMBED_OVERRIDE);
   if (value1 == nil) then 
     Frag_h.pos = __haxe_ds_StringMap.tnull;
   else
@@ -1444,73 +1444,73 @@ __xrfragment_Parser.parse = function(key,value,resultMap)
   else
     Frag_h.href = value1;
   end;
-  local value1 = _hx_bit.bor(__xrfragment_XRF.PV_OVERRIDE,__xrfragment_XRF.T_STRING);
+  local value1 = _hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.PV_OVERRIDE,__xrfragment_XRF.T_STRING),__xrfragment_XRF.EMBED_OVERRIDE);
   if (value1 == nil) then 
     Frag_h.q = __haxe_ds_StringMap.tnull;
   else
     Frag_h.q = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.QUERY_OPERATOR,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_INT);
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.QUERY_OPERATOR,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.EMBED_OVERRIDE);
   if (value1 == nil) then 
     Frag_h.scale = __haxe_ds_StringMap.tnull;
   else
     Frag_h.scale = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.QUERY_OPERATOR,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR3);
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.QUERY_OPERATOR,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.EMBED_OVERRIDE);
   if (value1 == nil) then 
     Frag_h.rot = __haxe_ds_StringMap.tnull;
   else
     Frag_h.rot = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.QUERY_OPERATOR,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR3);
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.QUERY_OPERATOR,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.EMBED_OVERRIDE);
   if (value1 == nil) then 
     Frag_h.translate = __haxe_ds_StringMap.tnull;
   else
     Frag_h.translate = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.QUERY_OPERATOR,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_INT);
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.QUERY_OPERATOR,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_INT),__xrfragment_XRF.EMBED_OVERRIDE);
   if (value1 == nil) then 
     Frag_h.visible = __haxe_ds_StringMap.tnull;
   else
     Frag_h.visible = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_STRING);
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_STRING),__xrfragment_XRF.EMBED_OVERRIDE);
   if (value1 == nil) then 
     Frag_h.env = __haxe_ds_StringMap.tnull;
   else
     Frag_h.env = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR2),__xrfragment_XRF.BROWSER_OVERRIDE);
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR2),__xrfragment_XRF.BROWSER_OVERRIDE),__xrfragment_XRF.EMBED_OVERRIDE);
   if (value1 == nil) then 
     Frag_h.t = __haxe_ds_StringMap.tnull;
   else
     Frag_h.t = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_VECTOR3);
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.EMBED_OVERRIDE);
   if (value1 == nil) then 
     Frag_h.gravity = __haxe_ds_StringMap.tnull;
   else
     Frag_h.gravity = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_VECTOR3);
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.EMBED_OVERRIDE);
   if (value1 == nil) then 
     Frag_h.physics = __haxe_ds_StringMap.tnull;
   else
     Frag_h.physics = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_INT),__xrfragment_XRF.BROWSER_OVERRIDE);
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_INT),__xrfragment_XRF.BROWSER_OVERRIDE),__xrfragment_XRF.EMBED_OVERRIDE);
   if (value1 == nil) then 
     Frag_h.fov = __haxe_ds_StringMap.tnull;
   else
     Frag_h.fov = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_VECTOR2),__xrfragment_XRF.BROWSER_OVERRIDE);
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_VECTOR2),__xrfragment_XRF.BROWSER_OVERRIDE),__xrfragment_XRF.EMBED_OVERRIDE);
   if (value1 == nil) then 
     Frag_h.clip = __haxe_ds_StringMap.tnull;
   else
     Frag_h.clip = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_STRING),__xrfragment_XRF.BROWSER_OVERRIDE);
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_STRING),__xrfragment_XRF.BROWSER_OVERRIDE),__xrfragment_XRF.EMBED_OVERRIDE);
   if (value1 == nil) then 
     Frag_h.fog = __haxe_ds_StringMap.tnull;
   else
@@ -1540,7 +1540,7 @@ __xrfragment_Parser.parse = function(key,value,resultMap)
   else
     Frag_h.description = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_URL),__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.BROWSER_OVERRIDE),__xrfragment_XRF.PROMPT);
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_URL),__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.BROWSER_OVERRIDE),__xrfragment_XRF.EMBED_OVERRIDE),__xrfragment_XRF.PROMPT);
   if (value1 == nil) then 
     Frag_h.session = __haxe_ds_StringMap.tnull;
   else
@@ -2027,26 +2027,43 @@ __xrfragment_Query.prototype.__class__ =  __xrfragment_Query
 __xrfragment_URI.new = {}
 _hx_exports["xrfragment"]["URI"] = __xrfragment_URI
 __xrfragment_URI.__name__ = true
-__xrfragment_URI.parse = function(qs,browser_override) 
+__xrfragment_URI.parse = function(url,filter) 
+  local store = _hx_e();
+  local startIndex = nil;
+  if (startIndex == nil) then 
+    startIndex = 1;
+  else
+    startIndex = startIndex + 1;
+  end;
+  local r = __lua_lib_luautf8_Utf8.find(url, "#", startIndex, true);
+  if ((function() 
+    local _hx_1
+    if ((r ~= nil) and (r > 0)) then 
+    _hx_1 = r - 1; else 
+    _hx_1 = -1; end
+    return _hx_1
+  end )() == -1) then 
+    do return store end;
+  end;
   local idx = 1;
   local ret = _hx_tab_array({}, 0);
   while (idx ~= nil) do 
     local newidx = 0;
     if (__lua_lib_luautf8_Utf8.len("#") > 0) then 
-      newidx = __lua_lib_luautf8_Utf8.find(qs, "#", idx, true);
+      newidx = __lua_lib_luautf8_Utf8.find(url, "#", idx, true);
     else
-      if (idx >= __lua_lib_luautf8_Utf8.len(qs)) then 
+      if (idx >= __lua_lib_luautf8_Utf8.len(url)) then 
         newidx = nil;
       else
         newidx = idx + 1;
       end;
     end;
     if (newidx ~= nil) then 
-      local match = __lua_lib_luautf8_Utf8.sub(qs, idx, newidx - 1);
+      local match = __lua_lib_luautf8_Utf8.sub(url, idx, newidx - 1);
       ret:push(match);
       idx = newidx + __lua_lib_luautf8_Utf8.len("#");
     else
-      ret:push(__lua_lib_luautf8_Utf8.sub(qs, idx, __lua_lib_luautf8_Utf8.len(qs)));
+      ret:push(__lua_lib_luautf8_Utf8.sub(url, idx, __lua_lib_luautf8_Utf8.len(url)));
       idx = nil;
     end;
   end;
@@ -2075,7 +2092,6 @@ __xrfragment_URI.parse = function(qs,browser_override)
     end;
   end;
   local splitArray = ret;
-  local resultMap = _hx_e();
   local _g = 0;
   local _g1 = splitArray.length;
   while (_g < _g1) do 
@@ -2111,21 +2127,21 @@ __xrfragment_URI.parse = function(qs,browser_override)
     if (splitByEqual.length > 1) then 
       value = StringTools.urlDecode(regexPlus:split(splitByEqual[1]):join(" "));
     end;
-    local ok = __xrfragment_Parser.parse(key, value, resultMap);
+    local ok = __xrfragment_Parser.parse(key, value, store);
   end;
-  if (browser_override) then 
+  if ((filter ~= nil) and (filter ~= 0)) then 
     local _g = 0;
-    local _g1 = Reflect.fields(resultMap);
+    local _g1 = Reflect.fields(store);
     while (_g < _g1.length) do 
       local key = _g1[_g];
       _g = _g + 1;
-      local xrf = Reflect.field(resultMap, key);
-      if (not xrf:is(__xrfragment_XRF.BROWSER_OVERRIDE)) then 
-        Reflect.deleteField(resultMap, key);
+      local xrf = Reflect.field(store, key);
+      if (not xrf:is(filter)) then 
+        Reflect.deleteField(store, key);
       end;
     end;
   end;
-  do return resultMap end;
+  do return store end;
 end
 
 __xrfragment_XRF.new = function(_fragment,_flags) 
@@ -2365,29 +2381,31 @@ local _hx_static_init = function()
   
   __xrfragment_XRF.BROWSER_OVERRIDE = 32;
   
-  __xrfragment_XRF.PV_OVERRIDE = 64;
+  __xrfragment_XRF.EMBED_OVERRIDE = 64;
   
-  __xrfragment_XRF.PV_EXECUTE = 128;
+  __xrfragment_XRF.PV_OVERRIDE = 128;
   
-  __xrfragment_XRF.T_COLOR = 256;
+  __xrfragment_XRF.PV_EXECUTE = 256;
   
-  __xrfragment_XRF.T_INT = 512;
+  __xrfragment_XRF.T_COLOR = 8192;
   
-  __xrfragment_XRF.T_FLOAT = 1024;
+  __xrfragment_XRF.T_INT = 16384;
   
-  __xrfragment_XRF.T_VECTOR2 = 2048;
+  __xrfragment_XRF.T_FLOAT = 32768;
   
-  __xrfragment_XRF.T_VECTOR3 = 4096;
+  __xrfragment_XRF.T_VECTOR2 = 65536;
   
-  __xrfragment_XRF.T_URL = 8192;
+  __xrfragment_XRF.T_VECTOR3 = 131072;
   
-  __xrfragment_XRF.T_PREDEFINED_VIEW = 16384;
+  __xrfragment_XRF.T_URL = 262144;
   
-  __xrfragment_XRF.T_STRING = 32768;
+  __xrfragment_XRF.T_PREDEFINED_VIEW = 524288;
   
-  __xrfragment_XRF.T_STRING_OBJ = 65536;
+  __xrfragment_XRF.T_STRING = 1048576;
   
-  __xrfragment_XRF.T_STRING_OBJ_PROP = 131072;
+  __xrfragment_XRF.T_STRING_OBJ = 2097152;
+  
+  __xrfragment_XRF.T_STRING_OBJ_PROP = 4194304;
   
   __xrfragment_XRF.isColor = EReg.new("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", "");
   

@@ -25,7 +25,7 @@ class Parser {
 
       // category: query selector / object manipulation
       Frag.set("q",             XRF.PV_OVERRIDE | XRF.T_STRING | XRF.EMBED_OVERRIDE                   );
-      Frag.set("scale",         XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_INT     | XRF.EMBED_OVERRIDE );
+      Frag.set("scale",         XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.EMBED_OVERRIDE );
       Frag.set("rot",           XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.EMBED_OVERRIDE );
       Frag.set("translate",     XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.EMBED_OVERRIDE );
       Frag.set("visible",       XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_INT     | XRF.EMBED_OVERRIDE );

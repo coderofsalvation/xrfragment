@@ -30,15 +30,15 @@ class Test {
       var valid:Bool     = false;
       var item:Dynamic = spec[i];
       if( item.fn == "query"       ) q   = new Query(item.data);
-      if( item.fn == "url"         ) res = URI.parse(item.data,false);
+      if( item.fn == "url"         ) res = URI.parse(item.data,0);
       if( item.expect.fn == "test"         ) valid = item.expect.out == q.test( item.expect.input[0] );
       if( item.expect.fn == "testProperty"        ) valid = item.expect.out == q.testProperty( item.expect.input[0], item.expect.input[1] );
       if( item.expect.fn == "testPropertyExclude" ) valid = item.expect.out == q.testProperty( item.expect.input[0], item.expect.input[1], true );
       if( item.expect.fn == "testParsed"          ) valid = item.expect.out == res.exists(item.expect.input);
       if( item.expect.fn == "testPredefinedView"  ) valid = res.exists(item.expect.input) && item.expect.out == res.get(item.expect.input).is( XRF.PV_EXECUTE) ;
-      if( item.expect.fn == "testBrowserOverride" ) valid = item.expect.out == (URI.parse(item.data,true)).exists(item.expect.input);
       if( item.expect.fn == "testPropertyAssign"  ) valid = res.exists(item.expect.input) && item.expect.out == res.get(item.expect.input).is( XRF.PROP_BIND) ;
-      if( item.expect.fn == "testBrowserOverride" ) valid = item.expect.out == (URI.parse(item.data,true)).exists(item.expect.input);
+      if( item.expect.fn == "testBrowserOverride" ) valid = item.expect.out == (URI.parse(item.data,XRF.BROWSER_OVERRIDE)).exists(item.expect.input);
+      if( item.expect.fn == "testEmbedOverride"   ) valid = item.expect.out == (URI.parse(item.data,XRF.EMBED_OVERRIDE)).exists(item.expect.input);
       if( item.expect.fn == "equal.string"        ) valid = res.get(item.expect.input) && item.expect.out == res.get(item.expect.input).string;
       if( item.expect.fn == "equal.xy"            ) valid = equalXY(res,item);
       if( item.expect.fn == "equal.xyz"           ) valid = equalXYZ(res,item);
@@ -74,7 +74,7 @@ class Test {
     var Uri   = xrfragment.URI;
     var url:String = "http://foo.com?foo=1#bar=flop&a=1,2&b=c|d|1,2,3";
     trace(url);
-    trace( Uri.parse(url,false) );
+    trace( Uri.parse(url,0) );
   }
 
   static public function testQuery():Void {

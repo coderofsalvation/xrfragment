@@ -42,10 +42,11 @@ import xrfragment.XRF;
 @:keep                                                                     // <- avoids accidental removal by dead code elimination
 class URI {
     @:keep
-    public static function parse(qs:String,browser_override:Bool):haxe.DynamicAccess<Dynamic> {
-      var fragment:Array<String>    = qs.split("#");                       //  1. fragment URI starts with `#`
+    public static function parse(url:String,filter:Int):haxe.DynamicAccess<Dynamic> {
+      var store:haxe.DynamicAccess<Dynamic> = {};                      //  1. store key/values into a associative array or dynamic object
+      if( url.indexOf("#") == -1 ) return store;
+      var fragment:Array<String>    = url.split("#");                      //  1. fragment URI starts with `#`
       var splitArray:Array<String>  = fragment[1].split('&');              //  1. fragments are split by `&`
-      var resultMap:haxe.DynamicAccess<Dynamic> = {};                      //  1. store key/values into a associative array or dynamic object
         for (i in 0...splitArray.length) {                                 //  1. loop thru each fragment
 
         var splitByEqual = splitArray[i].split('=');                       //  1. for each fragment split on `=` to separate key/values 
@@ -55,16 +56,16 @@ class URI {
         if (splitByEqual.length > 1) {
           value = StringTools.urlDecode(regexPlus.split(splitByEqual[1]).join(" "));
         }
-				var ok:Bool = Parser.parse(key,value,resultMap);                 //  1. every recognized fragment key/value-pair is added to a central map/associative array/object
+				var ok:Bool = Parser.parse(key,value,store);                 //  1. every recognized fragment key/value-pair is added to a central map/associative array/object
       }
-      if( browser_override ){
-        for (key in resultMap.keys()) {
-            var xrf:XRF = resultMap.get(key);
-            if( !xrf.is( XRF.BROWSER_OVERRIDE ) ){ 
-							resultMap.remove(key);
+      if( filter != null && filter != 0 ){
+        for (key in store.keys()) {
+            var xrf:XRF = store.get(key);
+            if( !xrf.is( filter ) ){ 
+							store.remove(key);
 						}
         }
       }
-      return resultMap;
+      return store;
     }
 }

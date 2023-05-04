@@ -220,25 +220,25 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	Frag_h["#"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_PREDEFINED_VIEW;
 	Frag_h["class"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["src"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL;
-	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING_OBJ;
+	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING_OBJ | xrfragment_XRF.EMBED_OVERRIDE;
 	Frag_h["href"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.T_PREDEFINED_VIEW;
-	Frag_h["q"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING;
-	Frag_h["scale"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_INT;
-	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3;
-	Frag_h["translate"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3;
-	Frag_h["visible"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_INT;
-	Frag_h["env"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING;
-	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.BROWSER_OVERRIDE;
-	Frag_h["gravity"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3;
-	Frag_h["physics"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3;
-	Frag_h["fov"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_INT | xrfragment_XRF.BROWSER_OVERRIDE;
-	Frag_h["clip"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.BROWSER_OVERRIDE;
-	Frag_h["fog"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.BROWSER_OVERRIDE;
+	Frag_h["q"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.EMBED_OVERRIDE;
+	Frag_h["scale"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBED_OVERRIDE;
+	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBED_OVERRIDE;
+	Frag_h["translate"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBED_OVERRIDE;
+	Frag_h["visible"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_INT | xrfragment_XRF.EMBED_OVERRIDE;
+	Frag_h["env"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.EMBED_OVERRIDE;
+	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.BROWSER_OVERRIDE | xrfragment_XRF.EMBED_OVERRIDE;
+	Frag_h["gravity"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBED_OVERRIDE;
+	Frag_h["physics"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBED_OVERRIDE;
+	Frag_h["fov"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_INT | xrfragment_XRF.BROWSER_OVERRIDE | xrfragment_XRF.EMBED_OVERRIDE;
+	Frag_h["clip"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.BROWSER_OVERRIDE | xrfragment_XRF.EMBED_OVERRIDE;
+	Frag_h["fog"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.BROWSER_OVERRIDE | xrfragment_XRF.EMBED_OVERRIDE;
 	Frag_h["namespace"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["SPDX"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["unit"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["description"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["session"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.BROWSER_OVERRIDE | xrfragment_XRF.PROMPT;
+	Frag_h["session"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.BROWSER_OVERRIDE | xrfragment_XRF.EMBED_OVERRIDE | xrfragment_XRF.PROMPT;
 	if(value.length == 0 && !Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		resultMap[key] = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.BROWSER_OVERRIDE);
 		return true;
@@ -444,10 +444,13 @@ xrfragment_Query.prototype = {
 };
 var xrfragment_URI = $hx_exports["xrfragment"]["URI"] = function() { };
 xrfragment_URI.__name__ = true;
-xrfragment_URI.parse = function(qs,browser_override) {
-	var fragment = qs.split("#");
+xrfragment_URI.parse = function(url,filter) {
+	var store = { };
+	if(url.indexOf("#") == -1) {
+		return store;
+	}
+	var fragment = url.split("#");
 	var splitArray = fragment[1].split("&");
-	var resultMap = { };
 	var _g = 0;
 	var _g1 = splitArray.length;
 	while(_g < _g1) {
@@ -460,21 +463,21 @@ xrfragment_URI.parse = function(qs,browser_override) {
 			var s = regexPlus.split(splitByEqual[1]).join(" ");
 			value = decodeURIComponent(s.split("+").join(" "));
 		}
-		var ok = xrfragment_Parser.parse(key,value,resultMap);
+		var ok = xrfragment_Parser.parse(key,value,store);
 	}
-	if(browser_override) {
+	if(filter != null && filter != 0) {
 		var _g = 0;
-		var _g1 = Reflect.fields(resultMap);
+		var _g1 = Reflect.fields(store);
 		while(_g < _g1.length) {
 			var key = _g1[_g];
 			++_g;
-			var xrf = resultMap[key];
-			if(!xrf.is(xrfragment_XRF.BROWSER_OVERRIDE)) {
-				Reflect.deleteField(resultMap,key);
+			var xrf = store[key];
+			if(!xrf.is(filter)) {
+				Reflect.deleteField(store,key);
 			}
 		}
 	}
-	return resultMap;
+	return store;
 };
 var xrfragment_XRF = $hx_exports["xrfragment"]["XRF"] = function(_fragment,_flags) {
 	this.fragment = _fragment;
@@ -567,18 +570,19 @@ xrfragment_XRF.QUERY_OPERATOR = 4;
 xrfragment_XRF.PROMPT = 8;
 xrfragment_XRF.ROUNDROBIN = 16;
 xrfragment_XRF.BROWSER_OVERRIDE = 32;
-xrfragment_XRF.PV_OVERRIDE = 64;
-xrfragment_XRF.PV_EXECUTE = 128;
-xrfragment_XRF.T_COLOR = 256;
-xrfragment_XRF.T_INT = 512;
-xrfragment_XRF.T_FLOAT = 1024;
-xrfragment_XRF.T_VECTOR2 = 2048;
-xrfragment_XRF.T_VECTOR3 = 4096;
-xrfragment_XRF.T_URL = 8192;
-xrfragment_XRF.T_PREDEFINED_VIEW = 16384;
-xrfragment_XRF.T_STRING = 32768;
-xrfragment_XRF.T_STRING_OBJ = 65536;
-xrfragment_XRF.T_STRING_OBJ_PROP = 131072;
+xrfragment_XRF.EMBED_OVERRIDE = 64;
+xrfragment_XRF.PV_OVERRIDE = 128;
+xrfragment_XRF.PV_EXECUTE = 256;
+xrfragment_XRF.T_COLOR = 8192;
+xrfragment_XRF.T_INT = 16384;
+xrfragment_XRF.T_FLOAT = 32768;
+xrfragment_XRF.T_VECTOR2 = 65536;
+xrfragment_XRF.T_VECTOR3 = 131072;
+xrfragment_XRF.T_URL = 262144;
+xrfragment_XRF.T_PREDEFINED_VIEW = 524288;
+xrfragment_XRF.T_STRING = 1048576;
+xrfragment_XRF.T_STRING_OBJ = 2097152;
+xrfragment_XRF.T_STRING_OBJ_PROP = 4194304;
 xrfragment_XRF.isColor = new EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","");
 xrfragment_XRF.isInt = new EReg("^[0-9]+$","");
 xrfragment_XRF.isFloat = new EReg("^[0-9]+\\.[0-9]+$","");
