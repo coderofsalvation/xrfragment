@@ -45,9 +45,16 @@ build(){
   haxe build.hxml
   ok=$?
   sed -i 's|.*nonlocal .*||g' dist/xrfragment.py
+  build_js
+}
+
+build_js(){
   # add js module
   cp dist/xrfragment.js dist/xrfragment.module.js
   echo "export default xrfragment;" >> dist/xrfragment.module.js
+  # add THREE module
+  cat dist/xrfragment.js src/three/*.js src/three/xrf/*.js > dist/xrfragment.three.js
+  echo "export default xrfragment;"  >> dist/xrfragment.three.js
   exit $ok
 }
 
