@@ -57,7 +57,7 @@
 			let stats, statsMesh;
 
 			const parameters = {
-				light: 1.0,
+				env: 1.0,
 			};
 
 			init();
@@ -79,7 +79,8 @@
 						//model.dispose()
 					}
 					gltf.scene.position.y = 1.5
-					gltf.scene.position.z = -1
+					gltf.scene.position.z = -4
+					gltf.scene.rotation.y = -0.5
 					gltf.scene.scale.x = gltf.scene.scale.y = gltf.scene.scale.z = 1;
 
 					const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -138,6 +139,7 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				renderer.outputEncoding = THREE.sRGBEncoding;
 				renderer.xr.enabled = true;
+        renderer.domElement.className = "render"
 				document.body.appendChild( renderer.domElement );
 
 				document.body.appendChild( VRButton.createButton( renderer ) );
@@ -187,11 +189,11 @@
 				// GUI
 
 				function onChange() {
-						renderer.toneMappingExposure = parameters.light;
+						renderer.toneMappingExposure = parameters.env;
 				}
 
 				const gui = new GUI( { width: 300 } );
-				gui.add( parameters, 'light', 0.2, 3.0, 0.1 ).onChange( onChange );
+				gui.add( parameters, 'env', 0.2, 3.0, 0.1 ).onChange( onChange );
 				gui.domElement.style.visibility = 'hidden';
 
 				const group = new InteractiveGroup( renderer, camera );
@@ -200,7 +202,7 @@
 				const mesh = new HTMLMesh( gui.domElement );
 				mesh.position.x = - 0.75;
 				mesh.position.y = 1.5;
-				mesh.position.z = - 0.5;
+				mesh.position.z = 0.3;
 				mesh.rotation.y = Math.PI / 4;
 				mesh.scale.setScalar( 2 );
 				group.add( mesh );
@@ -215,7 +217,7 @@
 				statsMesh = new HTMLMesh( stats.dom );
 				statsMesh.position.x = - 0.75;
 				statsMesh.position.y = 2;
-				statsMesh.position.z = - 0.6;
+				statsMesh.position.z = 0.3;
 				statsMesh.rotation.y = Math.PI / 4;
 				statsMesh.scale.setScalar( 2.5 );
 				group.add( statsMesh );
