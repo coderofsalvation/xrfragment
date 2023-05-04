@@ -19,7 +19,7 @@
 				</template>
 			</datalist>
     </div>
-    <a id="source" href="https://github.com/coderofsalvation/xrfragment/blob/main/example/threejs/sandbox/index.html#L87-L103">source</a> 
+    <a id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment/blob/main/example/threejs/sandbox/index.html#L87-L105">source</a> 
 		<textarea style="display:none"></textarea>
 		
 		<script async src="./../../assets/alpine.min.js"></script>
@@ -94,10 +94,12 @@
           loaders: [ GLTFLoader ],   // which assets to check for fragments?
         })
 
+        // decorate env fragment
         xrfragment.env = (xrf,v,mesh,model,scene,renderer,THREE) => {
           xrf(v,mesh,model,scene,renderer,THREE)
         }
 
+        // decorate non-xrfragment custom property 
         xrfragment.name = (xrf,v,mesh,model,scene,renderer,THREE) => {
           console.log("hello custom property 'name'")
         }
