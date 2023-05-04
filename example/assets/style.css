@@ -92,5 +92,13 @@ a#source{
 
 .lil-gui.autoPlace{
   right:0px !important;
-  top:49px !important;
+  top:auto !important;
+  bottom:0;
+}
+
+@media (max-width: 640px) {
+  .lil-gui.root{
+    top:auto !important;
+    left:auto !important;
+  }
 }

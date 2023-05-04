@@ -597,9 +597,11 @@ xrfragment.three = {}
 
 xrfragment.init = function(opts){
   opts = opts || {}
-  for ( let i in opts ) xrfragment[i] = opts[i]
+  for ( let i in opts           ) xrfragment[i] = opts[i]
+  for ( let i in xrfragment.XRF ) xrfragment[i] = xrfragment.XRF[i] // shortcuts to constants (BROWSER_OVERRIDE e.g.)
   xrfragment.Parser.debug = xrfragment.debug 
   if( opts.loaders ) opts.loaders.map( xrfragment.patchLoader )
+  return xrfragment
 }
 
 xrfragment.patchLoader = function(loader){
@@ -620,18 +622,26 @@ xrfragment.parseModel = function(model){
         xrfragment.Parser.parse( k, mesh.userData[k], frag )
         // call native function (xrf/env.js e.g.), or pass it to user decorator
         let func = xrfragment.three[k] || function(){} 
-        if(  xrfragment[k] ) xrfragment[k]( func, frag[k], mesh, model, xrfragment.scene, xrfragment.renderer, xrfragment.THREE )
-        else                                func( frag[k], mesh, model, xrfragment.scene, xrfragment.renderer, xrfragment.THREE )
+        let opts = {mesh, model, camera:xrfragment.camera, scene: xrfragment.scene, renderer: xrfragment.renderer, THREE: xrfragment.THREE }
+        if(  xrfragment[k] ) xrfragment[k]( func, frag[k], opts)
+        else                                func( frag[k], opts)
       }
     }
   })
 }
-xrfragment.three.env = function(v, mesh, model, scene, renderer, THREE){
+xrfragment.three.env = function(v, opts){
+  let { mesh, model, camera, scene, renderer, THREE} = opts
   let env = mesh.getObjectByName(v.string)
   env.material.map.mapping = THREE.EquirectangularReflectionMapping;
   scene.environment = env.material.map
   scene.texture = env.material.map
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1;
+}
+xrfragment.three.pos = function(v, opts){
+  let { mesh, model, camera, scene, renderer, THREE} = opts
+  camera.position.x = v.x
+  camera.position.y = v.y
+  camera.position.z = v.z
 }
 export default xrfragment;

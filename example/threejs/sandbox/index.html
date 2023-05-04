@@ -12,8 +12,8 @@
     <div id="overlay">
       <img src="./../../assets/logo.png" class="logo"/>
 			<input type="submit" value="load 3D asset"></input>
-			<input type="text" list="urls" value="./example/asset/example1.gltf"/>
-			<datalist id="urls" x-data="{ urls: ['./example/asset/example1.gltf'] }" >
+			<input type="text" list="urls" value="./example/asset/example1.gltf#pos=0,2,3"/>
+      <datalist id="urls" x-data="{ urls: ['./example/asset/example1.gltf#pos=0,2,3'], load: () => alert('load') }" x-on:input="load()">
 				 <template x-for="url in urls">
 						<option x-text="url"></option>
 				</template>
@@ -57,6 +57,7 @@
 			let camera, scene, renderer, controls;
 			let reflector;
 			let stats, statsMesh;
+      let vrbutton;
 
 			const parameters = {
 				env: 1.0,
@@ -81,12 +82,12 @@
         renderer.domElement.className = "render"
 				document.body.appendChild( renderer.domElement );
 
-				document.body.appendChild( VRButton.createButton( renderer ) );
+				document.body.appendChild( vrbutton = VRButton.createButton( renderer ) );
 
 				window.addEventListener( 'resize', onWindowResize );
 
         // enable XR fragments
-        xrfragment.init({            
+        let XRF = xrfragment.init({            
           THREE,
           camera,
           scene,
@@ -96,12 +97,14 @@
         })
 
         // optional: extend env fragment
-        xrfragment.env = (xrf,v,mesh,model,scene,renderer,THREE) => {
-          xrf(v,mesh,model,scene,renderer,THREE)
+        XRF.env = (xrf,v,opts) => {
+          let { mesh, model, camera, scene, renderer, THREE} = opts
+          xrf(v,opts)
         }
 
         // optional: extend non-xrfragment custom property 
-        xrfragment.name = (xrf,v,mesh,model,scene,renderer,THREE) => {
+        XRF.name = (xrf,v,opts) => {
+          let { mesh, model, camera, scene, renderer, THREE} = opts
           console.log("hello custom property 'name'")
         }
 
@@ -184,10 +187,14 @@
 
 				const gui = new GUI( { width: 300 } );
 				gui.add( parameters, 'env', 0.2, 3.0, 0.1 ).onChange( onChange );
-				//gui.domElement.style.visibility = 'hidden';
 
 				const group = new InteractiveGroup( renderer, camera );
-				scene.add( group );
+
+        vrbutton.addEventListener('click', () => {
+          // show gui inside VR scene
+          gui.domElement.style.visibility = 'hidden';
+          scene.add( group );
+        })
 
 				const mesh = new HTMLMesh( gui.domElement );
 				mesh.position.x = - 0.75;
