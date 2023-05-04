@@ -6,6 +6,7 @@ import xrfragment.XRF;
 @:keep                                                                     // <- avoids accidental removal by dead code elimination
 class Parser {
     public static var error:String = "";
+    public static var debug:Bool = false;
 
     @:keep
     public static function parse(key:String,value:String,resultMap:haxe.DynamicAccess<Dynamic>):Bool {
@@ -71,11 +72,12 @@ class Parser {
       if( Frag.exists(key) ){                                              //  1. check if param exist
         var v:XRF = new XRF(key, Frag.get(key));
         if( !v.validate(value) ){
-          trace("[ i ] fragment '"+key+"' has incompatible value ("+value+")");
+          trace("⚠ fragment '"+key+"' has incompatible value ("+value+")");
           return false;
         }
+        if( debug ) trace("✔  XR Fragment '"+key+"': '"+v.string+"'");
         resultMap.set(key, v );
-      }else{ trace("[ i ] fragment '"+key+"' does not exist or has no type typed (yet)"); return false; }
+      }
 
       return true;
     }

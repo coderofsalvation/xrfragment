@@ -1288,7 +1288,7 @@ class HxString:
 class xrfragment_Parser:
     _hx_class_name = "xrfragment.Parser"
     __slots__ = ()
-    _hx_statics = ["error", "parse"]
+    _hx_statics = ["error", "debug", "parse"]
 
     @staticmethod
     def parse(key,value,resultMap):
@@ -1327,12 +1327,11 @@ class xrfragment_Parser:
         if (key in Frag.h):
             v = xrfragment_XRF(key,Frag.h.get(key,None))
             if (not v.validate(value)):
-                print(str((((("[ i ] fragment '" + ("null" if key is None else key)) + "' has incompatible value (") + ("null" if value is None else value)) + ")")))
+                print(str((((("⚠ fragment '" + ("null" if key is None else key)) + "' has incompatible value (") + ("null" if value is None else value)) + ")")))
                 return False
+            if xrfragment_Parser.debug:
+                print(str((((("✔  XR Fragment '" + ("null" if key is None else key)) + "': '") + HxOverrides.stringOrNull(v.string)) + "'")))
             setattr(resultMap,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),v)
-        else:
-            print(str((("[ i ] fragment '" + ("null" if key is None else key)) + "' does not exist or has no type typed (yet)")))
-            return False
         return True
 
 
@@ -1650,6 +1649,7 @@ Math.PI = python_lib_Math.pi
 python_Boot.keywords = set(["and", "del", "from", "not", "with", "as", "elif", "global", "or", "yield", "assert", "else", "if", "pass", "None", "break", "except", "import", "raise", "True", "class", "exec", "in", "return", "False", "continue", "finally", "is", "try", "def", "for", "lambda", "while"])
 python_Boot.prefixLength = len("_hx_")
 xrfragment_Parser.error = ""
+xrfragment_Parser.debug = False
 xrfragment_XRF.ASSET = 1
 xrfragment_XRF.PROP_BIND = 2
 xrfragment_XRF.QUERY_OPERATOR = 4

@@ -1613,13 +1613,13 @@ __xrfragment_Parser.parse = function(key,value,resultMap)
     end;
     local v = __xrfragment_XRF.new(key, ret);
     if (not v:validate(value)) then 
-      __haxe_Log.trace(Std.string(Std.string(Std.string(Std.string("[ i ] fragment '") .. Std.string(key)) .. Std.string("' has incompatible value (")) .. Std.string(value)) .. Std.string(")"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=74,className="xrfragment.Parser",methodName="parse"}));
+      __haxe_Log.trace(Std.string(Std.string(Std.string(Std.string("⚠ fragment '") .. Std.string(key)) .. Std.string("' has incompatible value (")) .. Std.string(value)) .. Std.string(")"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=75,className="xrfragment.Parser",methodName="parse"}));
       do return false end;
     end;
+    if (__xrfragment_Parser.debug) then 
+      __haxe_Log.trace(Std.string(Std.string(Std.string(Std.string("✔  XR Fragment '") .. Std.string(key)) .. Std.string("': '")) .. Std.string(v.string)) .. Std.string("'"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=78,className="xrfragment.Parser",methodName="parse"}));
+    end;
     resultMap[key] = v;
-  else
-    __haxe_Log.trace(Std.string(Std.string("[ i ] fragment '") .. Std.string(key)) .. Std.string("' does not exist or has no type typed (yet)"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=78,className="xrfragment.Parser",methodName="parse"}));
-    do return false end;
   end;
   do return true end;
 end
@@ -2368,6 +2368,8 @@ local _hx_static_init = function()
   __haxe_ds_StringMap.tnull = ({});
   
   __xrfragment_Parser.error = "";
+  
+  __xrfragment_Parser.debug = false;
   
   __xrfragment_XRF.ASSET = 1;
   

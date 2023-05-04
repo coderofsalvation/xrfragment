@@ -250,13 +250,13 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		var v = new xrfragment_XRF(key,Frag_h[key]);
 		if(!v.validate(value)) {
-			console.log("src/xrfragment/Parser.hx:74:","[ i ] fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:75:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
+		if(xrfragment_Parser.debug) {
+			console.log("src/xrfragment/Parser.hx:78:","✔  XR Fragment '" + key + "': '" + v.string + "'");
+		}
 		resultMap[key] = v;
-	} else {
-		console.log("src/xrfragment/Parser.hx:78:","[ i ] fragment '" + key + "' does not exist or has no type typed (yet)");
-		return false;
 	}
 	return true;
 };
@@ -564,6 +564,7 @@ String.__name__ = true;
 Array.__name__ = true;
 js_Boot.__toStr = ({ }).toString;
 xrfragment_Parser.error = "";
+xrfragment_Parser.debug = false;
 xrfragment_XRF.ASSET = 1;
 xrfragment_XRF.PROP_BIND = 2;
 xrfragment_XRF.QUERY_OPERATOR = 4;
