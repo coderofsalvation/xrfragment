@@ -89,3 +89,8 @@ a#source{
   right:0;
   bottom:0;
 }
+
+.lil-gui.autoPlace{
+  right:0px !important;
+  top:49px !important;
+}
