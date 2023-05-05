@@ -75,7 +75,7 @@ class Parser {
           trace("⚠ fragment '"+key+"' has incompatible value ("+value+")");
           return false;
         }
-        if( debug ) trace("✔  XR Fragment '"+key+"': '"+v.string+"'");
+        if( debug ) trace("✔ "+key+": "+v.string);
         resultMap.set(key, v );
       }
 

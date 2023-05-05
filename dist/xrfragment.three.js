@@ -254,7 +254,7 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 			return false;
 		}
 		if(xrfragment_Parser.debug) {
-			console.log("src/xrfragment/Parser.hx:78:","✔  XR Fragment '" + key + "': '" + v.string + "'");
+			console.log("src/xrfragment/Parser.hx:78:","✔ " + key + ": " + v.string);
 		}
 		resultMap[key] = v;
 	}
@@ -602,6 +602,7 @@ xrfragment.init = function(opts){
     alert("ja")
   }
   for ( let i in opts           ) XRF[i] = xrfragment[i] = opts[i]
+  for ( let i in xrfragment     ) XRF[i] = xrfragment[i]
   for ( let i in xrfragment.XRF ) XRF[i] = xrfragment.XRF[i] // shortcuts to constants (NAVIGATOR e.g.)
   xrfragment.Parser.debug = xrfragment.debug 
   if( opts.loaders ) opts.loaders.map( xrfragment.patchLoader )
@@ -618,9 +619,14 @@ xrfragment.patchLoader = function(loader){
   })(loader.prototype.load)
 }
 
+xrfragment.getFile = (url) => url.split("/").pop().replace(/#.*/,'')
+
 xrfragment.parseModel = function(model,url){
-  let file = url.split("/").pop().replace(/#.*/,'')
+  let file               = xrfragment.getFile(url)
+  model.file             = file
+  model.render           = function(){}
   xrfragment.model[file] = model
+
   model.scene.traverse( (mesh) => {
     if( mesh.userData ){
       let frag = {}
@@ -650,10 +656,97 @@ xrfragment.xrf.env = function(v, opts){
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1;
 }
+xrfragment.xrf.href = function(v, opts){
+  let { mesh, model, camera, scene, renderer, THREE} = opts
+  return
+
+	// Create a shader material that treats the texture as an equirectangular map
+	mesh.texture = mesh.material.map // backup texture
+	const equirectShader = THREE.ShaderLib[ 'equirect' ];
+	const equirectMaterial = new THREE.ShaderMaterial( {
+		  uniforms: THREE.UniformsUtils.merge([
+				THREE.UniformsLib.equirect,
+				equirectShader.uniforms,
+			]),
+			vertexShader: equirectShader.vertexShader,
+			fragmentShader: equirectShader.fragmentShader,
+			side: THREE.DoubleSide //THREE.FrontSide //THREE.DoubleSide //THREE.BackSide
+	} );
+	equirectMaterial.uniforms[ 'tEquirect' ].value = mesh.texture
+	// Define the tEquirectInvProjection uniform
+	equirectMaterial.uniforms.tEquirectInvProjection = {
+		value: new THREE.Matrix4(),
+	};
+	// Assign the new material to the mesh
+	mesh.material = equirectMaterial; 
+	console.dir(mesh.material)
+  mesh.texture.wrapS = THREE.RepeatWrapping;
+
+  // patch custom model renderloop
+	model.render = ((render) => (scene,camera) => {
+
+		// Store the original projection matrix of the camera
+		const originalProjectionMatrix = camera.projectionMatrix.clone();
+		// Calculate the current camera view matrix
+		const aspectRatio = mesh.texture.image.width / mesh.texture.image.height;
+		camera.projectionMatrix.makePerspective(camera.fov, aspectRatio, camera.near, camera.far);
+
+		const viewMatrix = camera.matrixWorldInverse;
+		const worldMatrix = mesh.matrixWorld;
+
+		const equirectInvProjection = new THREE.Matrix4();
+		equirectInvProjection.copy(camera.projectionMatrix).multiply(viewMatrix).invert();
+
+		// Update the equirectangular material's tEquirect uniform
+		equirectMaterial.uniforms.tEquirect.value = mesh.texture;
+		equirectMaterial.uniforms.tEquirectInvProjection.value.copy(
+			equirectInvProjection
+		);
+
+		// Reset the camera projection matrix
+		camera.projectionMatrix.copy(originalProjectionMatrix);
+
+
+		render(scene,camera)
+
+	})(model.render)	
+
+  console.dir(mesh)
+}
 xrfragment.xrf.pos = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
   camera.position.x = v.x
   camera.position.y = v.y
   camera.position.z = v.z
+}
+xrfragment.xrf.src = function(v, opts){
+  let { mesh, model, camera, scene, renderer, THREE} = opts
+
+  if( v.string[0] == "#" ){ // local 
+    let args = xrfragment.URI.parse(v.string)
+    // Get an instance of the original model
+    const modelInstance = new THREE.Group();
+    modelInstance.add(model.scene.clone());
+    modelInstance.position.z = mesh.position.x
+    modelInstance.position.y = mesh.position.y
+    modelInstance.position.x = mesh.position.z
+    modelInstance.scale.z = mesh.scale.x
+    modelInstance.scale.y = mesh.scale.y
+    modelInstance.scale.x = mesh.scale.z
+    // now apply XR Fragments overrides from URI
+    // *TODO* move to a central location (pull-up)
+    for( var i in args ){
+      if( i == "scale" ){
+      console.log("setting scale")
+        modelInstance.scale.x = args[i].x
+        modelInstance.scale.y = args[i].y
+        modelInstance.scale.z = args[i].z
+      }
+    }
+    // Add the instance to the scene
+    scene.add(modelInstance);
+    console.dir(model)
+    console.dir(modelInstance)
+  }
 }
 export default xrfragment;

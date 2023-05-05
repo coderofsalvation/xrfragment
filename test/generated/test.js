@@ -364,7 +364,7 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 			return false;
 		}
 		if(xrfragment_Parser.debug) {
-			console.log("src/xrfragment/Parser.hx:78:","✔  XR Fragment '" + key + "': '" + v.string + "'");
+			console.log("src/xrfragment/Parser.hx:78:","✔ " + key + ": " + v.string);
 		}
 		resultMap[key] = v;
 	}

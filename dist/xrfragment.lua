@@ -1617,7 +1617,7 @@ __xrfragment_Parser.parse = function(key,value,resultMap)
       do return false end;
     end;
     if (__xrfragment_Parser.debug) then 
-      __haxe_Log.trace(Std.string(Std.string(Std.string(Std.string("✔  XR Fragment '") .. Std.string(key)) .. Std.string("': '")) .. Std.string(v.string)) .. Std.string("'"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=78,className="xrfragment.Parser",methodName="parse"}));
+      __haxe_Log.trace(Std.string(Std.string(Std.string("✔ ") .. Std.string(key)) .. Std.string(": ")) .. Std.string(v.string), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=78,className="xrfragment.Parser",methodName="parse"}));
     end;
     resultMap[key] = v;
   end;

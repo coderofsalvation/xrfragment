@@ -1330,7 +1330,7 @@ class xrfragment_Parser:
                 print(str((((("⚠ fragment '" + ("null" if key is None else key)) + "' has incompatible value (") + ("null" if value is None else value)) + ")")))
                 return False
             if xrfragment_Parser.debug:
-                print(str((((("✔  XR Fragment '" + ("null" if key is None else key)) + "': '") + HxOverrides.stringOrNull(v.string)) + "'")))
+                print(str(((("✔ " + ("null" if key is None else key)) + ": ") + HxOverrides.stringOrNull(v.string))))
             setattr(resultMap,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),v)
         return True
 

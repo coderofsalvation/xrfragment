@@ -9,17 +9,17 @@
     <link type="text/css" rel="stylesheet" href="./../../assets/style.css"/>
 	</head>
 	<body>
-    <div id="overlay" x-data="{ urls: ['example1.gltf#pos=0,2,3'] }">
+    <div id="overlay" x-data="{ urls: ['#pos=0,2,3'] }">
       <img src="./../../assets/logo.png" class="logo"/>
 			<input type="submit" value="load 3D asset"></input>
-			<input type="text" id="uri" list="urls" value="example1.gltf#pos=0,2,3" x-on:change="XRF.eval( $('#uri').value, XRF.getLastModel() )"/>
+			<input type="text" id="uri" list="urls" value="#pos=0,2,3" x-on:change="XRF.eval( $('#uri').value, XRF.getLastModel() )"/>
       <datalist id="urls" >
 				 <template x-for="url in urls">
 						<option x-text="url"></option>
 				</template>
 			</datalist>
     </div>
-    <a id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment/blob/main/example/threejs/sandbox/index.html#L87-L105">source</a> 
+    <a id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment/blob/main/example/threejs/sandbox/index.html#L92-L112">sourcecode</a> 
 		<textarea style="display:none"></textarea>
 		
 		<script async src="./../../assets/alpine.min.js"></script>
@@ -96,7 +96,7 @@
           scene,
           renderer,
           debug: true,
-          loaders: [ GLTFLoader, FBXLoader ],   // which 3D assets to check for fragments?
+          loaders: [ GLTFLoader, FBXLoader ],   // which 3D assets to check for XR fragments?
         })
 
         // optional: react/extend/hook into XR fragment
@@ -111,7 +111,7 @@
           console.log("hello custom property 'foobar'")
         }
 
-        // *TODO* lowhanging fruit: during XR fragments-query milestone, repurpose XR fragment queries 
+        // *TODO* lowhanging fruit: during XR fragments-query milestone, target objects using XR fragment queries
         //                          to provide jquery-ish interface for three.js)
         //
         // XRF('example1.gltf#q=.foo', (objs) => {
@@ -148,7 +148,7 @@
 					render();
 
 				};
-				loader.load( $('#uri').value, loadGLTF ); 
+				loader.load( 'example2.gltf#pos=0,1,2', loadGLTF ); 
 
 
 				// setup mouse controls
@@ -260,6 +260,8 @@
 				//const torus = scene.getObjectByName( 'torus' );
 				//torus.rotation.x = time * 0.4;
 				//torus.rotation.y = time;
+
+				if( XRF.getLastModel() ) XRF.getLastModel().render(scene,camera)
 
 				controls.update()
 				renderer.render( scene, camera );

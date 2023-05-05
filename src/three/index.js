@@ -7,6 +7,7 @@ xrfragment.init = function(opts){
     alert("ja")
   }
   for ( let i in opts           ) XRF[i] = xrfragment[i] = opts[i]
+  for ( let i in xrfragment     ) XRF[i] = xrfragment[i]
   for ( let i in xrfragment.XRF ) XRF[i] = xrfragment.XRF[i] // shortcuts to constants (NAVIGATOR e.g.)
   xrfragment.Parser.debug = xrfragment.debug 
   if( opts.loaders ) opts.loaders.map( xrfragment.patchLoader )
@@ -23,9 +24,14 @@ xrfragment.patchLoader = function(loader){
   })(loader.prototype.load)
 }
 
+xrfragment.getFile = (url) => url.split("/").pop().replace(/#.*/,'')
+
 xrfragment.parseModel = function(model,url){
-  let file = url.split("/").pop().replace(/#.*/,'')
+  let file               = xrfragment.getFile(url)
+  model.file             = file
+  model.render           = function(){}
   xrfragment.model[file] = model
+
   model.scene.traverse( (mesh) => {
     if( mesh.userData ){
       let frag = {}
