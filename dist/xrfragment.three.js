@@ -645,6 +645,7 @@ xrfragment.parseModel = function(model,url){
 xrfragment.getLastModel = () => Object.values(xrfragment.model)[ Object.values(xrfragment.model).length-1 ]
 
 xrfragment.eval = function( url, model ){
+  alert("realtime xr fragments not implemented (yet)")
   console.dir({url,model})
 }
 xrfragment.xrf.env = function(v, opts){
