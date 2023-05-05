@@ -220,27 +220,27 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	Frag_h["#"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_PREDEFINED_VIEW;
 	Frag_h["class"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["src"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL;
-	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING_OBJ | xrfragment_XRF.EMBED_OVERRIDE;
+	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING_OBJ | xrfragment_XRF.EMBEDDED;
 	Frag_h["href"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.T_PREDEFINED_VIEW;
-	Frag_h["q"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.EMBED_OVERRIDE;
-	Frag_h["scale"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBED_OVERRIDE;
-	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBED_OVERRIDE;
-	Frag_h["translate"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBED_OVERRIDE;
-	Frag_h["visible"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_INT | xrfragment_XRF.EMBED_OVERRIDE;
-	Frag_h["env"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.EMBED_OVERRIDE;
-	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.BROWSER_OVERRIDE | xrfragment_XRF.EMBED_OVERRIDE;
-	Frag_h["gravity"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBED_OVERRIDE;
-	Frag_h["physics"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBED_OVERRIDE;
-	Frag_h["fov"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_INT | xrfragment_XRF.BROWSER_OVERRIDE | xrfragment_XRF.EMBED_OVERRIDE;
-	Frag_h["clip"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.BROWSER_OVERRIDE | xrfragment_XRF.EMBED_OVERRIDE;
-	Frag_h["fog"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.BROWSER_OVERRIDE | xrfragment_XRF.EMBED_OVERRIDE;
+	Frag_h["q"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.EMBEDDED;
+	Frag_h["scale"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBEDDED;
+	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBEDDED;
+	Frag_h["translate"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBEDDED;
+	Frag_h["visible"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_INT | xrfragment_XRF.EMBEDDED;
+	Frag_h["env"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.EMBEDDED;
+	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.EMBEDDED;
+	Frag_h["gravity"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBEDDED;
+	Frag_h["physics"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBEDDED;
+	Frag_h["fov"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_INT | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.EMBEDDED;
+	Frag_h["clip"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.EMBEDDED;
+	Frag_h["fog"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.EMBEDDED;
 	Frag_h["namespace"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["SPDX"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["unit"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["description"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["session"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.BROWSER_OVERRIDE | xrfragment_XRF.EMBED_OVERRIDE | xrfragment_XRF.PROMPT;
+	Frag_h["session"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.EMBEDDED | xrfragment_XRF.PROMPT;
 	if(value.length == 0 && !Object.prototype.hasOwnProperty.call(Frag_h,key)) {
-		resultMap[key] = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.BROWSER_OVERRIDE);
+		resultMap[key] = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR);
 		return true;
 	}
 	if(key.split(".").length > 1 && value.split(".").length > 1) {
@@ -570,8 +570,8 @@ xrfragment_XRF.PROP_BIND = 2;
 xrfragment_XRF.QUERY_OPERATOR = 4;
 xrfragment_XRF.PROMPT = 8;
 xrfragment_XRF.ROUNDROBIN = 16;
-xrfragment_XRF.BROWSER_OVERRIDE = 32;
-xrfragment_XRF.EMBED_OVERRIDE = 64;
+xrfragment_XRF.NAVIGATOR = 32;
+xrfragment_XRF.EMBEDDED = 64;
 xrfragment_XRF.PV_OVERRIDE = 128;
 xrfragment_XRF.PV_EXECUTE = 256;
 xrfragment_XRF.T_COLOR = 8192;
@@ -593,35 +593,41 @@ xrfragment_XRF.isUrlOrPretypedView = new EReg("(^#|://)?\\..*","");
 xrfragment_XRF.isString = new EReg(".*","");
 })({});
 var xrfragment = $hx_exports["xrfragment"];
-xrfragment.three = {}
+xrfragment.xrf  = {}
+xrfragment.model = {}
 
 xrfragment.init = function(opts){
   opts = opts || {}
-  for ( let i in opts           ) xrfragment[i] = opts[i]
-  for ( let i in xrfragment.XRF ) xrfragment[i] = xrfragment.XRF[i] // shortcuts to constants (BROWSER_OVERRIDE e.g.)
+  let XRF = function(){
+    alert("ja")
+  }
+  for ( let i in opts           ) XRF[i] = xrfragment[i] = opts[i]
+  for ( let i in xrfragment.XRF ) XRF[i] = xrfragment.XRF[i] // shortcuts to constants (NAVIGATOR e.g.)
   xrfragment.Parser.debug = xrfragment.debug 
   if( opts.loaders ) opts.loaders.map( xrfragment.patchLoader )
-  return xrfragment
+  return XRF
 }
 
 xrfragment.patchLoader = function(loader){
   loader.prototype.load = ((load) => function(url, onLoad, onProgress, onError){
     load.call(  this,
                 url,
-                (model) => { onLoad(model); xrfragment.parseModel(model) },
+                (model) => { onLoad(model); xrfragment.parseModel(model,url) },
                 onProgress,
                 onError)
   })(loader.prototype.load)
 }
 
-xrfragment.parseModel = function(model){
+xrfragment.parseModel = function(model,url){
+  let file = url.split("/").pop().replace(/#.*/,'')
+  xrfragment.model[file] = model
   model.scene.traverse( (mesh) => {
     if( mesh.userData ){
       let frag = {}
       for( let k in mesh.userData ){
         xrfragment.Parser.parse( k, mesh.userData[k], frag )
         // call native function (xrf/env.js e.g.), or pass it to user decorator
-        let func = xrfragment.three[k] || function(){} 
+        let func = xrfragment.xrf[k] || function(){} 
         let opts = {mesh, model, camera:xrfragment.camera, scene: xrfragment.scene, renderer: xrfragment.renderer, THREE: xrfragment.THREE }
         if(  xrfragment[k] ) xrfragment[k]( func, frag[k], opts)
         else                                func( frag[k], opts)
@@ -629,7 +635,13 @@ xrfragment.parseModel = function(model){
     }
   })
 }
-xrfragment.three.env = function(v, opts){
+  
+xrfragment.getLastModel = () => Object.values(xrfragment.model)[ Object.values(xrfragment.model).length-1 ]
+
+xrfragment.eval = function( url, model ){
+  console.dir({url,model})
+}
+xrfragment.xrf.env = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
   let env = mesh.getObjectByName(v.string)
   env.material.map.mapping = THREE.EquirectangularReflectionMapping;
@@ -638,7 +650,7 @@ xrfragment.three.env = function(v, opts){
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1;
 }
-xrfragment.three.pos = function(v, opts){
+xrfragment.xrf.pos = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
   camera.position.x = v.x
   camera.position.y = v.y

@@ -16,8 +16,8 @@ class XRF {
 	public static var QUERY_OPERATOR:Int      = 4;       // fragment will be applied to result of queryselecto
 	public static var PROMPT:Int              = 8;       // ask user whether this fragment value can be changed
 	public static var ROUNDROBIN:Int          = 16;      // evaluation of this (multi) value can be roundrobined
-	public static var BROWSER_OVERRIDE:Int    = 32;      // fragment can be overridden by (manual) browser URI change
-	public static var EMBED_OVERRIDE:Int      = 64;      // fragment can be overridden by an embedded URL
+	public static var NAVIGATOR:Int    = 32;      // fragment can be overridden by (manual) browser URI change
+	public static var EMBEDDED:Int      = 64;      // fragment can be overridden by an embedded URL
 	public static var PV_OVERRIDE:Int         = 128;     // fragment can be overridden when specified in predefined view value
 	public static var PV_EXECUTE:Int          = 256;     // fragment can be overridden by (manual) browser URI change
 

@@ -58,14 +58,14 @@ input[type="submit"] {
 	top: 8px;
 }
 
-#overlay > input[type="text"]{
+#overlay > #uri {
     height: 29px;
     font-size: 14px;
     position: absolute;
     left: 200px;
     top: 9px;
     max-width:550px;
-    padding: 5px 0px 5px 0px;
+    padding: 5px 0px 5px 5px;
     width: calc( 63% - 200px);
     background: #f0f0f0;
     border-color: #Ccc;
@@ -94,6 +94,14 @@ a#source{
   right:0px !important;
   top:auto !important;
   bottom:0;
+}
+
+#VRButton {
+  margin-bottom:20vh;
+}
+
+@media (max-width: 450px) {
+  #uri{ display:none; }
 }
 
 @media (max-width: 640px) {

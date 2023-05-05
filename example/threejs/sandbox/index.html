@@ -9,11 +9,11 @@
     <link type="text/css" rel="stylesheet" href="./../../assets/style.css"/>
 	</head>
 	<body>
-    <div id="overlay">
+    <div id="overlay" x-data="{ urls: ['example1.gltf#pos=0,2,3'] }">
       <img src="./../../assets/logo.png" class="logo"/>
 			<input type="submit" value="load 3D asset"></input>
-			<input type="text" list="urls" value="./example/asset/example1.gltf#pos=0,2,3"/>
-      <datalist id="urls" x-data="{ urls: ['./example/asset/example1.gltf#pos=0,2,3'], load: () => alert('load') }" x-on:input="load()">
+			<input type="text" id="uri" list="urls" value="example1.gltf#pos=0,2,3" x-on:change="XRF.eval( $('#uri').value, XRF.getLastModel() )"/>
+      <datalist id="urls" >
 				 <template x-for="url in urls">
 						<option x-text="url"></option>
 				</template>
@@ -47,12 +47,15 @@
 			import { Reflector } from 'three/addons/objects/Reflector.js';
 			import { VRButton } from 'three/addons/webxr/VRButton.js';
 			import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+			import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 			import { HTMLMesh } from 'three/addons/interactive/HTMLMesh.js';
 			import { InteractiveGroup } from 'three/addons/interactive/InteractiveGroup.js';
 			import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
 			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 			import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 			import Stats from 'three/addons/libs/stats.module.js';
+
+      window.$ = (s) => document.querySelector(s)
 
 			let camera, scene, renderer, controls;
 			let reflector;
@@ -93,20 +96,29 @@
           scene,
           renderer,
           debug: true,
-          loaders: [ GLTFLoader ],   // which assets to check for fragments?
+          loaders: [ GLTFLoader, FBXLoader ],   // which 3D assets to check for fragments?
         })
 
-        // optional: extend env fragment
+        // optional: react/extend/hook into XR fragment
         XRF.env = (xrf,v,opts) => {
           let { mesh, model, camera, scene, renderer, THREE} = opts
           xrf(v,opts)
         }
 
-        // optional: extend non-xrfragment custom property 
-        XRF.name = (xrf,v,opts) => {
+        // optional: react/extend/hook into custom fragment (for non-standard custom framework logic e.g.)
+        XRF.foobar = (xrf,v,opts) => {
           let { mesh, model, camera, scene, renderer, THREE} = opts
-          console.log("hello custom property 'name'")
+          console.log("hello custom property 'foobar'")
         }
+
+        // *TODO* lowhanging fruit: during XR fragments-query milestone, repurpose XR fragment queries 
+        //                          to provide jquery-ish interface for three.js)
+        //
+        // XRF('example1.gltf#q=.foo', (objs) => {
+        //
+        // })
+
+        window.XRF = XRF // expose to form
 
         // load 3D asset
 				let model;
@@ -136,7 +148,7 @@
 					render();
 
 				};
-				loader.load( 'example1.gltf', loadGLTF ); 
+				loader.load( $('#uri').value, loadGLTF ); 
 
 
 				// setup mouse controls
@@ -177,7 +189,7 @@
 				controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
 				scene.add( controllerGrip2 );
 
-        setupConsole( document.querySelector('textarea') )
+        setupConsole( $('textarea') )
 
 				// GUI
 
@@ -223,7 +235,7 @@
 					".gltf": (file) => file.arrayBuffer().then( (data) => loader.parse( data, '', loadGLTF, console.error ) ),
 					".glb":  (file) => file.arrayBuffer().then( (data) => loader.parse( data, '', loadGLTF, console.error ) )
 				})
-				document.querySelector("#overlay > input[type=submit]").addEventListener("click", fileLoaders )
+				$("#overlay > input[type=submit]").addEventListener("click", fileLoaders )
 
 			}
 

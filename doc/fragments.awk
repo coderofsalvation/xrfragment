@@ -3,9 +3,9 @@ BEGIN{
   ASSET="🔒"
   OVERRIDE="🔓"
   PV_OVERRIDE="💥"
-  BROWSER_OVERRIDE="👩"
+  NAVIGATOR="👩"
   PROMPT="✋?"
-  EMBED_OVERRIDE="🔗"
+  EMBEDDED="🔗"
   print "| fragment | type | access       | scope |"
   print "|----------|------|--------------|-------|"
 }
@@ -16,8 +16,8 @@ END{
 	print OVERRIDE" = value(s) can be overwritten in certain context<br>"
   print ROUNDROBIN" = multiple values will be roundrobin'ed (`#pos=0,0,0|1,0,0` e.g.)<br>"
   print PV_OVERRIDE" = value(s) can be overwritten by [predefined_view](#predefined_view)<br>"
-  print BROWSER_OVERRIDE" = value(s) can be overwritten when user clicks `href` (value) or top-level URL change(see [How it works](#How%20it%20works))<br>"
-  print EMBED_OVERRIDE" = value(s) can be overwritten when 3D asset is embedded/linked as `src` value<br>"
+  print NAVIGATOR" = value(s) can be overwritten when user clicks `href` (value) or top-level URL change(see [How it works](#How%20it%20works))<br>"
+  print EMBEDDED" = value(s) can be overwritten when 3D asset is embedded/linked as `src` value<br>"
   print PROMPT" = value(s) can be overwritten by offering confirmation/undo to user<br><br>"
   print ""
 	print "for more info see [How it works](#How%20it%20works)"
@@ -46,8 +46,8 @@ END{
   if( $0 ~ /T_PREDEFINED_VIEW/ ) type="[predefined view](#predefined_view ) "
   if( $0 ~ /ROUNDROBIN/        ) perms=perms" "ROUNDROBIN
   if( $0 ~ /PV_OVERRIDE/       ) perms=perms" "PV_OVERRIDE
-  if( $0 ~ /BROWSER_OVERRIDE/  ) perms=perms" "BROWSER_OVERRIDE
-  if( $0 ~ /EMBED_OVERRIDE/    ) perms=perms" "EMBED_OVERRIDE
+  if( $0 ~ /NAVIGATOR/  ) perms=perms" "NAVIGATOR
+  if( $0 ~ /EMBEDDED/    ) perms=perms" "EMBEDDED
   if( $0 ~ /PROMPT/            ) perms=perms" "PROMPT
   print "| **"frag"** |" type "|" perms "|" scope "|"
 }

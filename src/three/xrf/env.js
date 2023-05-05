@@ -1,4 +1,4 @@
-xrfragment.three.env = function(v, opts){
+xrfragment.xrf.env = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
   let env = mesh.getObjectByName(v.string)
   env.material.map.mapping = THREE.EquirectangularReflectionMapping;
