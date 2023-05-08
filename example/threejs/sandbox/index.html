@@ -9,13 +9,13 @@
     <link type="text/css" rel="stylesheet" href="./../../assets/style.css"/>
 	</head>
 	<body>
-    <div id="overlay" x-data="{ urls: ['#pos=0,2,3'] }">
+    <div id="overlay" x-data="{ urls: ['#pos=-1,1.6,10','#pos=-1,1.6,2'] }">
       <img src="./../../assets/logo.png" class="logo"/>
 			<input type="submit" value="load 3D asset"></input>
-			<input type="text" id="uri" list="urls" value="#pos=0,2,3" x-on:change="XRF.eval( $('#uri').value, XRF.getLastModel() )"/>
+			<input type="text" id="uri" list="urls" value="#pos=-1,1.6,10" x-on:change="XRF.eval( $('#uri').value, XRF.getLastModel() )"/>
       <datalist id="urls" >
 				 <template x-for="url in urls">
-						<option x-text="url"></option>
+						<option x-bind:value="url" selected></option>
 				</template>
 			</datalist>
     </div>
@@ -149,26 +149,26 @@
 
 				};
 
-				let file = 'example2.gltf#pos=0,1,2'
+				let file = 'example2.gltf'
         $('#model').setAttribute("href","./../../asset/"+file)
 				loader.load( file, loadGLTF ); 
 
 
 				// setup mouse controls
-				controls = new OrbitControls( camera, renderer.domElement );
-				controls.listenToKeyEvents( window ); // optional
-				controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
-				controls.dampingFactor = 0.1;
+				//controls = new OrbitControls( camera, renderer.domElement );
+				//controls.listenToKeyEvents( window ); // optional
+				//controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+				//controls.dampingFactor = 0.1;
 
-				controls.screenSpacePanning = false;
+				//controls.screenSpacePanning = false;
 
-				controls.minDistance = 0.1;
-				controls.maxDistance = 5000;
-				controls.maxPolarAngle = Math.PI / 2;
-				controls.target = new THREE.Vector3(0,1.6,0)
+				//controls.minDistance = 0.1;
+				//controls.maxDistance = 5000;
+				//controls.maxPolarAngle = Math.PI / 2;
+				//controls.target = new THREE.Vector3(0,1.6,0)
 
-				camera.position.set( 0, 1.6, 10 );
-				controls.update()
+				camera.position.set( -1, 1.6, 10 );
+				//controls.update()
 
 				const geometry = new THREE.BufferGeometry();
 				geometry.setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 5 ) ] );
@@ -266,7 +266,7 @@
 
 				if( XRF.getLastModel() ) XRF.getLastModel().render(scene,camera)
 
-				controls.update()
+				//controls.update()
 				renderer.render( scene, camera );
 				stats.update();
 
