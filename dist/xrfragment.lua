@@ -1432,7 +1432,7 @@ __xrfragment_Parser.parse = function(key,value,resultMap)
   else
     Frag_h.src = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.PV_OVERRIDE,__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.T_STRING_OBJ),__xrfragment_XRF.EMBEDDED);
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.PV_OVERRIDE,__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.T_STRING_OBJ),__xrfragment_XRF.EMBEDDED),__xrfragment_XRF.NAVIGATOR);
   if (value1 == nil) then 
     Frag_h.pos = __haxe_ds_StringMap.tnull;
   else
@@ -1456,7 +1456,7 @@ __xrfragment_Parser.parse = function(key,value,resultMap)
   else
     Frag_h.scale = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.QUERY_OPERATOR,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.EMBEDDED);
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.QUERY_OPERATOR,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.EMBEDDED),__xrfragment_XRF.NAVIGATOR);
   if (value1 == nil) then 
     Frag_h.rot = __haxe_ds_StringMap.tnull;
   else

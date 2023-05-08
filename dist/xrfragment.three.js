@@ -220,11 +220,11 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	Frag_h["#"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_PREDEFINED_VIEW;
 	Frag_h["class"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["src"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL;
-	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING_OBJ | xrfragment_XRF.EMBEDDED;
+	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING_OBJ | xrfragment_XRF.EMBEDDED | xrfragment_XRF.NAVIGATOR;
 	Frag_h["href"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.T_PREDEFINED_VIEW;
 	Frag_h["q"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.EMBEDDED;
 	Frag_h["scale"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBEDDED;
-	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBEDDED;
+	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBEDDED | xrfragment_XRF.NAVIGATOR;
 	Frag_h["translate"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.EMBEDDED;
 	Frag_h["visible"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_INT | xrfragment_XRF.EMBEDDED;
 	Frag_h["env"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.EMBEDDED;
@@ -599,7 +599,7 @@ xrfragment.model = {}
 xrfragment.init = function(opts){
   opts = opts || {}
   let XRF = function(){
-    alert("ja")
+    alert("queries are not implemented (yet)")
   }
   for ( let i in opts           ) XRF[i] = xrfragment[i] = opts[i]
   for ( let i in xrfragment     ) XRF[i] = xrfragment[i]
@@ -626,16 +626,17 @@ xrfragment.parseModel = function(model,url){
   model.file             = file
   model.render           = function(){}
   xrfragment.model[file] = model
+  console.log("scanning "+file)
 
   model.scene.traverse( (mesh) => {
-    console.log("| "+mesh.name)
+    console.log(mesh.name)
     if( mesh.userData ){
       let frag = {}
       for( let k in mesh.userData ){
         xrfragment.Parser.parse( k, mesh.userData[k], frag )
         // call native function (xrf/env.js e.g.), or pass it to user decorator
         let func = xrfragment.xrf[k] || function(){} 
-        let opts = {mesh, model, camera:xrfragment.camera, scene: xrfragment.scene, renderer: xrfragment.renderer, THREE: xrfragment.THREE }
+        let opts = {mesh, model, camera: xrfragment.camera, scene: xrfragment.scene, renderer: xrfragment.renderer, THREE: xrfragment.THREE }
         if(  xrfragment[k] ) xrfragment[k]( func, frag[k], opts)
         else                                func( frag[k], opts)
       }
@@ -646,8 +647,25 @@ xrfragment.parseModel = function(model,url){
 xrfragment.getLastModel = () => Object.values(xrfragment.model)[ Object.values(xrfragment.model).length-1 ]
 
 xrfragment.eval = function( url, model ){
-  alert("realtime xr fragments not implemented (yet)")
-  console.dir({url,model})
+  let notice = false
+  let { THREE, camera } = xrfragment
+  let frag = xrfragment.URI.parse( url, XRF.NAVIGATOR )
+
+  for ( let i in frag  ) {
+    if( !String(i).match(/(pos|rot)/) ) notice = true
+    if( i == "pos" ){
+      camera.position.x = frag.pos.x
+      camera.position.y = frag.pos.y
+      camera.position.z = frag.pos.z
+    }
+    if( i == "rot" ){
+      camera.rotation.x = THREE.MathUtils.degToRad( frag.pos.x )
+      camera.rotation.y = THREE.MathUtils.degToRad( frag.pos.y )
+      camera.rotation.z = THREE.MathUtils.degToRad( frag.pos.z )
+    }
+  }
+  if( notice ) alert("only 'pos' and 'rot' XRF.NAVIGATOR-flagged XR fragments are supported (for now)")
+  console.dir({url,model,frag})
 }
 xrfragment.xrf.env = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
@@ -657,6 +675,7 @@ xrfragment.xrf.env = function(v, opts){
   scene.texture = env.material.map
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1;
+  console.log(`   └ applied image '${v.string}' as environtment map`)
 }
 xrfragment.xrf.href = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
@@ -717,6 +736,7 @@ xrfragment.xrf.href = function(v, opts){
 }
 xrfragment.xrf.pos = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
+  console.log("   └ setting camera position to "+v.string)
   camera.position.x = v.x
   camera.position.y = v.y
   camera.position.z = v.z
@@ -725,6 +745,7 @@ xrfragment.xrf.src = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
 
   if( v.string[0] == "#" ){ // local 
+    console.log("   └ instancing src")
     let args = xrfragment.URI.parse(v.string)
     // Get an instance of the original model
     const modelInstance = new THREE.Group();
@@ -739,7 +760,7 @@ xrfragment.xrf.src = function(v, opts){
     // *TODO* move to a central location (pull-up)
     for( var i in args ){
       if( i == "scale" ){
-      console.log("setting scale")
+        console.log("   └ setting scale")
         modelInstance.scale.x = args[i].x
         modelInstance.scale.y = args[i].y
         modelInstance.scale.z = args[i].z

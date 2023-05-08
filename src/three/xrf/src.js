@@ -2,6 +2,7 @@ xrfragment.xrf.src = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
 
   if( v.string[0] == "#" ){ // local 
+    console.log("   └ instancing src")
     let args = xrfragment.URI.parse(v.string)
     // Get an instance of the original model
     const modelInstance = new THREE.Group();
@@ -16,7 +17,7 @@ xrfragment.xrf.src = function(v, opts){
     // *TODO* move to a central location (pull-up)
     for( var i in args ){
       if( i == "scale" ){
-      console.log("setting scale")
+        console.log("   └ setting scale")
         modelInstance.scale.x = args[i].x
         modelInstance.scale.y = args[i].y
         modelInstance.scale.z = args[i].z

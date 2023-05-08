@@ -21,13 +21,13 @@ class Parser {
       Frag.set("src",           XRF.ASSET | XRF.T_URL             );
 
       // category: href navigation / portals / teleporting
-      Frag.set("pos",           XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.T_STRING_OBJ | XRF.EMBEDDED  );
+      Frag.set("pos",           XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.T_STRING_OBJ | XRF.EMBEDDED | XRF.NAVIGATOR );
       Frag.set("href",          XRF.ASSET | XRF.T_URL | XRF.T_PREDEFINED_VIEW                  );
 
       // category: query selector / object manipulation
       Frag.set("q",             XRF.PV_OVERRIDE | XRF.T_STRING | XRF.EMBEDDED                   );
       Frag.set("scale",         XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.EMBEDDED );
-      Frag.set("rot",           XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.EMBEDDED );
+      Frag.set("rot",           XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.EMBEDDED | XRF.NAVIGATOR );
       Frag.set("translate",     XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.EMBEDDED );
       Frag.set("visible",       XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_INT     | XRF.EMBEDDED );
       Frag.set("env",           XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_STRING | XRF.EMBEDDED );
