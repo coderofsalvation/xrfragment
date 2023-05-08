@@ -73,8 +73,19 @@ input[type="submit"] {
 
 a#source{
   position: absolute;
-  bottom: 31px;
+  bottom: 29px;
   right: 20px;
+  color: #888;
+  font-weight: bold;
+  font-family: sans-serif;
+  text-decoration: underline;
+  z-index:2000;
+}
+
+a#model{
+  position: absolute;
+  bottom: 29px;
+  right: 130px;
   color: #888;
   font-weight: bold;
   font-family: sans-serif;

@@ -628,6 +628,7 @@ xrfragment.parseModel = function(model,url){
   xrfragment.model[file] = model
 
   model.scene.traverse( (mesh) => {
+    console.log("| "+mesh.name)
     if( mesh.userData ){
       let frag = {}
       for( let k in mesh.userData ){

@@ -20,6 +20,7 @@
 			</datalist>
     </div>
     <a id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment/blob/main/example/threejs/sandbox/index.html#L92-L112">sourcecode</a> 
+    <a id="model" target="_blank" href="">⬇️ model</a> 
 		<textarea style="display:none"></textarea>
 		
 		<script async src="./../../assets/alpine.min.js"></script>
@@ -67,7 +68,6 @@
 			};
 
 			init();
-			animate();
 
 			function init() {
 
@@ -148,7 +148,10 @@
 					render();
 
 				};
-				loader.load( 'example2.gltf#pos=0,1,2', loadGLTF ); 
+
+				let file = 'example2.gltf#pos=0,1,2'
+        $('#model').setAttribute("href","./../../asset/"+file)
+				loader.load( file, loadGLTF ); 
 
 
 				// setup mouse controls
@@ -164,7 +167,7 @@
 				controls.maxPolarAngle = Math.PI / 2;
 				controls.target = new THREE.Vector3(0,1.6,0)
 
-				camera.position.set( 0, 1.6, 1.5 );
+				camera.position.set( 0, 1.6, 10 );
 				controls.update()
 
 				const geometry = new THREE.BufferGeometry();
@@ -271,6 +274,7 @@
 				statsMesh.material.map.update();
 
 			}
+			animate();
 
 		</script>
 	</body>
