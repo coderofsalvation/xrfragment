@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js vr - sandbox</title>
+		<title>THREE.js - xrfragment sandbox</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="./../../assets/axist.min.css" />
@@ -9,10 +9,10 @@
     <link type="text/css" rel="stylesheet" href="./../../assets/style.css"/>
 	</head>
 	<body>
-    <div id="overlay" x-data="{ urls: ['#pos=-1,1.6,10','#pos=-1,1.6,2'] }">
+    <div id="overlay" x-data="{ urls: ['#pos=0,4,15','#pos=0,4,15&rot=0,360,0'] }">
       <img src="./../../assets/logo.png" class="logo"/>
 			<input type="submit" value="load 3D asset"></input>
-			<input type="text" id="uri" list="urls" value="#pos=-1,1.6,10" x-on:change="XRF.eval( $('#uri').value, XRF.getLastModel() )"/>
+			<input type="text" id="uri" list="urls" value="#pos=0,4,15&rot=0,360,0" x-on:change="document.location.hash = $('#uri').value"/>
       <datalist id="urls" >
 				 <template x-for="url in urls">
 						<option x-bind:value="url" selected></option>
@@ -99,6 +99,12 @@
           loaders: [ GLTFLoader, FBXLoader ],   // which 3D assets to check for XR fragments?
         })
 
+				// init navigator url
+				document.location.hash = $('#uri').value
+				window.addEventListener('hashchange', () => {
+					window.XRF.eval( $('#uri').value = document.location.hash )
+				})
+
         // optional: react/extend/hook into XR fragment
         XRF.env = (xrf,v,opts) => {
           let { mesh, model, camera, scene, renderer, THREE} = opts
@@ -110,6 +116,7 @@
           let { mesh, model, camera, scene, renderer, THREE} = opts
           console.log("hello custom property 'foobar'")
         }
+
 
         // *TODO* lowhanging fruit: during XR fragments-query milestone, target objects using XR fragment queries
         //                          to provide jquery-ish interface for three.js)
@@ -128,10 +135,6 @@
 						scene.remove(model)
 						//model.dispose()
 					}
-					gltf.scene.position.y = 1.5
-					gltf.scene.position.z = -4
-					gltf.scene.rotation.y = -0.5
-					gltf.scene.scale.x = gltf.scene.scale.y = gltf.scene.scale.z = 1;
 
 					const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
 					function recursivelySetChildrenUnlit(mesh,cb) {
@@ -149,7 +152,8 @@
 
 				};
 
-				let file = 'example2.gltf'
+				let file = document.location.search.length > 2 ? document.location.search.substr(1) : 'example2.gltf'
+
         $('#model').setAttribute("href","./../../asset/"+file)
 				loader.load( file, loadGLTF ); 
 
@@ -167,7 +171,7 @@
 				//controls.maxPolarAngle = Math.PI / 2;
 				//controls.target = new THREE.Vector3(0,1.6,0)
 
-				camera.position.set( -1, 1.6, 10 );
+				camera.position.set( 0, 4, 15 );
 				//controls.update()
 
 				const geometry = new THREE.BufferGeometry();

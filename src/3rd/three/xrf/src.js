@@ -1,15 +1,14 @@
 xrfragment.xrf.src = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
-
   if( v.string[0] == "#" ){ // local 
     console.log("   └ instancing src")
     let args = xrfragment.URI.parse(v.string)
     // Get an instance of the original model
     const modelInstance = new THREE.Group();
     modelInstance.add(model.scene.clone());
-    modelInstance.position.z = mesh.position.x
+    modelInstance.position.z = mesh.position.z
     modelInstance.position.y = mesh.position.y
-    modelInstance.position.x = mesh.position.z
+    modelInstance.position.x = mesh.position.x
     modelInstance.scale.z = mesh.scale.x
     modelInstance.scale.y = mesh.scale.y
     modelInstance.scale.x = mesh.scale.z

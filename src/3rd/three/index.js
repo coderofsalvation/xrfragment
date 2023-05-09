@@ -6,12 +6,11 @@ xrfragment.init = function(opts){
   let XRF = function(){
     alert("queries are not implemented (yet)")
   }
-  for ( let i in opts           ) XRF[i] = xrfragment[i] = opts[i]
-  for ( let i in xrfragment     ) XRF[i] = xrfragment[i]
-  for ( let i in xrfragment.XRF ) XRF[i] = xrfragment.XRF[i] // shortcuts to constants (NAVIGATOR e.g.)
+  for ( let i in opts           ) xrfragment[i] = opts[i]
+  for ( let i in xrfragment.XRF ) xrfragment.XRF[i] // shortcuts to constants (NAVIGATOR e.g.)
   xrfragment.Parser.debug = xrfragment.debug 
   if( opts.loaders ) opts.loaders.map( xrfragment.patchLoader )
-  return XRF
+  return xrfragment
 }
 
 xrfragment.patchLoader = function(loader){
@@ -34,41 +33,41 @@ xrfragment.parseModel = function(model,url){
   console.log("scanning "+file)
 
   model.scene.traverse( (mesh) => {
-    console.log(mesh.name)
+    console.log("◎ "+mesh.name)
     if( mesh.userData ){
       let frag = {}
-      for( let k in mesh.userData ){
-        xrfragment.Parser.parse( k, mesh.userData[k], frag )
-        // call native function (xrf/env.js e.g.), or pass it to user decorator
-        let func = xrfragment.xrf[k] || function(){} 
-        let opts = {mesh, model, camera: xrfragment.camera, scene: xrfragment.scene, renderer: xrfragment.renderer, THREE: xrfragment.THREE }
-        if(  xrfragment[k] ) xrfragment[k]( func, frag[k], opts)
-        else                                func( frag[k], opts)
+      for( let k in mesh.userData ) xrfragment.Parser.parse( k, mesh.userData[k], frag )
+      for( let k in frag ){
+        let opts = {frag, mesh, model, camera: xrfragment.camera, scene: xrfragment.scene, renderer: xrfragment.renderer, THREE: xrfragment.THREE }
+        xrfragment.evalFragment(k,opts)
       }
     }
   })
+}
+
+xrfragment.evalFragment = (k, opts ) => {
+  // call native function (xrf/env.js e.g.), or pass it to user decorator
+  let func = xrfragment.xrf[k] || function(){} 
+  if(  xrfragment[k] ) xrfragment[k]( func, opts.frag[k], opts)
+  else                                func( opts.frag[k], opts)
 }
   
 xrfragment.getLastModel = () => Object.values(xrfragment.model)[ Object.values(xrfragment.model).length-1 ]
 
 xrfragment.eval = function( url, model ){
   let notice = false
+  model = model || xrfragment.getLastModel()
   let { THREE, camera } = xrfragment
-  let frag = xrfragment.URI.parse( url, XRF.NAVIGATOR )
+  let frag = xrfragment.URI.parse( url, xrfragment.XRF.NAVIGATOR )
+  let meshes = frag.q ? [] : [camera]
 
-  for ( let i in frag  ) {
-    if( !String(i).match(/(pos|rot)/) ) notice = true
-    if( i == "pos" ){
-      camera.position.x = frag.pos.x
-      camera.position.y = frag.pos.y
-      camera.position.z = frag.pos.z
-    }
-    if( i == "rot" ){
-      camera.rotation.x = THREE.MathUtils.degToRad( frag.pos.x )
-      camera.rotation.y = THREE.MathUtils.degToRad( frag.pos.y )
-      camera.rotation.z = THREE.MathUtils.degToRad( frag.pos.z )
+  for ( let i in meshes ) {
+    for ( let k in frag ){
+      let mesh = meshes[i]
+      if( !String(k).match(/(pos|rot)/) ) notice = true
+      let opts = {frag, mesh, model, camera: xrfragment.camera, scene: xrfragment.scene, renderer: xrfragment.renderer, THREE: xrfragment.THREE }
+      xrfragment.evalFragment(k,opts)
     }
   }
   if( notice ) alert("only 'pos' and 'rot' XRF.NAVIGATOR-flagged XR fragments are supported (for now)")
-  console.dir({url,model,frag})
 }

@@ -6,5 +6,5 @@ xrfragment.xrf.env = function(v, opts){
   scene.texture = env.material.map
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1;
-  console.log(`   └ applied image '${v.string}' as environtment map`)
+  console.log(`   └ applied image '${v.string}' as environment map`)
 }

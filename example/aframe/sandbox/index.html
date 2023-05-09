@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>AFRAME - xrfragment sandbox</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="./../../assets/axist.min.css" />
+		<link type="text/css" rel="stylesheet" href="main.css">
+    <link type="text/css" rel="stylesheet" href="./../../assets/style.css"/>
+		<script async src="./../../assets/alpine.min.js"></script>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+		<script src="./../../../dist/xrfragment.aframe.js"></script>
+	</head>
+	<body>
+    <div id="overlay" x-data="{ urls: ['#pos=0,4,15&rot=0,360,0'] }">
+      <img src="./../../assets/logo.png" class="logo"/>
+			<input type="submit" value="load 3D asset"></input>
+			<input type="text" id="uri" list="urls" value="#pos=0,4,15&rot=0,360,0" x-on:change="document.location.hash = $('#uri').value"/>
+      <datalist id="urls" >
+				 <template x-for="url in urls">
+						<option x-bind:value="url" selected></option>
+				</template>
+			</datalist>
+    </div>
+    <a id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment/blob/main/example/aframe/sandbox/index.html">sourcecode</a> 
+    <a id="model" target="_blank" href="">⬇️ model</a> 
+		<textarea style="display:none"></textarea>
+    <a-scene>
+			<a-entity xrf gltf-model="./../../assets/example3.gltf"/>
+			<a-entity xrf position="0 4 15">
+				<a-entity camera look-controls wasd-controls></a-entity>
+			</a-entity>
+    </a-scene>
+
+		<script type="module">
+			import { loadFile, setupConsole }   from './../../assets/utils.js';
+      window.$ = (s) => document.querySelector(s)
+
+			if( document.location.search.length > 2 ) 
+				$('[gltf-model]').setAttribute('gltf-model', document.location.search.substr(1) )
+
+			$('a-scene').addEventListener('loaded', () => {
+				setupConsole( $('textarea') )
+
+				// init navigator url
+				document.location.hash = $('#uri').value
+				window.addEventListener('hashchange', () => {
+					window.AFRAME.XRF.eval( $('#uri').value = document.location.hash )
+				})
+			})
+		</script>
+	</body>
+</html>
