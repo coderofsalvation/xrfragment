@@ -40,3 +40,36 @@ window.AFRAME.registerComponent('xrf', {
   }
 });
 
+AFRAME.registerComponent('gltf-to-entity', {
+  schema: {
+    from: {default: '', type: 'selector'},
+    name: {default: ''},
+    duplicate: {type:'boolean'}
+  },
+
+  init: function () {
+    var el = this.el;
+    var data = this.data;
+
+    data.from.addEventListener('model-loaded', evt => {
+      var model;
+      var subset;
+      model = evt.detail.model;
+      console.dir(this.data.from)
+      subset = model.getObjectByName(data.name);
+      if (!subset){
+        console.error("Sub-object", data.name, "not found in #"+data.from.id);
+        return;
+      }
+      if( !this.data.duplicate ) subset.parent.remove(subset)
+      let clone = subset.clone()
+      ////subset.updateMatrixWorld();
+      el.object3D.position.setFromMatrixPosition(data.from.object3D.matrixWorld);
+      el.object3D.quaternion.setFromRotationMatrix(data.from.object3D.matrixWorld);
+      
+      el.setObject3D('mesh', clone );
+      el.emit('model-loaded', el.getObject3D('mesh'));
+
+    });
+  }
+});

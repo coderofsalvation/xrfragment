@@ -605,7 +605,16 @@ xrfragment.init = function(opts){
   for ( let i in xrfragment.XRF ) xrfragment.XRF[i] // shortcuts to constants (NAVIGATOR e.g.)
   xrfragment.Parser.debug = xrfragment.debug 
   if( opts.loaders ) opts.loaders.map( xrfragment.patchLoader )
+  xrfragment.patchRenderer(opts.renderer)
   return xrfragment
+}
+
+xrfragment.patchRenderer = function(renderer){
+  renderer.render = ((render) => function(scene,camera){
+    if( xrfragment.getLastModel() && xrfragment.getLastModel().render ) 
+      xrfragment.getLastModel().render(scene,camera)
+    render(scene,camera)
+  })(renderer.render.bind(renderer))
 }
 
 xrfragment.patchLoader = function(loader){
@@ -678,60 +687,53 @@ xrfragment.xrf.env = function(v, opts){
 }
 xrfragment.xrf.href = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
-  return
 
-	// Create a shader material that treats the texture as an equirectangular map
-	mesh.texture = mesh.material.map // backup texture
-	const equirectShader = THREE.ShaderLib[ 'equirect' ];
-	const equirectMaterial = new THREE.ShaderMaterial( {
-		  uniforms: THREE.UniformsUtils.merge([
-				THREE.UniformsLib.equirect,
-				equirectShader.uniforms,
-			]),
-			vertexShader: equirectShader.vertexShader,
-			fragmentShader: equirectShader.fragmentShader,
-			side: THREE.DoubleSide //THREE.FrontSide //THREE.DoubleSide //THREE.BackSide
-	} );
-	equirectMaterial.uniforms[ 'tEquirect' ].value = mesh.texture
-	// Define the tEquirectInvProjection uniform
-	equirectMaterial.uniforms.tEquirectInvProjection = {
-		value: new THREE.Matrix4(),
-	};
-	// Assign the new material to the mesh
-	mesh.material = equirectMaterial; 
-	console.dir(mesh.material)
-  mesh.texture.wrapS = THREE.RepeatWrapping;
+  let size = 5
+  let texture = mesh.material.map
 
-  // patch custom model renderloop
-	model.render = ((render) => (scene,camera) => {
+  /*
+	texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+  mesh.material = new THREE.MeshStandardMaterial( {
+    envMap: texture,
+    roughness: 0.0,
+    metalness: 1,
+    side: THREE.DoubleSide,
+  })
+  */
 
-		// Store the original projection matrix of the camera
-		const originalProjectionMatrix = camera.projectionMatrix.clone();
-		// Calculate the current camera view matrix
-		const aspectRatio = mesh.texture.image.width / mesh.texture.image.height;
-		camera.projectionMatrix.makePerspective(camera.fov, aspectRatio, camera.near, camera.far);
-
-		const viewMatrix = camera.matrixWorldInverse;
-		const worldMatrix = mesh.matrixWorld;
-
-		const equirectInvProjection = new THREE.Matrix4();
-		equirectInvProjection.copy(camera.projectionMatrix).multiply(viewMatrix).invert();
-
-		// Update the equirectangular material's tEquirect uniform
-		equirectMaterial.uniforms.tEquirect.value = mesh.texture;
-		equirectMaterial.uniforms.tEquirectInvProjection.value.copy(
-			equirectInvProjection
-		);
-
-		// Reset the camera projection matrix
-		camera.projectionMatrix.copy(originalProjectionMatrix);
-
-
-		render(scene,camera)
-
-	})(model.render)	
-
-  console.dir(mesh)
+  mesh.material = new THREE.ShaderMaterial( {
+    side: THREE.DoubleSide,
+    uniforms: {
+      pano: { value: texture }
+    },
+    vertexShader: `
+       vec3 portalPosition;
+       varying vec3 vWorldPosition;
+       varying float vDistanceToCenter;
+       varying float vDistance;
+       void main() {
+         vDistanceToCenter = clamp(length(position - vec3(0.0, 0.0, 0.0)), 0.0, 1.0);
+         portalPosition = (modelMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+         vDistance = length(portalPosition - cameraPosition);
+         vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+       }
+    `,
+    fragmentShader: `
+      #define RECIPROCAL_PI2 0.15915494
+      uniform sampler2D pano;
+      varying float vDistanceToCenter;
+      varying float vDistance;
+      varying vec3 vWorldPosition;
+      void main() {
+        vec3 direction = normalize(vWorldPosition - cameraPosition);
+        vec2 sampleUV;
+        sampleUV.y = -clamp(direction.y * 0.5  + 0.5, 0.0, 1.0);
+        sampleUV.x = atan(direction.z, -direction.x) * -RECIPROCAL_PI2 + 0.5;
+        gl_FragColor = texture2D(pano, sampleUV);
+      }
+    `
+  });
 }
 xrfragment.xrf.pos = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts

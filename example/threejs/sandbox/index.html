@@ -9,10 +9,10 @@
     <link type="text/css" rel="stylesheet" href="./../../assets/style.css"/>
 	</head>
 	<body>
-    <div id="overlay" x-data="{ urls: ['#pos=0,4,15','#pos=0,4,15&rot=0,360,0'] }">
+    <div id="overlay" x-data="{ urls: ['#pos=0,1.6,15','#pos=0,1.6,15&rot=0,360,0'] }">
       <img src="./../../assets/logo.png" class="logo"/>
 			<input type="submit" value="load 3D asset"></input>
-			<input type="text" id="uri" list="urls" value="#pos=0,4,15&rot=0,360,0" x-on:change="document.location.hash = $('#uri').value"/>
+			<input type="text" id="uri" list="urls" value="#pos=0,1.6,15&rot=0,360,0" x-on:change="document.location.hash = $('#uri').value"/>
       <datalist id="urls" >
 				 <template x-for="url in urls">
 						<option x-bind:value="url" selected></option>
@@ -267,8 +267,6 @@
 				//const torus = scene.getObjectByName( 'torus' );
 				//torus.rotation.x = time * 0.4;
 				//torus.rotation.y = time;
-
-				if( XRF.getLastModel() ) XRF.getLastModel().render(scene,camera)
 
 				//controls.update()
 				renderer.render( scene, camera );

@@ -10,7 +10,16 @@ xrfragment.init = function(opts){
   for ( let i in xrfragment.XRF ) xrfragment.XRF[i] // shortcuts to constants (NAVIGATOR e.g.)
   xrfragment.Parser.debug = xrfragment.debug 
   if( opts.loaders ) opts.loaders.map( xrfragment.patchLoader )
+  xrfragment.patchRenderer(opts.renderer)
   return xrfragment
+}
+
+xrfragment.patchRenderer = function(renderer){
+  renderer.render = ((render) => function(scene,camera){
+    if( xrfragment.getLastModel() && xrfragment.getLastModel().render ) 
+      xrfragment.getLastModel().render(scene,camera)
+    render(scene,camera)
+  })(renderer.render.bind(renderer))
 }
 
 xrfragment.patchLoader = function(loader){

@@ -9,13 +9,14 @@
     <link type="text/css" rel="stylesheet" href="./../../assets/style.css"/>
 		<script async src="./../../assets/alpine.min.js"></script>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js"></script>
 		<script src="./../../../dist/xrfragment.aframe.js"></script>
 	</head>
 	<body>
-    <div id="overlay" x-data="{ urls: ['#pos=0,4,15&rot=0,360,0'] }">
+    <div id="overlay" x-data="{ urls: ['#pos=0,1.6,15&rot=0,360,0'] }">
       <img src="./../../assets/logo.png" class="logo"/>
 			<input type="submit" value="load 3D asset"></input>
-			<input type="text" id="uri" list="urls" value="#pos=0,4,15&rot=0,360,0" x-on:change="document.location.hash = $('#uri').value"/>
+			<input type="text" id="uri" list="urls" value="#pos=0,1.6,15&rot=0,360,0" x-on:change="document.location.hash = $('#uri').value"/>
       <datalist id="urls" >
 				 <template x-for="url in urls">
 						<option x-bind:value="url" selected></option>
@@ -26,10 +27,15 @@
     <a id="model" target="_blank" href="">⬇️ model</a> 
 		<textarea style="display:none"></textarea>
     <a-scene>
-			<a-entity xrf gltf-model="./../../assets/example3.gltf"/>
-			<a-entity xrf position="0 4 15">
-				<a-entity camera look-controls wasd-controls></a-entity>
+			<a-entity id="model" xrf gltf-model="./../../assets/example3.gltf" />
+      <a-entity id="floor" gltf-to-entity="from: #model; name: floor" />
+
+			<a-entity xrf id="player">
+				<a-entity camera position="0 1.6 15" look-controls wasd-controls></a-entity>
+        <a-entity id="left-hand" oculus-touch-controls="hand: left" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: #floor"></a-entity>
+        <a-entity id="right-hand" oculus-touch-controls="hand: right" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: #floor"></a-entity>
 			</a-entity>
+
     </a-scene>
 
 		<script type="module">
