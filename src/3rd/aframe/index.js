@@ -8,7 +8,7 @@ window.AFRAME.registerComponent('xrf', {
       AFRAME.XRF.navigate.to(this.data)
                          .then( (model) => {
                            let gets = [ ...document.querySelectorAll('[xrf-get]') ]
-                           gets.map( (g) => g.emit('update',model) )
+                           gets.map( (g) => g.emit('update') )
                          })
     }
   },
@@ -34,7 +34,19 @@ window.AFRAME.registerComponent('xrf', {
     
     XRF.pos  = camOverride
     XRF.rot  = camOverride
-    XRF.href = camOverride 
+
+    XRF.href = (xrf,v,opts) => { // convert portal to a-entity so AFRAME
+      camOverride(xrf,v,opts)    // raycaster can reach it
+      let {mesh,camera} = opts;
+      let el = document.createElement("a-entity")
+      el.setAttribute("xrf-get",mesh.name )
+      el.setAttribute("class","collidable")
+      el.addEventListener("click", (e) => {
+        mesh.handleTeleport()   // *TODO* rename to fragment-neutral mesh.xrf.exec() e.g.
+        //$('#player').object3D.position.copy(camera.position)
+      })
+      $('a-scene').appendChild(el)
+    }
 
   },
 })
@@ -52,7 +64,7 @@ window.AFRAME.registerComponent('xrf-get', {
 
     this.el.addEventListener('update', (evt) => {
 
-      let scene = evt.detail.scene
+      let scene = AFRAME.XRF.scene 
       let mesh = scene.getObjectByName(meshname);
       if (!mesh){
         console.error("mesh with name '"+meshname+"' not found in model")
@@ -68,6 +80,8 @@ window.AFRAME.registerComponent('xrf-get', {
       if( !this.el.id ) this.el.setAttribute("id",`xrf-${clone.name}`)
 
     })
+
+    if( this.el.className == "collidable" ) this.el.emit("update")
 
   }
 

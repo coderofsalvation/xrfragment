@@ -95,7 +95,7 @@ xrf.reset = () => {
   if( !xrf.model.scene ) return 
   xrf.scene.remove( xrf.model.scene )
   xrf.model.scene.traverse( function(node){
-    if( node instanceof THREE.Mesh ){
+    if( node instanceof xrf.THREE.Mesh ){
       node.geometry.dispose()
       node.material.dispose()
     }

@@ -816,7 +816,7 @@ xrf.reset = () => {
   if( !xrf.model.scene ) return 
   xrf.scene.remove( xrf.model.scene )
   xrf.model.scene.traverse( function(node){
-    if( node instanceof THREE.Mesh ){
+    if( node instanceof xrf.THREE.Mesh ){
       node.geometry.dispose()
       node.material.dispose()
     }
@@ -944,9 +944,9 @@ xrf.frag.href = function(v, opts){
   });
   mesh.material.needsUpdate = true
 
-  const handleTeleport = (e) => {              
+  mesh.handleTeleport = (e) => {              
     if( mesh.clicked ) return 
-    this.clicked = true
+    mesh.clicked = true
     let portalArea = 1 // 1 meter
     const meshWorldPosition = new THREE.Vector3();
     meshWorldPosition.setFromMatrixPosition(mesh.matrixWorld);
@@ -980,7 +980,7 @@ xrf.frag.href = function(v, opts){
     setTimeout( () => mesh.clicked = false, 200 ) // prevent double clicks 
   }
   
-  if( !opts.frag.q ) mesh.addEventListener('click', handleTeleport )
+  if( !opts.frag.q ) mesh.addEventListener('click', mesh.handleTeleport )
 
   // lazy remove mesh (because we're inside a traverse)
   setTimeout( () => {
@@ -1048,7 +1048,7 @@ window.AFRAME.registerComponent('xrf', {
       AFRAME.XRF.navigate.to(this.data)
                          .then( (model) => {
                            let gets = [ ...document.querySelectorAll('[xrf-get]') ]
-                           gets.map( (g) => g.emit('update',model) )
+                           gets.map( (g) => g.emit('update') )
                          })
     }
   },
@@ -1074,7 +1074,19 @@ window.AFRAME.registerComponent('xrf', {
     
     XRF.pos  = camOverride
     XRF.rot  = camOverride
-    XRF.href = camOverride 
+
+    XRF.href = (xrf,v,opts) => { // convert portal to a-entity so AFRAME
+      camOverride(xrf,v,opts)    // raycaster can reach it
+      let {mesh,camera} = opts;
+      let el = document.createElement("a-entity")
+      el.setAttribute("xrf-get",mesh.name )
+      el.setAttribute("class","collidable")
+      el.addEventListener("click", (e) => {
+        mesh.handleTeleport()   // *TODO* rename to fragment-neutral mesh.xrf.exec() e.g.
+        $('#player').object3D.position.copy(camera.position)
+      })
+      $('a-scene').appendChild(el)
+    }
 
   },
 })
@@ -1092,7 +1104,7 @@ window.AFRAME.registerComponent('xrf-get', {
 
     this.el.addEventListener('update', (evt) => {
 
-      let scene = evt.detail.scene
+      let scene = AFRAME.XRF.scene 
       let mesh = scene.getObjectByName(meshname);
       if (!mesh){
         console.error("mesh with name '"+meshname+"' not found in model")
@@ -1108,6 +1120,8 @@ window.AFRAME.registerComponent('xrf-get', {
       if( !this.el.id ) this.el.setAttribute("id",`xrf-${clone.name}`)
 
     })
+
+    if( this.el.className == "collidable" ) this.el.emit("update")
 
   }
 

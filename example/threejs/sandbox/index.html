@@ -129,7 +129,7 @@
 
 				let file = document.location.search.length > 2 ? document.location.search.substr(1) : './../../assets/example3.gltf'
         $('#model').setAttribute("href","./../../asset/"+file)
-				XRF.navigate( file )
+				XRF.navigate.to( file )
 
 
 				// setup mouse controls

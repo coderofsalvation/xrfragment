@@ -816,7 +816,7 @@ xrf.reset = () => {
   if( !xrf.model.scene ) return 
   xrf.scene.remove( xrf.model.scene )
   xrf.model.scene.traverse( function(node){
-    if( node instanceof THREE.Mesh ){
+    if( node instanceof xrf.THREE.Mesh ){
       node.geometry.dispose()
       node.material.dispose()
     }
@@ -944,9 +944,9 @@ xrf.frag.href = function(v, opts){
   });
   mesh.material.needsUpdate = true
 
-  const handleTeleport = (e) => {              
+  mesh.handleTeleport = (e) => {              
     if( mesh.clicked ) return 
-    this.clicked = true
+    mesh.clicked = true
     let portalArea = 1 // 1 meter
     const meshWorldPosition = new THREE.Vector3();
     meshWorldPosition.setFromMatrixPosition(mesh.matrixWorld);
@@ -980,7 +980,7 @@ xrf.frag.href = function(v, opts){
     setTimeout( () => mesh.clicked = false, 200 ) // prevent double clicks 
   }
   
-  if( !opts.frag.q ) mesh.addEventListener('click', handleTeleport )
+  if( !opts.frag.q ) mesh.addEventListener('click', mesh.handleTeleport )
 
   // lazy remove mesh (because we're inside a traverse)
   setTimeout( () => {
