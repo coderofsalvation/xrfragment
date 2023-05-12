@@ -1,4 +1,4 @@
-xrfragment.xrf.rot = function(v, opts){
+xrf.frag.rot = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
   camera.rotation.x = v.x * Math.PI / 180;
   camera.rotation.y = v.y * Math.PI / 180;

@@ -62,6 +62,7 @@ build_js(){
 			src/3rd/three/*.js     \
 			src/3rd/three/xrf/*.js \
 			src/3rd/aframe/*.js    > dist/xrfragment.aframe.js
+  ls -la dist | grep js
   exit $ok
 }
 

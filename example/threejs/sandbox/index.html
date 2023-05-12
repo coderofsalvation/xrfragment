@@ -5,7 +5,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="./../../assets/axist.min.css" />
-		<link type="text/css" rel="stylesheet" href="main.css">
+		<link type="text/css" rel="stylesheet" href="./main.css">
     <link type="text/css" rel="stylesheet" href="./../../assets/style.css"/>
 	</head>
 	<body>
@@ -96,14 +96,14 @@
           scene,
           renderer,
           debug: true,
-          loaders: [ GLTFLoader, FBXLoader ],   // which 3D assets to check for XR fragments?
+          loaders: { gltf: GLTFLoader, fbx: FBXLoader }, // which 3D assets (extensions) to check for XR fragments?
         })
 
 				// init navigator url
-				document.location.hash = $('#uri').value
 				window.addEventListener('hashchange', () => {
 					window.XRF.eval( $('#uri').value = document.location.hash )
 				})
+        if( document.location.hash.length < 2 ) document.location.hash = $('#uri').value
 
         // optional: react/extend/hook into XR fragment
         XRF.env = (xrf,v,opts) => {
@@ -127,35 +127,9 @@
 
         window.XRF = XRF // expose to form
 
-        // load 3D asset
-				let model;
-				const loader = new GLTFLoader().setPath( './../../assets/')
-				let loadGLTF = function ( gltf ) {
-					if( model ){ 
-						scene.remove(model)
-						//model.dispose()
-					}
-
-					const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
-					function recursivelySetChildrenUnlit(mesh,cb) {
-							cb(mesh)
-							if (mesh.children) {
-									for (var i = 0; i < mesh.children.length; i++) {
-											recursivelySetChildrenUnlit(mesh.children[i],cb);
-									}
-							}
-					}
-
-					scene.add( model = gltf.scene );
-
-					render();
-
-				};
-
-				let file = document.location.search.length > 2 ? document.location.search.substr(1) : 'example2.gltf'
-
+				let file = document.location.search.length > 2 ? document.location.search.substr(1) : './../../assets/example3.gltf'
         $('#model').setAttribute("href","./../../asset/"+file)
-				loader.load( file, loadGLTF ); 
+				XRF.navigate( file )
 
 
 				// setup mouse controls
@@ -171,8 +145,13 @@
 				//controls.maxPolarAngle = Math.PI / 2;
 				//controls.target = new THREE.Vector3(0,1.6,0)
 
-				camera.position.set( 0, 4, 15 );
-				//controls.update()
+        //let cameraRig = new THREE.Group()
+				//cameraRig.position.set( 0, 1.6, 15 );
+				camera.position.set( 0, 1.6, 15 );
+        //cameraRig.add(camera)
+				//cameraRig.position.set( 0, 4, 15 );
+				
+        //controls.update()
 
 				const geometry = new THREE.BufferGeometry();
 				geometry.setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 5 ) ] );
@@ -207,21 +186,12 @@
 				const gui = new GUI( { width: 300 } );
 				gui.add( parameters, 'env', 0.2, 3.0, 0.1 ).onChange( onChange );
 
-				const group = new InteractiveGroup( renderer, camera );
-
-        vrbutton.addEventListener('click', () => {
-          // show gui inside VR scene
-          gui.domElement.style.visibility = 'hidden';
-          scene.add( group );
-        })
-
 				const mesh = new HTMLMesh( gui.domElement );
 				mesh.position.x = - 0.75;
 				mesh.position.y = 1.5;
 				mesh.position.z = 0.3;
 				mesh.rotation.y = Math.PI / 4;
 				mesh.scale.setScalar( 2 );
-				group.add( mesh );
 
 
 				// Add stats.js
@@ -236,7 +206,14 @@
 				statsMesh.position.z = 0.3;
 				statsMesh.rotation.y = Math.PI / 4;
 				statsMesh.scale.setScalar( 2.5 );
-				group.add( statsMesh );
+
+        vrbutton.addEventListener('click', () => {
+          // show gui inside VR scene
+          gui.domElement.style.visibility = 'hidden';
+          XRF.interactive.add( mesh );
+          XRF.interactive.add( statsMesh );
+          scene.add( XRF.interactive );
+        })
 
 				let fileLoaders = loadFile({
 					".gltf": (file) => file.arrayBuffer().then( (data) => loader.parse( data, '', loadGLTF, console.error ) ),

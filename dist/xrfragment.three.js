@@ -593,114 +593,317 @@ xrfragment_XRF.isUrlOrPretypedView = new EReg("(^#|://)?\\..*","");
 xrfragment_XRF.isString = new EReg(".*","");
 })({});
 var xrfragment = $hx_exports["xrfragment"];
-xrfragment.xrf  = {}
-xrfragment.model = {}
+// wrapper to survive in/outside modules
 
-xrfragment.init = function(opts){
+xrfragment.InteractiveGroup = function(THREE,renderer,camera){
+
+  let {
+    Group,
+    Matrix4,
+    Raycaster,
+    Vector2
+  } = THREE 
+
+  const _pointer = new Vector2();
+  const _event = { type: '', data: _pointer };
+
+  class InteractiveGroup extends Group {
+
+    constructor( renderer, camera ) {
+
+      super();
+
+      if( !renderer || !camera ) return 
+
+      const scope = this;
+
+      const raycaster = new Raycaster();
+      const tempMatrix = new Matrix4();
+
+      // Pointer Events
+
+      const element = renderer.domElement;
+
+      function onPointerEvent( event ) {
+
+        //event.stopPropagation();
+
+        const rect = renderer.domElement.getBoundingClientRect();
+
+        _pointer.x = ( event.clientX - rect.left ) / rect.width * 2 - 1;
+        _pointer.y = - ( event.clientY - rect.top ) / rect.height * 2 + 1;
+
+        raycaster.setFromCamera( _pointer, camera );
+
+        const intersects = raycaster.intersectObjects( scope.children, false );
+
+        if ( intersects.length > 0 ) {
+
+          const intersection = intersects[ 0 ];
+
+          const object = intersection.object;
+          const uv = intersection.uv;
+
+          _event.type = event.type;
+          _event.data.set( uv.x, 1 - uv.y );
+
+          object.dispatchEvent( _event );
+
+        }
+
+      }
+
+      element.addEventListener( 'pointerdown', onPointerEvent );
+      element.addEventListener( 'pointerup', onPointerEvent );
+      element.addEventListener( 'pointermove', onPointerEvent );
+      element.addEventListener( 'mousedown', onPointerEvent );
+      element.addEventListener( 'mouseup', onPointerEvent );
+      element.addEventListener( 'mousemove', onPointerEvent );
+      element.addEventListener( 'click', onPointerEvent );
+
+      // WebXR Controller Events
+      // TODO: Dispatch pointerevents too
+
+      const events = {
+        'move': 'mousemove',
+        'select': 'click',
+        'selectstart': 'mousedown',
+        'selectend': 'mouseup'
+      };
+
+      function onXRControllerEvent( event ) {
+
+        const controller = event.target;
+
+        tempMatrix.identity().extractRotation( controller.matrixWorld );
+
+        raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
+        raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
+
+        const intersections = raycaster.intersectObjects( scope.children, false );
+
+        if ( intersections.length > 0 ) {
+
+          const intersection = intersections[ 0 ];
+
+          const object = intersection.object;
+          const uv = intersection.uv;
+
+          _event.type = events[ event.type ];
+          _event.data.set( uv.x, 1 - uv.y );
+          if( _event.type != "mousemove" ){
+            console.log(event.type+" => "+_event.type)
+          }
+
+          object.dispatchEvent( _event );
+
+        }
+
+      }
+
+      const controller1 = renderer.xr.getController( 0 );
+      controller1.addEventListener( 'move', onXRControllerEvent );
+      controller1.addEventListener( 'select', onXRControllerEvent );
+      controller1.addEventListener( 'selectstart', onXRControllerEvent );
+      controller1.addEventListener( 'selectend', onXRControllerEvent );
+
+      const controller2 = renderer.xr.getController( 1 );
+      controller2.addEventListener( 'move', onXRControllerEvent );
+      controller2.addEventListener( 'select', onXRControllerEvent );
+      controller2.addEventListener( 'selectstart', onXRControllerEvent );
+      controller2.addEventListener( 'selectend', onXRControllerEvent );
+
+    }
+
+  }
+
+  return new InteractiveGroup(renderer,camera)
+}
+let xrf = xrfragment
+xrf.frag   = {}
+xrf.model = {}
+
+xrf.init = function(opts){
   opts = opts || {}
   let XRF = function(){
     alert("queries are not implemented (yet)")
   }
-  for ( let i in opts           ) xrfragment[i] = opts[i]
-  for ( let i in xrfragment.XRF ) xrfragment.XRF[i] // shortcuts to constants (NAVIGATOR e.g.)
-  xrfragment.Parser.debug = xrfragment.debug 
-  if( opts.loaders ) opts.loaders.map( xrfragment.patchLoader )
-  xrfragment.patchRenderer(opts.renderer)
-  return xrfragment
+  for ( let i in opts    ) xrf[i] = opts[i]
+  for ( let i in xrf.XRF ) xrf.XRF[i] // shortcuts to constants (NAVIGATOR e.g.)
+  xrf.Parser.debug = xrf.debug 
+  if( opts.loaders ) Object.values(opts.loaders).map( xrf.patchLoader )
+  xrf.patchRenderer(opts.renderer)
+  xrf.navigate.init()
+  return xrf
 }
 
-xrfragment.patchRenderer = function(renderer){
+xrf.patchRenderer = function(renderer){
+  renderer.xr.addEventListener( 'sessionstart', () => xrf.baseReferenceSpace = renderer.xr.getReferenceSpace() );
+  renderer.xr.enabled = true;
   renderer.render = ((render) => function(scene,camera){
-    if( xrfragment.getLastModel() && xrfragment.getLastModel().render ) 
-      xrfragment.getLastModel().render(scene,camera)
+    if( xrf.model && xrf.model.render ) 
+      xrf.model.render(scene,camera)
     render(scene,camera)
   })(renderer.render.bind(renderer))
 }
 
-xrfragment.patchLoader = function(loader){
+xrf.patchLoader = function(loader){
   loader.prototype.load = ((load) => function(url, onLoad, onProgress, onError){
     load.call(  this,
                 url,
-                (model) => { onLoad(model); xrfragment.parseModel(model,url) },
+                (model) => { onLoad(model); xrf.parseModel(model,url) },
                 onProgress,
                 onError)
   })(loader.prototype.load)
 }
 
-xrfragment.getFile = (url) => url.split("/").pop().replace(/#.*/,'')
+xrf.getFile = (url) => url.split("/").pop().replace(/#.*/,'')
 
-xrfragment.parseModel = function(model,url){
-  let file               = xrfragment.getFile(url)
+xrf.parseModel = function(model,url){
+  let file               = xrf.getFile(url)
   model.file             = file
   model.render           = function(){}
-  xrfragment.model[file] = model
+  model.interactive        = xrf.InteractiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
+  model.scene.add(model.interactive)
+
   console.log("scanning "+file)
 
   model.scene.traverse( (mesh) => {
-    console.log("◎ "+mesh.name)
-    if( mesh.userData ){
-      let frag = {}
-      for( let k in mesh.userData ) xrfragment.Parser.parse( k, mesh.userData[k], frag )
-      for( let k in frag ){
-        let opts = {frag, mesh, model, camera: xrfragment.camera, scene: xrfragment.scene, renderer: xrfragment.renderer, THREE: xrfragment.THREE }
-        xrfragment.evalFragment(k,opts)
-      }
-    }
+    console.log("◎ "+ (mesh.name||`THREE.${mesh.constructor.name}`))
+    xrf.eval.mesh(mesh,model)
   })
 }
 
-xrfragment.evalFragment = (k, opts ) => {
-  // call native function (xrf/env.js e.g.), or pass it to user decorator
-  let func = xrfragment.xrf[k] || function(){} 
-  if(  xrfragment[k] ) xrfragment[k]( func, opts.frag[k], opts)
-  else                                func( opts.frag[k], opts)
-}
-  
-xrfragment.getLastModel = () => Object.values(xrfragment.model)[ Object.values(xrfragment.model).length-1 ]
+xrf.getLastModel = ()           => xrf.model.last 
 
-xrfragment.eval = function( url, model ){
+xrf.eval = function( url, model ){
   let notice = false
-  model = model || xrfragment.getLastModel()
-  let { THREE, camera } = xrfragment
-  let frag = xrfragment.URI.parse( url, xrfragment.XRF.NAVIGATOR )
+  model = model || xrf.model
+  let { THREE, camera } = xrf
+  let frag = xrf.URI.parse( url, xrf.XRF.NAVIGATOR )
   let meshes = frag.q ? [] : [camera]
 
   for ( let i in meshes ) {
     for ( let k in frag ){
       let mesh = meshes[i]
       if( !String(k).match(/(pos|rot)/) ) notice = true
-      let opts = {frag, mesh, model, camera: xrfragment.camera, scene: xrfragment.scene, renderer: xrfragment.renderer, THREE: xrfragment.THREE }
-      xrfragment.evalFragment(k,opts)
+      let opts = {frag, mesh, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
+      xrf.eval.fragment(k,opts)
     }
   }
   if( notice ) alert("only 'pos' and 'rot' XRF.NAVIGATOR-flagged XR fragments are supported (for now)")
 }
-xrfragment.xrf.env = function(v, opts){
+
+xrf.eval.mesh     = (mesh,model) => {
+  if( mesh.userData ){
+    let frag = {}
+    for( let k in mesh.userData ) xrf.Parser.parse( k, mesh.userData[k], frag )
+    for( let k in frag ){
+      let opts = {frag, mesh, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
+      xrf.eval.fragment(k,opts)
+    }
+  }
+}
+
+xrf.eval.fragment = (k, opts ) => {
+  // call native function (xrf/env.js e.g.), or pass it to user decorator
+  let func = xrf.frag[k] || function(){} 
+  if(  xrf[k] ) xrf[k]( func, opts.frag[k], opts)
+  else                  func( opts.frag[k], opts)
+}
+
+xrf.reset = () => {
+  if( !xrf.model.scene ) return 
+  xrf.scene.remove( xrf.model.scene )
+  xrf.model.scene.traverse( function(node){
+    if( node instanceof THREE.Mesh ){
+      node.geometry.dispose()
+      node.material.dispose()
+    }
+  })
+}
+
+xrf.navigate = {}
+
+xrf.navigate.to = (url) => {
+  return new Promise( (resolve,reject) => {
+    console.log("xrfragment: navigating to "+url)
+    if( xrf.model && xrf.model.scene ) xrf.model.scene.visible = false
+    const urlObj = new URL( url.match(/:\/\//) ? url : String(`https://fake.com/${url}`).replace(/\/\//,'/') )
+    let   dir  = url.substring(0, url.lastIndexOf('/') + 1)
+    const file = urlObj.pathname.substring(urlObj.pathname.lastIndexOf('/') + 1);
+    const ext  = file.split('.').pop()
+    const Loader = xrf.loaders[ext]
+    if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 
+    // force relative path 
+    if( dir ) dir = dir[0] == '.' ? dir : `.${dir}`
+    const loader = new Loader().setPath( dir )
+    loader.load( file, function(model){
+      xrf.scene.add( model.scene )
+      xrf.reset()
+      xrf.model = model 
+      xrf.navigate.commit( file )
+      resolve(model)
+    })
+  })
+}
+
+xrf.navigate.init = () => {
+  if( xrf.navigate.init.inited ) return
+  window.addEventListener('popstate', function (event){
+    console.dir(event)
+    xrf.navigate.to( document.location.search.substr(1) + document.location.hash )
+  })
+  xrf.navigate.init.inited = true
+}
+
+xrf.navigate.commit = (file) => {
+  window.history.pushState({},null, document.location.pathname + `?${file}${document.location.hash}` )
+}
+xrf.frag.env = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
   let env = mesh.getObjectByName(v.string)
   env.material.map.mapping = THREE.EquirectangularReflectionMapping;
   scene.environment = env.material.map
-  scene.texture = env.material.map
+  //scene.texture = env.material.map    
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1;
+  renderer.toneMappingExposure = 2;
+  // apply to meshes *DISABLED* renderer.environment does this
+  const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+  setTimeout( () => {
+    scene.traverse( (mesh) => {
+      //if (mesh.material && mesh.material.map && mesh.material.metalness == 1.0) {
+      //  mesh.material = new THREE.MeshBasicMaterial({ map: mesh.material.map });
+      //  mesh.material.dithering = true
+      //  mesh.material.map.anisotropy = maxAnisotropy;
+      //  mesh.material.needsUpdate = true;
+      //}
+      //if (mesh.material && mesh.material.metalness == 1.0 ){
+      //  mesh.material = new THREE.MeshBasicMaterial({
+      //    color:0xffffff,
+      //    emissive: mesh.material.map,
+      //    envMap: env.material.map,
+      //    side: THREE.DoubleSide,
+      //    flatShading: true
+      //  })
+      //  mesh.material.needsUpdate = true
+      //  //mesh.material.envMap = env.material.map;
+      //  //mesh.material.envMap.intensity = 5;
+      //  //mesh.material.needsUpdate = true;
+      //}
+    });
+  },500)
   console.log(`   └ applied image '${v.string}' as environment map`)
 }
-xrfragment.xrf.href = function(v, opts){
+xrf.frag.href = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
 
-  let size = 5
   let texture = mesh.material.map
+  texture.mapping = THREE.ClampToEdgeWrapping
+  texture.needsUpdate = true
+  mesh.material.dispose()
 
-  /*
-	texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
-  mesh.material = new THREE.MeshStandardMaterial( {
-    envMap: texture,
-    roughness: 0.0,
-    metalness: 1,
-    side: THREE.DoubleSide,
-  })
-  */
-
+  // poor man's equi-portal
   mesh.material = new THREE.ShaderMaterial( {
     side: THREE.DoubleSide,
     uniforms: {
@@ -729,33 +932,99 @@ xrfragment.xrf.href = function(v, opts){
         vec3 direction = normalize(vWorldPosition - cameraPosition);
         vec2 sampleUV;
         sampleUV.y = -clamp(direction.y * 0.5  + 0.5, 0.0, 1.0);
-        sampleUV.x = atan(direction.z, -direction.x) * -RECIPROCAL_PI2 + 0.5;
-        gl_FragColor = texture2D(pano, sampleUV);
+        sampleUV.x = atan(direction.z, -direction.x) * -RECIPROCAL_PI2;
+        sampleUV.x += 0.33; // adjust focus to AFRAME's $('a-scene').components.screenshot.capture()
+        vec4 color = texture2D(pano, sampleUV);
+        // Convert color to grayscale (lazy lite approach to not having to match tonemapping/shaderstacking of THREE.js)
+        float luminance = 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
+        vec4 grayscale_color = vec4(vec3(luminance) + vec3(0.33), color.a);
+        gl_FragColor = grayscale_color;
       }
-    `
+    `,
   });
+  mesh.material.needsUpdate = true
+
+  const handleTeleport = (e) => {              
+    if( mesh.clicked ) return 
+    this.clicked = true
+    let portalArea = 1 // 1 meter
+    const meshWorldPosition = new THREE.Vector3();
+    meshWorldPosition.setFromMatrixPosition(mesh.matrixWorld);
+
+    const cameraDirection = new THREE.Vector3();
+    camera.getWorldPosition(cameraDirection);
+    cameraDirection.sub(meshWorldPosition);
+    cameraDirection.normalize();
+    cameraDirection.multiplyScalar(portalArea); // move away from portal
+    const newPos = meshWorldPosition.clone().add(cameraDirection);
+
+    const positionInFrontOfPortal = () => {
+      camera.position.copy(newPos);
+      camera.lookAt(meshWorldPosition);
+
+      if( xrf.baseReferenceSpace ){ // WebXR VR/AR roomscale reposition
+        const offsetPosition = { x: -newPos.x, y: 0, z: -newPos.z, w: 1 };
+        const offsetRotation = new THREE.Quaternion();
+        const transform = new XRRigidTransform( offsetPosition, offsetRotation );
+        const teleportSpaceOffset = xrf.baseReferenceSpace.getOffsetReferenceSpace( transform );
+        xrf.renderer.xr.setReferenceSpace( teleportSpaceOffset );
+      }
+
+      document.location.hash = `#pos=${camera.position.x},${camera.position.y},${camera.position.z}`;
+    }
+
+    const distance = camera.position.distanceTo(newPos);
+    if( distance > portalArea ) positionInFrontOfPortal()
+    else xrf.navigate.to(v.string) // ok let's surf to HREF!
+    
+    setTimeout( () => mesh.clicked = false, 200 ) // prevent double clicks 
+  }
+  
+  if( !opts.frag.q ) mesh.addEventListener('click', handleTeleport )
+
+  // lazy remove mesh (because we're inside a traverse)
+  setTimeout( () => {
+    model.interactive.add(mesh) // make clickable
+  },200)
 }
-xrfragment.xrf.pos = function(v, opts){
+xrf.frag.pos = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   console.log("   └ setting camera position to "+v.string)
   camera.position.x = v.x
   camera.position.y = v.y
   camera.position.z = v.z
 }
-xrfragment.xrf.rot = function(v, opts){
+xrf.frag.q = function(v, opts){
+  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+  console.log("   └ running query ")
+  for ( let i in v.query  ) {
+    let target = v.query[i]
+
+    // remove objects if requested
+    if( target.id != undefined && (target.mesh = scene.getObjectByName(i)) ){  
+      target.mesh.visible = target.id
+      target.mesh.parent.remove(target.mesh)
+      console.log(`     └ removing mesh: ${i}`)
+    }else console.log(`     └ mesh not found: ${i}`)
+  }
+}
+xrf.frag.rot = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
   camera.rotation.x = v.x * Math.PI / 180;
   camera.rotation.y = v.y * Math.PI / 180;
   camera.rotation.z = v.z * Math.PI / 180;
 }
-xrfragment.xrf.src = function(v, opts){
+// *TODO* use webgl instancing
+
+xrf.frag.src = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
   if( v.string[0] == "#" ){ // local 
     console.log("   └ instancing src")
-    let args = xrfragment.URI.parse(v.string)
+    let frag = xrfragment.URI.parse(v.string)
     // Get an instance of the original model
     const modelInstance = new THREE.Group();
-    modelInstance.add(model.scene.clone());
+    let sceneInstance   = model.scene.clone()
+    modelInstance.add(sceneInstance)
     modelInstance.position.z = mesh.position.z
     modelInstance.position.y = mesh.position.y
     modelInstance.position.x = mesh.position.x
@@ -763,19 +1032,10 @@ xrfragment.xrf.src = function(v, opts){
     modelInstance.scale.y = mesh.scale.y
     modelInstance.scale.x = mesh.scale.z
     // now apply XR Fragments overrides from URI
-    // *TODO* move to a central location (pull-up)
-    for( var i in args ){
-      if( i == "scale" ){
-        console.log("   └ setting scale")
-        modelInstance.scale.x = args[i].x
-        modelInstance.scale.y = args[i].y
-        modelInstance.scale.z = args[i].z
-      }
-    }
+    for( var i in frag )
+      xrf.eval.fragment(i, Object.assign(opts,{frag, model:modelInstance,scene:sceneInstance}))
     // Add the instance to the scene
-    scene.add(modelInstance);
-    console.dir(model)
-    console.dir(modelInstance)
+    model.scene.add(modelInstance);
   }
 }
 export default xrfragment;
