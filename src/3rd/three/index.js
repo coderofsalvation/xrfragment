@@ -1,6 +1,6 @@
 let xrf = xrfragment
 xrf.frag   = {}
-xrf.model = {}
+xrf.model  = {}
 
 xrf.init = function(opts){
   opts = opts || {}
@@ -11,8 +11,10 @@ xrf.init = function(opts){
   for ( let i in xrf.XRF ) xrf.XRF[i] // shortcuts to constants (NAVIGATOR e.g.)
   xrf.Parser.debug = xrf.debug 
   if( opts.loaders ) Object.values(opts.loaders).map( xrf.patchLoader )
+
+  xrf.interactive = xrf.InteractiveGroup( opts.THREE, opts.renderer, opts.camera)
+  xrf.scene.add( xrf.interactive)
   xrf.patchRenderer(opts.renderer)
-  xrf.navigate.init()
   return xrf
 }
 
@@ -42,15 +44,7 @@ xrf.parseModel = function(model,url){
   let file               = xrf.getFile(url)
   model.file             = file
   model.render           = function(){}
-  model.interactive        = xrf.InteractiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
-  model.scene.add(model.interactive)
-
-  console.log("scanning "+file)
-
-  model.scene.traverse( (mesh) => {
-    console.log("◎ "+ (mesh.name||`THREE.${mesh.constructor.name}`))
-    xrf.eval.mesh(mesh,model)
-  })
+  model.scene.traverse( (mesh) => xrf.eval.mesh(mesh,model) )
 }
 
 xrf.getLastModel = ()           => xrf.model.last 
@@ -79,6 +73,7 @@ xrf.eval.mesh     = (mesh,model) => {
     for( let k in mesh.userData ) xrf.Parser.parse( k, mesh.userData[k], frag )
     for( let k in frag ){
       let opts = {frag, mesh, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
+      mesh.userData.XRF = frag // allow fragment impl to access XRF obj already
       xrf.eval.fragment(k,opts)
     }
   }
@@ -92,50 +87,36 @@ xrf.eval.fragment = (k, opts ) => {
 }
 
 xrf.reset = () => {
-  if( !xrf.model.scene ) return 
-  xrf.scene.remove( xrf.model.scene )
-  xrf.model.scene.traverse( function(node){
-    if( node instanceof xrf.THREE.Mesh ){
-      node.geometry.dispose()
-      node.material.dispose()
+  console.log("xrf.reset()")
+
+  const disposeObject = (obj) => {
+    if (obj.children.length > 0) obj.children.forEach((child) => disposeObject(child));
+    if (obj.geometry) obj.geometry.dispose();
+    if (obj.material) {
+      if (obj.material.map) obj.material.map.dispose();
+      obj.material.dispose();
     }
+    return true
+  };
+
+  for ( let i in xrf.scene.children  ) {
+    const child = xrf.scene.children[i];
+    if( child.xrf ){ // dont affect user objects
+      disposeObject(child);
+      xrf.scene.remove(child);
+    }
+  }
+  // remove interactive xrf objs like href-portals
+  xrf.interactive.traverse( (n) => { 
+    if( disposeObject(n) ) xrf.interactive.remove(n)
   })
 }
 
-xrf.navigate = {}
-
-xrf.navigate.to = (url) => {
-  return new Promise( (resolve,reject) => {
-    console.log("xrfragment: navigating to "+url)
-    if( xrf.model && xrf.model.scene ) xrf.model.scene.visible = false
-    const urlObj = new URL( url.match(/:\/\//) ? url : String(`https://fake.com/${url}`).replace(/\/\//,'/') )
-    let   dir  = url.substring(0, url.lastIndexOf('/') + 1)
-    const file = urlObj.pathname.substring(urlObj.pathname.lastIndexOf('/') + 1);
-    const ext  = file.split('.').pop()
-    const Loader = xrf.loaders[ext]
-    if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 
-    // force relative path 
-    if( dir ) dir = dir[0] == '.' ? dir : `.${dir}`
-    const loader = new Loader().setPath( dir )
-    loader.load( file, function(model){
-      xrf.scene.add( model.scene )
-      xrf.reset()
-      xrf.model = model 
-      xrf.navigate.commit( file )
-      resolve(model)
-    })
-  })
-}
-
-xrf.navigate.init = () => {
-  if( xrf.navigate.init.inited ) return
-  window.addEventListener('popstate', function (event){
-    console.dir(event)
-    xrf.navigate.to( document.location.search.substr(1) + document.location.hash )
-  })
-  xrf.navigate.init.inited = true
-}
-
-xrf.navigate.commit = (file) => {
-  window.history.pushState({},null, document.location.pathname + `?${file}${document.location.hash}` )
+xrf.parseUrl = (url) => {
+  const urlObj = new URL( url.match(/:\/\//) ? url : String(`https://fake.com/${url}`).replace(/\/\//,'/') )
+  let   dir  = url.substring(0, url.lastIndexOf('/') + 1)
+  const file = urlObj.pathname.substring(urlObj.pathname.lastIndexOf('/') + 1);
+  const hash = url.match(/#/) ? url.replace(/.*#/,'') : ''
+  const ext  = file.split('.').pop()
+  return {urlObj,dir,file,hash,ext}
 }

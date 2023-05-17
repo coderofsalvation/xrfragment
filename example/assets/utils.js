@@ -20,20 +20,26 @@ export function loadFile(contentLoaders, multiple){
   }
 }
 
-export function setupConsole($console){
+export function setupConsole(el){
+  if( !el ) return setTimeout( () => setupConsole( $('.lil-gui') ),200 )
+  let $console = document.createElement('textarea')
   $console.style.position = 'absolute'
   $console.style.display = 'block'
-  $console.style.zIndex   = 1000;
+  $console.style.zIndex   = 2000;
   $console.style.background = "transparent !important"
   $console.style.pointerEvents = 'none'
   $console.style.top = '70px'
-  $console.style.padding = '5px 20px 25px 25px'
+  $console.style.padding = '10px'
+  $console.style.margin = '10px'
+  $console.style.background = '#000'
   $console.style.left = $console.style.right = $console.style.bottom = 0;
-  $console.style.color = '#0008';
-  $console.style.fontSize = '12px';
+  $console.style.color = '#A6F';
+  $console.style.fontSize = '10px';
   $console.style.fontFamily = 'Courier'
   $console.style.border = '0'
   $console.innerHTML = "XRFRAGMENT CONSOLE OUTPUT:\n" 
+
+  el.appendChild($console)
 
   console.log = ( (log) => function(){
     let s = new Date().toISOString().substr(11).substr(0,8) + " " + ([...arguments]).join(" ").replace(/.*[0-9]: /,"")

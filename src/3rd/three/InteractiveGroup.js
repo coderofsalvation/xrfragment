@@ -25,6 +25,13 @@ xrfragment.InteractiveGroup = function(THREE,renderer,camera){
       const raycaster = new Raycaster();
       const tempMatrix = new Matrix4();
 
+      function nocollide(){
+        if( nocollide.tid ) return  // ratelimit
+        _event.type = "nocollide"
+        scope.children.map( (c) => c.dispatchEvent(_event) )
+        nocollide.tid = setTimeout( () => nocollide.tid = null, 100 )
+      }
+
       // Pointer Events
 
       const element = renderer.domElement;
@@ -54,7 +61,7 @@ xrfragment.InteractiveGroup = function(THREE,renderer,camera){
 
           object.dispatchEvent( _event );
 
-        }
+        }else nocollide()
 
       }
 
@@ -102,7 +109,7 @@ xrfragment.InteractiveGroup = function(THREE,renderer,camera){
 
           object.dispatchEvent( _event );
 
-        }
+        }else nocollide()
 
       }
 

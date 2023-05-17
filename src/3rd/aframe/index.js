@@ -5,7 +5,7 @@ window.AFRAME.registerComponent('xrf', {
   init: function () {
     if( !AFRAME.XRF ) this.initXRFragments()
     if( typeof this.data == "string" ){
-      AFRAME.XRF.navigate.to(this.data)
+      AFRAME.XRF.navigator.to(this.data)
                          .then( (model) => {
                            let gets = [ ...document.querySelectorAll('[xrf-get]') ]
                            gets.map( (g) => g.emit('update') )
@@ -14,8 +14,20 @@ window.AFRAME.registerComponent('xrf', {
   },
 
   initXRFragments: function(){
-    let aScene = document.querySelector('a-scene')
+
+    // clear all current xrf-get entities when click back button or href
+    let clear = () => {
+      console.log("CLEARING!")
+      let els = [...document.querySelectorAll('[xrf-get]')]
+      console.dir(els)
+      els.map( (el) => el.parentNode.remove(el) )
+      console.log( document.querySelectorAll('[xrf-get]').length )
+    }
+    window.addEventListener('popstate', clear )
+    window.addEventListener('pushstate', clear )
+
     // enable XR fragments
+    let aScene = document.querySelector('a-scene')
     let XRF = AFRAME.XRF = xrfragment.init({            
       THREE,
       camera:   aScene.camera, 
@@ -36,25 +48,21 @@ window.AFRAME.registerComponent('xrf', {
     XRF.rot  = camOverride
 
     XRF.href = (xrf,v,opts) => { // convert portal to a-entity so AFRAME
-      camOverride(xrf,v,opts)    // raycaster can reach it
+      camOverride(xrf,v,opts)    // raycaster can find & execute it
       let {mesh,camera} = opts;
       let el = document.createElement("a-entity")
       el.setAttribute("xrf-get",mesh.name )
       el.setAttribute("class","collidable")
-      el.addEventListener("click", (e) => {
-        mesh.handleTeleport()   // *TODO* rename to fragment-neutral mesh.xrf.exec() e.g.
-        //$('#player').object3D.position.copy(camera.position)
-      })
+      el.addEventListener("click", mesh.userData.XRF.href.exec )
       $('a-scene').appendChild(el)
     }
-
   },
 })
 
 window.AFRAME.registerComponent('xrf-get', {
   schema: {
     name: {type: 'string'},
-    duplicate: {type: 'boolean'}
+    clone: {type: 'boolean', default:false}
   },
 
   init: function () {
@@ -70,14 +78,12 @@ window.AFRAME.registerComponent('xrf-get', {
         console.error("mesh with name '"+meshname+"' not found in model")
         return;
       }
-      if( !this.data.duplicate ) mesh.parent.remove(mesh)
-      if( this.mesh            ) this.mesh.parent.remove(this.mesh) // cleanup old clone 
-      let clone = this.mesh = mesh.clone()
+      if( !this.data.clone              ) mesh.parent.remove(mesh)
       ////mesh.updateMatrixWorld();
       this.el.object3D.position.setFromMatrixPosition(scene.matrixWorld);
       this.el.object3D.quaternion.setFromRotationMatrix(scene.matrixWorld);
-      this.el.setObject3D('mesh', clone );
-      if( !this.el.id ) this.el.setAttribute("id",`xrf-${clone.name}`)
+      this.el.setObject3D('mesh', mesh );
+      if( !this.el.id ) this.el.setAttribute("id",`xrf-${mesh.name}`)
 
     })
 

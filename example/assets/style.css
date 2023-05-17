@@ -72,25 +72,29 @@ input[type="submit"] {
     border-color: #Ccc;
 }
 
-a#source{
+.btn-foot{
+  background: white;
+  border-radius: 10px;
+  border: 5px solid #1c1c3299;
+  padding: 0px 6px;
+  bottom:19px;
   position: absolute;
-  bottom: 29px;
-  right: 20px;
+}
+
+a.btn-foot#source{
+  right: 10px;
   color: #888;
   font-weight: bold;
   font-family: sans-serif;
-  text-decoration: underline;
   z-index:2000;
 }
 
-a#model{
+a.btn-foot#model{
   position: absolute;
-  bottom: 29px;
   right: 130px;
   color: #888;
   font-weight: bold;
   font-family: sans-serif;
-  text-decoration: underline;
   z-index:2000;
 }
 
@@ -109,8 +113,8 @@ html.a-fullscreen a#source{
 
 .lil-gui.autoPlace{
   right:0px !important;
-  top:auto !important;
-  bottom:0;
+  top:48px !important;
+  height:33vh;
 }
 
 #VRButton {

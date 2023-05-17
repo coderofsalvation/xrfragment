@@ -1,16 +1,27 @@
 xrf.frag.href = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
 
+  const world = { pos: new THREE.Vector3(), scale: new THREE.Vector3() }
+  mesh.getWorldPosition(world.pos)
+  mesh.getWorldScale(world.scale)
+  mesh.position.copy(world.pos)
+  mesh.scale.copy(world.scale)
+  console.log("HREF: "+(model.recursive ?"src-instanced":"original"))
+
+  // convert texture if needed
   let texture = mesh.material.map
-  texture.mapping = THREE.ClampToEdgeWrapping
-  texture.needsUpdate = true
-  mesh.material.dispose()
+  if( texture && texture.source.data.height == texture.source.data.width/2 ){
+    // assume equirectangular image
+    texture.mapping = THREE.ClampToEdgeWrapping
+    texture.needsUpdate = true
+  }
 
   // poor man's equi-portal
   mesh.material = new THREE.ShaderMaterial( {
     side: THREE.DoubleSide,
     uniforms: {
-      pano: { value: texture }
+      pano: { value: texture },
+      highlight: { value: false },
     },
     vertexShader: `
        vec3 portalPosition;
@@ -28,6 +39,7 @@ xrf.frag.href = function(v, opts){
     fragmentShader: `
       #define RECIPROCAL_PI2 0.15915494
       uniform sampler2D pano;
+      uniform bool highlight;
       varying float vDistanceToCenter;
       varying float vDistance;
       varying vec3 vWorldPosition;
@@ -40,14 +52,14 @@ xrf.frag.href = function(v, opts){
         vec4 color = texture2D(pano, sampleUV);
         // Convert color to grayscale (lazy lite approach to not having to match tonemapping/shaderstacking of THREE.js)
         float luminance = 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
-        vec4 grayscale_color = vec4(vec3(luminance) + vec3(0.33), color.a);
+        vec4 grayscale_color = highlight ? color : vec4(vec3(luminance) + vec3(0.33), color.a);
         gl_FragColor = grayscale_color;
       }
     `,
   });
   mesh.material.needsUpdate = true
 
-  mesh.handleTeleport = (e) => {              
+  let teleport = mesh.userData.XRF.href.exec = (e) => {
     if( mesh.clicked ) return 
     mesh.clicked = true
     let portalArea = 1 // 1 meter
@@ -65,7 +77,7 @@ xrf.frag.href = function(v, opts){
       camera.position.copy(newPos);
       camera.lookAt(meshWorldPosition);
 
-      if( xrf.baseReferenceSpace ){ // WebXR VR/AR roomscale reposition
+      if( renderer.xr.isPresenting && xrf.baseReferenceSpace ){ // WebXR VR/AR roomscale reposition
         const offsetPosition = { x: -newPos.x, y: 0, z: -newPos.z, w: 1 };
         const offsetRotation = new THREE.Quaternion();
         const transform = new XRRigidTransform( offsetPosition, offsetRotation );
@@ -73,20 +85,23 @@ xrf.frag.href = function(v, opts){
         xrf.renderer.xr.setReferenceSpace( teleportSpaceOffset );
       }
 
-      document.location.hash = `#pos=${camera.position.x},${camera.position.y},${camera.position.z}`;
     }
 
     const distance = camera.position.distanceTo(newPos);
-    if( distance > portalArea ) positionInFrontOfPortal()
-    else xrf.navigate.to(v.string) // ok let's surf to HREF!
+    if( renderer.xr.isPresenting && distance > portalArea ) positionInFrontOfPortal()
+    else xrf.navigator.to(v.string) // ok let's surf to HREF!
     
     setTimeout( () => mesh.clicked = false, 200 ) // prevent double clicks 
   }
-  
-  if( !opts.frag.q ) mesh.addEventListener('click', mesh.handleTeleport )
 
-  // lazy remove mesh (because we're inside a traverse)
-  setTimeout( () => {
-    model.interactive.add(mesh) // make clickable
-  },200)
+  if( !opts.frag.q ){ 
+    mesh.addEventListener('click', teleport )
+    mesh.addEventListener('mousemove', () => mesh.material.uniforms.highlight.value = true )
+    mesh.addEventListener('nocollide', () => mesh.material.uniforms.highlight.value = false )
+  }
+
+ // lazy remove mesh (because we're inside a traverse)
+ setTimeout( (mesh) => {
+   xrf.interactive.add(mesh)
+ }, 300, mesh )
 }

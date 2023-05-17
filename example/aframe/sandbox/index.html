@@ -5,7 +5,6 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="./../../assets/axist.min.css" />
-		<link type="text/css" rel="stylesheet" href="./main.css">
     <link type="text/css" rel="stylesheet" href="./../../assets/style.css"/>
 		<script async src="./../../assets/alpine.min.js" defer></script>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
@@ -23,8 +22,8 @@
 				</template>
 			</datalist>
     </div>
-    <a id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment/blob/main/example/aframe/sandbox/index.html">sourcecode</a> 
-    <a id="model" target="_blank" href="">⬇️ model</a> 
+    <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment/blob/main/example/aframe/sandbox/index.html">sourcecode</a> 
+    <a class="btn-foot" id="model" target="_blank" href="">⬇️ model</a> 
 		<textarea style="display:none"></textarea>
     <a-scene light="defaultLightsEnabled: false">
 			<a-entity xrf id="player" >
@@ -32,7 +31,7 @@
         <a-entity id="left-hand"  laser-controls="hand: left" raycaster="objects:.collidable;far:5500"  oculus-touch-controls="hand: left" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: #floor"></a-entity>
         <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects:.collidable;far:5500" oculus-touch-controls="hand: right" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: #floor"></a-entity>
 			</a-entity>
-      <a-entity id="home"  xrf="example3.gltf"></a-entity>
+      <a-entity id="home"  xrf="example3.gltf#pos=1,2,3"></a-entity>
       <a-entity id="floor" xrf-get="floor"></a-entity>
 
     </a-scene>
@@ -51,23 +50,13 @@
 				window.addEventListener('hashchange', () => {
 					window.AFRAME.XRF.eval( $('#uri').value = document.location.hash )
 				})
-        if( document.location.hash.length < 2 ) document.location.hash = $('#uri').value
+        //if( document.location.hash.length < 2 ) document.location.hash = $('#uri').value
 
         // add look-controls at last (otherwise it'll be buggy after scene-updates)
         $('[camera]').setAttribute("look-controls","")
         // add screenshot component with camera to capture proper equirects
         $('a-scene').setAttribute("screenshot",{camera: "[camera]",width: 4096*2, height:2048*2})
 
-        // turn certain query into AFRAME entities 
-        // AFRAME.XRF.href = (xrf,v,opts) => {
-        //   let {model,mesh} = opts
-        //   xrf(v,opts)
-        //   // convert to entity
-        //   let el = document.createElement("a-entity")
-        //   el.setAttribute("gltf-to-entity",{ name: mesh.name})
-        //   el.setAttribute("class","collidable")
-        //   $('a-scene').appendChild(el)
-        // }
 			})
 		</script>
 	</body>
