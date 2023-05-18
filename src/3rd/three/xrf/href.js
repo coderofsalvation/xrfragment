@@ -6,7 +6,6 @@ xrf.frag.href = function(v, opts){
   mesh.getWorldScale(world.scale)
   mesh.position.copy(world.pos)
   mesh.scale.copy(world.scale)
-  console.log("HREF: "+(model.recursive ?"src-instanced":"original"))
 
   // convert texture if needed
   let texture = mesh.material.map
@@ -103,5 +102,5 @@ xrf.frag.href = function(v, opts){
  // lazy remove mesh (because we're inside a traverse)
  setTimeout( (mesh) => {
    xrf.interactive.add(mesh)
- }, 300, mesh )
+ }, 20, mesh )
 }

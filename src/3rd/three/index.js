@@ -12,9 +12,8 @@ xrf.init = function(opts){
   xrf.Parser.debug = xrf.debug 
   if( opts.loaders ) Object.values(opts.loaders).map( xrf.patchLoader )
 
-  xrf.interactive = xrf.InteractiveGroup( opts.THREE, opts.renderer, opts.camera)
-  xrf.scene.add( xrf.interactive)
   xrf.patchRenderer(opts.renderer)
+  xrf.navigator.init()
   return xrf
 }
 
@@ -87,8 +86,6 @@ xrf.eval.fragment = (k, opts ) => {
 }
 
 xrf.reset = () => {
-  console.log("xrf.reset()")
-
   const disposeObject = (obj) => {
     if (obj.children.length > 0) obj.children.forEach((child) => disposeObject(child));
     if (obj.geometry) obj.geometry.dispose();
@@ -96,20 +93,22 @@ xrf.reset = () => {
       if (obj.material.map) obj.material.map.dispose();
       obj.material.dispose();
     }
+    obj.parent.remove(obj)
+    console.log("removing "+(obj.type))
     return true
   };
-
-  for ( let i in xrf.scene.children  ) {
-    const child = xrf.scene.children[i];
-    if( child.xrf ){ // dont affect user objects
-      disposeObject(child);
-      xrf.scene.remove(child);
+  let nodes = xrf.scene.children
+  for ( let i in nodes ) {
+    const child = nodes[i];
+    if( child.isXRF ){ 
+      disposeObject(child) // dont affect user objects
     }
+
   }
-  // remove interactive xrf objs like href-portals
-  xrf.interactive.traverse( (n) => { 
-    if( disposeObject(n) ) xrf.interactive.remove(n)
-  })
+  xrf.scene.remove(xrf.interactive) // why is this needed (again?)
+  xrf.interactive = xrf.InteractiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
+  xrf.add( xrf.interactive)
+  console.dir(xrf.scene)
 }
 
 xrf.parseUrl = (url) => {
@@ -119,4 +118,9 @@ xrf.parseUrl = (url) => {
   const hash = url.match(/#/) ? url.replace(/.*#/,'') : ''
   const ext  = file.split('.').pop()
   return {urlObj,dir,file,hash,ext}
+}
+
+xrf.add = (object) => {
+  object.isXRF = true // mark for easy deletion when replacing scene
+  xrf.scene.add(object)
 }

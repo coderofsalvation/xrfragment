@@ -15,16 +15,8 @@ window.AFRAME.registerComponent('xrf', {
 
   initXRFragments: function(){
 
-    // clear all current xrf-get entities when click back button or href
-    let clear = () => {
-      console.log("CLEARING!")
-      let els = [...document.querySelectorAll('[xrf-get]')]
-      console.dir(els)
-      els.map( (el) => el.parentNode.remove(el) )
-      console.log( document.querySelectorAll('[xrf-get]').length )
-    }
-    window.addEventListener('popstate', clear )
-    window.addEventListener('pushstate', clear )
+    //window.addEventListener('popstate', clear )
+    //window.addEventListener('pushstate', clear )
 
     // enable XR fragments
     let aScene = document.querySelector('a-scene')
@@ -56,6 +48,14 @@ window.AFRAME.registerComponent('xrf', {
       el.addEventListener("click", mesh.userData.XRF.href.exec )
       $('a-scene').appendChild(el)
     }
+
+    // cleanup xrf-get objects when resetting scene
+    XRF.reset = ((reset) => () => {
+      console.log("aframe reset")
+      let els = [...document.querySelectorAll('[xrf-get]')]
+      els.map( (el) => document.querySelector('a-scene').removeChild(el) )
+      reset()
+    })(XRF.reset)
   },
 })
 
@@ -82,6 +82,7 @@ window.AFRAME.registerComponent('xrf-get', {
       ////mesh.updateMatrixWorld();
       this.el.object3D.position.setFromMatrixPosition(scene.matrixWorld);
       this.el.object3D.quaternion.setFromRotationMatrix(scene.matrixWorld);
+      mesh.xrf = true // mark for deletion by xrf
       this.el.setObject3D('mesh', mesh );
       if( !this.el.id ) this.el.setAttribute("id",`xrf-${mesh.name}`)
 

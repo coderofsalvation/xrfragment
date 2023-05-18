@@ -33,6 +33,6 @@ xrf.frag.src = function(v, opts){
       }
       // Add the instance to the scene
       model.scene.add(sceneInstance);
-    },200)
+    },10)
   }
 }

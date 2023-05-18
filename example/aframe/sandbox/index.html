@@ -46,10 +46,18 @@
 			$('a-scene').addEventListener('loaded', () => {
 				setupConsole( $('textarea') )
 
+        let nav = window.AFRAME.XRF.navigator
+        nav.to  = ((to) => (url,e) => {
+          to(url,e)
+          reflectUrl()
+        })(nav.to)
+        
+        const reflectUrl = () => $('#uri').value = document.location.search.substr(1) + document.location.hash
+        reflectUrl()
 				// update url when sandbox-url is updated 
-				window.addEventListener('hashchange', () => {
-					window.AFRAME.XRF.eval( $('#uri').value = document.location.hash )
-				})
+				//window.addEventListener('hashchange', () => {
+				//	window.AFRAME.XRF.eval( $('#uri').value = document.location.hash )
+				//})
         //if( document.location.hash.length < 2 ) document.location.hash = $('#uri').value
 
         // add look-controls at last (otherwise it'll be buggy after scene-updates)

@@ -614,7 +614,6 @@ xrfragment.InteractiveGroup = function(THREE,renderer,camera){
       super();
 
       if( !renderer || !camera ) return 
-
       const scope = this;
 
       const raycaster = new Raycaster();
@@ -740,9 +739,8 @@ xrf.init = function(opts){
   xrf.Parser.debug = xrf.debug 
   if( opts.loaders ) Object.values(opts.loaders).map( xrf.patchLoader )
 
-  xrf.interactive = xrf.InteractiveGroup( opts.THREE, opts.renderer, opts.camera)
-  xrf.scene.add( xrf.interactive)
   xrf.patchRenderer(opts.renderer)
+  xrf.navigator.init()
   return xrf
 }
 
@@ -815,8 +813,6 @@ xrf.eval.fragment = (k, opts ) => {
 }
 
 xrf.reset = () => {
-  console.log("xrf.reset()")
-
   const disposeObject = (obj) => {
     if (obj.children.length > 0) obj.children.forEach((child) => disposeObject(child));
     if (obj.geometry) obj.geometry.dispose();
@@ -824,20 +820,22 @@ xrf.reset = () => {
       if (obj.material.map) obj.material.map.dispose();
       obj.material.dispose();
     }
+    obj.parent.remove(obj)
+    console.log("removing "+(obj.type))
     return true
   };
-
-  for ( let i in xrf.scene.children  ) {
-    const child = xrf.scene.children[i];
-    if( child.xrf ){ // dont affect user objects
-      disposeObject(child);
-      xrf.scene.remove(child);
+  let nodes = xrf.scene.children
+  for ( let i in nodes ) {
+    const child = nodes[i];
+    if( child.isXRF ){ 
+      disposeObject(child) // dont affect user objects
     }
+
   }
-  // remove interactive xrf objs like href-portals
-  xrf.interactive.traverse( (n) => { 
-    if( disposeObject(n) ) xrf.interactive.remove(n)
-  })
+  xrf.scene.remove(xrf.interactive) // why is this needed (again?)
+  xrf.interactive = xrf.InteractiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
+  xrf.add( xrf.interactive)
+  console.dir(xrf.scene)
 }
 
 xrf.parseUrl = (url) => {
@@ -848,25 +846,30 @@ xrf.parseUrl = (url) => {
   const ext  = file.split('.').pop()
   return {urlObj,dir,file,hash,ext}
 }
+
+xrf.add = (object) => {
+  object.isXRF = true // mark for easy deletion when replacing scene
+  xrf.scene.add(object)
+}
 xrf.navigator = {}
 
-xrf.navigator.to = (url) => {
+xrf.navigator.to = (url,event) => {
   return new Promise( (resolve,reject) => {
     console.log("xrfragment: navigating to "+url)
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
     if( xrf.model && xrf.model.scene ) xrf.model.scene.visible = false
-    console.log("ext="+ext)
     const Loader = xrf.loaders[ext]
     if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 
+    xrf.reset() // clear xrf objects from scene
     // force relative path 
     if( dir ) dir = dir[0] == '.' ? dir : `.${dir}`
     const loader = new Loader().setPath( dir )
     loader.load( file, function(model){
-      xrf.reset()
-      model.scene.xrf = true // leave mark for reset()
-      xrf.scene.add( model.scene )
+      xrf.add( model.scene )
       xrf.model = model 
-      xrf.navigator.commit( file, hash )
+   //   if( event && event.type == "popstate" ){
+        xrf.navigator.commit( file, hash )
+   //   }
       resolve(model)
     })
   })
@@ -875,20 +878,14 @@ xrf.navigator.to = (url) => {
 xrf.navigator.init = () => {
   if( xrf.navigator.init.inited ) return
   window.addEventListener('popstate', function (event){
-    console.log(event.target.document.location.search)
-    console.log(event.currentTarget.document.location.search)
-    console.log(document.location.search)
-    xrf.navigator.to( document.location.search.substr(1) + document.location.hash )
+    xrf.navigator.to( document.location.search.substr(1) + document.location.hash, event)
   })
-  let {url,urlObj,dir,file,hash,ext} = xrf.parseUrl(document.location.href)
-  //console.dir({file,hash})
-  xrf.navigator.commit(file,document.location.hash)
   xrf.navigator.init.inited = true
 }
 
 xrf.navigator.commit = (file,hash) => {
-  console.log("hash="+hash)
-  window.history.pushState({},null, document.location.pathname + `?${file}#${hash}` )
+  if( file == document.location.search.substr(1) ) return // page is in its default state
+  window.history.pushState({},`${file}#${hash}`, document.location.pathname + `?${file}#${hash}` )
 }
 xrf.frag.env = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
@@ -933,7 +930,6 @@ xrf.frag.href = function(v, opts){
   mesh.getWorldScale(world.scale)
   mesh.position.copy(world.pos)
   mesh.scale.copy(world.scale)
-  console.log("HREF: "+(model.recursive ?"src-instanced":"original"))
 
   // convert texture if needed
   let texture = mesh.material.map
@@ -1030,7 +1026,7 @@ xrf.frag.href = function(v, opts){
  // lazy remove mesh (because we're inside a traverse)
  setTimeout( (mesh) => {
    xrf.interactive.add(mesh)
- }, 300, mesh )
+ }, 20, mesh )
 }
 xrf.frag.pos = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
@@ -1094,7 +1090,7 @@ xrf.frag.src = function(v, opts){
       }
       // Add the instance to the scene
       model.scene.add(sceneInstance);
-    },200)
+    },10)
   }
 }
 window.AFRAME.registerComponent('xrf', {
@@ -1114,16 +1110,8 @@ window.AFRAME.registerComponent('xrf', {
 
   initXRFragments: function(){
 
-    // clear all current xrf-get entities when click back button or href
-    let clear = () => {
-      console.log("CLEARING!")
-      let els = [...document.querySelectorAll('[xrf-get]')]
-      console.dir(els)
-      els.map( (el) => el.parentNode.remove(el) )
-      console.log( document.querySelectorAll('[xrf-get]').length )
-    }
-    window.addEventListener('popstate', clear )
-    window.addEventListener('pushstate', clear )
+    //window.addEventListener('popstate', clear )
+    //window.addEventListener('pushstate', clear )
 
     // enable XR fragments
     let aScene = document.querySelector('a-scene')
@@ -1155,6 +1143,14 @@ window.AFRAME.registerComponent('xrf', {
       el.addEventListener("click", mesh.userData.XRF.href.exec )
       $('a-scene').appendChild(el)
     }
+
+    // cleanup xrf-get objects when resetting scene
+    XRF.reset = ((reset) => () => {
+      console.log("aframe reset")
+      let els = [...document.querySelectorAll('[xrf-get]')]
+      els.map( (el) => document.querySelector('a-scene').removeChild(el) )
+      reset()
+    })(XRF.reset)
   },
 })
 
@@ -1181,6 +1177,7 @@ window.AFRAME.registerComponent('xrf-get', {
       ////mesh.updateMatrixWorld();
       this.el.object3D.position.setFromMatrixPosition(scene.matrixWorld);
       this.el.object3D.quaternion.setFromRotationMatrix(scene.matrixWorld);
+      mesh.xrf = true // mark for deletion by xrf
       this.el.setObject3D('mesh', mesh );
       if( !this.el.id ) this.el.setAttribute("id",`xrf-${mesh.name}`)
 

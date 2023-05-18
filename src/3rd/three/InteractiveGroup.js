@@ -19,7 +19,6 @@ xrfragment.InteractiveGroup = function(THREE,renderer,camera){
       super();
 
       if( !renderer || !camera ) return 
-
       const scope = this;
 
       const raycaster = new Raycaster();
