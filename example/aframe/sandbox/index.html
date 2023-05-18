@@ -15,18 +15,13 @@
     <div id="overlay" x-data="{ urls: ['#pos=0,1.6,15&rot=0,360,0'] }">
       <img src="./../../assets/logo.png" class="logo"/>
 			<input type="submit" value="load 3D asset"></input>
-			<input type="text" id="uri" list="urls" value="#pos=0,1.6,15&rot=0,360,0" x-on:change="document.location.hash = $('#uri').value"/>
-      <datalist id="urls" >
-				 <template x-for="url in urls">
-						<option x-bind:value="url" selected></option>
-				</template>
-			</datalist>
+      <input type="text" id="uri" value="" onchange="AFRAME.XRF.navigator.to( $('#uri').value )"/> 
     </div>
     <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment/blob/main/example/aframe/sandbox/index.html">sourcecode</a> 
     <a class="btn-foot" id="model" target="_blank" href="">⬇️ model</a> 
 		<textarea style="display:none"></textarea>
     <a-scene light="defaultLightsEnabled: false">
-			<a-entity xrf id="player" >
+			<a-entity id="player" >
 				<a-entity camera position="0 1.6 15" wasd-controls id="camera"></a-entity>
         <a-entity id="left-hand"  laser-controls="hand: left" raycaster="objects:.collidable;far:5500"  oculus-touch-controls="hand: left" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: #floor"></a-entity>
         <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects:.collidable;far:5500" oculus-touch-controls="hand: right" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: #floor"></a-entity>
@@ -37,28 +32,15 @@
     </a-scene>
 
 		<script type="module">
-			import { loadFile, setupConsole }   from './../../assets/utils.js';
+			import { loadFile, setupConsole, setupUrlBar }   from './../../assets/utils.js';
       window.$ = (s) => document.querySelector(s)
 
 			if( document.location.search.length > 2 ) 
-				$('#home').setAttribute('xrf', document.location.search.substr(1) )
+				$('#home').setAttribute('xrf', document.location.search.substr(1)+document.location.hash )
 
 			$('a-scene').addEventListener('loaded', () => {
 				setupConsole( $('textarea') )
-
-        let nav = window.AFRAME.XRF.navigator
-        nav.to  = ((to) => (url,e) => {
-          to(url,e)
-          reflectUrl()
-        })(nav.to)
-        
-        const reflectUrl = () => $('#uri').value = document.location.search.substr(1) + document.location.hash
-        reflectUrl()
-				// update url when sandbox-url is updated 
-				//window.addEventListener('hashchange', () => {
-				//	window.AFRAME.XRF.eval( $('#uri').value = document.location.hash )
-				//})
-        //if( document.location.hash.length < 2 ) document.location.hash = $('#uri').value
+        setupUrlBar( $('input#uri') )
 
         // add look-controls at last (otherwise it'll be buggy after scene-updates)
         $('[camera]').setAttribute("look-controls","")

@@ -43,6 +43,7 @@ xrf.parseModel = function(model,url){
   let file               = xrf.getFile(url)
   model.file             = file
   model.render           = function(){}
+  // eval embedded XR fragments
   model.scene.traverse( (mesh) => xrf.eval.mesh(mesh,model) )
 }
 

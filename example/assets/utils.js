@@ -50,3 +50,21 @@ export function setupConsole(el){
     $console.scrollTop = $console.scrollHeight;
   })(console.log.bind(console))
 }
+
+export function setupUrlBar(el){
+
+  var isIframe = (window === window.parent || window.opener) ? false : true;
+  if( isIframe ){
+    // show internal URL bar to test XR fragments interactively 
+    el.style.display = 'block'
+    let nav = window.AFRAME.XRF.navigator
+
+    AFRAME.XRF.navigator.to = ((to) => (url,e) => {
+      to(url,e)
+      reflectUrl(url)
+    })(AFRAME.XRF.navigator.to)
+
+    const reflectUrl = (url) => el.value = url || document.location.search.substr(1) + document.location.hash
+    reflectUrl()
+  }
+}

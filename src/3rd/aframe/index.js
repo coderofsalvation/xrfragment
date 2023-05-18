@@ -1,10 +1,9 @@
 window.AFRAME.registerComponent('xrf', {
   schema: {
-    rig: {type: 'selector'}
   },
   init: function () {
     if( !AFRAME.XRF ) this.initXRFragments()
-    if( typeof this.data == "string" ){
+    if( this.data ){
       AFRAME.XRF.navigator.to(this.data)
                          .then( (model) => {
                            let gets = [ ...document.querySelectorAll('[xrf-get]') ]

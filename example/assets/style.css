@@ -60,6 +60,7 @@ input[type="submit"] {
 }
 
 #overlay > #uri {
+    display:none;
     height: 29px;
     font-size: 14px;
     position: absolute;

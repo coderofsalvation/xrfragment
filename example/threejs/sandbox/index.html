@@ -11,12 +11,7 @@
     <div id="overlay" x-data="{ urls: ['#pos=0,1.6,15','#pos=0,1.6,15&rot=0,360,0'] }">
       <img src="./../../assets/logo.png" class="logo"/>
 			<input type="submit" value="load 3D asset"></input>
-			<input type="text" id="uri" list="urls" value="#pos=0,1.6,15&rot=0,360,0" x-on:change="document.location.hash = $('#uri').value"/>
-      <datalist id="urls" >
-				 <template x-for="url in urls">
-						<option x-bind:value="url" selected></option>
-				</template>
-			</datalist>
+			<input type="text" id="uri" value="" onchange="AFRAME.XRF.navigator.to( $('#uri').value )"/>
     </div>
     <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment/blob/main/example/threejs/sandbox/index.html#L92-L112">sourcecode</a> 
     <a class="btn-foot" id="model" target="_blank" href="">⬇️ model</a> 
@@ -40,7 +35,7 @@
 
 			import xrfragment from './../../../dist/xrfragment.three.js';
 
-			import { loadFile, setupConsole }   from './../../assets/utils.js';
+			import { loadFile, setupConsole, setupUrlBar }   from './../../assets/utils.js';
 			import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 			import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
 			import { BoxLineGeometry } from 'three/addons/geometries/BoxLineGeometry.js';
@@ -98,11 +93,6 @@
           loaders: { gltf: GLTFLoader, fbx: FBXLoader }, // which 3D assets (extensions) to check for XR fragments?
         })
 
-				// init navigator url
-				window.addEventListener('hashchange', () => {
-					window.XRF.eval( $('#uri').value = document.location.hash )
-				})
-        if( document.location.hash.length < 2 ) document.location.hash = $('#uri').value
 
         // optional: react/extend/hook into XR fragment
         XRF.env = (xrf,v,opts) => {
@@ -126,7 +116,7 @@
 
         window.XRF = XRF // expose to form
 
-				let file = document.location.search.length > 2 ? document.location.search.substr(1) : './../../assets/example3.gltf'
+				let file = document.location.search.length > 2 ? document.location.search.substr(1) + document.location.hash : './../../assets/example3.gltf#pos=0,1,15'
         $('#model').setAttribute("href","./../../asset/"+file)
 				XRF.navigator.to( file )
 
@@ -176,6 +166,7 @@
 
          
         setupConsole()
+        setupUrlBar( $('input#uri') )
 
 				// GUI
 

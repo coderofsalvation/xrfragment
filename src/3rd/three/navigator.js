@@ -1,11 +1,17 @@
 xrf.navigator = {}
 
 xrf.navigator.to = (url,event) => {
-  debugger
+  if( !url ) throw 'xrf.navigator.to(..) no url given'
   return new Promise( (resolve,reject) => {
-    console.log("xrfragment: navigating to "+url)
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
-    if( xrf.model.file == file ) return resolve(xrf.model) // we're already loaded 
+    console.log("xrfragment: navigating to "+url)
+
+    if( !file || xrf.model.file == file ){          // we're already loaded
+      document.location.hash = `#${hash}`  // just update the hash
+      xrf.eval( url, xrf.model )           // and eval URI XR fragments 
+      return resolve(xrf.model) 
+    }
+
     if( xrf.model && xrf.model.scene ) xrf.model.scene.visible = false
     const Loader = xrf.loaders[ext]
     if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 
@@ -17,7 +23,8 @@ xrf.navigator.to = (url,event) => {
       model.file = file
       xrf.add( model.scene )
       xrf.model = model 
-      xrf.navigator.commit( file, hash )
+      xrf.eval( url, model )  // and eval URI XR fragments 
+      xrf.navigator.pushState( file, hash )
       resolve(model)
     })
   })
@@ -31,7 +38,7 @@ xrf.navigator.init = () => {
   xrf.navigator.init.inited = true
 }
 
-xrf.navigator.commit = (file,hash) => {
+xrf.navigator.pushState = (file,hash) => {
   if( file == document.location.search.substr(1) ) return // page is in its default state
   window.history.pushState({},`${file}#${hash}`, document.location.pathname + `?${file}#${hash}` )
 }
