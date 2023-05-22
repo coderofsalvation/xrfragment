@@ -31,7 +31,7 @@ window.AFRAME.registerComponent('xrf', {
         
     // override the camera-related XR Fragments so the camera-rig is affected 
     let camOverride = (xrf,v,opts) => {
-      opts.camera = $('[camera]').object3D //parentElement.object3D 
+      opts.camera = $('[camera]').object3D.parent 
       xrf(v,opts)
     }
     

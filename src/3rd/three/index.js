@@ -125,3 +125,27 @@ xrf.add = (object) => {
   object.isXRF = true // mark for easy deletion when replacing scene
   xrf.scene.add(object)
 }
+
+/* 
+ * EVENTS 
+ */
+
+xrf.addEventListener = function(eventName, callback) {
+    if( !this._listeners ) this._listeners = []
+    if (!this._listeners[eventName]) {
+        // create a new array for this event name if it doesn't exist yet
+        this._listeners[eventName] = [];
+    }
+    // add the callback to the listeners array for this event name
+    this._listeners[eventName].push(callback);
+};
+
+xrf.emit = function(eventName, data) {
+    if( !this._listeners ) this._listeners = []
+    var callbacks = this._listeners[eventName]
+    if (callbacks) {
+        for (var i = 0; i < callbacks.length; i++) {
+            callbacks[i](data);
+        }
+    }
+};

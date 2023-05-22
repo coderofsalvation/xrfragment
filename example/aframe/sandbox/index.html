@@ -4,15 +4,15 @@
 		<title>AFRAME - xrfragment sandbox</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="stylesheet" href="./../../assets/axist.min.css" />
-    <link type="text/css" rel="stylesheet" href="./../../assets/style.css"/>
-		<script async src="./../../assets/alpine.min.js" defer></script>
+    <link rel="stylesheet" href="./../../assets/css/axist.min.css" />
+    <link type="text/css" rel="stylesheet" href="./../../assets/css/style.css"/>
+		<script async src="./../../assets/js/alpine.min.js" defer></script>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js"></script>
 		<script src="./../../../dist/xrfragment.aframe.js"></script>
 	</head>
 	<body>
-    <div id="overlay" x-data="{ urls: ['#pos=0,1.6,15&rot=0,360,0'] }">
+    <div id="overlay">
       <img src="./../../assets/logo.png" class="logo"/>
 			<input type="submit" value="load 3D asset"></input>
       <input type="text" id="uri" value="" onchange="AFRAME.XRF.navigator.to( $('#uri').value )"/> 
@@ -22,18 +22,22 @@
 		<textarea style="display:none"></textarea>
     <a-scene light="defaultLightsEnabled: false">
 			<a-entity id="player" >
-				<a-entity camera position="0 1.6 15" wasd-controls id="camera"></a-entity>
+				<a-entity camera="fov:90" position="0 1.6 0" wasd-controls id="camera"></a-entity>
         <a-entity id="left-hand"  laser-controls="hand: left" raycaster="objects:.collidable;far:5500"  oculus-touch-controls="hand: left" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: #floor"></a-entity>
         <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects:.collidable;far:5500" oculus-touch-controls="hand: right" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: #floor"></a-entity>
 			</a-entity>
-      <a-entity id="home"  xrf="example3.gltf#pos=1,2,3"></a-entity>
+      <a-entity id="home"  xrf="example3.gltf#pos=0,0,0"></a-entity>
       <a-entity id="floor" xrf-get="floor"></a-entity>
-
     </a-scene>
 
 		<script type="module">
-			import { loadFile, setupConsole, setupUrlBar }   from './../../assets/utils.js';
+			import { loadFile, setupConsole, setupUrlBar, notify }   from './../../assets/js/utils.js';
       window.$ = (s) => document.querySelector(s)
+      window.notify = notify(window)
+      console.log = ( (log) => function(str){
+        if( String(str).match(/(camera)/) ) window.notify(str)
+        log(str)
+      })(console.log)
 
 			if( document.location.search.length > 2 ) 
 				$('#home').setAttribute('xrf', document.location.search.substr(1)+document.location.hash )
@@ -46,6 +50,10 @@
         $('[camera]').setAttribute("look-controls","")
         // add screenshot component with camera to capture proper equirects
         $('a-scene').setAttribute("screenshot",{camera: "[camera]",width: 4096*2, height:2048*2})
+
+        setTimeout( () => window.notify("use arrow-keys and mouse-drag to move around",{timeout:4000}),2000 )
+
+        window.AFRAME.XRF.addEventListener('href', (data) => data.selected ? window.notify(`href: ${data.xrf.string}`) : false )
 
 			})
 		</script>

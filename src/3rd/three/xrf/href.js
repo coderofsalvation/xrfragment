@@ -2,14 +2,17 @@
  * navigation, portals & mutations
  *
  * | fragment | type | scope | example value |
- * |-|-|-|-|
- * |`href`| (uri) string | 🔒 |`#pos=1,1,0`<br>`#pos=1,1,0&rot=90,0,0`<br>`#pos=pyramid`<br>`#pos=lastvisit\|pyramid`<Br>`://somefile.gltf#pos=1,1,0`<br> |
+ * |`href`| string (uri or [predefined view](#predefined_view )) | 🔒 |`#pos=1,1,0`<br>`#pos=1,1,0&rot=90,0,0`<br>`#pos=pyramid`<br>`#pos=lastvisit\|pyramid`<br>`://somefile.gltf#pos=1,1,0`<br> |
  *
- * ### spec 1.0
+ * [img[xrfragment.jpg]]
  *
- * 1. a **external**- or **file URI** fully replaces the current scene and assumes `pos=0,0,0&rot=0,0,0` by default (unless specified)
+ * !!!spec 1.0
+ *
+ * 1. a ''external''- or ''file URI'' fully replaces the current scene and assumes `pos=0,0,0&rot=0,0,0` by default (unless specified)
+ *
  * 2. navigation should not happen when queries (`q=`) are present in local url: queries will apply (`pos=`, `rot=` e.g.) to the targeted object(s) instead.
- * 3. navigation should not happen immediately when user is more than 2 meter away from the portal/object containing the href (to prevent accidental navigation e.g.)
+ *
+ * 3. navigation should not happen ''immediately'' when user is more than 2 meter away from the portal/object containing the href (to prevent accidental navigation e.g.)
  */
 
 xrf.frag.href = function(v, opts){
@@ -122,8 +125,8 @@ xrf.frag.href = function(v, opts){
 }
 
 /**
- * > above was abducted from [this](https://i.imgur.com/E3En0gJ.png) and [this](https://i.imgur.com/lpnTz3A.png) survey result
+ * > above was abducted from [[this|https://i.imgur.com/E3En0gJ.png]] and [[this|https://i.imgur.com/lpnTz3A.png]] survey result
  *
- * [» source example](https://github.com/coderofsalvation/xrfragment/blob/main/src/three/xrf/pos.js)<br>
- * [» discussion](https://github.com/coderofsalvation/xrfragment/issues/1)
+ * [[» discussion|https://github.com/coderofsalvation/xrfragment/issues/1]]<br>
+ * [[» implementation example|https://github.com/coderofsalvation/xrfragment/blob/main/src/three/xrf/pos.js]]<br>
  */
