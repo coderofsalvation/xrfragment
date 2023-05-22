@@ -31,7 +31,7 @@ window.AFRAME.registerComponent('xrf', {
         
     // override the camera-related XR Fragments so the camera-rig is affected 
     let camOverride = (xrf,v,opts) => {
-      opts.camera = $('[camera]').object3D.parent 
+      opts.camera = document.querySelector('[camera]').object3D.parent 
       console.dir(opts.camera)
       xrf(v,opts)
     }
@@ -44,7 +44,7 @@ window.AFRAME.registerComponent('xrf', {
       let {mesh,camera} = opts;
       let el = document.createElement("a-entity")
       el.setAttribute("xrf-get",mesh.name )
-      el.setAttribute("class","collidable")
+      el.setAttribute("class","ray")
       el.addEventListener("click", mesh.userData.XRF.href.exec )
       $('a-scene').appendChild(el)
     }
@@ -57,54 +57,7 @@ window.AFRAME.registerComponent('xrf', {
       els.map( (el) => document.querySelector('a-scene').removeChild(el) )
     })(XRF.reset)
   
-    // disable cam-controls (which block updating camerarig position)
-    let coms = ['look-controls','wasd-controls']
-    const setComponents = (com,state) => () => {
-      coms.forEach( (com) => {
-        let el = document.querySelector('['+com+']')
-        if(!el) return 
-        el.components[com].enabled = state 
-      })
-    }
-    aScene.addEventListener('enter-vr', setComponents(coms,false) )
-    aScene.addEventListener('enter-ar', setComponents(coms,false) )
-    aScene.addEventListener('exit-vr',  setComponents(coms,true) )
-    aScene.addEventListener('exit-ar',  setComponents(coms,true) )
+    // undo lookup-control shenanigans (which blocks updating camerarig position in VR)
+    aScene.addEventListener('enter-vr', () => document.querySelector('[camera]').object3D.parent.matrixAutoUpdate = true )
   },
 })
-
-window.AFRAME.registerComponent('xrf-get', {
-  schema: {
-    name: {type: 'string'},
-    clone: {type: 'boolean', default:false}
-  },
-
-  init: function () {
-
-    var el = this.el;
-    var meshname = this.data.name || this.data;
-
-    this.el.addEventListener('update', (evt) => {
-
-      let scene = AFRAME.XRF.scene 
-      let mesh = scene.getObjectByName(meshname);
-      if (!mesh){
-        console.error("mesh with name '"+meshname+"' not found in model")
-        return;
-      }
-      if( !this.data.clone              ) mesh.parent.remove(mesh)
-      ////mesh.updateMatrixWorld();
-      this.el.object3D.position.setFromMatrixPosition(scene.matrixWorld);
-      this.el.object3D.quaternion.setFromRotationMatrix(scene.matrixWorld);
-      mesh.xrf = true // mark for deletion by xrf
-      this.el.setObject3D('mesh', mesh );
-      if( !this.el.id ) this.el.setAttribute("id",`xrf-${mesh.name}`)
-
-    })
-
-    if( this.el.className == "collidable" ) this.el.emit("update")
-
-  }
-
-});
-
