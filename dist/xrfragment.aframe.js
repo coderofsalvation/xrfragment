@@ -821,22 +821,15 @@ xrf.reset = () => {
       if (obj.material.map) obj.material.map.dispose();
       obj.material.dispose();
     }
-    obj.parent.remove(obj)
-    console.log("removing "+(obj.type))
+    obj.clear()
+    obj.removeFromParent() 
     return true
   };
-  let nodes = xrf.scene.children
-  for ( let i in nodes ) {
-    const child = nodes[i];
-    if( child.isXRF ){ 
-      disposeObject(child) // dont affect user objects
-    }
-
-  }
-  xrf.scene.remove(xrf.interactive) // why is this needed (again?)
+  let nodes = []
+  xrf.scene.traverse( (child) => child.isXRF ? nodes.push(child) : false )
+  nodes.map( disposeObject ) // leave non-XRF objects intact
   xrf.interactive = xrf.InteractiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
   xrf.add( xrf.interactive)
-  console.dir(xrf.scene)
 }
 
 xrf.parseUrl = (url) => {
@@ -955,8 +948,27 @@ xrf.frag.env = function(v, opts){
   },500)
   console.log(`   └ applied image '${v.string}' as environment map`)
 }
+/**
+ * navigation, portals & mutations
+ *
+ * | fragment | type | scope | example value |
+ * |`href`| string (uri or [predefined view](#predefined_view )) | 🔒 |`#pos=1,1,0`<br>`#pos=1,1,0&rot=90,0,0`<br>`#pos=pyramid`<br>`#pos=lastvisit\|pyramid`<br>`://somefile.gltf#pos=1,1,0`<br> |
+ *
+ * [img[xrfragment.jpg]]
+ *
+ * !!!spec 1.0
+ *
+ * 1. a ''external''- or ''file URI'' fully replaces the current scene and assumes `pos=0,0,0&rot=0,0,0` by default (unless specified)
+ *
+ * 2. navigation should not happen when queries (`q=`) are present in local url: queries will apply (`pos=`, `rot=` e.g.) to the targeted object(s) instead.
+ *
+ * 3. navigation should not happen ''immediately'' when user is more than 2 meter away from the portal/object containing the href (to prevent accidental navigation e.g.)
+ */
+
 xrf.frag.href = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
+
+  console.log("INIT HREF "+mesh.name)
 
   const world = { 
     pos: new THREE.Vector3(), 
@@ -1008,7 +1020,7 @@ xrf.frag.href = function(v, opts){
           vec2 sampleUV;
           sampleUV.y = -clamp(direction.y * 0.5  + 0.5, 0.0, 1.0);
           sampleUV.x = atan(direction.z, -direction.x) * -RECIPROCAL_PI2;
-          sampleUV.x += 0.33; // adjust focus to AFRAME's $('a-scene').components.screenshot.capture()
+          sampleUV.x += 0.33; // adjust focus to AFRAME's a-scene.components.screenshot.capture()
           vec4 color = texture2D(pano, sampleUV);
           // Convert color to grayscale (lazy lite approach to not having to match tonemapping/shaderstacking of THREE.js)
           float luminance = 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
@@ -1021,12 +1033,10 @@ xrf.frag.href = function(v, opts){
   }
 
   let teleport = mesh.userData.XRF.href.exec = (e) => {
-    if( mesh.clicked ) return 
-    mesh.clicked = true
-    let portalArea = 1 // 1 meter
     const meshWorldPosition = new THREE.Vector3();
     meshWorldPosition.setFromMatrixPosition(mesh.matrixWorld);
 
+    let portalArea = 1 // 2 meter
     const cameraDirection = new THREE.Vector3();
     camera.getWorldPosition(cameraDirection);
     cameraDirection.sub(meshWorldPosition);
@@ -1035,11 +1045,12 @@ xrf.frag.href = function(v, opts){
     const newPos = meshWorldPosition.clone().add(cameraDirection);
 
     const distance = camera.position.distanceTo(newPos);
-    if( renderer.xr.isPresenting && distance > portalArea ) return // too far away 
+    //if( distance > portalArea ){
+    if( !renderer.xr.isPresenting && !confirm("teleport to "+v.string+" ?") ) return 
     
     xrf.navigator.to(v.string) // ok let's surf to HREF!
+    console.log("teleport!")
     
-    setTimeout( () => mesh.clicked = false, 200 ) // prevent double clicks 
     xrf.emit('href',{click:true,mesh,xrf:v})
   }
 
@@ -1061,12 +1072,20 @@ xrf.frag.href = function(v, opts){
     mesh.addEventListener('nocollide', selected(false) )
   }
 
- // lazy remove mesh (because we're inside a traverse)
- setTimeout( (mesh) => {
-   xrf.interactive.add(mesh)
- }, 20, mesh )
+  // lazy add mesh (because we're inside a recursive traverse)
+  setTimeout( (mesh) => {
+    xrf.interactive.add(mesh)
+  }, 20, mesh )
 }
+
+/**
+ * > above was abducted from [[this|https://i.imgur.com/E3En0gJ.png]] and [[this|https://i.imgur.com/lpnTz3A.png]] survey result
+ *
+ * [[» discussion|https://github.com/coderofsalvation/xrfragment/issues/1]]<br>
+ * [[» implementation example|https://github.com/coderofsalvation/xrfragment/blob/main/src/three/xrf/pos.js]]<br>
+ */
 xrf.frag.pos = function(v, opts){
+  //if( renderer.xr.isPresenting ) return // too far away 
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   console.log("   └ setting camera position to "+v.string)
   camera.position.x = v.x
@@ -1186,11 +1205,12 @@ window.AFRAME.registerComponent('xrf', {
 
     // cleanup xrf-get objects when resetting scene
     XRF.reset = ((reset) => () => {
+      reset()
       console.log("aframe reset")
       let els = [...document.querySelectorAll('[xrf-get]')]
       els.map( (el) => document.querySelector('a-scene').removeChild(el) )
-      reset()
     })(XRF.reset)
+
   },
 })
 

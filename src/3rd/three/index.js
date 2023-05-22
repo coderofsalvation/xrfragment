@@ -94,22 +94,15 @@ xrf.reset = () => {
       if (obj.material.map) obj.material.map.dispose();
       obj.material.dispose();
     }
-    obj.parent.remove(obj)
-    console.log("removing "+(obj.type))
+    obj.clear()
+    obj.removeFromParent() 
     return true
   };
-  let nodes = xrf.scene.children
-  for ( let i in nodes ) {
-    const child = nodes[i];
-    if( child.isXRF ){ 
-      disposeObject(child) // dont affect user objects
-    }
-
-  }
-  xrf.scene.remove(xrf.interactive) // why is this needed (again?)
+  let nodes = []
+  xrf.scene.traverse( (child) => child.isXRF ? nodes.push(child) : false )
+  nodes.map( disposeObject ) // leave non-XRF objects intact
   xrf.interactive = xrf.InteractiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
   xrf.add( xrf.interactive)
-  console.dir(xrf.scene)
 }
 
 xrf.parseUrl = (url) => {
