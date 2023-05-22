@@ -6,7 +6,7 @@ xrf.navigator.to = (url,event) => {
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
     console.log("xrfragment: navigating to "+url)
 
-    if( !file || xrf.model.file == file ){          // we're already loaded
+    if( !file || xrf.model.file == file ){ // we're already loaded
       document.location.hash = `#${hash}`  // just update the hash
       xrf.eval( url, xrf.model )           // and eval URI XR fragments 
       return resolve(xrf.model) 

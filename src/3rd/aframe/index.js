@@ -32,6 +32,7 @@ window.AFRAME.registerComponent('xrf', {
     // override the camera-related XR Fragments so the camera-rig is affected 
     let camOverride = (xrf,v,opts) => {
       opts.camera = $('[camera]').object3D.parent 
+      console.dir(opts.camera)
       xrf(v,opts)
     }
     
@@ -50,11 +51,25 @@ window.AFRAME.registerComponent('xrf', {
 
     // cleanup xrf-get objects when resetting scene
     XRF.reset = ((reset) => () => {
+      reset()
       console.log("aframe reset")
       let els = [...document.querySelectorAll('[xrf-get]')]
       els.map( (el) => document.querySelector('a-scene').removeChild(el) )
-      reset()
     })(XRF.reset)
+  
+    // disable cam-controls (which block updating camerarig position)
+    let coms = ['look-controls','wasd-controls']
+    const setComponents = (com,state) => () => {
+      coms.forEach( (com) => {
+        let el = document.querySelector('['+com+']')
+        if(!el) return 
+        el.components[com].enabled = state 
+      })
+    }
+    aScene.addEventListener('enter-vr', setComponents(coms,false) )
+    aScene.addEventListener('enter-ar', setComponents(coms,false) )
+    aScene.addEventListener('exit-vr',  setComponents(coms,true) )
+    aScene.addEventListener('exit-ar',  setComponents(coms,true) )
   },
 })
 

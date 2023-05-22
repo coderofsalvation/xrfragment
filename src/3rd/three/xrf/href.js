@@ -81,10 +81,10 @@ xrf.frag.href = function(v, opts){
   }
 
   let teleport = mesh.userData.XRF.href.exec = (e) => {
-    let portalArea = 1 // 2 meter
     const meshWorldPosition = new THREE.Vector3();
     meshWorldPosition.setFromMatrixPosition(mesh.matrixWorld);
 
+    let portalArea = 1 // 2 meter
     const cameraDirection = new THREE.Vector3();
     camera.getWorldPosition(cameraDirection);
     cameraDirection.sub(meshWorldPosition);
@@ -93,9 +93,11 @@ xrf.frag.href = function(v, opts){
     const newPos = meshWorldPosition.clone().add(cameraDirection);
 
     const distance = camera.position.distanceTo(newPos);
-    if( renderer.xr.isPresenting && distance > portalArea ) return // too far away 
+    //if( distance > portalArea ){
+    if( !renderer.xr.isPresenting && !confirm("teleport to "+v.string+" ?") ) return 
     
     xrf.navigator.to(v.string) // ok let's surf to HREF!
+    console.log("teleport!")
     
     xrf.emit('href',{click:true,mesh,xrf:v})
   }

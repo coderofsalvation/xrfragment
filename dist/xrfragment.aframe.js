@@ -614,6 +614,10 @@ xrfragment.InteractiveGroup = function(THREE,renderer,camera){
       super();
 
       if( !renderer || !camera ) return 
+
+      // extract camera when camera-rig is passed
+      camera.traverse( (n) =>  String(n.type).match(/Camera/) ? camera = n : null )
+
       const scope = this;
 
       const raycaster = new Raycaster();
@@ -877,7 +881,7 @@ xrf.navigator.to = (url,event) => {
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
     console.log("xrfragment: navigating to "+url)
 
-    if( !file || xrf.model.file == file ){          // we're already loaded
+    if( !file || xrf.model.file == file ){ // we're already loaded
       document.location.hash = `#${hash}`  // just update the hash
       xrf.eval( url, xrf.model )           // and eval URI XR fragments 
       return resolve(xrf.model) 
@@ -967,8 +971,6 @@ xrf.frag.env = function(v, opts){
 
 xrf.frag.href = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
-
-  console.log("INIT HREF "+mesh.name)
 
   const world = { 
     pos: new THREE.Vector3(), 
@@ -1088,9 +1090,48 @@ xrf.frag.pos = function(v, opts){
   //if( renderer.xr.isPresenting ) return // too far away 
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   console.log("   └ setting camera position to "+v.string)
-  camera.position.x = v.x
-  camera.position.y = v.y
-  camera.position.z = v.z
+
+  if( !frag.q ){ 
+
+    if( true ){//!renderer.xr.isPresenting ){
+      console.dir(camera)
+      camera.position.x = v.x
+      camera.position.y = v.y
+      camera.position.z = v.z
+    }
+      /*
+    else{ // XR
+      let cameraWorldPosition = new THREE.Vector3()
+      camera.object3D.getWorldPosition(this.cameraWorldPosition)
+      let newRigWorldPosition = new THREE.Vector3(v.x,v.y,x.z)
+
+      // Finally update the cameras position
+      let newRigLocalPosition.copy(this.newRigWorldPosition)
+      if (camera.object3D.parent) {
+        camera.object3D.parent.worldToLocal(newRigLocalPosition)
+      }
+      camera.setAttribute('position', newRigLocalPosition)
+
+      // Also take the headset/camera rotation itself into account
+      if (this.data.rotateOnTeleport) {
+        this.teleportOcamerainQuaternion
+          .setFromEuler(new THREE.Euler(0, this.teleportOcamerain.object3D.rotation.y, 0))
+        this.teleportOcamerainQuaternion.invert()
+        this.teleportOcamerainQuaternion.multiply(this.hitEntityQuaternion)
+        // Rotate the camera based on calculated teleport ocamerain rotation
+        this.cameraRig.object3D.setRotationFromQuaternion(this.teleportOcamerainQuaternion)
+      }
+
+      console.log("XR")
+      const offsetPosition = { x: - v.x, y: - v.y, z: - v.z, w: 1 };
+      const offsetRotation = new THREE.Quaternion();
+      const transform = new XRRigidTransform( offsetPosition, offsetRotation );
+      const teleportSpaceOffset = xrf.baseReferenceSpace.getOffsetReferenceSpace( transform );
+      renderer.xr.setReferenceSpace( teleportSpaceOffset );
+    }
+    */
+
+  }
 }
 xrf.frag.q = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
@@ -1187,6 +1228,7 @@ window.AFRAME.registerComponent('xrf', {
     // override the camera-related XR Fragments so the camera-rig is affected 
     let camOverride = (xrf,v,opts) => {
       opts.camera = $('[camera]').object3D.parent 
+      console.dir(opts.camera)
       xrf(v,opts)
     }
     
@@ -1210,7 +1252,20 @@ window.AFRAME.registerComponent('xrf', {
       let els = [...document.querySelectorAll('[xrf-get]')]
       els.map( (el) => document.querySelector('a-scene').removeChild(el) )
     })(XRF.reset)
-
+  
+    // disable cam-controls (which will block updating camerarig position)
+    let coms = ['look-controls','wasd-controls']
+    const setComponents = (com,state) => () => {
+      coms.forEach( (com) => {
+        let el = document.querySelector('['+com+']')
+        if(!el) return 
+        el.components[com].enabled = state 
+      })
+    }
+    aScene.addEventListener('enter-vr', setComponents(coms,false) )
+    aScene.addEventListener('enter-ar', setComponents(coms,false) )
+    aScene.addEventListener('exit-vr',  setComponents(coms,true) )
+    aScene.addEventListener('exit-ar',  setComponents(coms,true) )
   },
 })
 

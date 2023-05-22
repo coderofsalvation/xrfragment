@@ -83,10 +83,16 @@
 
 				window.addEventListener( 'resize', onWindowResize );
 
+        let cameraRig = new THREE.Group()
+				cameraRig.position.set( 0, 0, 0 );
+        cameraRig.add(camera)
+        scene.add(cameraRig)
+				
+
         // enable XR fragments
         let XRF = xrfragment.init({            
           THREE,
-          camera,
+          camera:cameraRig,
           scene,
           renderer,
           debug: true,
@@ -116,7 +122,7 @@
 
         window.XRF = XRF // expose to form
 
-				let file = document.location.search.length > 2 ? document.location.search.substr(1) + document.location.hash : './../../assets/example3.gltf#pos=0,1,15'
+				let file = document.location.search.length > 2 ? document.location.search.substr(1) + document.location.hash : './../../assets/example3.gltf#pos=1,0,4&rot=0,-30,0'
         $('#model').setAttribute("href","./../../asset/"+file)
 				XRF.navigator.to( file )
 
@@ -134,12 +140,6 @@
 				//controls.maxPolarAngle = Math.PI / 2;
 				//controls.target = new THREE.Vector3(0,1.6,0)
 
-        //let cameraRig = new THREE.Group()
-				//cameraRig.position.set( 0, 1.6, 15 );
-				camera.position.set( 0, 1.6, 15 );
-        //cameraRig.add(camera)
-				//cameraRig.position.set( 0, 4, 15 );
-				
         //controls.update()
 
 				const geometry = new THREE.BufferGeometry();
@@ -147,22 +147,22 @@
 
 				const controller1 = renderer.xr.getController( 0 );
 				controller1.add( new THREE.Line( geometry ) );
-				scene.add( controller1 );
+				cameraRig.add( controller1 );
 
 				const controller2 = renderer.xr.getController( 1 );
 				controller2.add( new THREE.Line( geometry ) );
-				scene.add( controller2 );
+				cameraRig.add( controller2 );
 
 
 				const controllerModelFactory = new XRControllerModelFactory();
 
 				const controllerGrip1 = renderer.xr.getControllerGrip( 0 );
 				controllerGrip1.add( controllerModelFactory.createControllerModel( controllerGrip1 ) );
-				scene.add( controllerGrip1 );
+				cameraRig.add( controllerGrip1 );
 
 				const controllerGrip2 = renderer.xr.getControllerGrip( 1 );
 				controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
-				scene.add( controllerGrip2 );
+				cameraRig.add( controllerGrip2 );
 
          
         setupConsole()

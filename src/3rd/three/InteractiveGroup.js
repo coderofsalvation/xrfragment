@@ -19,6 +19,10 @@ xrfragment.InteractiveGroup = function(THREE,renderer,camera){
       super();
 
       if( !renderer || !camera ) return 
+
+      // extract camera when camera-rig is passed
+      camera.traverse( (n) =>  String(n.type).match(/Camera/) ? camera = n : null )
+
       const scope = this;
 
       const raycaster = new Raycaster();
