@@ -91,7 +91,7 @@ input[type="submit"] {
   border-radius: 10px;
   border: 5px solid #1c1c3299;
   padding: 0px 6px;
-  bottom:67px;
+  bottom:73;
   position: absolute;
 }
 
@@ -101,7 +101,7 @@ a.btn-foot#source{
   font-weight: bold;
   font-family: sans-serif;
   z-index:2000;
-  bottom: 114px;
+  bottom: 126px;
 }
 
 a.btn-foot#model{
