@@ -57,7 +57,8 @@
         // add screenshot component with camera to capture proper equirects
         $('a-scene').setAttribute("screenshot",{camera: "[camera]",width: 4096*2, height:2048*2})
 
-        setTimeout( () => window.notify("use WASD-keys and mouse-drag to move around",{timeout:false}),2000 )
+        if( window.outerWidth > 800 )
+          setTimeout( () => window.notify("use WASD-keys and mouse-drag to move around",{timeout:false}),2000 )
 
         window.AFRAME.XRF.addEventListener('href', (data) => data.selected ? window.notify(`href: ${data.xrf.string}`) : false )
 
