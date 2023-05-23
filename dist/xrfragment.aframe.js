@@ -1176,9 +1176,6 @@ xrf.frag.rot = function(v, opts){
     v.y * Math.PI / 180,
     v.z * Math.PI / 180
   )
-//  camera.rotation.x = v.x
-//  camera.rotation.y = v.y
-//  camera.rotation.z = v.z
   camera.updateMatrixWorld()
 }
 // *TODO* use webgl instancing
