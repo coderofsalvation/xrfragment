@@ -52,7 +52,7 @@
 
       $('a-scene').addEventListener('loaded', () => {
         setupConsole( $('textarea') )
-        setupUrlBar( $('input#uri') )
+        setupUrlBar( $('input#uri'), window.AFRAME.XRF )
 
         // add screenshot component with camera to capture proper equirects
         $('a-scene').setAttribute("screenshot",{camera: "[camera]",width: 4096*2, height:2048*2})
