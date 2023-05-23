@@ -24,15 +24,15 @@ install(){
 
 tests(){
   {
-  	which python3 && python3 test/generated/test.py src/spec/*.json | awk '{ print "py: "$0 } END{ print "\n"}'
-  	which node    && node test/generated/test.js    src/spec/*.json | awk '{ print "js: "$0 } END{ print "\n"}'
+    which python3 && python3 test/generated/test.py src/spec/*.json | awk '{ print "py: "$0 } END{ print "\n"}'
+    which node    && node test/generated/test.js    src/spec/*.json | awk '{ print "js: "$0 } END{ print "\n"}'
   } | awk '$2 ~ /src/ { $2=sprintf("%-30s",$2); print $0; next; } 1' | tee /tmp/log.txt
   grep error /tmp/log.txt && exit 1 || exit 0
 }
 
 doc(){
-	awk -f doc/generate.awk src/xrfragment/URI.hx \
-												  src/xrfragment/Parser.hx > doc/RFC.md
+  awk -f doc/generate.awk src/xrfragment/URI.hx \
+                          src/xrfragment/Parser.hx > doc/RFC.md
 }
 
 server(){
@@ -55,15 +55,15 @@ build_js(){
   # add THREE module
   cat dist/license.js        \
       dist/xrfragment.js     \
-			src/3rd/three/*.js     \
-			src/3rd/three/xrf/*.js          > dist/xrfragment.three.js
+      src/3rd/three/*.js     \
+      src/3rd/three/xrf/*.js          > dist/xrfragment.three.js
   echo "export default xrfragment;"  >> dist/xrfragment.three.js
   # add AFRAME 
   cat dist/license.js        \
       dist/xrfragment.js     \
-			src/3rd/three/*.js     \
-			src/3rd/three/xrf/*.js \
-			src/3rd/aframe/*.js    > dist/xrfragment.aframe.js
+      src/3rd/three/*.js     \
+      src/3rd/three/xrf/*.js \
+      src/3rd/aframe/*.js    > dist/xrfragment.aframe.js
   ls -la dist | grep js
   exit $ok
 }
