@@ -143,10 +143,10 @@ xrf.frag.href = function(v, opts){
  * > above solutions were abducted from [[this|https://i.imgur.com/E3En0gJ.png]] and [[this|https://i.imgur.com/lpnTz3A.png]] survey result
  *
  * !!!Demo
- *
- * > taken from <a href="./example/aframe/sandbox" target="_blank">aframe/sandbox</a>
- *
- * <video width="100%" autoplay="" muted="" loop="">
- *    <source src="https://coderofsalvation.github.io/xrfragment.media/href.mp4" type="video/mp4">Your browser does not support the video element.
- * </video>
+ * 
+ * <$videojs controls="controls" aspectratio="16:9" preload="auto" poster="" fluid="fluid" class="vjs-big-play-centered">
+ *   <source src="https://coderofsalvation.github.io/xrfragment.media/href.mp4" type="video/mp4"/>
+ * </$videojs>
+ * 
+ * > capture of <a href="./example/aframe/sandbox" target="_blank">aframe/sandbox</a>
  */
