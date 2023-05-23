@@ -1,5 +1,6 @@
-/* SPDX-License-Identifier: MPL-2.0         *
- * Copyright (c) 2023 Leon van Kammen/NLNET */
+// SPDX-License-Identifier: MPL-2.0         
+// Copyright (c) 2023 Leon van Kammen/NLNET 
+
 var $hx_exports = typeof exports != "undefined" ? exports : typeof window != "undefined" ? window : typeof self != "undefined" ? self : this;
 (function ($global) { "use strict";
 $hx_exports["xrfragment"] = $hx_exports["xrfragment"] || {};

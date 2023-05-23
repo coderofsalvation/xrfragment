@@ -51,12 +51,25 @@ input[type="submit"] {
   left: 93px;
 }
 
-#overlay > input[type="submit"]{
+#overlay > input[type="submit"] {
 	height: 32px;
 	font-size: 14px;
 	position: absolute;
 	right: 9px;
 	top: 8px;
+}
+#overlay > button#navback,
+#overlay > button#navforward {
+  height: 32px;
+  font-size: 14px;
+  position: absolute;
+  left: 9px;
+  padding: 2px 13px;
+  top: 8px;
+  color: var(--light-gray);
+}
+#overlay > button#navforward {
+  left:49px;
 }
 
 #overlay > #uri {
@@ -78,7 +91,7 @@ input[type="submit"] {
   border-radius: 10px;
   border: 5px solid #1c1c3299;
   padding: 0px 6px;
-  bottom:19px;
+  bottom:67px;
   position: absolute;
 }
 
@@ -88,12 +101,13 @@ a.btn-foot#source{
   font-weight: bold;
   font-family: sans-serif;
   z-index:2000;
+  bottom: 114px;
 }
 
 a.btn-foot#model{
   position: absolute;
-  right: 130px;
-  color: #888;
+  right: 10px;
+  color: #7c7c7c;
   font-weight: bold;
   font-family: sans-serif;
   z-index:2000;
@@ -101,7 +115,7 @@ a.btn-foot#model{
 
 html.a-fullscreen a#model,
 html.a-fullscreen a#source{
-  margin-right:200px;
+  margin-right:10px;
 }
 
 .render {
