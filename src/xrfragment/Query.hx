@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MPL-2.0        
+// Copyright (c) 2023 Leon van Kammen/NLNET 
 package xrfragment;
 
 //return untyped __js__("window.location.search");

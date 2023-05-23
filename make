@@ -50,15 +50,17 @@ build(){
 
 build_js(){
   # add js module
-  cp dist/xrfragment.js dist/xrfragment.module.js
-  echo "export default xrfragment;" >> dist/xrfragment.module.js
+  cat dist/license.js dist/xrfragment.js > dist/xrfragment.module.js
+  echo "export default xrfragment;"     >> dist/xrfragment.module.js
   # add THREE module
-  cat dist/xrfragment.js     \
+  cat dist/license.js        \
+      dist/xrfragment.js     \
 			src/3rd/three/*.js     \
-			src/3rd/three/xrf/*.js > dist/xrfragment.three.js
+			src/3rd/three/xrf/*.js          > dist/xrfragment.three.js
   echo "export default xrfragment;"  >> dist/xrfragment.three.js
   # add AFRAME 
-  cat dist/xrfragment.js     \
+  cat dist/license.js        \
+      dist/xrfragment.js     \
 			src/3rd/three/*.js     \
 			src/3rd/three/xrf/*.js \
 			src/3rd/aframe/*.js    > dist/xrfragment.aframe.js
