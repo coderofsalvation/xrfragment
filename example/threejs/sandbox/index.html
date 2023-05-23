@@ -1,26 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js vr - sandbox</title>
+		<title>THREE.js - xrfragment sandbox</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="stylesheet" href="./../../assets/axist.min.css" />
-		<link type="text/css" rel="stylesheet" href="main.css">
-    <link type="text/css" rel="stylesheet" href="./../../assets/style.css"/>
+    <link rel="stylesheet" href="./../../assets/css/axist.min.css" />
+    <link type="text/css" rel="stylesheet" href="./../../assets/css/style.css"/>
 	</head>
 	<body>
-    <div id="overlay" x-data="{ urls: ['#pos=-1,1.6,10','#pos=-1,1.6,2'] }">
+    <div id="overlay" x-data="{ urls: ['#pos=0,1.6,15','#pos=0,1.6,15&rot=0,360,0'] }">
       <img src="./../../assets/logo.png" class="logo"/>
 			<input type="submit" value="load 3D asset"></input>
-			<input type="text" id="uri" list="urls" value="#pos=-1,1.6,10" x-on:change="XRF.eval( $('#uri').value, XRF.getLastModel() )"/>
-      <datalist id="urls" >
-				 <template x-for="url in urls">
-						<option x-bind:value="url" selected></option>
-				</template>
-			</datalist>
+			<input type="text" id="uri" value="" onchange="AFRAME.XRF.navigator.to( $('#uri').value )"/>
     </div>
-    <a id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment/blob/main/example/threejs/sandbox/index.html#L92-L112">sourcecode</a> 
-    <a id="model" target="_blank" href="">⬇️ model</a> 
+    <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment/blob/main/example/threejs/sandbox/index.html#L92-L112">sourcecode</a> 
+    <a class="btn-foot" id="model" target="_blank" href="">⬇️ model</a> 
 		<textarea style="display:none"></textarea>
 		
 		<script async src="./../../assets/alpine.min.js"></script>
@@ -41,7 +35,7 @@
 
 			import xrfragment from './../../../dist/xrfragment.three.js';
 
-			import { loadFile, setupConsole }   from './../../assets/utils.js';
+			import { loadFile, setupConsole, setupUrlBar, notify } from './../../assets/js/utils.js';
 			import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 			import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
 			import { BoxLineGeometry } from 'three/addons/geometries/BoxLineGeometry.js';
@@ -89,15 +83,22 @@
 
 				window.addEventListener( 'resize', onWindowResize );
 
+        let cameraRig = new THREE.Group()
+				cameraRig.position.set( 0, 0, 0 );
+        cameraRig.add(camera)
+        scene.add(cameraRig)
+				
+
         // enable XR fragments
         let XRF = xrfragment.init({            
           THREE,
-          camera,
+          camera:cameraRig,
           scene,
           renderer,
           debug: true,
-          loaders: [ GLTFLoader, FBXLoader ],   // which 3D assets to check for XR fragments?
+          loaders: { gltf: GLTFLoader, fbx: FBXLoader }, // which 3D assets (extensions) to check for XR fragments?
         })
+
 
         // optional: react/extend/hook into XR fragment
         XRF.env = (xrf,v,opts) => {
@@ -111,6 +112,7 @@
           console.log("hello custom property 'foobar'")
         }
 
+
         // *TODO* lowhanging fruit: during XR fragments-query milestone, target objects using XR fragment queries
         //                          to provide jquery-ish interface for three.js)
         //
@@ -120,38 +122,9 @@
 
         window.XRF = XRF // expose to form
 
-        // load 3D asset
-				let model;
-				const loader = new GLTFLoader().setPath( './../../assets/')
-				let loadGLTF = function ( gltf ) {
-					if( model ){ 
-						scene.remove(model)
-						//model.dispose()
-					}
-					gltf.scene.position.y = 1.5
-					gltf.scene.position.z = -4
-					gltf.scene.rotation.y = -0.5
-					gltf.scene.scale.x = gltf.scene.scale.y = gltf.scene.scale.z = 1;
-
-					const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
-					function recursivelySetChildrenUnlit(mesh,cb) {
-							cb(mesh)
-							if (mesh.children) {
-									for (var i = 0; i < mesh.children.length; i++) {
-											recursivelySetChildrenUnlit(mesh.children[i],cb);
-									}
-							}
-					}
-
-					scene.add( model = gltf.scene );
-
-					render();
-
-				};
-
-				let file = 'example2.gltf'
+				let file = document.location.search.length > 2 ? document.location.search.substr(1) + document.location.hash : './../../assets/example3.gltf#pos=1,0,4&rot=0,-30,0'
         $('#model').setAttribute("href","./../../asset/"+file)
-				loader.load( file, loadGLTF ); 
+				XRF.navigator.to( file )
 
 
 				// setup mouse controls
@@ -167,32 +140,33 @@
 				//controls.maxPolarAngle = Math.PI / 2;
 				//controls.target = new THREE.Vector3(0,1.6,0)
 
-				camera.position.set( -1, 1.6, 10 );
-				//controls.update()
+        //controls.update()
 
 				const geometry = new THREE.BufferGeometry();
 				geometry.setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 5 ) ] );
 
 				const controller1 = renderer.xr.getController( 0 );
 				controller1.add( new THREE.Line( geometry ) );
-				scene.add( controller1 );
+				cameraRig.add( controller1 );
 
 				const controller2 = renderer.xr.getController( 1 );
 				controller2.add( new THREE.Line( geometry ) );
-				scene.add( controller2 );
+				cameraRig.add( controller2 );
 
 
 				const controllerModelFactory = new XRControllerModelFactory();
 
 				const controllerGrip1 = renderer.xr.getControllerGrip( 0 );
 				controllerGrip1.add( controllerModelFactory.createControllerModel( controllerGrip1 ) );
-				scene.add( controllerGrip1 );
+				cameraRig.add( controllerGrip1 );
 
 				const controllerGrip2 = renderer.xr.getControllerGrip( 1 );
 				controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
-				scene.add( controllerGrip2 );
+				cameraRig.add( controllerGrip2 );
 
-        setupConsole( $('textarea') )
+         
+        setupConsole()
+        setupUrlBar( $('input#uri') )
 
 				// GUI
 
@@ -203,21 +177,12 @@
 				const gui = new GUI( { width: 300 } );
 				gui.add( parameters, 'env', 0.2, 3.0, 0.1 ).onChange( onChange );
 
-				const group = new InteractiveGroup( renderer, camera );
-
-        vrbutton.addEventListener('click', () => {
-          // show gui inside VR scene
-          gui.domElement.style.visibility = 'hidden';
-          scene.add( group );
-        })
-
 				const mesh = new HTMLMesh( gui.domElement );
 				mesh.position.x = - 0.75;
 				mesh.position.y = 1.5;
 				mesh.position.z = 0.3;
 				mesh.rotation.y = Math.PI / 4;
 				mesh.scale.setScalar( 2 );
-				group.add( mesh );
 
 
 				// Add stats.js
@@ -232,7 +197,13 @@
 				statsMesh.position.z = 0.3;
 				statsMesh.rotation.y = Math.PI / 4;
 				statsMesh.scale.setScalar( 2.5 );
-				group.add( statsMesh );
+
+        vrbutton.addEventListener('click', () => {
+          // show gui inside VR scene
+          gui.domElement.style.visibility = 'hidden';
+          XRF.interactive.add( mesh );
+          XRF.interactive.add( statsMesh );
+        })
 
 				let fileLoaders = loadFile({
 					".gltf": (file) => file.arrayBuffer().then( (data) => loader.parse( data, '', loadGLTF, console.error ) ),
@@ -263,8 +234,6 @@
 				//const torus = scene.getObjectByName( 'torus' );
 				//torus.rotation.x = time * 0.4;
 				//torus.rotation.y = time;
-
-				if( XRF.getLastModel() ) XRF.getLastModel().render(scene,camera)
 
 				//controls.update()
 				renderer.render( scene, camera );
