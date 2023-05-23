@@ -107,7 +107,9 @@ xrf.frag.href = function(v, opts){
 
     const distance = camera.position.distanceTo(newPos);
     //if( distance > portalArea ){
-    if( !renderer.xr.isPresenting && !confirm("teleport to "+v.string+" ?") ) return 
+    if( !renderer.xr.isPresenting ){
+      if( !confirm("teleport to "+v.string+" ?") ) return 
+    }
     
     xrf.navigator.to(v.string) // ok let's surf to HREF!
     console.log("teleport!")

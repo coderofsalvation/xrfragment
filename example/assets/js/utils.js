@@ -95,6 +95,7 @@ function SnackBar(userOptions) {
 
             document.body.appendChild(_Container);
         }
+        _Container.innerHTML = ''
         _Element = document.createElement("div");
         _Element.classList.add("js-snackbar__wrapper");
 
@@ -243,7 +244,7 @@ function SnackBar(userOptions) {
         });
 
         setTimeout(function() {
-            _Container.removeChild(_Element);
+            try { _Container.removeChild(_Element); } catch (e) { }
         }, 1000);
     };
 
