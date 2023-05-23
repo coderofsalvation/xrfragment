@@ -32,15 +32,24 @@ window.AFRAME.registerComponent('xrf', {
     // override the camera-related XR Fragments so the camera-rig is affected 
     let camOverride = (xrf,v,opts) => {
       opts.camera = document.querySelector('[camera]').object3D.parent 
-      console.dir(opts.camera)
       xrf(v,opts)
     }
     
     XRF.pos  = camOverride
-    XRF.rot  = camOverride
 
-    XRF.href = (xrf,v,opts) => { // convert portal to a-entity so AFRAME
-      camOverride(xrf,v,opts)    // raycaster can find & execute it
+    // in order to set the rotation programmatically
+    // we need to disable look-controls
+    XRF.rot  = (xrf,v,opts) => {
+      let {renderer} = opts;
+      let look = document.querySelector('[look-controls]')
+      if( look ) look.removeAttribute("look-controls")
+      camOverride(xrf,v,opts)
+    }
+
+    // convert portal to a-entity so AFRAME
+    // raycaster can find & execute it
+    XRF.href = (xrf,v,opts) => { 
+      camOverride(xrf,v,opts)    
       let {mesh,camera} = opts;
       let el = document.createElement("a-entity")
       el.setAttribute("xrf-get",mesh.name )

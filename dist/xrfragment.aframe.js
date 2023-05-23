@@ -956,20 +956,33 @@ xrf.frag.env = function(v, opts){
   console.log(`   └ applied image '${v.string}' as environment map`)
 }
 /**
+ * 
  * navigation, portals & mutations
- *
+ * 
  * | fragment | type | scope | example value |
- * |`href`| string (uri or [predefined view](#predefined_view )) | 🔒 |`#pos=1,1,0`<br>`#pos=1,1,0&rot=90,0,0`<br>`#pos=pyramid`<br>`#pos=lastvisit\|pyramid`<br>`://somefile.gltf#pos=1,1,0`<br> |
+ * |`href`| string (uri or predefined view) | 🔒 |`#pos=1,1,0`<br>`#pos=1,1,0&rot=90,0,0`<br>`#pos=pyramid`<br>`#pos=lastvisit|pyramid`<br>`://somefile.gltf#pos=1,1,0`<br> |
+ * 
+ * [[» example implementation|https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/three/xrf/href.js]]<br>
+ * [[» example 3D asset|https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/href.gltf#L192]]<br>
+ * [[» discussion|https://github.com/coderofsalvation/xrfragment/issues/1]]<br>
  *
  * [img[xrfragment.jpg]]
- *
+ * 
+ * 
  * !!!spec 1.0
- *
- * 1. a ''external''- or ''file URI'' fully replaces the current scene and assumes `pos=0,0,0&rot=0,0,0` by default (unless specified)
- *
+ * 
+ * 1. an ''external''- or ''file URI'' fully replaces the current scene and assumes `pos=0,0,0&rot=0,0,0` by default (unless specified)
+ * 
  * 2. navigation should not happen when queries (`q=`) are present in local url: queries will apply (`pos=`, `rot=` e.g.) to the targeted object(s) instead.
- *
+ * 
  * 3. navigation should not happen ''immediately'' when user is more than 2 meter away from the portal/object containing the href (to prevent accidental navigation e.g.)
+ * 
+ * 4. URL navigation should always be reflected in the client (in case of javascript: see [[here|https://github.com/coderofsalvation/xrfragment/blob/dev/src/3rd/three/navigator.js]] for an example navigator).
+ * 
+ * 5. In XR mode, the navigator back/forward-buttons should be always visible (using a wearable e.g., see [[here|https://github.com/coderofsalvation/xrfragment/blob/dev/example/aframe/sandbox/index.html#L26-L29]] for an example wearable)
+ * 
+ * [img[navigation.png]]
+ * 
  */
 
 xrf.frag.href = function(v, opts){
@@ -1084,10 +1097,15 @@ xrf.frag.href = function(v, opts){
 }
 
 /**
- * > above was abducted from [[this|https://i.imgur.com/E3En0gJ.png]] and [[this|https://i.imgur.com/lpnTz3A.png]] survey result
+ * > above solutions were abducted from [[this|https://i.imgur.com/E3En0gJ.png]] and [[this|https://i.imgur.com/lpnTz3A.png]] survey result
  *
- * [[» discussion|https://github.com/coderofsalvation/xrfragment/issues/1]]<br>
- * [[» implementation example|https://github.com/coderofsalvation/xrfragment/blob/main/src/three/xrf/pos.js]]<br>
+ * !!!Demo
+ * 
+ * <$videojs controls="controls" aspectratio="16:9" preload="auto" poster="" fluid="fluid" class="vjs-big-play-centered">
+ *   <source src="https://coderofsalvation.github.io/xrfragment.media/href.mp4" type="video/mp4"/>
+ * </$videojs>
+ * 
+ * > capture of <a href="./example/aframe/sandbox" target="_blank">aframe/sandbox</a>
  */
 xrf.frag.pos = function(v, opts){
   //if( renderer.xr.isPresenting ) return // too far away 
@@ -1158,6 +1176,10 @@ xrf.frag.rot = function(v, opts){
     v.y * Math.PI / 180,
     v.z * Math.PI / 180
   )
+//  camera.rotation.x = v.x
+//  camera.rotation.y = v.y
+//  camera.rotation.z = v.z
+  camera.updateMatrixWorld()
 }
 // *TODO* use webgl instancing
 
@@ -1231,15 +1253,24 @@ window.AFRAME.registerComponent('xrf', {
     // override the camera-related XR Fragments so the camera-rig is affected 
     let camOverride = (xrf,v,opts) => {
       opts.camera = document.querySelector('[camera]').object3D.parent 
-      console.dir(opts.camera)
       xrf(v,opts)
     }
     
     XRF.pos  = camOverride
-    XRF.rot  = camOverride
 
-    XRF.href = (xrf,v,opts) => { // convert portal to a-entity so AFRAME
-      camOverride(xrf,v,opts)    // raycaster can find & execute it
+    // in order to set the rotation programmatically
+    // we need to disable look-controls
+    XRF.rot  = (xrf,v,opts) => {
+      let {renderer} = opts;
+      let look = document.querySelector('[look-controls]')
+      if( look ) look.removeAttribute("look-controls")
+      camOverride(xrf,v,opts)
+    }
+
+    // convert portal to a-entity so AFRAME
+    // raycaster can find & execute it
+    XRF.href = (xrf,v,opts) => { 
+      camOverride(xrf,v,opts)    
       let {mesh,camera} = opts;
       let el = document.createElement("a-entity")
       el.setAttribute("xrf-get",mesh.name )

@@ -6,4 +6,5 @@ xrf.frag.rot = function(v, opts){
     v.y * Math.PI / 180,
     v.z * Math.PI / 180
   )
+  camera.updateMatrixWorld()
 }
