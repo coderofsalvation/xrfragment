@@ -3,10 +3,10 @@
  * navigation, portals & mutations
  * 
  * | fragment | type | scope | example value |
- * |`href`| string (uri or predefined view) | 🔒 |`#pos=1,1,0`<br>`#pos=1,1,0&rot=90,0,0`<br>`#pos=pyramid`<br>`#pos=lastvisit\|pyramid`<br>`://somefile.gltf#pos=1,1,0`<br> |
+ * |`href`| string (uri or predefined view) | 🔒 |`#pos=1,1,0`<br>`#pos=1,1,0&rot=90,0,0`<br>`#pos=pyramid`<br>`#pos=lastvisit|pyramid`<br>`://somefile.gltf#pos=1,1,0`<br> |
  * 
- * [[» example implementation|https://github.com/coderofsalvation/xrfragment/blob/main/src/three/xrf/pos.js]]<br>
- * [[» example 3D asset|https://github.com/coderofsalvation/xrfragment/blobl/main/src/example/assets/href.gltf]]<br>
+ * [[» example implementation|https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/three/xrf/href.js]]<br>
+ * [[» example 3D asset|https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/href.gltf#L192]]<br>
  * [[» discussion|https://github.com/coderofsalvation/xrfragment/issues/1]]<br>
  *
  * [img[xrfragment.jpg]]
