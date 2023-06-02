@@ -853,29 +853,6 @@ xrf.add = (object) => {
   xrf.scene.add(object)
 }
 
-/* 
- * EVENTS 
- */
-
-xrf.addEventListener = function(eventName, callback) {
-    if( !this._listeners ) this._listeners = []
-    if (!this._listeners[eventName]) {
-        // create a new array for this event name if it doesn't exist yet
-        this._listeners[eventName] = [];
-    }
-    // add the callback to the listeners array for this event name
-    this._listeners[eventName].push(callback);
-};
-
-xrf.emit = function(eventName, data) {
-    if( !this._listeners ) this._listeners = []
-    var callbacks = this._listeners[eventName]
-    if (callbacks) {
-        for (var i = 0; i < callbacks.length; i++) {
-            callbacks[i](data);
-        }
-    }
-};
 xrf.navigator = {}
 
 xrf.navigator.to = (url,event) => {
@@ -919,6 +896,57 @@ xrf.navigator.init = () => {
 xrf.navigator.pushState = (file,hash) => {
   if( file == document.location.search.substr(1) ) return // page is in its default state
   window.history.pushState({},`${file}#${hash}`, document.location.pathname + `?${file}#${hash}` )
+}
+/* 
+ * (promise-able) EVENTS
+ *
+ * example:
+ *
+ *  xrf.addEventListener('foo',(e) => {
+ *    // let promise = e.promise()   
+ *    console.log("navigating to: "+e.detail.destination.url)
+ *    // promise.resolve()
+ *    // promise.reject("not going to happen")
+ *  })
+ *
+ *  xrf.emit('foo',123)
+ *  xrf.emit('foo',123).then(...).catch(...).finally(...)
+ */
+
+xrf.addEventListener = function(eventName, callback) {
+    if( !this._listeners ) this._listeners = []
+    if (!this._listeners[eventName]) {
+        // create a new array for this event name if it doesn't exist yet
+        this._listeners[eventName] = [];
+    }
+    // add the callback to the listeners array for this event name
+    this._listeners[eventName].push(callback);
+};
+
+xrf.emit = function(eventName, data){
+  return xrf.emit.promise(eventName,data)
+}
+
+xrf.emit.normal = function(eventName, data) {
+    if( !xrf._listeners ) xrf._listeners = []
+    var callbacks = xrf._listeners[eventName]
+    if (callbacks) {
+        for (var i = 0; i < callbacks.length; i++) {
+            callbacks[i](data);
+        }
+    }
+};
+
+xrf.emit.promise = function(e, opts){ 
+  opts.XRF = xrf // always pass root XRF obj
+  return new Promise( (resolve, reject) => {
+    opts.promise = () => {
+      opts.promise.halted = true
+      return { resolve, reject }
+    }
+    xrf.emit.normal(e, opts)     
+    if( !opts.promise.halted ) resolve()
+  })
 }
 xrf.frag.env = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
@@ -1051,27 +1079,9 @@ xrf.frag.href = function(v, opts){
   }
 
   let teleport = mesh.userData.XRF.href.exec = (e) => {
-    const meshWorldPosition = new THREE.Vector3();
-    meshWorldPosition.setFromMatrixPosition(mesh.matrixWorld);
-
-    let portalArea = 1 // 2 meter
-    const cameraDirection = new THREE.Vector3();
-    camera.getWorldPosition(cameraDirection);
-    cameraDirection.sub(meshWorldPosition);
-    cameraDirection.normalize();
-    cameraDirection.multiplyScalar(portalArea); // move away from portal
-    const newPos = meshWorldPosition.clone().add(cameraDirection);
-
-    const distance = camera.position.distanceTo(newPos);
-    //if( distance > portalArea ){
-    if( !renderer.xr.isPresenting ){
-      if( !confirm("teleport to "+v.string+" ?") ) return 
-    }
-    
-    xrf.navigator.to(v.string) // ok let's surf to HREF!
-    console.log("teleport!")
-    
-    xrf.emit('href',{click:true,mesh,xrf:v})
+    xrf
+    .emit('href',{click:true,mesh,xrf:v})     // let all listeners agree
+    .then( () => xrf.navigator.to(v.string) ) // ok let's surf to HREF!
   }
 
   let selected = (state) => () => {
@@ -1082,8 +1092,9 @@ xrf.frag.href = function(v, opts){
     if( !renderer.domElement.lastCursor )
       renderer.domElement.lastCursor = renderer.domElement.style.cursor
     renderer.domElement.style.cursor = state ? 'pointer' : renderer.domElement.lastCursor 
-    xrf.emit('href',{selected:state,mesh,xrf:v})
-    mesh.selected = state
+    xrf
+    .emit('href',{selected:state,mesh,xrf:v}) // let all listeners agree
+    .then( () => mesh.selected = state )
   }
 
   if( !opts.frag.q ){ // query means an action

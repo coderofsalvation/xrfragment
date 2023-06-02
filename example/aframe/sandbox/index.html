@@ -52,26 +52,24 @@
 
       $('a-scene').addEventListener('loaded', () => {
 
+        let XRF = window.AFRAME.XRF
         setupConsole( $('textarea') )
-        setupUrlBar( $('input#uri'), window.AFRAME.XRF )
+        setupUrlBar( $('input#uri'), XRF )
 
-        // optional hook to prompt surfing to external asset 
-        window.AFRAME.XRF.href = (xrf,v,opts) => {
-          let { mesh, model, camera, scene, renderer, THREE} = opts
-alert("1")
-            let isExtern  = v.string[0] != '#'
-            let notIsHome = v.string != $('#home').getAttribute("xrf") 
-//          xrf(v,opts) // original init
-//          const exec = mesh.userData.XRF.href.exec 
-//console.dir(exec)
-//          mesh.userData.XRF.href.exec = (e) => {
-//            if( !renderer.xr.isPresenting && isExtern && notIsHome ){
-//              if( !confirm("teleport to "+v.string+" ?") ) return
-//            }
-//            exec(e)
-//          }
-        }
-
+        // example listener, to prompt surfing to external asset 
+        XRF.addEventListener('href',(e) => {
+          if( e.click ){
+            const { mesh, model, camera, scene, renderer, THREE} = e.XRF
+            const url       = e.xrf.string
+            const isExtern  = url != '#'
+            const notIsHome = url != $('#home').getAttribute("xrf") 
+            const promise   = e.promise() // promisify event
+            if( !renderer.xr.isPresenting && isExtern && notIsHome ){
+              if( confirm("teleport to "+url+" ?") ) promise.resolve()
+              else promise.reject('teleport not ok')
+            }
+          }
+        })
 
         // add screenshot component with camera to capture bigger size equirects
         $('a-scene').setAttribute("screenshot",{camera: "[camera]",width: 4096*2, height:2048*2})

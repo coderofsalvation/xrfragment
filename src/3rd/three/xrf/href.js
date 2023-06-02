@@ -94,27 +94,9 @@ xrf.frag.href = function(v, opts){
   }
 
   let teleport = mesh.userData.XRF.href.exec = (e) => {
-    const meshWorldPosition = new THREE.Vector3();
-    meshWorldPosition.setFromMatrixPosition(mesh.matrixWorld);
-
-    let portalArea = 1 // 2 meter
-    const cameraDirection = new THREE.Vector3();
-    camera.getWorldPosition(cameraDirection);
-    cameraDirection.sub(meshWorldPosition);
-    cameraDirection.normalize();
-    cameraDirection.multiplyScalar(portalArea); // move away from portal
-    const newPos = meshWorldPosition.clone().add(cameraDirection);
-
-    const distance = camera.position.distanceTo(newPos);
-    //if( distance > portalArea ){
-    if( !renderer.xr.isPresenting ){
-      if( !confirm("teleport to "+v.string+" ?") ) return 
-    }
-    
-    xrf.navigator.to(v.string) // ok let's surf to HREF!
-    console.log("teleport!")
-    
-    xrf.emit('href',{click:true,mesh,xrf:v})
+    xrf
+    .emit('href',{click:true,mesh,xrf:v})     // let all listeners agree
+    .then( () => xrf.navigator.to(v.string) ) // ok let's surf to HREF!
   }
 
   let selected = (state) => () => {
@@ -125,8 +107,9 @@ xrf.frag.href = function(v, opts){
     if( !renderer.domElement.lastCursor )
       renderer.domElement.lastCursor = renderer.domElement.style.cursor
     renderer.domElement.style.cursor = state ? 'pointer' : renderer.domElement.lastCursor 
-    xrf.emit('href',{selected:state,mesh,xrf:v})
-    mesh.selected = state
+    xrf
+    .emit('href',{selected:state,mesh,xrf:v}) // let all listeners agree
+    .then( () => mesh.selected = state )
   }
 
   if( !opts.frag.q ){ // query means an action
