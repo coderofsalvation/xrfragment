@@ -51,10 +51,29 @@
         $('#home').setAttribute('xrf', document.location.search.substr(1)+document.location.hash )
 
       $('a-scene').addEventListener('loaded', () => {
+
         setupConsole( $('textarea') )
         setupUrlBar( $('input#uri'), window.AFRAME.XRF )
 
-        // add screenshot component with camera to capture proper equirects
+        // optional hook to prompt surfing to external asset 
+        window.AFRAME.XRF.href = (xrf,v,opts) => {
+          let { mesh, model, camera, scene, renderer, THREE} = opts
+alert("1")
+            let isExtern  = v.string[0] != '#'
+            let notIsHome = v.string != $('#home').getAttribute("xrf") 
+//          xrf(v,opts) // original init
+//          const exec = mesh.userData.XRF.href.exec 
+//console.dir(exec)
+//          mesh.userData.XRF.href.exec = (e) => {
+//            if( !renderer.xr.isPresenting && isExtern && notIsHome ){
+//              if( !confirm("teleport to "+v.string+" ?") ) return
+//            }
+//            exec(e)
+//          }
+        }
+
+
+        // add screenshot component with camera to capture bigger size equirects
         $('a-scene').setAttribute("screenshot",{camera: "[camera]",width: 4096*2, height:2048*2})
 
         if( window.outerWidth > 800 )
