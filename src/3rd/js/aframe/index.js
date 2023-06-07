@@ -19,7 +19,7 @@ window.AFRAME.registerComponent('xrf', {
 
     // enable XR fragments
     let aScene = document.querySelector('a-scene')
-    let XRF = AFRAME.XRF = xrfragment.init({            
+    let XRF = AFRAME.XRF = xrf.init({            
       THREE,
       camera:   aScene.camera, 
       scene:    aScene.object3D,
@@ -35,20 +35,23 @@ window.AFRAME.registerComponent('xrf', {
       xrf(v,opts)
     }
     
-    XRF.pos  = camOverride
+    xrf.pos  = camOverride
 
     // in order to set the rotation programmatically
     // we need to disable look-controls
-    XRF.rot  = (xrf,v,opts) => {
+    xrf.rot  = (xrf,v,opts) => {
       let {renderer} = opts;
       let look = document.querySelector('[look-controls]')
       if( look ) look.removeAttribute("look-controls")
       camOverride(xrf,v,opts)
+      // *TODO* make look-controls compatible, because simply 
+      // adding the look-controls will revert to the old rotation (cached somehow?)
+      //setTimeout( () => look.setAttribute("look-controls",""), 100 )
     }
 
     // convert portal to a-entity so AFRAME
     // raycaster can find & execute it
-    XRF.href = (xrf,v,opts) => { 
+    xrf.href = (xrf,v,opts) => { 
       camOverride(xrf,v,opts)    
       let {mesh,camera} = opts;
       let el = document.createElement("a-entity")
@@ -59,7 +62,7 @@ window.AFRAME.registerComponent('xrf', {
     }
 
     // cleanup xrf-get objects when resetting scene
-    XRF.reset = ((reset) => () => {
+    xrf.reset = ((reset) => () => {
       reset()
       console.log("aframe reset")
       let els = [...document.querySelectorAll('[xrf-get]')]

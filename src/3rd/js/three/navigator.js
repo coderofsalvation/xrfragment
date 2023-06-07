@@ -24,7 +24,7 @@ xrf.navigator.to = (url,event) => {
       xrf.add( model.scene )
       xrf.model = model 
       xrf.eval( url, model )  // and eval URI XR fragments 
-      xrf.navigator.pushState( file, hash )
+      xrf.navigator.pushState( `${dir}${file}`, hash )
       resolve(model)
     })
   })

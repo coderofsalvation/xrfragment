@@ -17,11 +17,12 @@ window.AFRAME.registerComponent('xrf-get', {
         console.error("mesh with name '"+meshname+"' not found in model")
         return;
       }
+      // convert to worldcoordinates
+      mesh.getWorldPosition(mesh.position)
+      mesh.getWorldScale(mesh.scale)
+      mesh.getWorldQuaternion(mesh.quaternion)
       if( !this.data.clone              ) mesh.parent.remove(mesh)
-      ////mesh.updateMatrixWorld();
-      this.el.object3D.position.setFromMatrixPosition(scene.matrixWorld);
-      this.el.object3D.quaternion.setFromRotationMatrix(scene.matrixWorld);
-      mesh.xrf = true // mark for deletion by xrf
+      mesh.isXRF = true // mark for deletion by xrf
       this.el.setObject3D('mesh', mesh );
       if( !this.el.id ) this.el.setAttribute("id",`xrf-${mesh.name}`)
 

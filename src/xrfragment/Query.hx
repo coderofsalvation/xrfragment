@@ -44,6 +44,7 @@ class Query {
   private var q:haxe.DynamicAccess<Dynamic> = {};
   private var isProp:EReg        = ~/^.*:[><=!]?/;
   private var isExclude:EReg     = ~/^-/;
+  private var isAddition:EReg    = ~/^\+/;
   private var isClass:EReg       = ~/^[-]?class$/;
   private var isNumber:EReg      = ~/^[0-9\.]+$/;
 
@@ -89,6 +90,9 @@ class Query {
         if( isExclude.match(k) ){
           oper = "!=";
           k = k.substr(1); // convert "-foo" into "foo" 
+        }else if( isAddition.match(k) ){
+          oper = "+=";
+          k = k.substr(1); // convert "+foo" into "foo" 
         }else v = v.substr(oper.length); // change ">=foo" into "foo" (strip operator)
         if( oper.length == 0 ) oper = "=";
 

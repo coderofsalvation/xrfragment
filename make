@@ -45,25 +45,25 @@ build(){
   haxe build.hxml
   ok=$?
   sed -i 's|.*nonlocal .*||g' dist/xrfragment.py
+  echo build OK
   build_js
 }
 
 build_js(){
   # add js module
-  cat dist/license.js dist/xrfragment.js > dist/xrfragment.module.js
-  echo "export default xrfragment;"     >> dist/xrfragment.module.js
+  cat dist/xrfragment.js             > dist/xrfragment.module.js
+  echo "export default xrfragment;" >> dist/xrfragment.module.js
+  # add THREE 
+  cat dist/xrfragment.js       \
+      src/3rd/js/*.js          \
+      src/3rd/js/three/*.js    \
+      src/3rd/js/three/xrf/*.js       > dist/xrfragment.three.js
   # add THREE module
-  cat dist/license.js        \
-      dist/xrfragment.js     \
-      src/3rd/three/*.js     \
-      src/3rd/three/xrf/*.js          > dist/xrfragment.three.js
-  echo "export default xrfragment;"  >> dist/xrfragment.three.js
+  cat dist/xrfragment.three.js        > dist/xrfragment.three.module.js
+  echo "export default xrfragment;"  >> dist/xrfragment.three.module.js
   # add AFRAME 
-  cat dist/license.js        \
-      dist/xrfragment.js     \
-      src/3rd/three/*.js     \
-      src/3rd/three/xrf/*.js \
-      src/3rd/aframe/*.js    > dist/xrfragment.aframe.js
+  cat dist/xrfragment.three.js \
+      src/3rd/js/aframe/*.js          > dist/xrfragment.aframe.js
   ls -la dist | grep js
   exit $ok
 }

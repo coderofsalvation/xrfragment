@@ -36,13 +36,6 @@ xrf.frag.href = function(v, opts){
     scale: new THREE.Vector3(),
     quat: new THREE.Quaternion()
   }
-  mesh.getWorldPosition(world.pos)
-  mesh.getWorldScale(world.scale)
-  mesh.getWorldQuaternion(world.quat);
-  mesh.position.copy(world.pos)
-  mesh.scale.copy(world.scale)
-  mesh.setRotationFromQuaternion(world.quat);
-
   // detect equirectangular image
   let texture = mesh.material.map
   if( texture && texture.source.data.height == texture.source.data.width/2 ){
@@ -91,12 +84,41 @@ xrf.frag.href = function(v, opts){
       `,
     });
     mesh.material.needsUpdate = true
-  }
+  }else mesh.material = mesh.material.clone()
 
-  let teleport = mesh.userData.XRF.href.exec = (e) => {
-    xrf
-    .emit('href',{click:true,mesh,xrf:v})     // let all listeners agree
-    .then( () => xrf.navigator.to(v.string) ) // ok let's surf to HREF!
+  let click = mesh.userData.XRF.href.exec = (e) => {
+    if( v.string[0] == '#' ){
+      let frag = xrf.URI.parse(v.string)
+      if( frag.q ){ // show/hider 
+        let q = frag.q.query 
+        scene.traverse( (mesh) => {
+          for ( let i in q ) {
+            if( i == mesh.name           && q[i].id    != undefined ) mesh.visible = q[i].id 
+            if( i == mesh.userData.class && q[i].class != undefined ) mesh.visible = q[i].class
+          }
+        })
+      }else if( !v.string.match(/=/) ){ // projection or Selection of Interest (SoI)
+        let id = v.string.substr(1)
+        scene.traverse( (mesh) => {
+          if( mesh.selection ){
+            mesh.remove(mesh.selection)
+            delete mesh.selection
+          }
+          if( id == mesh.name || id == mesh.userData.class ){
+            console.log("applying selection")
+            mesh.selection = new THREE.BoxHelper(mesh,0xff00ff)
+            mesh.selection.scale.set(2,2,2)
+            mesh.selection.position.copy( mesh.position )
+            scene.add(mesh.selection)
+          }
+        })
+
+      }else{ // teleport
+        xrf
+        .emit('href',{click:true,mesh,xrf:v})     // let all listeners agree
+        .then( () => xrf.navigator.to(v.string) ) // ok let's surf to HREF!
+      }
+    }
   }
 
   let selected = (state) => () => {
@@ -112,14 +134,18 @@ xrf.frag.href = function(v, opts){
     .then( () => mesh.selected = state )
   }
 
-  if( !opts.frag.q ){ // query means an action
-    mesh.addEventListener('click', teleport )
-    mesh.addEventListener('mousemove', selected(true) )
-    mesh.addEventListener('nocollide', selected(false) )
-  }
+  mesh.addEventListener('click', click )
+  mesh.addEventListener('mousemove', selected(true) )
+  mesh.addEventListener('nocollide', selected(false) )
 
   // lazy add mesh (because we're inside a recursive traverse)
   setTimeout( (mesh) => {
+    mesh.getWorldPosition(world.pos)
+    mesh.getWorldScale(world.scale)
+    mesh.getWorldQuaternion(world.quat);
+    mesh.position.copy(world.pos)
+    mesh.scale.copy(world.scale)
+    mesh.setRotationFromQuaternion(world.quat);
     xrf.interactive.add(mesh)
   }, 20, mesh )
 }

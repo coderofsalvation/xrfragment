@@ -133,116 +133,6 @@ StringTools.trim = function(s) {
 StringTools.replace = function(s,sub,by) {
 	return s.split(sub).join(by);
 };
-var Test = function() { };
-Test.__name__ = true;
-Test.main = function() {
-	Test.test([{ fn : "url", expect : { fn : "equal.xyz", input : "pos", out : false}, label : "equal.xyz: should trigger incompatible type)", data : "http://foo.com?foo=1#pos=1.2,2.2"},{ fn : "url", expect : { fn : "equal.xyz", input : "pos", out : "1.2,2.2,3"}, label : "equal.xyz", data : "http://foo.com?foo=1#pos=1.2,2.2,3"},{ fn : "url", expect : { fn : "equal.xy", input : "t", out : "1,100"}, label : "a equal.xy", data : "http://foo.com?foo=1#t=1,100"},{ fn : "url", expect : { fn : "testParsed", input : "prio", out : false}, label : "should trigger incompatible type", data : "http://foo.com?foo=1#prio=foo"},{ fn : "url", expect : { fn : "equal.multi", input : "pos", out : "c|d|1,2,3"}, label : "b equal.multi", data : "http://foo.com?foo=1#pos=c|d|1,2,3"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "t", out : true}, label : "browser URI can override t (defined in asset)", data : "http://foo.com?foo=1#t=2,500"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "q", out : false}, label : "browser URI cannot override q (defined in asset)", data : "http://foo.com?foo=1#q=-bar"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "scale", out : false}, label : "scale does not have NAVIGATOR set", data : "http://foo.com?foo=1#scale=2,2,2"},{ fn : "url", expect : { fn : "testEmbedOverride", input : "scale", out : true}, label : "embedded (src) URI can override scale", data : "http://foo.com?foo=1#scale=2,2,2"},{ fn : "url", expect : { fn : "testPredefinedView", input : "mypredefinedview", out : true}, label : "test predefined view executed", data : "http://foo.com?foo=1#mypredefinedview"},{ fn : "url", expect : { fn : "testPredefinedView", input : "another", out : true}, label : "test predefined view executed (multiple)", data : "http://foo.com?foo=1#mypredefinedview&another"},{ fn : "url", expect : { fn : "testPredefinedView", input : "mypredefinedview", out : true}, label : "test predefined view executed (multiple)", data : "http://foo.com?foo=1#mypredefinedview&another"},{ fn : "url", expect : { fn : "testPropertyAssign", input : "cube.position.x", out : true}, label : "test data assign", data : "#cube.position.x=music.position.x"},{ fn : "url", expect : { fn : "testPropertyAssign", input : "cube.position.x", out : true}, label : "test one-way data bind", data : "#cube.position.x=@music.position.x"}]);
-	Test.test([{ fn : "query", expect : { fn : "testProperty", input : ["class","bar"], out : true}, data : "class:bar"},{ fn : "query", expect : { fn : "testProperty", input : ["class","bar"], out : true}, label : ".bar shorthand", data : ".bar"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : false}, data : ".bar -.foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, data : ".bar -.foo .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","bar"], out : true}, data : ".bar -.bar .bar"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo bar:5 .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo bar:>5 .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo bar:>5 .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["id","foo"], out : false}, label : "!id:foo", data : ".foo -.foo .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["id","foo"], out : true}, label : "id:foo?", data : "foo -foo foo"}]);
-	Test.test([{ fn : "query", expect : { fn : "testProperty", input : ["price","10"], out : true}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","10"], out : false}, data : "price:>=15"},{ fn : "query", expect : { fn : "testProperty", input : ["price","4"], out : false}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","0"], out : false}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","1"], out : false}, label : "price=1", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["price","0"], out : true}, label : "price=0", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["price","6"], out : true}, label : "price=6", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, data : "tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : false}, data : "-tag:foo"},{ fn : "query", expect : { fn : "testPropertyExclude", input : ["tag","foo"], out : true}, label : "testExclude", data : "-tag:foo"},{ fn : "query", expect : { fn : "test", input : [{ price : 5}], out : true}, data : ".foo price:5 -tag:foo"},{ fn : "query", expect : { fn : "test", input : [{ tag : "foo", price : 5}], out : false}, data : ".foo price:5 -tag:foo"}]);
-	if(Test.errors > 1) {
-		console.log("src/Test.hx:22:","\n-----\n[ ❌] " + Test.errors + " errors :/");
-	}
-};
-Test.test = function(spec) {
-	var Query = xrfragment_Query;
-	var _g = 0;
-	var _g1 = spec.length;
-	while(_g < _g1) {
-		var i = _g++;
-		var q = null;
-		var res = null;
-		var valid = false;
-		var item = spec[i];
-		if(item.fn == "query") {
-			q = new xrfragment_Query(item.data);
-		}
-		if(item.fn == "url") {
-			res = xrfragment_URI.parse(item.data,0);
-		}
-		if(item.expect.fn == "test") {
-			valid = item.expect.out == q.test(item.expect.input[0]);
-		}
-		if(item.expect.fn == "testProperty") {
-			valid = item.expect.out == q.testProperty(item.expect.input[0],item.expect.input[1]);
-		}
-		if(item.expect.fn == "testPropertyExclude") {
-			valid = item.expect.out == q.testProperty(item.expect.input[0],item.expect.input[1],true);
-		}
-		if(item.expect.fn == "testParsed") {
-			valid = item.expect.out == Object.prototype.hasOwnProperty.call(res,item.expect.input);
-		}
-		if(item.expect.fn == "testPredefinedView") {
-			valid = Object.prototype.hasOwnProperty.call(res,item.expect.input) && item.expect.out == res[item.expect.input].is(xrfragment_XRF.PV_EXECUTE);
-		}
-		if(item.expect.fn == "testPropertyAssign") {
-			valid = Object.prototype.hasOwnProperty.call(res,item.expect.input) && item.expect.out == res[item.expect.input].is(xrfragment_XRF.PROP_BIND);
-		}
-		if(item.expect.fn == "testBrowserOverride") {
-			var item1 = item.expect.out;
-			var this1 = xrfragment_URI.parse(item.data,xrfragment_XRF.NAVIGATOR);
-			valid = item1 == Object.prototype.hasOwnProperty.call(this1,item.expect.input);
-		}
-		if(item.expect.fn == "testEmbedOverride") {
-			var item2 = item.expect.out;
-			var this2 = xrfragment_URI.parse(item.data,xrfragment_XRF.EMBEDDED);
-			valid = item2 == Object.prototype.hasOwnProperty.call(this2,item.expect.input);
-		}
-		if(item.expect.fn == "equal.string") {
-			valid = res[item.expect.input] && item.expect.out == res[item.expect.input].string;
-		}
-		if(item.expect.fn == "equal.xy") {
-			valid = Test.equalXY(res,item);
-		}
-		if(item.expect.fn == "equal.xyz") {
-			valid = Test.equalXYZ(res,item);
-		}
-		if(item.expect.fn == "equal.multi") {
-			valid = Test.equalMulti(res,item);
-		}
-		var ok = valid ? "[ ✔ ] " : "[ ❌] ";
-		console.log("src/Test.hx:47:",ok + Std.string(item.fn) + ": '" + Std.string(item.data) + "'" + (item.label ? "    (" + (item.label ? item.label : item.expect.fn) + ")" : ""));
-		if(!valid) {
-			Test.errors += 1;
-		}
-	}
-};
-Test.equalXY = function(res,item) {
-	if(!item.expect.out && !res[item.expect.input]) {
-		return true;
-	} else if(res[item.expect.input]) {
-		return item.expect.out == Std.string(res[item.expect.input].x) + "," + Std.string(res[item.expect.input].y);
-	} else {
-		return false;
-	}
-};
-Test.equalXYZ = function(res,item) {
-	if(!item.expect.out && !res[item.expect.input]) {
-		return true;
-	} else if(res[item.expect.input]) {
-		return item.expect.out == Std.string(res[item.expect.input].x) + "," + Std.string(res[item.expect.input].y) + "," + Std.string(res[item.expect.input].z);
-	} else {
-		return false;
-	}
-};
-Test.equalMulti = function(res,item) {
-	var target = res[item.expect.input];
-	var str = "";
-	if(!target) {
-		return false;
-	}
-	var _g = 0;
-	var _g1 = target.args.length;
-	while(_g < _g1) {
-		var i = _g++;
-		str = str + "|" + target.args[i].string;
-	}
-	str = HxOverrides.substr(str,1,null);
-	if(item.expect.out) {
-		return str == item.expect.out;
-	} else {
-		return false;
-	}
-};
 var haxe_iterators_ArrayIterator = function(array) {
 	this.current = 0;
 	this.array = array;
@@ -677,7 +567,6 @@ if(typeof(performance) != "undefined" ? typeof(performance.now) == "function" : 
 String.__name__ = true;
 Array.__name__ = true;
 js_Boot.__toStr = ({ }).toString;
-Test.errors = 0;
 xrfragment_Parser.error = "";
 xrfragment_Parser.debug = false;
 xrfragment_XRF.ASSET = 1;
@@ -706,6 +595,5 @@ xrfragment_XRF.isVector = new EReg("([,]+|\\w)","");
 xrfragment_XRF.isUrl = new EReg("(://)?\\..*","");
 xrfragment_XRF.isUrlOrPretypedView = new EReg("(^#|://)?\\..*","");
 xrfragment_XRF.isString = new EReg(".*","");
-Test.main();
 })({});
 var xrfragment = $hx_exports["xrfragment"];

@@ -1,21 +1,16 @@
-let xrf = xrfragment
 xrf.frag   = {}
 xrf.model  = {}
 
-xrf.init = function(opts){
-  opts = opts || {}
-  let XRF = function(){
-    alert("queries are not implemented (yet)")
-  }
-  for ( let i in opts    ) xrf[i] = opts[i]
-  for ( let i in xrf.XRF ) xrf.XRF[i] // shortcuts to constants (NAVIGATOR e.g.)
-  xrf.Parser.debug = xrf.debug 
+xrf.init = ((init) => function(opts){
+  init(opts)
   if( opts.loaders ) Object.values(opts.loaders).map( xrf.patchLoader )
 
   xrf.patchRenderer(opts.renderer)
   xrf.navigator.init()
-  return xrf
-}
+  // return xrfragment lib as 'xrf' query functor (like jquery)
+  for ( let i in xrf ) xrf.query[i] = xrf[i] 
+  return xrf.query
+})(xrf.init)
 
 xrf.patchRenderer = function(renderer){
   renderer.xr.addEventListener( 'sessionstart', () => xrf.baseReferenceSpace = renderer.xr.getReferenceSpace() );
@@ -31,7 +26,10 @@ xrf.patchLoader = function(loader){
   loader.prototype.load = ((load) => function(url, onLoad, onProgress, onError){
     load.call(  this,
                 url,
-                (model) => { onLoad(model); xrf.parseModel(model,url) },
+                (model) => { 
+                  onLoad(model); 
+                  xrf.parseModel(model,url) 
+                },
                 onProgress,
                 onError)
   })(loader.prototype.load)
@@ -42,9 +40,16 @@ xrf.getFile = (url) => url.split("/").pop().replace(/#.*/,'')
 xrf.parseModel = function(model,url){
   let file               = xrf.getFile(url)
   model.file             = file
-  model.render           = function(){}
   // eval embedded XR fragments
   model.scene.traverse( (mesh) => xrf.eval.mesh(mesh,model) )
+  // add animations
+  model.clock            = new THREE.Clock();
+  model.mixer            = new THREE.AnimationMixer(model.scene)
+  console.dir(model)
+  model.animations.map( (anim) => model.mixer.clipAction( anim ).play() )
+  model.render           = function(){
+    model.mixer.update( model.clock.getDelta() )
+  }
 }
 
 xrf.getLastModel = ()           => xrf.model.last 
@@ -59,12 +64,10 @@ xrf.eval = function( url, model ){
   for ( let i in meshes ) {
     for ( let k in frag ){
       let mesh = meshes[i]
-      if( !String(k).match(/(pos|rot)/) ) notice = true
       let opts = {frag, mesh, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
       xrf.eval.fragment(k,opts)
     }
   }
-  if( notice ) alert("only 'pos' and 'rot' XRF.NAVIGATOR-flagged XR fragments are supported (for now)")
 }
 
 xrf.eval.mesh     = (mesh,model) => {

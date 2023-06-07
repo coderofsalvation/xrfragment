@@ -1,6 +1,6 @@
 // wrapper to survive in/outside modules
 
-xrfragment.InteractiveGroup = function(THREE,renderer,camera){
+xrf.InteractiveGroup = function(THREE,renderer,camera){
 
   let {
     Group,

@@ -1,6 +1,3 @@
-// SPDX-License-Identifier: MPL-2.0         
-// Copyright (c) 2023 Leon van Kammen/NLNET 
-
 var $hx_exports = typeof exports != "undefined" ? exports : typeof window != "undefined" ? window : typeof self != "undefined" ? self : this;
 (function ($global) { "use strict";
 $hx_exports["xrfragment"] = $hx_exports["xrfragment"] || {};
@@ -253,11 +250,11 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		var v = new xrfragment_XRF(key,Frag_h[key]);
 		if(!v.validate(value)) {
-			console.log("src/xrfragment/Parser.hx:75:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:77:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 		if(xrfragment_Parser.debug) {
-			console.log("src/xrfragment/Parser.hx:78:","✔ " + key + ": " + v.string);
+			console.log("src/xrfragment/Parser.hx:80:","✔ " + key + ": " + v.string);
 		}
 		resultMap[key] = v;
 	}
@@ -266,6 +263,7 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 var xrfragment_Query = $hx_exports["xrfragment"]["Query"] = function(str) {
 	this.isNumber = new EReg("^[0-9\\.]+$","");
 	this.isClass = new EReg("^[-]?class$","");
+	this.isAddition = new EReg("^\\+","");
 	this.isExclude = new EReg("^-","");
 	this.isProp = new EReg("^.*:[><=!]?","");
 	this.q = { };
@@ -328,6 +326,9 @@ xrfragment_Query.prototype = {
 				}
 				if(_gthis.isExclude.match(k)) {
 					oper = "!=";
+					k = HxOverrides.substr(k,1,null);
+				} else if(_gthis.isAddition.match(k)) {
+					oper = "+=";
 					k = HxOverrides.substr(k,1,null);
 				} else {
 					v = HxOverrides.substr(v,oper.length,null);
@@ -596,9 +597,80 @@ xrfragment_XRF.isUrlOrPretypedView = new EReg("(^#|://)?\\..*","");
 xrfragment_XRF.isString = new EReg(".*","");
 })({});
 var xrfragment = $hx_exports["xrfragment"];
+// SPDX-License-Identifier: MPL-2.0        
+// Copyright (c) 2023 Leon van Kammen/NLNET 
+
+var xrf = {}
+
+xrf.init = function(opts){
+  opts = opts || {}
+  xrf.Parser.debug = xrf.debug 
+  for ( let i in opts    ) xrf[i] = opts[i]
+  xrf.emit('init',opts)
+  return xrf.query
+}
+
+xrf.query = function(){
+  // framework implementations can override this function, see src/3rd/js/three/index.sj 
+  alert("queries are not implemented (yet) for this particular framework")
+}
+
+// map library functions to xrf
+for ( let i in xrfragment ) xrf[i] = xrfragment[i] 
+/* 
+ * (promise-able) EVENTS
+ *
+ * example:
+ *
+ *  xrf.addEventListener('foo',(e) => {
+ *    // let promise = e.promise()   
+ *    console.log("navigating to: "+e.detail.destination.url)
+ *    // promise.resolve()
+ *    // promise.reject("not going to happen")
+ *  })
+ *
+ *  xrf.emit('foo',123)
+ *  xrf.emit('foo',123).then(...).catch(...).finally(...)
+ */
+
+xrf.addEventListener = function(eventName, callback) {
+    if( !this._listeners ) this._listeners = []
+    if (!this._listeners[eventName]) {
+        // create a new array for this event name if it doesn't exist yet
+        this._listeners[eventName] = [];
+    }
+    // add the callback to the listeners array for this event name
+    this._listeners[eventName].push(callback);
+};
+
+xrf.emit = function(eventName, data){
+  return xrf.emit.promise(eventName,data)
+}
+
+xrf.emit.normal = function(eventName, data) {
+    if( !xrf._listeners ) xrf._listeners = []
+    var callbacks = xrf._listeners[eventName]
+    if (callbacks) {
+        for (var i = 0; i < callbacks.length; i++) {
+            callbacks[i](data);
+        }
+    }
+};
+
+xrf.emit.promise = function(e, opts){ 
+  opts.XRF = xrf // always pass root XRF obj
+  return new Promise( (resolve, reject) => {
+    opts.promise = () => {
+      opts.promise.halted = true
+      return { resolve, reject }
+    }
+    xrf.emit.normal(e, opts)     
+    if( !opts.promise.halted ) resolve()
+  })
+}
 // wrapper to survive in/outside modules
 
-xrfragment.InteractiveGroup = function(THREE,renderer,camera){
+xrf.InteractiveGroup = function(THREE,renderer,camera){
 
   let {
     Group,
@@ -732,24 +804,19 @@ xrfragment.InteractiveGroup = function(THREE,renderer,camera){
 
   return new InteractiveGroup(renderer,camera)
 }
-let xrf = xrfragment
 xrf.frag   = {}
 xrf.model  = {}
 
-xrf.init = function(opts){
-  opts = opts || {}
-  let XRF = function(){
-    alert("queries are not implemented (yet)")
-  }
-  for ( let i in opts    ) xrf[i] = opts[i]
-  for ( let i in xrf.XRF ) xrf.XRF[i] // shortcuts to constants (NAVIGATOR e.g.)
-  xrf.Parser.debug = xrf.debug 
+xrf.init = ((init) => function(opts){
+  init(opts)
   if( opts.loaders ) Object.values(opts.loaders).map( xrf.patchLoader )
 
   xrf.patchRenderer(opts.renderer)
   xrf.navigator.init()
-  return xrf
-}
+  // return xrfragment lib as 'xrf' query functor (like jquery)
+  for ( let i in xrf ) xrf.query[i] = xrf[i] 
+  return xrf.query
+})(xrf.init)
 
 xrf.patchRenderer = function(renderer){
   renderer.xr.addEventListener( 'sessionstart', () => xrf.baseReferenceSpace = renderer.xr.getReferenceSpace() );
@@ -765,7 +832,10 @@ xrf.patchLoader = function(loader){
   loader.prototype.load = ((load) => function(url, onLoad, onProgress, onError){
     load.call(  this,
                 url,
-                (model) => { onLoad(model); xrf.parseModel(model,url) },
+                (model) => { 
+                  onLoad(model); 
+                  xrf.parseModel(model,url) 
+                },
                 onProgress,
                 onError)
   })(loader.prototype.load)
@@ -776,9 +846,16 @@ xrf.getFile = (url) => url.split("/").pop().replace(/#.*/,'')
 xrf.parseModel = function(model,url){
   let file               = xrf.getFile(url)
   model.file             = file
-  model.render           = function(){}
   // eval embedded XR fragments
   model.scene.traverse( (mesh) => xrf.eval.mesh(mesh,model) )
+  // add animations
+  model.clock            = new THREE.Clock();
+  model.mixer            = new THREE.AnimationMixer(model.scene)
+  console.dir(model)
+  model.animations.map( (anim) => model.mixer.clipAction( anim ).play() )
+  model.render           = function(){
+    model.mixer.update( model.clock.getDelta() )
+  }
 }
 
 xrf.getLastModel = ()           => xrf.model.last 
@@ -793,12 +870,10 @@ xrf.eval = function( url, model ){
   for ( let i in meshes ) {
     for ( let k in frag ){
       let mesh = meshes[i]
-      if( !String(k).match(/(pos|rot)/) ) notice = true
       let opts = {frag, mesh, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
       xrf.eval.fragment(k,opts)
     }
   }
-  if( notice ) alert("only 'pos' and 'rot' XRF.NAVIGATOR-flagged XR fragments are supported (for now)")
 }
 
 xrf.eval.mesh     = (mesh,model) => {
@@ -879,7 +954,7 @@ xrf.navigator.to = (url,event) => {
       xrf.add( model.scene )
       xrf.model = model 
       xrf.eval( url, model )  // and eval URI XR fragments 
-      xrf.navigator.pushState( file, hash )
+      xrf.navigator.pushState( `${dir}${file}`, hash )
       resolve(model)
     })
   })
@@ -896,57 +971,6 @@ xrf.navigator.init = () => {
 xrf.navigator.pushState = (file,hash) => {
   if( file == document.location.search.substr(1) ) return // page is in its default state
   window.history.pushState({},`${file}#${hash}`, document.location.pathname + `?${file}#${hash}` )
-}
-/* 
- * (promise-able) EVENTS
- *
- * example:
- *
- *  xrf.addEventListener('foo',(e) => {
- *    // let promise = e.promise()   
- *    console.log("navigating to: "+e.detail.destination.url)
- *    // promise.resolve()
- *    // promise.reject("not going to happen")
- *  })
- *
- *  xrf.emit('foo',123)
- *  xrf.emit('foo',123).then(...).catch(...).finally(...)
- */
-
-xrf.addEventListener = function(eventName, callback) {
-    if( !this._listeners ) this._listeners = []
-    if (!this._listeners[eventName]) {
-        // create a new array for this event name if it doesn't exist yet
-        this._listeners[eventName] = [];
-    }
-    // add the callback to the listeners array for this event name
-    this._listeners[eventName].push(callback);
-};
-
-xrf.emit = function(eventName, data){
-  return xrf.emit.promise(eventName,data)
-}
-
-xrf.emit.normal = function(eventName, data) {
-    if( !xrf._listeners ) xrf._listeners = []
-    var callbacks = xrf._listeners[eventName]
-    if (callbacks) {
-        for (var i = 0; i < callbacks.length; i++) {
-            callbacks[i](data);
-        }
-    }
-};
-
-xrf.emit.promise = function(e, opts){ 
-  opts.XRF = xrf // always pass root XRF obj
-  return new Promise( (resolve, reject) => {
-    opts.promise = () => {
-      opts.promise.halted = true
-      return { resolve, reject }
-    }
-    xrf.emit.normal(e, opts)     
-    if( !opts.promise.halted ) resolve()
-  })
 }
 xrf.frag.env = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
@@ -1021,13 +1045,6 @@ xrf.frag.href = function(v, opts){
     scale: new THREE.Vector3(),
     quat: new THREE.Quaternion()
   }
-  mesh.getWorldPosition(world.pos)
-  mesh.getWorldScale(world.scale)
-  mesh.getWorldQuaternion(world.quat);
-  mesh.position.copy(world.pos)
-  mesh.scale.copy(world.scale)
-  mesh.setRotationFromQuaternion(world.quat);
-
   // detect equirectangular image
   let texture = mesh.material.map
   if( texture && texture.source.data.height == texture.source.data.width/2 ){
@@ -1076,12 +1093,41 @@ xrf.frag.href = function(v, opts){
       `,
     });
     mesh.material.needsUpdate = true
-  }
+  }else mesh.material = mesh.material.clone()
 
-  let teleport = mesh.userData.XRF.href.exec = (e) => {
-    xrf
-    .emit('href',{click:true,mesh,xrf:v})     // let all listeners agree
-    .then( () => xrf.navigator.to(v.string) ) // ok let's surf to HREF!
+  let click = mesh.userData.XRF.href.exec = (e) => {
+    if( v.string[0] == '#' ){
+      let frag = xrf.URI.parse(v.string)
+      if( frag.q ){ // show/hider 
+        let q = frag.q.query 
+        scene.traverse( (mesh) => {
+          for ( let i in q ) {
+            if( i == mesh.name           && q[i].id    != undefined ) mesh.visible = q[i].id 
+            if( i == mesh.userData.class && q[i].class != undefined ) mesh.visible = q[i].class
+          }
+        })
+      }else if( !v.string.match(/=/) ){ // projection or Selection of Interest (SoI)
+        let id = v.string.substr(1)
+        scene.traverse( (mesh) => {
+          if( mesh.selection ){
+            mesh.remove(mesh.selection)
+            delete mesh.selection
+          }
+          if( id == mesh.name || id == mesh.userData.class ){
+            console.log("applying selection")
+            mesh.selection = new THREE.BoxHelper(mesh,0xff00ff)
+            mesh.selection.scale.set(2,2,2)
+            mesh.selection.position.copy( mesh.position )
+            scene.add(mesh.selection)
+          }
+        })
+
+      }else{ // teleport
+        xrf
+        .emit('href',{click:true,mesh,xrf:v})     // let all listeners agree
+        .then( () => xrf.navigator.to(v.string) ) // ok let's surf to HREF!
+      }
+    }
   }
 
   let selected = (state) => () => {
@@ -1097,14 +1143,18 @@ xrf.frag.href = function(v, opts){
     .then( () => mesh.selected = state )
   }
 
-  if( !opts.frag.q ){ // query means an action
-    mesh.addEventListener('click', teleport )
-    mesh.addEventListener('mousemove', selected(true) )
-    mesh.addEventListener('nocollide', selected(false) )
-  }
+  mesh.addEventListener('click', click )
+  mesh.addEventListener('mousemove', selected(true) )
+  mesh.addEventListener('nocollide', selected(false) )
 
   // lazy add mesh (because we're inside a recursive traverse)
   setTimeout( (mesh) => {
+    mesh.getWorldPosition(world.pos)
+    mesh.getWorldScale(world.scale)
+    mesh.getWorldQuaternion(world.quat);
+    mesh.position.copy(world.pos)
+    mesh.scale.copy(world.scale)
+    mesh.setRotationFromQuaternion(world.quat);
     xrf.interactive.add(mesh)
   }, 20, mesh )
 }
@@ -1170,16 +1220,35 @@ xrf.frag.pos = function(v, opts){
 xrf.frag.q = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   console.log("   └ running query ")
+  let qobjs = Object.keys(v.query)
+
+  v.scene = new THREE.Group()
   for ( let i in v.query  ) {
     let target = v.query[i]
-
-    // remove objects if requested
-    if( target.id != undefined && (target.mesh = scene.getObjectByName(i)) ){  
-      target.mesh.visible = target.id
-      target.mesh.parent.remove(target.mesh)
-      console.log(`     └ removing mesh: ${i}`)
-    }else console.log(`     └ mesh not found: ${i}`)
+    if( !scene.getObjectByName(i) && i != '*' ) return console.log(`     └ mesh not found: ${i}`)
+    if( i == '*' ){
+      let cloneScene = scene.clone()
+      cloneScene.children.forEach( (child) => v.scene.getObjectByName(child.name) ? null : v.scene.add(child) ) 
+      target.mesh = v.scene
+    }else{
+      console.log(`     └ query-ing mesh: ${i}`)
+      if( !v.scene.getObjectByName(i) && target.id === true ){ 
+        v.scene.add( target.mesh = scene.getObjectByName(i).clone() )
+      }
+    }
+    if( target.id != undefined && target.mesh  ){  
+        target.mesh.position.set(0,0,0)
+        target.mesh.rotation.set(0,0,0)
+    }
   }
+  // remove negative selectors
+  let remove = []
+  v.scene.traverse( (mesh) => {
+    for ( let i in v.query  ) {
+      if( mesh.name == i && v.query[i].id === false ) remove.push(mesh)
+    }
+  })
+  remove.map( (mesh) => mesh.parent.remove( mesh ) )
 }
 xrf.frag.rot = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
@@ -1195,38 +1264,38 @@ xrf.frag.rot = function(v, opts){
 
 xrf.frag.src = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
+  let src = new THREE.Group()
 
   if( v.string[0] == "#" ){ // local 
     console.log("   └ instancing src")
     let frag = xrfragment.URI.parse(v.string)
-    // Get an instance of the original model
-    let sceneInstance   = new THREE.Group()
-    sceneInstance.isSrc = true
-
-    // prevent infinite recursion #1: skip src-instanced models
-    for ( let i in model.scene.children ) {
-      let child = model.scene.children[i]
-      if( child.isSrc ) continue; 
-      sceneInstance.add( model.scene.children[i].clone() )
-    }
-
-    sceneInstance.position.copy( mesh.position )
-    sceneInstance.scale.copy(mesh.scale)
-    sceneInstance.updateMatrixWorld(true)  // needed because we're going to move portals to the interactive-group
     
     // apply embedded XR fragments
     setTimeout( () => {
-      sceneInstance.traverse( (m) => {
-        if( m.userData && m.userData.src ) return ;//delete m.userData.src // prevent infinite recursion 
-        xrf.eval.mesh(m,{scene,recursive:true}) 
-      })
+      // Add the instance to the scene
+      //model.scene.add(clone);
       // apply URI XR Fragments inside src-value 
       for( var i in frag ){
-        xrf.eval.fragment(i, Object.assign(opts,{frag, model:{scene:sceneInstance},scene:sceneInstance}))
+        xrf.eval.fragment(i, Object.assign(opts,{frag, model,scene}))
       }
-      // Add the instance to the scene
-      model.scene.add(sceneInstance);
+      if( frag.q.query ){  
+        let srcScene = frag.q.scene 
+        if( !srcScene || !srcScene.visible ) return 
+        console.log("       └ inserting "+i+" (srcScene)")
+        srcScene.position.set(0,0,0)
+        srcScene.rotation.set(0,0,0)
+        srcScene.traverse( (m) => {
+          if( m.userData && (m.userData.src || m.userData.href) ) return ;//delete m.userData.src // prevent infinite recursion 
+          xrf.eval.mesh(m,{scene,recursive:true}) 
+        })
+        if( srcScene.visible ) src.add( srcScene )
+      }
+      src.position.copy( mesh.position )
+      src.rotation.copy( mesh.rotation )
+      src.scale.copy( mesh.scale )
+      mesh.add(src)
+      console.dir(opts)
+      if( !opts.recursive ) mesh.material.visible = false // lets hide the preview object because deleting disables animations
     },10)
   }
 }
-export default xrfragment;
