@@ -61,13 +61,15 @@
           if( e.click ){
             const { mesh, model, camera, scene, renderer, THREE} = e.XRF
             const url       = e.xrf.string
-            const isExtern  = url != '#'
+            const isExtern  = url[0] != '#'
             const notIsHome = url != $('#home').getAttribute("xrf") 
             const promise   = e.promise() // promisify event
-            if( !renderer.xr.isPresenting && isExtern && notIsHome ){
-              if( confirm("teleport to "+url+" ?") ) promise.resolve()
-              else promise.reject('teleport not ok')
+            if( !renderer.xr.isPresenting ){
+              if( isExtern && notIsHome ){
+                if( !confirm("teleport to "+url+" ?") ) return promise.reject('teleport rejected')
+              }
             }
+            promise.resolve()
           }
         })
 
