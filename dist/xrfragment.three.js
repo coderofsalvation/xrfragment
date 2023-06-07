@@ -1096,6 +1096,14 @@ xrf.frag.href = function(v, opts){
   }else mesh.material = mesh.material.clone()
 
   let click = mesh.userData.XRF.href.exec = (e) => {
+
+    let teleport = () => {
+      console.log("teleport")
+      xrf
+      .emit('href',{click:true,mesh,xrf:v})     // let all listeners agree
+      .then( () => xrf.navigator.to(v.string) ) // ok let's surf to HREF!
+    }
+
     if( v.string[0] == '#' ){
       let frag = xrf.URI.parse(v.string)
       if( frag.q ){ // show/hider 
@@ -1122,12 +1130,8 @@ xrf.frag.href = function(v, opts){
           }
         })
 
-      }else{ // teleport
-        xrf
-        .emit('href',{click:true,mesh,xrf:v})     // let all listeners agree
-        .then( () => xrf.navigator.to(v.string) ) // ok let's surf to HREF!
-      }
-    }
+      }else teleport()
+    }else teleport()
   }
 
   let selected = (state) => () => {
