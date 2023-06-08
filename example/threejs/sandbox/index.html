@@ -33,7 +33,7 @@
 		<script type="module">
 			import * as THREE from 'three';
 
-			import xrfragment from './../../../dist/xrfragment.three.module.js';
+			import xrf from './../../../dist/xrfragment.three.module.js';
 
 			import { loadFile, setupConsole, setupUrlBar, notify } from './../../assets/js/utils.js';
 			import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
@@ -91,7 +91,7 @@
 				
 
         // enable XR fragments
-        let XRF = xrfragment.init({            
+        let XRF = xrf.init({            
           THREE,
           camera:cameraRig,
           scene,

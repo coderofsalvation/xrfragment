@@ -851,39 +851,36 @@ xrf.parseModel = function(model,url){
   // add animations
   model.clock            = new THREE.Clock();
   model.mixer            = new THREE.AnimationMixer(model.scene)
-  console.dir(model)
   model.animations.map( (anim) => model.mixer.clipAction( anim ).play() )
   model.render           = function(){
     model.mixer.update( model.clock.getDelta() )
+    xrf.navigator.material.selection.color.r = (1.0 + Math.sin( model.clock.getElapsedTime() * 10 ))/2
   }
 }
 
 xrf.getLastModel = ()           => xrf.model.last 
 
-xrf.eval = function( url, model ){
+xrf.eval = function( url, model, flags ){  // evaluate local toplevel url
   let notice = false
   model = model || xrf.model
   let { THREE, camera } = xrf
-  let frag = xrf.URI.parse( url, xrf.XRF.NAVIGATOR )
-  let meshes = frag.q ? [] : [camera]
-
-  for ( let i in meshes ) {
-    for ( let k in frag ){
-      let mesh = meshes[i]
-      let opts = {frag, mesh, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
-      xrf.eval.fragment(k,opts)
-    }
+  let frag = xrf.URI.parse( url, flags || xrf.XRF.NAVIGATOR )
+  for ( let k in frag ){
+    let opts = {frag, mesh:xrf.camera, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
+    xrf.emit('eval',opts)
+    .then( () => xrf.eval.fragment(k,opts) )
   }
 }
 
-xrf.eval.mesh     = (mesh,model) => {
+xrf.eval.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) inside mesh of model 
   if( mesh.userData ){
     let frag = {}
     for( let k in mesh.userData ) xrf.Parser.parse( k, mesh.userData[k], frag )
     for( let k in frag ){
       let opts = {frag, mesh, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
       mesh.userData.XRF = frag // allow fragment impl to access XRF obj already
-      xrf.eval.fragment(k,opts)
+      xrf.emit('eval',opts)
+      .then( () => xrf.eval.fragment(k,opts) )
     }
   }
 }
@@ -938,7 +935,7 @@ xrf.navigator.to = (url,event) => {
 
     if( !file || xrf.model.file == file ){ // we're already loaded
       document.location.hash = `#${hash}`  // just update the hash
-      xrf.eval( url, xrf.model )           // and eval URI XR fragments 
+      xrf.eval( url, xrf.model )           // and eval local URI XR fragments 
       return resolve(xrf.model) 
     }
 
@@ -965,6 +962,9 @@ xrf.navigator.init = () => {
   window.addEventListener('popstate', function (event){
     xrf.navigator.to( document.location.search.substr(1) + document.location.hash, event)
   })
+  xrf.navigator.material = {
+    selection: new xrf.THREE.LineBasicMaterial({color:0xFF00FF,linewidth:2})
+  }
   xrf.navigator.init.inited = true
 }
 
@@ -1038,6 +1038,7 @@ xrf.frag.env = function(v, opts){
  */
 
 xrf.frag.href = function(v, opts){
+  opts.embedded = v // indicate embedded XR fragment
   let { mesh, model, camera, scene, renderer, THREE} = opts
 
   const world = { 
@@ -1096,42 +1097,13 @@ xrf.frag.href = function(v, opts){
   }else mesh.material = mesh.material.clone()
 
   let click = mesh.userData.XRF.href.exec = (e) => {
-
-    let teleport = () => {
-      console.log("teleport")
-      xrf
-      .emit('href',{click:true,mesh,xrf:v})     // let all listeners agree
-      .then( () => xrf.navigator.to(v.string) ) // ok let's surf to HREF!
-    }
-
-    if( v.string[0] == '#' ){
-      let frag = xrf.URI.parse(v.string)
-      if( frag.q ){ // show/hider 
-        let q = frag.q.query 
-        scene.traverse( (mesh) => {
-          for ( let i in q ) {
-            if( i == mesh.name           && q[i].id    != undefined ) mesh.visible = q[i].id 
-            if( i == mesh.userData.class && q[i].class != undefined ) mesh.visible = q[i].class
-          }
-        })
-      }else if( !v.string.match(/=/) ){ // projection or Selection of Interest (SoI)
-        let id = v.string.substr(1)
-        scene.traverse( (mesh) => {
-          if( mesh.selection ){
-            mesh.remove(mesh.selection)
-            delete mesh.selection
-          }
-          if( id == mesh.name || id == mesh.userData.class ){
-            console.log("applying selection")
-            mesh.selection = new THREE.BoxHelper(mesh,0xff00ff)
-            mesh.selection.scale.set(2,2,2)
-            mesh.selection.position.copy( mesh.position )
-            scene.add(mesh.selection)
-          }
-        })
-
-      }else teleport()
-    }else teleport()
+    xrf
+    .emit('href',{click:true,mesh,xrf:v})     // let all listeners agree
+    .then( () => {
+      if( v.string[0] == '#' ){               // apply modifications to scene
+        xrf.eval( v.string, xrf.model, xrf.XRF.PV_OVERRIDE )
+      }else xrf.navigator.to(v.string)        // or let's surf to HREF!
+    }) 
   }
 
   let selected = (state) => () => {
@@ -1175,84 +1147,125 @@ xrf.frag.href = function(v, opts){
  * > capture of <a href="./example/aframe/sandbox" target="_blank">aframe/sandbox</a>
  */
 xrf.frag.pos = function(v, opts){
-  //if( renderer.xr.isPresenting ) return // too far away 
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   console.log("   └ setting camera position to "+v.string)
 
   if( !frag.q ){ 
-
-    if( true ){//!renderer.xr.isPresenting ){
-      console.dir(camera)
-      camera.position.x = v.x
-      camera.position.y = v.y
-      camera.position.z = v.z
-    }
-      /*
-    else{ // XR
-      let cameraWorldPosition = new THREE.Vector3()
-      camera.object3D.getWorldPosition(this.cameraWorldPosition)
-      let newRigWorldPosition = new THREE.Vector3(v.x,v.y,x.z)
-
-      // Finally update the cameras position
-      let newRigLocalPosition.copy(this.newRigWorldPosition)
-      if (camera.object3D.parent) {
-        camera.object3D.parent.worldToLocal(newRigLocalPosition)
-      }
-      camera.setAttribute('position', newRigLocalPosition)
-
-      // Also take the headset/camera rotation itself into account
-      if (this.data.rotateOnTeleport) {
-        this.teleportOcamerainQuaternion
-          .setFromEuler(new THREE.Euler(0, this.teleportOcamerain.object3D.rotation.y, 0))
-        this.teleportOcamerainQuaternion.invert()
-        this.teleportOcamerainQuaternion.multiply(this.hitEntityQuaternion)
-        // Rotate the camera based on calculated teleport ocamerain rotation
-        this.cameraRig.object3D.setRotationFromQuaternion(this.teleportOcamerainQuaternion)
-      }
-
-      console.log("XR")
-      const offsetPosition = { x: - v.x, y: - v.y, z: - v.z, w: 1 };
-      const offsetRotation = new THREE.Quaternion();
-      const transform = new XRRigidTransform( offsetPosition, offsetRotation );
-      const teleportSpaceOffset = xrf.baseReferenceSpace.getOffsetReferenceSpace( transform );
-      renderer.xr.setReferenceSpace( teleportSpaceOffset );
-    }
-    */
-
+    camera.position.x = v.x
+    camera.position.y = v.y
+    camera.position.z = v.z
   }
 }
+const doPredefinedView = (opts) => {
+  let {frag,scene} = opts 
+  console.dir(opts)
+
+  const selectionOfInterest = (id,scene,mesh) => {
+    // Selection of Interest if predefined_view matches object name
+    if( mesh.selection ){
+      scene.remove(mesh.selection)
+      delete mesh.selection
+    }
+    if( id == mesh.name || id.substr(1) == mesh.userData.class ){
+      xrf.emit('selection',opts)
+      .then( () => {
+        const margin = 1.2
+        console.dir(mesh.scale.x)
+        mesh.scale.multiplyScalar( margin )
+        mesh.selection = new xrf.THREE.BoxHelper(mesh,0xff00ff)
+        mesh.scale.divideScalar( margin )
+        mesh.selection.material.dispose()
+        mesh.selection.material = xrf.navigator.material.selection
+        mesh.selection.isXRF = true
+        scene.add(mesh.selection)
+      })
+    }
+  }
+
+  const predefinedView = (id,scene,mesh) => {
+    if( mesh.userData[id] ){
+      let frag = xrf.URI.parse( mesh.userData[id], xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.EMBEDDED )
+      for ( let k in frag ){
+        let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
+        console.log(k)
+        xrf.emit('predefinedView',opts)
+        .then( () => xrf.eval.fragment(k,opts) )
+      }
+    }
+  }
+
+
+  for ( let i in frag  ) {
+    let v = frag[i]
+    if( v.is( xrf.XRF.PV_EXECUTE ) ){
+      // wait for nested instances to arrive at the scene 
+      setTimeout( () => {
+        if( !scene ) return 
+        scene.traverse( (mesh) => {
+          selectionOfInterest( v.fragment, scene, mesh )
+          predefinedView( v.fragment, scene, mesh )
+        })
+      },100)
+    }
+  }
+}
+
+// when predefined view occurs in url changes
+xrf.addEventListener('eval', doPredefinedView ) 
+
+// clicking href url with predefined view 
+xrf.addEventListener('href', (opts) => {
+  if( !opts.click || opts.xrf.string[0] != '#' ) return 
+  let frag = xrf.URI.parse( opts.xrf.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.EMBEDDED )
+  doPredefinedView({frag,scene:xrf.scene})
+}) 
 xrf.frag.q = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   console.log("   └ running query ")
   let qobjs = Object.keys(v.query)
 
-  v.scene = new THREE.Group()
-  for ( let i in v.query  ) {
-    let target = v.query[i]
-    if( !scene.getObjectByName(i) && i != '*' ) return console.log(`     └ mesh not found: ${i}`)
-    if( i == '*' ){
-      let cloneScene = scene.clone()
-      cloneScene.children.forEach( (child) => v.scene.getObjectByName(child.name) ? null : v.scene.add(child) ) 
-      target.mesh = v.scene
-    }else{
-      console.log(`     └ query-ing mesh: ${i}`)
-      if( !v.scene.getObjectByName(i) && target.id === true ){ 
-        v.scene.add( target.mesh = scene.getObjectByName(i).clone() )
+  const instanceScene = () => {
+    v.scene = new THREE.Group()
+    for ( let i in v.query  ) {
+      let target = v.query[i]
+      if( !scene.getObjectByName(i) && i != '*' ) return console.log(`     └ mesh not found: ${i}`)
+      if( i == '*' ){
+        let cloneScene = scene.clone()
+        cloneScene.children.forEach( (child) => v.scene.getObjectByName(child.name) ? null : v.scene.add(child) ) 
+        target.mesh = v.scene
+      }else{
+        console.log(`     └ query-ing mesh: ${i}`)
+        if( !v.scene.getObjectByName(i) && target.id === true ){ 
+          v.scene.add( target.mesh = scene.getObjectByName(i).clone() )
+        }
+      }
+      if( target.id != undefined && target.mesh  ){  
+          target.mesh.position.set(0,0,0)
+          target.mesh.rotation.set(0,0,0)
       }
     }
-    if( target.id != undefined && target.mesh  ){  
-        target.mesh.position.set(0,0,0)
-        target.mesh.rotation.set(0,0,0)
-    }
+    // remove negative selectors
+    let remove = []
+    v.scene.traverse( (mesh) => {
+      for ( let i in v.query  ) {
+        if( mesh.name == i && v.query[i].id === false ) remove.push(mesh)
+      }
+    })
+    remove.map( (mesh) => mesh.parent.remove( mesh ) )
   }
-  // remove negative selectors
-  let remove = []
-  v.scene.traverse( (mesh) => {
-    for ( let i in v.query  ) {
-      if( mesh.name == i && v.query[i].id === false ) remove.push(mesh)
-    }
-  })
-  remove.map( (mesh) => mesh.parent.remove( mesh ) )
+
+  const showHide = () => {
+    let q = frag.q.query 
+    scene.traverse( (mesh) => {
+      for ( let i in q ) {
+        if( i == mesh.name           && q[i].id    != undefined ) mesh.visible = q[i].id 
+        if( i == mesh.userData.class && q[i].class != undefined ) mesh.visible = q[i].class
+      }
+    })
+  }
+
+  if( opts.embedded && opts.embedded.fragment == "src" ) instanceScene()
+  else showHide() // href
 }
 xrf.frag.rot = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
@@ -1267,6 +1280,7 @@ xrf.frag.rot = function(v, opts){
 // *TODO* use webgl instancing
 
 xrf.frag.src = function(v, opts){
+  opts.embedded = v // indicate embedded XR fragment
   let { mesh, model, camera, scene, renderer, THREE} = opts
   let src = new THREE.Group()
 
@@ -1276,8 +1290,6 @@ xrf.frag.src = function(v, opts){
     
     // apply embedded XR fragments
     setTimeout( () => {
-      // Add the instance to the scene
-      //model.scene.add(clone);
       // apply URI XR Fragments inside src-value 
       for( var i in frag ){
         xrf.eval.fragment(i, Object.assign(opts,{frag, model,scene}))
@@ -1303,4 +1315,4 @@ xrf.frag.src = function(v, opts){
     },10)
   }
 }
-export default xrfragment;
+export default xrf;

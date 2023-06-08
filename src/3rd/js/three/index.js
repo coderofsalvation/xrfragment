@@ -45,39 +45,36 @@ xrf.parseModel = function(model,url){
   // add animations
   model.clock            = new THREE.Clock();
   model.mixer            = new THREE.AnimationMixer(model.scene)
-  console.dir(model)
   model.animations.map( (anim) => model.mixer.clipAction( anim ).play() )
   model.render           = function(){
     model.mixer.update( model.clock.getDelta() )
+    xrf.navigator.material.selection.color.r = (1.0 + Math.sin( model.clock.getElapsedTime() * 10 ))/2
   }
 }
 
 xrf.getLastModel = ()           => xrf.model.last 
 
-xrf.eval = function( url, model ){
+xrf.eval = function( url, model, flags ){  // evaluate local toplevel url
   let notice = false
   model = model || xrf.model
   let { THREE, camera } = xrf
-  let frag = xrf.URI.parse( url, xrf.XRF.NAVIGATOR )
-  let meshes = frag.q ? [] : [camera]
-
-  for ( let i in meshes ) {
-    for ( let k in frag ){
-      let mesh = meshes[i]
-      let opts = {frag, mesh, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
-      xrf.eval.fragment(k,opts)
-    }
+  let frag = xrf.URI.parse( url, flags || xrf.XRF.NAVIGATOR )
+  for ( let k in frag ){
+    let opts = {frag, mesh:xrf.camera, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
+    xrf.emit('eval',opts)
+    .then( () => xrf.eval.fragment(k,opts) )
   }
 }
 
-xrf.eval.mesh     = (mesh,model) => {
+xrf.eval.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) inside mesh of model 
   if( mesh.userData ){
     let frag = {}
     for( let k in mesh.userData ) xrf.Parser.parse( k, mesh.userData[k], frag )
     for( let k in frag ){
       let opts = {frag, mesh, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
       mesh.userData.XRF = frag // allow fragment impl to access XRF obj already
-      xrf.eval.fragment(k,opts)
+      xrf.emit('eval',opts)
+      .then( () => xrf.eval.fragment(k,opts) )
     }
   }
 }

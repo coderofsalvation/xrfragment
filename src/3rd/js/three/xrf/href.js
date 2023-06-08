@@ -29,6 +29,7 @@
  */
 
 xrf.frag.href = function(v, opts){
+  opts.embedded = v // indicate embedded XR fragment
   let { mesh, model, camera, scene, renderer, THREE} = opts
 
   const world = { 
@@ -87,42 +88,13 @@ xrf.frag.href = function(v, opts){
   }else mesh.material = mesh.material.clone()
 
   let click = mesh.userData.XRF.href.exec = (e) => {
-
-    let teleport = () => {
-      console.log("teleport")
-      xrf
-      .emit('href',{click:true,mesh,xrf:v})     // let all listeners agree
-      .then( () => xrf.navigator.to(v.string) ) // ok let's surf to HREF!
-    }
-
-    if( v.string[0] == '#' ){
-      let frag = xrf.URI.parse(v.string)
-      if( frag.q ){ // show/hider 
-        let q = frag.q.query 
-        scene.traverse( (mesh) => {
-          for ( let i in q ) {
-            if( i == mesh.name           && q[i].id    != undefined ) mesh.visible = q[i].id 
-            if( i == mesh.userData.class && q[i].class != undefined ) mesh.visible = q[i].class
-          }
-        })
-      }else if( !v.string.match(/=/) ){ // projection or Selection of Interest (SoI)
-        let id = v.string.substr(1)
-        scene.traverse( (mesh) => {
-          if( mesh.selection ){
-            mesh.remove(mesh.selection)
-            delete mesh.selection
-          }
-          if( id == mesh.name || id == mesh.userData.class ){
-            console.log("applying selection")
-            mesh.selection = new THREE.BoxHelper(mesh,0xff00ff)
-            mesh.selection.scale.set(2,2,2)
-            mesh.selection.position.copy( mesh.position )
-            scene.add(mesh.selection)
-          }
-        })
-
-      }else teleport()
-    }else teleport()
+    xrf
+    .emit('href',{click:true,mesh,xrf:v})     // let all listeners agree
+    .then( () => {
+      if( v.string[0] == '#' ){               // apply modifications to scene
+        xrf.eval( v.string, xrf.model, xrf.XRF.PV_OVERRIDE )
+      }else xrf.navigator.to(v.string)        // or let's surf to HREF!
+    }) 
   }
 
   let selected = (state) => () => {

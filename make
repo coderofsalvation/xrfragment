@@ -60,7 +60,7 @@ build_js(){
       src/3rd/js/three/xrf/*.js       > dist/xrfragment.three.js
   # add THREE module
   cat dist/xrfragment.three.js        > dist/xrfragment.three.module.js
-  echo "export default xrfragment;"  >> dist/xrfragment.three.module.js
+  echo "export default xrf;"  >> dist/xrfragment.three.module.js
   # add AFRAME 
   cat dist/xrfragment.three.js \
       src/3rd/js/aframe/*.js          > dist/xrfragment.aframe.js

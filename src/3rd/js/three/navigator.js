@@ -8,7 +8,7 @@ xrf.navigator.to = (url,event) => {
 
     if( !file || xrf.model.file == file ){ // we're already loaded
       document.location.hash = `#${hash}`  // just update the hash
-      xrf.eval( url, xrf.model )           // and eval URI XR fragments 
+      xrf.eval( url, xrf.model )           // and eval local URI XR fragments 
       return resolve(xrf.model) 
     }
 
@@ -35,6 +35,9 @@ xrf.navigator.init = () => {
   window.addEventListener('popstate', function (event){
     xrf.navigator.to( document.location.search.substr(1) + document.location.hash, event)
   })
+  xrf.navigator.material = {
+    selection: new xrf.THREE.LineBasicMaterial({color:0xFF00FF,linewidth:2})
+  }
   xrf.navigator.init.inited = true
 }
 

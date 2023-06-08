@@ -1,6 +1,7 @@
 // *TODO* use webgl instancing
 
 xrf.frag.src = function(v, opts){
+  opts.embedded = v // indicate embedded XR fragment
   let { mesh, model, camera, scene, renderer, THREE} = opts
   let src = new THREE.Group()
 
@@ -10,8 +11,6 @@ xrf.frag.src = function(v, opts){
     
     // apply embedded XR fragments
     setTimeout( () => {
-      // Add the instance to the scene
-      //model.scene.add(clone);
       // apply URI XR Fragments inside src-value 
       for( var i in frag ){
         xrf.eval.fragment(i, Object.assign(opts,{frag, model,scene}))
