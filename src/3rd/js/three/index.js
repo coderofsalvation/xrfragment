@@ -43,8 +43,8 @@ xrf.parseModel = function(model,url){
   // eval embedded XR fragments
   model.scene.traverse( (mesh) => xrf.eval.mesh(mesh,model) )
   // add animations
-  model.clock            = new THREE.Clock();
-  model.mixer            = new THREE.AnimationMixer(model.scene)
+  model.clock            = new xrf.THREE.Clock();
+  model.mixer            = new xrf.THREE.AnimationMixer(model.scene)
   model.animations.map( (anim) => model.mixer.clipAction( anim ).play() )
   model.render           = function(){
     model.mixer.update( model.clock.getDelta() )
@@ -54,7 +54,7 @@ xrf.parseModel = function(model,url){
 
 xrf.getLastModel = ()           => xrf.model.last 
 
-xrf.eval = function( url, model, flags ){  // evaluate local toplevel url
+xrf.eval = function( url, model, flags ){  // evaluate fragments in url
   let notice = false
   model = model || xrf.model
   let { THREE, camera } = xrf
@@ -79,7 +79,7 @@ xrf.eval.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) 
   }
 }
 
-xrf.eval.fragment = (k, opts ) => {
+xrf.eval.fragment = (k, opts ) => { // evaluate one fragment
   // call native function (xrf/env.js e.g.), or pass it to user decorator
   let func = xrf.frag[k] || function(){} 
   if(  xrf[k] ) xrf[k]( func, opts.frag[k], opts)

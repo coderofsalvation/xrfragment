@@ -849,8 +849,8 @@ xrf.parseModel = function(model,url){
   // eval embedded XR fragments
   model.scene.traverse( (mesh) => xrf.eval.mesh(mesh,model) )
   // add animations
-  model.clock            = new THREE.Clock();
-  model.mixer            = new THREE.AnimationMixer(model.scene)
+  model.clock            = new xrf.THREE.Clock();
+  model.mixer            = new xrf.THREE.AnimationMixer(model.scene)
   model.animations.map( (anim) => model.mixer.clipAction( anim ).play() )
   model.render           = function(){
     model.mixer.update( model.clock.getDelta() )
