@@ -123,7 +123,7 @@
 
         window.XRF = XRF // expose to form
 
-				let file = document.location.search.length > 2 ? document.location.search.substr(1) + document.location.hash : './../../assets/example3.gltf#pos=1,0,4&rot=0,-30,0'
+				let file = document.location.search.length > 2 ? document.location.search.substr(1) + document.location.hash : './../../assets/example.gltf#pos=1,0,4&rot=0,-30,0'
         $('#model').setAttribute("href","./../../asset/"+file)
 				XRF.navigator.to( file )
 
