@@ -35,8 +35,6 @@ xrf.frag.q = function(v, opts){
 
   const showHide = () => {
     let q = frag.q.query 
-    console.log(frag.q.string)
-    console.dir(frag)
     scene.traverse( (mesh) => {
       for ( let i in q ) {
         let isMeshId       = q[i].id    != undefined 

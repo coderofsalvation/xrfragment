@@ -1,14 +1,15 @@
 const doPredefinedView = (opts) => {
   let {frag,scene} = opts 
 
-  const selectionOfInterest = (id,scene,mesh) => {
+  const selectionOfInterest = (frag,scene,mesh) => {
+    let id = frag.string
     // Selection of Interest if predefined_view matches object name
     if( mesh.selection ){
       scene.remove(mesh.selection)
       delete mesh.selection
     }
     if( id == mesh.name || id.substr(1) == mesh.userData.class ){
-      xrf.emit('selection',opts)
+      xrf.emit('selection',{...opts,frag})
       .then( () => {
         const margin = 1.2
         mesh.scale.multiplyScalar( margin )
@@ -28,7 +29,7 @@ const doPredefinedView = (opts) => {
       let frag = xrf.URI.parse( mesh.userData[id], xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.EMBEDDED )
       for ( let k in frag ){
         let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
-        xrf.emit('predefinedView',opts)
+        xrf.emit('predefinedView',{...opts,frag})
         .then( () => xrf.eval.fragment(k,opts) )
       }
     }
@@ -43,7 +44,7 @@ const doPredefinedView = (opts) => {
       setTimeout( () => {
         if( !scene ) return 
         scene.traverse( (mesh) => {
-          selectionOfInterest( v.string, scene, mesh )
+          selectionOfInterest( v, scene, mesh )
           predefinedView( v , scene, mesh )
         })
       },100)
@@ -60,3 +61,10 @@ xrf.addEventListener('href', (opts) => {
   let frag = xrf.URI.parse( opts.xrf.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.EMBEDDED )
   doPredefinedView({frag,scene:xrf.scene})
 }) 
+
+//let updateUrl = (opts) => {
+//  console.dir(opts)
+//}
+//
+//xrf.addEventListener('predefinedView', updateUrl )
+//xrf.addEventListener('selection', updateUrl )

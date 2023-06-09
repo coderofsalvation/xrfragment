@@ -91,11 +91,11 @@ xrf.frag.href = function(v, opts){
 
   let click = mesh.userData.XRF.href.exec = (e) => {
     xrf
-    .emit('href',{click:true,mesh,xrf:v})     // let all listeners agree
+    .emit('href',{click:true,mesh,xrf:v})               // let all listeners agree
     .then( () => {
-      if( v.string[0] == '#' ){               // apply modifications to scene
+      if( v.string[0] == '#' && v.string.match(/\|/) ){  // apply modifications to scene
         xrf.eval( v.string, xrf.model, xrf.XRF.PV_OVERRIDE )
-      }else xrf.navigator.to(v.string)        // or let's surf to HREF!
+      }else xrf.navigator.to(v.string)                  // or let's surf to HREF!
     }) 
   }
 
