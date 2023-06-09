@@ -32,6 +32,8 @@ xrf.frag.href = function(v, opts){
   opts.embedded = v // indicate embedded XR fragment
   let { mesh, model, camera, scene, renderer, THREE} = opts
 
+  if( mesh.userData.XRF.href.exec ) return // mesh already initialized
+
   const world = { 
     pos: new THREE.Vector3(), 
     scale: new THREE.Vector3(),

@@ -32,7 +32,7 @@ xrf.frag.src = function(v, opts){
       src.scale.copy( mesh.scale )
       mesh.add(src)
       console.dir(opts)
-      if( !opts.recursive ) mesh.material.visible = false // lets hide the preview object because deleting disables animations
+      if( !opts.recursive ) mesh.material.visible = false // lets hide the preview object because deleting disables animations+nested objs
     },10)
   }
 }

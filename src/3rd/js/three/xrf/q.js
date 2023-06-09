@@ -35,10 +35,16 @@ xrf.frag.q = function(v, opts){
 
   const showHide = () => {
     let q = frag.q.query 
+    console.log(frag.q.string)
+    console.dir(frag)
     scene.traverse( (mesh) => {
       for ( let i in q ) {
-        if( i == mesh.name           && q[i].id    != undefined ) mesh.visible = q[i].id 
-        if( i == mesh.userData.class && q[i].class != undefined ) mesh.visible = q[i].class
+        let isMeshId       = q[i].id    != undefined 
+        let isMeshClass    = q[i].class != undefined 
+        let isMeshProperty = q[i].rules != undefined && q[i].rules.length && !isMeshId && !isMeshClass 
+        if( isMeshId       && i == mesh.name           ) mesh.visible = q[i].id 
+        if( isMeshClass    && i == mesh.userData.class ) mesh.visible = q[i].class
+        if( isMeshProperty && mesh.userData[i]         ) mesh.visible = (new xrf.Query(frag.q.string)).testProperty(i,mesh.userData[i])
       }
     })
   }

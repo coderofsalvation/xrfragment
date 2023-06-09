@@ -62,7 +62,9 @@ class Parser {
 
 			// dynamic fragments cases: predefined views & assign/binds
 			if( value.length == 0 && !Frag.exists(key) ){
-				resultMap.set(key, new XRF(key, XRF.PV_EXECUTE | XRF.NAVIGATOR ) );
+				var v:XRF  = new XRF(key, XRF.PV_EXECUTE | XRF.NAVIGATOR );
+        v.validate(key); // will fail but will parse multiple args for us (separated by |)
+				resultMap.set(key, v );
 				return true;
 			}
 			if( key.split(".").length > 1 && value.split(".").length > 1 ){

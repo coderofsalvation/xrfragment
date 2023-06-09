@@ -1,6 +1,5 @@
 const doPredefinedView = (opts) => {
   let {frag,scene} = opts 
-  console.dir(opts)
 
   const selectionOfInterest = (id,scene,mesh) => {
     // Selection of Interest if predefined_view matches object name
@@ -12,7 +11,6 @@ const doPredefinedView = (opts) => {
       xrf.emit('selection',opts)
       .then( () => {
         const margin = 1.2
-        console.dir(mesh.scale.x)
         mesh.scale.multiplyScalar( margin )
         mesh.selection = new xrf.THREE.BoxHelper(mesh,0xff00ff)
         mesh.scale.divideScalar( margin )
@@ -24,12 +22,12 @@ const doPredefinedView = (opts) => {
     }
   }
 
-  const predefinedView = (id,scene,mesh) => {
+  const predefinedView = (frag,scene,mesh) => {
+    let id  = frag.string
     if( mesh.userData[id] ){
       let frag = xrf.URI.parse( mesh.userData[id], xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.EMBEDDED )
       for ( let k in frag ){
         let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
-        console.log(k)
         xrf.emit('predefinedView',opts)
         .then( () => xrf.eval.fragment(k,opts) )
       }
@@ -40,12 +38,13 @@ const doPredefinedView = (opts) => {
   for ( let i in frag  ) {
     let v = frag[i]
     if( v.is( xrf.XRF.PV_EXECUTE ) ){
+      if( v.args ) v = v.args[ xrf.roundrobin(v,xrf.model) ]
       // wait for nested instances to arrive at the scene 
       setTimeout( () => {
         if( !scene ) return 
         scene.traverse( (mesh) => {
-          selectionOfInterest( v.fragment, scene, mesh )
-          predefinedView( v.fragment, scene, mesh )
+          selectionOfInterest( v.string, scene, mesh )
+          predefinedView( v , scene, mesh )
         })
       },100)
     }

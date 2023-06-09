@@ -240,7 +240,9 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	Frag_h["description"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["session"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.EMBEDDED | xrfragment_XRF.PROMPT;
 	if(value.length == 0 && !Object.prototype.hasOwnProperty.call(Frag_h,key)) {
-		resultMap[key] = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR);
+		var v = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR);
+		v.validate(key);
+		resultMap[key] = v;
 		return true;
 	}
 	if(key.split(".").length > 1 && value.split(".").length > 1) {
@@ -250,11 +252,11 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		var v = new xrfragment_XRF(key,Frag_h[key]);
 		if(!v.validate(value)) {
-			console.log("src/xrfragment/Parser.hx:77:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:79:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 		if(xrfragment_Parser.debug) {
-			console.log("src/xrfragment/Parser.hx:80:","✔ " + key + ": " + v.string);
+			console.log("src/xrfragment/Parser.hx:82:","✔ " + key + ": " + v.string);
 		}
 		resultMap[key] = v;
 	}

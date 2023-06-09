@@ -240,7 +240,9 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	Frag_h["description"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["session"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.EMBEDDED | xrfragment_XRF.PROMPT;
 	if(value.length == 0 && !Object.prototype.hasOwnProperty.call(Frag_h,key)) {
-		resultMap[key] = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR);
+		var v = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR);
+		v.validate(key);
+		resultMap[key] = v;
 		return true;
 	}
 	if(key.split(".").length > 1 && value.split(".").length > 1) {
@@ -250,11 +252,11 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		var v = new xrfragment_XRF(key,Frag_h[key]);
 		if(!v.validate(value)) {
-			console.log("src/xrfragment/Parser.hx:77:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:79:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 		if(xrfragment_Parser.debug) {
-			console.log("src/xrfragment/Parser.hx:80:","✔ " + key + ": " + v.string);
+			console.log("src/xrfragment/Parser.hx:82:","✔ " + key + ": " + v.string);
 		}
 		resultMap[key] = v;
 	}
@@ -615,6 +617,20 @@ xrf.query = function(){
   alert("queries are not implemented (yet) for this particular framework")
 }
 
+xrf.roundrobin = (frag, store) => {
+  if( !frag.args || frag.args.length == 0 ) return 0
+  if( !store.rr                 ) store.rr = {}
+  let label = frag.fragment
+  if( store.rr[label] ) return store.rr[label].next()
+  store.rr[label] = frag.args
+  store.rr[label].next  = () => {
+    store.rr[label].index = (store.rr[label].index + 1) % store.rr[label].length 
+    return store.rr[label].index
+  }
+  return store.rr[label].index = 0
+}
+
+
 // map library functions to xrf
 for ( let i in xrfragment ) xrf[i] = xrfragment[i] 
 /* 
@@ -860,7 +876,7 @@ xrf.parseModel = function(model,url){
 
 xrf.getLastModel = ()           => xrf.model.last 
 
-xrf.eval = function( url, model, flags ){  // evaluate local toplevel url
+xrf.eval = function( url, model, flags ){  // evaluate fragments in url
   let notice = false
   model = model || xrf.model
   let { THREE, camera } = xrf
@@ -885,7 +901,7 @@ xrf.eval.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) 
   }
 }
 
-xrf.eval.fragment = (k, opts ) => {
+xrf.eval.fragment = (k, opts ) => { // evaluate one fragment
   // call native function (xrf/env.js e.g.), or pass it to user decorator
   let func = xrf.frag[k] || function(){} 
   if(  xrf[k] ) xrf[k]( func, opts.frag[k], opts)
@@ -1041,6 +1057,8 @@ xrf.frag.href = function(v, opts){
   opts.embedded = v // indicate embedded XR fragment
   let { mesh, model, camera, scene, renderer, THREE} = opts
 
+  if( mesh.userData.XRF.href.exec ) return // mesh already initialized
+
   const world = { 
     pos: new THREE.Vector3(), 
     scale: new THREE.Vector3(),
@@ -1158,7 +1176,6 @@ xrf.frag.pos = function(v, opts){
 }
 const doPredefinedView = (opts) => {
   let {frag,scene} = opts 
-  console.dir(opts)
 
   const selectionOfInterest = (id,scene,mesh) => {
     // Selection of Interest if predefined_view matches object name
@@ -1170,7 +1187,6 @@ const doPredefinedView = (opts) => {
       xrf.emit('selection',opts)
       .then( () => {
         const margin = 1.2
-        console.dir(mesh.scale.x)
         mesh.scale.multiplyScalar( margin )
         mesh.selection = new xrf.THREE.BoxHelper(mesh,0xff00ff)
         mesh.scale.divideScalar( margin )
@@ -1182,12 +1198,12 @@ const doPredefinedView = (opts) => {
     }
   }
 
-  const predefinedView = (id,scene,mesh) => {
+  const predefinedView = (frag,scene,mesh) => {
+    let id  = frag.string
     if( mesh.userData[id] ){
       let frag = xrf.URI.parse( mesh.userData[id], xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.EMBEDDED )
       for ( let k in frag ){
         let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
-        console.log(k)
         xrf.emit('predefinedView',opts)
         .then( () => xrf.eval.fragment(k,opts) )
       }
@@ -1198,12 +1214,13 @@ const doPredefinedView = (opts) => {
   for ( let i in frag  ) {
     let v = frag[i]
     if( v.is( xrf.XRF.PV_EXECUTE ) ){
+      if( v.args ) v = v.args[ xrf.roundrobin(v,xrf.model) ]
       // wait for nested instances to arrive at the scene 
       setTimeout( () => {
         if( !scene ) return 
         scene.traverse( (mesh) => {
-          selectionOfInterest( v.fragment, scene, mesh )
-          predefinedView( v.fragment, scene, mesh )
+          selectionOfInterest( v.string, scene, mesh )
+          predefinedView( v , scene, mesh )
         })
       },100)
     }
@@ -1256,10 +1273,16 @@ xrf.frag.q = function(v, opts){
 
   const showHide = () => {
     let q = frag.q.query 
+    console.log(frag.q.string)
+    console.dir(frag)
     scene.traverse( (mesh) => {
       for ( let i in q ) {
-        if( i == mesh.name           && q[i].id    != undefined ) mesh.visible = q[i].id 
-        if( i == mesh.userData.class && q[i].class != undefined ) mesh.visible = q[i].class
+        let isMeshId       = q[i].id    != undefined 
+        let isMeshClass    = q[i].class != undefined 
+        let isMeshProperty = q[i].rules != undefined && q[i].rules.length && !isMeshId && !isMeshClass 
+        if( isMeshId       && i == mesh.name           ) mesh.visible = q[i].id 
+        if( isMeshClass    && i == mesh.userData.class ) mesh.visible = q[i].class
+        if( isMeshProperty && mesh.userData[i]         ) mesh.visible = (new xrf.Query(frag.q.string)).testProperty(i,mesh.userData[i])
       }
     })
   }
@@ -1311,7 +1334,7 @@ xrf.frag.src = function(v, opts){
       src.scale.copy( mesh.scale )
       mesh.add(src)
       console.dir(opts)
-      if( !opts.recursive ) mesh.material.visible = false // lets hide the preview object because deleting disables animations
+      if( !opts.recursive ) mesh.material.visible = false // lets hide the preview object because deleting disables animations+nested objs
     },10)
   }
 }

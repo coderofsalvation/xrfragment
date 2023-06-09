@@ -3,6 +3,7 @@
   {"fn":"query","data":"price:>=15", "expect":{ "fn":"testProperty","input":["price","10"],"out":false}},
   {"fn":"query","data":"price:>=5", "expect":{ "fn":"testProperty","input":["price","4"],"out":false}},
   {"fn":"query","data":"price:>=5", "expect":{ "fn":"testProperty","input":["price","0"],"out":false}},
+  {"fn":"query","data":"price:>=2", "expect":{ "fn":"testProperty","input":["price","2"],"out":true}},
   {"fn":"query","data":"price:>=5 price:0", "expect":{ "fn":"testProperty","input":["price","1"],"out":false},"label":"price=1"},
   {"fn":"query","data":"price:>=5 price:0", "expect":{ "fn":"testProperty","input":["price","0"],"out":true},"label":"price=0"},
   {"fn":"query","data":"price:>=5 price:0", "expect":{ "fn":"testProperty","input":["price","6"],"out":true},"label":"price=6"},
