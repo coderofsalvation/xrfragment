@@ -1118,7 +1118,7 @@ xrf.frag.href = function(v, opts){
     xrf
     .emit('href',{click:true,mesh,xrf:v})               // let all listeners agree
     .then( () => {
-      if( v.string[0] == '#' && v.string.match(/(\||#q)/) ){  // apply modifications to scene
+      if( v.string[0] == '#' && v.string.match(/(\||#q)/) ){ // apply modifications to scene *TODO* decide on queries...
         console.log("ja")
         xrf.eval( v.string, xrf.model, xrf.XRF.PV_OVERRIDE )
       }else xrf.navigator.to(v.string)                  // or let's surf to HREF!
