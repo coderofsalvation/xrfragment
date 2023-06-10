@@ -23,7 +23,8 @@ xrf.navigator.to = (url,event) => {
       model.file = file
       xrf.add( model.scene )
       xrf.model = model 
-      xrf.eval( url, model )  // and eval URI XR fragments 
+      xrf.eval( '#', model )  // execute the default projection '#' (if exist)
+      xrf.eval( url, model )      // and eval URI XR fragments 
       xrf.navigator.pushState( `${dir}${file}`, hash )
       resolve(model)
     })

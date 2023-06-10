@@ -562,7 +562,7 @@ var xrfragment_URI = $hx_exports["xrfragment"]["URI"] = function() { };
 xrfragment_URI.__name__ = true;
 xrfragment_URI.parse = function(url,filter) {
 	var store = { };
-	if(url.indexOf("#") == -1) {
+	if(url == null || url.indexOf("#") == -1) {
 		return store;
 	}
 	var fragment = url.split("#");

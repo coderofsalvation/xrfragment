@@ -1599,8 +1599,8 @@ class xrfragment_Query:
         fails = 0
         qualify = 0
         def _hx_local_2(expr):
-            nonlocal fails
             nonlocal conds
+            nonlocal fails
             conds = (conds + 1)
             fails = (fails + (0 if expr else 1))
             return expr
@@ -1650,8 +1650,13 @@ class xrfragment_URI:
     @staticmethod
     def parse(url,_hx_filter):
         store = _hx_AnonObject({})
-        startIndex = None
-        if (((url.find("#") if ((startIndex is None)) else HxString.indexOfImpl(url,"#",startIndex))) == -1):
+        tmp = None
+        if (url is not None):
+            startIndex = None
+            tmp = (((url.find("#") if ((startIndex is None)) else HxString.indexOfImpl(url,"#",startIndex))) == -1)
+        else:
+            tmp = True
+        if tmp:
             return store
         fragment = url.split("#")
         _this = (fragment[1] if 1 < len(fragment) else None)

@@ -25,7 +25,7 @@ const doPredefinedView = (opts) => {
 
   const predefinedView = (frag,scene,mesh) => {
     let id  = frag.string
-    if( mesh.userData[id] ){
+    if( mesh.userData[`#${id}`] ){
       let frag = xrf.URI.parse( mesh.userData[id], xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.EMBEDDED )
       for ( let k in frag ){
         let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }

@@ -452,7 +452,7 @@ var xrfragment_URI = $hx_exports["xrfragment"]["URI"] = function() { };
 xrfragment_URI.__name__ = true;
 xrfragment_URI.parse = function(url,filter) {
 	var store = { };
-	if(url.indexOf("#") == -1) {
+	if(url == null || url.indexOf("#") == -1) {
 		return store;
 	}
 	var fragment = url.split("#");
@@ -966,7 +966,8 @@ xrf.navigator.to = (url,event) => {
       model.file = file
       xrf.add( model.scene )
       xrf.model = model 
-      xrf.eval( url, model )  // and eval URI XR fragments 
+      xrf.eval( '#', model )  // execute the default projection '#' (if exist)
+      xrf.eval( url, model )      // and eval URI XR fragments 
       xrf.navigator.pushState( `${dir}${file}`, hash )
       resolve(model)
     })
@@ -1202,7 +1203,7 @@ const doPredefinedView = (opts) => {
 
   const predefinedView = (frag,scene,mesh) => {
     let id  = frag.string
-    if( mesh.userData[id] ){
+    if( mesh.userData[`#${id}`] ){
       let frag = xrf.URI.parse( mesh.userData[id], xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.EMBEDDED )
       for ( let k in frag ){
         let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }

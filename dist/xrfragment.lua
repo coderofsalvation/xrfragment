@@ -2051,20 +2051,26 @@ _hx_exports["xrfragment"]["URI"] = __xrfragment_URI
 __xrfragment_URI.__name__ = true
 __xrfragment_URI.parse = function(url,filter) 
   local store = _hx_e();
-  local startIndex = nil;
-  if (startIndex == nil) then 
-    startIndex = 1;
+  local tmp;
+  if (url ~= nil) then 
+    local startIndex = nil;
+    if (startIndex == nil) then 
+      startIndex = 1;
+    else
+      startIndex = startIndex + 1;
+    end;
+    local r = __lua_lib_luautf8_Utf8.find(url, "#", startIndex, true);
+    tmp = (function() 
+      local _hx_1
+      if ((r ~= nil) and (r > 0)) then 
+      _hx_1 = r - 1; else 
+      _hx_1 = -1; end
+      return _hx_1
+    end )() == -1;
   else
-    startIndex = startIndex + 1;
+    tmp = true;
   end;
-  local r = __lua_lib_luautf8_Utf8.find(url, "#", startIndex, true);
-  if ((function() 
-    local _hx_1
-    if ((r ~= nil) and (r > 0)) then 
-    _hx_1 = r - 1; else 
-    _hx_1 = -1; end
-    return _hx_1
-  end )() == -1) then 
+  if (tmp) then 
     do return store end;
   end;
   local idx = 1;

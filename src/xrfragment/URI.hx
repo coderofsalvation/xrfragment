@@ -46,7 +46,7 @@ class URI {
     @:keep
     public static function parse(url:String,filter:Int):haxe.DynamicAccess<Dynamic> {
       var store:haxe.DynamicAccess<Dynamic> = {};                      //  1. store key/values into a associative array or dynamic object
-      if( url.indexOf("#") == -1 ) return store;
+      if( url == null || url.indexOf("#") == -1 ) return store;
       var fragment:Array<String>    = url.split("#");                      //  1. fragment URI starts with `#`
       var splitArray:Array<String>  = fragment[1].split('&');              //  1. fragments are split by `&`
         for (i in 0...splitArray.length) {                                 //  1. loop thru each fragment
