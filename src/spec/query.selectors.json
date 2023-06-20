@@ -10,5 +10,7 @@
   {"fn":"query","data":".foo -.foo bar:>5 .foo", "expect":{ "fn":"testProperty","input":["class","foo"],"out":true},"label":"class:foo"},
   {"fn":"query","data":".foo -.foo .foo", "expect":{ "fn":"testProperty","input":["class","foo"],"out":true},"label":"class:foo"},
   {"fn":"query","data":".foo -.foo .foo", "expect":{ "fn":"testProperty","input":["id","foo"],"out":false},"label":"!id:foo"},
-  {"fn":"query","data":"foo -foo foo", "expect":{ "fn":"testProperty","input":["id","foo"],"out":true},"label":"id:foo?"}
+  {"fn":"query","data":"foo -foo foo", "expect":{ "fn":"testProperty","input":["id","foo"],"out":true},"label":"id:foo?"},
+  {"fn":"query","data":"/foo",         "expect":{ "fn":"testQueryRoot","input":["foo"],"out":true},"label":"foo should be root-only"},
+  {"fn":"query","data":"/foo foo",         "expect":{ "fn":"testQueryRoot","input":["foo"],"out":false},"label":"foo should recursively selected"}
 ]

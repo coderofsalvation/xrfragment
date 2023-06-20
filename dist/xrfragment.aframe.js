@@ -265,7 +265,7 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 var xrfragment_Query = $hx_exports["xrfragment"]["Query"] = function(str) {
 	this.isNumber = new EReg("^[0-9\\.]+$","");
 	this.isClass = new EReg("^[-]?class$","");
-	this.isAddition = new EReg("^\\+","");
+	this.isRoot = new EReg("^/","");
 	this.isExclude = new EReg("^-","");
 	this.isProp = new EReg("^.*:[><=!]?","");
 	this.q = { };
@@ -329,9 +329,6 @@ xrfragment_Query.prototype = {
 				if(_gthis.isExclude.match(k)) {
 					oper = "!=";
 					k = HxOverrides.substr(k,1,null);
-				} else if(_gthis.isAddition.match(k)) {
-					oper = "+=";
-					k = HxOverrides.substr(k,1,null);
 				} else {
 					v = HxOverrides.substr(v,oper.length,null);
 				}
@@ -353,6 +350,12 @@ xrfragment_Query.prototype = {
 				}
 				return;
 			} else {
+				if(_gthis.isRoot.match(k)) {
+					str = HxOverrides.substr(k,1,null);
+					filter["root"] = true;
+				} else if(filter["root"] == true) {
+					Reflect.deleteField(filter,"root");
+				}
 				filter["id"] = _gthis.isExclude.match(str) ? false : true;
 				var key = _gthis.isExclude.match(str) ? HxOverrides.substr(str,1,null) : str;
 				q[key] = filter;
@@ -1066,7 +1069,7 @@ xrf.frag.href = function(v, opts){
     quat: new THREE.Quaternion()
   }
   // detect equirectangular image
-  let texture = mesh.material.map
+  let texture = mesh.material && mesh.material.map ? mesh.material.map : null
   if( texture && texture.source.data.height == texture.source.data.width/2 ){
     texture.mapping = THREE.ClampToEdgeWrapping
     texture.needsUpdate = true
@@ -1113,7 +1116,7 @@ xrf.frag.href = function(v, opts){
       `,
     });
     mesh.material.needsUpdate = true
-  }else mesh.material = mesh.material.clone()
+  }else if( mesh.material){ mesh.material = mesh.material.clone() }
 
   let click = mesh.userData.XRF.href.exec = (e) => {
     xrf
@@ -1128,8 +1131,10 @@ xrf.frag.href = function(v, opts){
 
   let selected = (state) => () => {
     if( mesh.selected == state ) return // nothing changed 
-    if( mesh.material.uniforms ) mesh.material.uniforms.selected.value = state 
-    else mesh.material.color.r = mesh.material.color.g = mesh.material.color.b = state ? 2.0 : 1.0
+    if( mesh.material ){
+      if( mesh.material.uniforms ) mesh.material.uniforms.selected.value = state 
+      else mesh.material.color.r = mesh.material.color.g = mesh.material.color.b = state ? 2.0 : 1.0
+    }
     // update mouse cursor
     if( !renderer.domElement.lastCursor )
       renderer.domElement.lastCursor = renderer.domElement.style.cursor
@@ -1181,11 +1186,12 @@ const doPredefinedView = (opts) => {
 
   const selectionOfInterest = (frag,scene,mesh) => {
     let id = frag.string
-    // Selection of Interest if predefined_view matches object name
+    if(!id) return id // important: ignore empty strings 
     if( mesh.selection ){
       scene.remove(mesh.selection)
       delete mesh.selection
     }
+    // Selection of Interest if predefined_view matches object name
     if( id == mesh.name || id.substr(1) == mesh.userData.class ){
       xrf.emit('selection',{...opts,frag})
       .then( () => {
@@ -1202,9 +1208,10 @@ const doPredefinedView = (opts) => {
   }
 
   const predefinedView = (frag,scene,mesh) => {
-    let id  = frag.string
-    if( mesh.userData[`#${id}`] ){
-      let frag = xrf.URI.parse( mesh.userData[id], xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.EMBEDDED )
+    let id   = frag.string
+    if( !id ) return  // prevent empty matches
+    if( mesh.userData[`#${id}`] ){ // get alias
+      frag = xrf.URI.parse( mesh.userData[`#${id}`], xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.EMBEDDED )
       for ( let k in frag ){
         let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
         xrf.emit('predefinedView',{...opts,frag})
@@ -1271,14 +1278,14 @@ xrf.frag.q = function(v, opts){
           target.mesh.rotation.set(0,0,0)
       }
     }
-    // remove negative selectors
-    let remove = []
+    // hide negative selectors
+    let negative = []
     v.scene.traverse( (mesh) => {
       for ( let i in v.query  ) {
-        if( mesh.name == i && v.query[i].id === false ) remove.push(mesh)
+        if( mesh.name == i && v.query[i].id === false ) negative.push(mesh)
       }
     })
-    remove.map( (mesh) => mesh.parent.remove( mesh ) )
+    negative.map( (mesh) => mesh.visible = false )
   }
 
   const showHide = () => {
@@ -1326,7 +1333,7 @@ xrf.frag.src = function(v, opts){
         xrf.eval.fragment(i, Object.assign(opts,{frag, model,scene}))
       }
       if( frag.q.query ){  
-        let srcScene = frag.q.scene 
+        let srcScene = frag.q.scene // three/xrf/q.js initializes .scene
         if( !srcScene || !srcScene.visible ) return 
         console.log("       └ inserting "+i+" (srcScene)")
         srcScene.position.set(0,0,0)
@@ -1334,6 +1341,7 @@ xrf.frag.src = function(v, opts){
         srcScene.traverse( (m) => {
           if( m.userData && (m.userData.src || m.userData.href) ) return ;//delete m.userData.src // prevent infinite recursion 
           xrf.eval.mesh(m,{scene,recursive:true}) 
+          m.name = mesh.name+"."+m.name // prefix meshname so predefined views don't affect objectnames anymore
         })
         if( srcScene.visible ) src.add( srcScene )
       }

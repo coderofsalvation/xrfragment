@@ -1338,14 +1338,14 @@ class xrfragment_Parser:
 
 class xrfragment_Query:
     _hx_class_name = "xrfragment.Query"
-    __slots__ = ("str", "q", "isProp", "isExclude", "isAddition", "isClass", "isNumber")
-    _hx_fields = ["str", "q", "isProp", "isExclude", "isAddition", "isClass", "isNumber"]
+    __slots__ = ("str", "q", "isProp", "isExclude", "isRoot", "isClass", "isNumber")
+    _hx_fields = ["str", "q", "isProp", "isExclude", "isRoot", "isClass", "isNumber"]
     _hx_methods = ["toObject", "expandAliases", "get", "parse", "test", "testProperty"]
 
     def __init__(self,_hx_str):
         self.isNumber = EReg("^[0-9\\.]+$","")
         self.isClass = EReg("^[-]?class$","")
-        self.isAddition = EReg("^\\+","")
+        self.isRoot = EReg("^/","")
         self.isExclude = EReg("^-","")
         self.isProp = EReg("^.*:[><=!]?","")
         self.q = _hx_AnonObject({})
@@ -1409,13 +1409,7 @@ class xrfragment_Query:
                     oper = "!="
                     k = HxString.substr(k,1,None)
                 else:
-                    _this = _gthis.isAddition
-                    _this.matchObj = python_lib_Re.search(_this.pattern,k)
-                    if (_this.matchObj is not None):
-                        oper = "+="
-                        k = HxString.substr(k,1,None)
-                    else:
-                        v = HxString.substr(v,len(oper),None)
+                    v = HxString.substr(v,len(oper),None)
                 if (len(oper) == 0):
                     oper = "="
                 _this = _gthis.isClass
@@ -1438,6 +1432,13 @@ class xrfragment_Query:
                     setattr(q,(("_hx_" + k) if ((k in python_Boot.keywords)) else (("_hx_" + k) if (((((len(k) > 2) and ((ord(k[0]) == 95))) and ((ord(k[1]) == 95))) and ((ord(k[(len(k) - 1)]) != 95)))) else k)),_hx_filter)
                 return
             else:
+                _this = _gthis.isRoot
+                _this.matchObj = python_lib_Re.search(_this.pattern,k)
+                if (_this.matchObj is not None):
+                    _hx_str = HxString.substr(k,1,None)
+                    setattr(_hx_filter,(("_hx_" + "root") if (("root" in python_Boot.keywords)) else (("_hx_" + "root") if (((((len("root") > 2) and ((ord("root"[0]) == 95))) and ((ord("root"[1]) == 95))) and ((ord("root"[(len("root") - 1)]) != 95)))) else "root")),True)
+                elif (Reflect.field(_hx_filter,"root") == True):
+                    Reflect.deleteField(_hx_filter,"root")
                 _this = _gthis.isExclude
                 _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
                 value = (False if ((_this.matchObj is not None)) else True)

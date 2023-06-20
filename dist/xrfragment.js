@@ -265,7 +265,7 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 var xrfragment_Query = $hx_exports["xrfragment"]["Query"] = function(str) {
 	this.isNumber = new EReg("^[0-9\\.]+$","");
 	this.isClass = new EReg("^[-]?class$","");
-	this.isAddition = new EReg("^\\+","");
+	this.isRoot = new EReg("^/","");
 	this.isExclude = new EReg("^-","");
 	this.isProp = new EReg("^.*:[><=!]?","");
 	this.q = { };
@@ -329,9 +329,6 @@ xrfragment_Query.prototype = {
 				if(_gthis.isExclude.match(k)) {
 					oper = "!=";
 					k = HxOverrides.substr(k,1,null);
-				} else if(_gthis.isAddition.match(k)) {
-					oper = "+=";
-					k = HxOverrides.substr(k,1,null);
 				} else {
 					v = HxOverrides.substr(v,oper.length,null);
 				}
@@ -353,6 +350,12 @@ xrfragment_Query.prototype = {
 				}
 				return;
 			} else {
+				if(_gthis.isRoot.match(k)) {
+					str = HxOverrides.substr(k,1,null);
+					filter["root"] = true;
+				} else if(filter["root"] == true) {
+					Reflect.deleteField(filter,"root");
+				}
 				filter["id"] = _gthis.isExclude.match(str) ? false : true;
 				var key = _gthis.isExclude.match(str) ? HxOverrides.substr(str,1,null) : str;
 				q[key] = filter;
