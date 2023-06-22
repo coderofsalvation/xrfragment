@@ -59,11 +59,13 @@ xrf.eval = function( url, model, flags ){  // evaluate fragments in url
   model = model || xrf.model
   let { THREE, camera } = xrf
   let frag = xrf.URI.parse( url, flags || xrf.XRF.NAVIGATOR )
-  for ( let k in frag ){
-    let opts = {frag, mesh:xrf.camera, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
-    xrf.emit('eval',opts)
-    .then( () => xrf.eval.fragment(k,opts) )
-  }
+  let opts = {frag, mesh:xrf.camera, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
+  xrf.emit('eval',opts)
+  .then( () => {
+    for ( let k in frag ){
+      xrf.eval.fragment(k,opts) 
+    }
+  })
 }
 
 xrf.eval.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) inside mesh of model 

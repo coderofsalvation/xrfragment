@@ -16,22 +16,25 @@ xrf.frag.src = function(v, opts){
         xrf.eval.fragment(i, Object.assign(opts,{frag, model,scene}))
       }
       if( frag.q.query ){  
-        let srcScene = frag.q.scene 
+        let srcScene = frag.q.scene // three/xrf/q.js initializes .scene
         if( !srcScene || !srcScene.visible ) return 
         console.log("       └ inserting "+i+" (srcScene)")
         srcScene.position.set(0,0,0)
         srcScene.rotation.set(0,0,0)
+        // add interactive elements (href's e.g.)
+        srcScene.add( xrf.interactive.clone() )
         srcScene.traverse( (m) => {
           if( m.userData && (m.userData.src || m.userData.href) ) return ;//delete m.userData.src // prevent infinite recursion 
           xrf.eval.mesh(m,{scene,recursive:true}) 
+          m.isSRC = true
         })
+        console.dir(xrf)
         if( srcScene.visible ) src.add( srcScene )
       }
       src.position.copy( mesh.position )
       src.rotation.copy( mesh.rotation )
       src.scale.copy( mesh.scale )
       mesh.add(src)
-      console.dir(opts)
       if( !opts.recursive ) mesh.material.visible = false // lets hide the preview object because deleting disables animations+nested objs
     },10)
   }

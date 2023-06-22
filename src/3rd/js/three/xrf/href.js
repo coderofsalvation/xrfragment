@@ -40,7 +40,7 @@ xrf.frag.href = function(v, opts){
     quat: new THREE.Quaternion()
   }
   // detect equirectangular image
-  let texture = mesh.material.map
+  let texture = mesh.material && mesh.material.map ? mesh.material.map : null
   if( texture && texture.source.data.height == texture.source.data.width/2 ){
     texture.mapping = THREE.ClampToEdgeWrapping
     texture.needsUpdate = true
@@ -87,23 +87,23 @@ xrf.frag.href = function(v, opts){
       `,
     });
     mesh.material.needsUpdate = true
-  }else mesh.material = mesh.material.clone()
+  }else if( mesh.material){ mesh.material = mesh.material.clone() }
 
   let click = mesh.userData.XRF.href.exec = (e) => {
     xrf
     .emit('href',{click:true,mesh,xrf:v})               // let all listeners agree
     .then( () => {
-      if( v.string[0] == '#' && v.string.match(/(\||#q)/) ){ // apply modifications to scene *TODO* decide on queries...
-        console.log("ja")
-        xrf.eval( v.string, xrf.model, xrf.XRF.PV_OVERRIDE )
-      }else xrf.navigator.to(v.string)                  // or let's surf to HREF!
+      const flags = v.string[0] == '#' && v.string.match(/(\||#q)/) ? xrf.XRF.PV_OVERRIDE : undefined
+      xrf.navigator.to(v.string,flags)                  // or let's surf to HREF!
     }) 
   }
 
   let selected = (state) => () => {
     if( mesh.selected == state ) return // nothing changed 
-    if( mesh.material.uniforms ) mesh.material.uniforms.selected.value = state 
-    else mesh.material.color.r = mesh.material.color.g = mesh.material.color.b = state ? 2.0 : 1.0
+    if( mesh.material ){
+      if( mesh.material.uniforms ) mesh.material.uniforms.selected.value = state 
+      else mesh.material.color.r = mesh.material.color.g = mesh.material.color.b = state ? 2.0 : 1.0
+    }
     // update mouse cursor
     if( !renderer.domElement.lastCursor )
       renderer.domElement.lastCursor = renderer.domElement.style.cursor

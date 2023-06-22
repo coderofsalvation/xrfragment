@@ -23,14 +23,14 @@ xrf.frag.q = function(v, opts){
           target.mesh.rotation.set(0,0,0)
       }
     }
-    // remove negative selectors
-    let remove = []
+    // hide negative selectors
+    let negative = []
     v.scene.traverse( (mesh) => {
       for ( let i in v.query  ) {
-        if( mesh.name == i && v.query[i].id === false ) remove.push(mesh)
+        if( mesh.name == i && v.query[i].id === false ) negative.push(mesh)
       }
     })
-    remove.map( (mesh) => mesh.parent.remove( mesh ) )
+    negative.map( (mesh) => mesh.visible = false )
   }
 
   const showHide = () => {
@@ -40,6 +40,7 @@ xrf.frag.q = function(v, opts){
         let isMeshId       = q[i].id    != undefined 
         let isMeshClass    = q[i].class != undefined 
         let isMeshProperty = q[i].rules != undefined && q[i].rules.length && !isMeshId && !isMeshClass 
+        if( q[i].root && mesh.isSRC ) continue;  // ignore nested object for root-items (queryseletor '/foo' e.g.)
         if( isMeshId       && i == mesh.name           ) mesh.visible = q[i].id 
         if( isMeshClass    && i == mesh.userData.class ) mesh.visible = q[i].class
         if( isMeshProperty && mesh.userData[i]         ) mesh.visible = (new xrf.Query(frag.q.string)).testProperty(i,mesh.userData[i])

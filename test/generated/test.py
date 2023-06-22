@@ -391,7 +391,8 @@ class Test:
     @staticmethod
     def main():
         Test.test([_hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xyz", 'input': "pos", 'out': False}), 'label': "equal.xyz: should trigger incompatible type)", 'data': "http://foo.com?foo=1#pos=1.2,2.2"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xyz", 'input': "pos", 'out': "1.2,2.2,3"}), 'label': "equal.xyz", 'data': "http://foo.com?foo=1#pos=1.2,2.2,3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xy", 'input': "t", 'out': "1,100"}), 'label': "a equal.xy", 'data': "http://foo.com?foo=1#t=1,100"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testParsed", 'input': "prio", 'out': False}), 'label': "should trigger incompatible type", 'data': "http://foo.com?foo=1#prio=foo"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.multi", 'input': "pos", 'out': "c|d|1,2,3"}), 'label': "b equal.multi", 'data': "http://foo.com?foo=1#pos=c|d|1,2,3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testBrowserOverride", 'input': "t", 'out': True}), 'label': "browser URI can override t (defined in asset)", 'data': "http://foo.com?foo=1#t=2,500"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testBrowserOverride", 'input': "q", 'out': False}), 'label': "browser URI cannot override q (defined in asset)", 'data': "http://foo.com?foo=1#q=-bar"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testBrowserOverride", 'input': "scale", 'out': False}), 'label': "scale does not have NAVIGATOR set", 'data': "http://foo.com?foo=1#scale=2,2,2"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testEmbedOverride", 'input': "scale", 'out': True}), 'label': "embedded (src) URI can override scale", 'data': "http://foo.com?foo=1#scale=2,2,2"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testPredefinedView", 'input': "mypredefinedview", 'out': True}), 'label': "test predefined view executed", 'data': "http://foo.com?foo=1#mypredefinedview"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testPredefinedView", 'input': "another", 'out': True}), 'label': "test predefined view executed (multiple)", 'data': "http://foo.com?foo=1#mypredefinedview&another"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testPredefinedView", 'input': "mypredefinedview", 'out': True}), 'label': "test predefined view executed (multiple)", 'data': "http://foo.com?foo=1#mypredefinedview&another"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testPropertyAssign", 'input': "cube.position.x", 'out': True}), 'label': "test data assign", 'data': "#cube.position.x=music.position.x"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testPropertyAssign", 'input': "cube.position.x", 'out': True}), 'label': "test one-way data bind", 'data': "#cube.position.x=@music.position.x"})])
-        Test.test([_hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "bar"], 'out': True}), 'data': "class:bar"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "bar"], 'out': True}), 'label': ".bar shorthand", 'data': ".bar"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "foo"], 'out': False}), 'data': ".bar -.foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "foo"], 'out': True}), 'data': ".bar -.foo .foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "bar"], 'out': True}), 'data': ".bar -.bar .bar"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "foo"], 'out': True}), 'label': "class:foo", 'data': ".foo -.foo .foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "foo"], 'out': True}), 'label': "class:foo", 'data': ".foo -.foo bar:5 .foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "foo"], 'out': True}), 'label': "class:foo", 'data': ".foo -.foo bar:>5 .foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "foo"], 'out': True}), 'label': "class:foo", 'data': ".foo -.foo bar:>5 .foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "foo"], 'out': True}), 'label': "class:foo", 'data': ".foo -.foo .foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["id", "foo"], 'out': False}), 'label': "!id:foo", 'data': ".foo -.foo .foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["id", "foo"], 'out': True}), 'label': "id:foo?", 'data': "foo -foo foo"})])
+        Test.test([_hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "bar"], 'out': True}), 'data': "class:bar"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "bar"], 'out': True}), 'label': ".bar shorthand", 'data': ".bar"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "foo"], 'out': False}), 'data': ".bar -.foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "foo"], 'out': True}), 'data': ".bar -.foo .foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "bar"], 'out': True}), 'data': ".bar -.bar .bar"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "foo"], 'out': True}), 'label': "class:foo", 'data': ".foo -.foo .foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "foo"], 'out': True}), 'label': "class:foo", 'data': ".foo -.foo bar:5 .foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "foo"], 'out': True}), 'label': "class:foo", 'data': ".foo -.foo bar:>5 .foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "foo"], 'out': True}), 'label': "class:foo", 'data': ".foo -.foo bar:>5 .foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["class", "foo"], 'out': True}), 'label': "class:foo", 'data': ".foo -.foo .foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["id", "foo"], 'out': False}), 'label': "!id:foo", 'data': ".foo -.foo .foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["id", "foo"], 'out': True}), 'label': "id:foo?", 'data': "foo -foo foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testQueryRoot", 'input': ["foo"], 'out': True}), 'label': "foo should be root-only", 'data': "/foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testQueryRoot", 'input': ["foo"], 'out': False}), 'label': "foo should recursively selected", 'data': "/foo foo"})])
+        Test.test([])
         Test.test([_hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "10"], 'out': True}), 'data': "price:>=5"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "10"], 'out': False}), 'data': "price:>=15"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "4"], 'out': False}), 'data': "price:>=5"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "0"], 'out': False}), 'data': "price:>=5"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "2"], 'out': True}), 'data': "price:>=2"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "1"], 'out': False}), 'label': "price=1", 'data': "price:>=5 price:0"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "0"], 'out': True}), 'label': "price=0", 'data': "price:>=5 price:0"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "6"], 'out': True}), 'label': "price=6", 'data': "price:>=5 price:0"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': True}), 'data': "tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': False}), 'data': "-tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testPropertyExclude", 'input': ["tag", "foo"], 'out': True}), 'label': "testExclude", 'data': "-tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "test", 'input': [_hx_AnonObject({'price': 5})], 'out': True}), 'data': ".foo price:5 -tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "test", 'input': [_hx_AnonObject({'tag': "foo", 'price': 5})], 'out': False}), 'data': ".foo price:5 -tag:foo"})])
         if (Test.errors > 1):
             print(str((("\n-----\n[ ❌] " + Std.string(Test.errors)) + " errors :/")))
@@ -436,6 +437,8 @@ class Test:
                 valid = Test.equalXYZ(res,item)
             if (Reflect.field(Reflect.field(item,"expect"),"fn") == "equal.multi"):
                 valid = Test.equalMulti(res,item)
+            if (Reflect.field(Reflect.field(item,"expect"),"fn") == "testQueryRoot"):
+                valid = (Reflect.field(Reflect.field(item,"expect"),"out") == HxOverrides.arrayGet(q.get(), HxOverrides.arrayGet(Reflect.field(Reflect.field(item,"expect"),"input"), 0)).root)
             ok = ("[ ✔ ] " if valid else "[ ❌] ")
             print(str((((((("null" if ok is None else ok) + Std.string(Reflect.field(item,"fn"))) + ": '") + Std.string(Reflect.field(item,"data"))) + "'") + HxOverrides.stringOrNull((((("    (" + HxOverrides.stringOrNull(((Reflect.field(item,"label") if (Reflect.field(item,"label")) else Reflect.field(Reflect.field(item,"expect"),"fn"))))) + ")") if (Reflect.field(item,"label")) else ""))))))
             if (not valid):
@@ -1430,7 +1433,7 @@ class xrfragment_Parser:
         Frag.h["unit"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
         Frag.h["description"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
         Frag.h["session"] = (((((xrfragment_XRF.ASSET | xrfragment_XRF.T_URL) | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.EMBEDDED) | xrfragment_XRF.PROMPT)
-        if ((len(value) == 0) and (not (key in Frag.h))):
+        if (((len(value) == 0) and ((len(key) > 0))) and (not (key in Frag.h))):
             v = xrfragment_XRF(key,(xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR))
             v.validate(key)
             setattr(resultMap,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),v)
@@ -1452,14 +1455,14 @@ class xrfragment_Parser:
 
 class xrfragment_Query:
     _hx_class_name = "xrfragment.Query"
-    __slots__ = ("str", "q", "isProp", "isExclude", "isAddition", "isClass", "isNumber")
-    _hx_fields = ["str", "q", "isProp", "isExclude", "isAddition", "isClass", "isNumber"]
+    __slots__ = ("str", "q", "isProp", "isExclude", "isRoot", "isClass", "isNumber")
+    _hx_fields = ["str", "q", "isProp", "isExclude", "isRoot", "isClass", "isNumber"]
     _hx_methods = ["toObject", "expandAliases", "get", "parse", "test", "testProperty"]
 
     def __init__(self,_hx_str):
         self.isNumber = EReg("^[0-9\\.]+$","")
         self.isClass = EReg("^[-]?class$","")
-        self.isAddition = EReg("^\\+","")
+        self.isRoot = EReg("^[-]?/","")
         self.isExclude = EReg("^-","")
         self.isProp = EReg("^.*:[><=!]?","")
         self.q = _hx_AnonObject({})
@@ -1523,13 +1526,7 @@ class xrfragment_Query:
                     oper = "!="
                     k = HxString.substr(k,1,None)
                 else:
-                    _this = _gthis.isAddition
-                    _this.matchObj = python_lib_Re.search(_this.pattern,k)
-                    if (_this.matchObj is not None):
-                        oper = "+="
-                        k = HxString.substr(k,1,None)
-                    else:
-                        v = HxString.substr(v,len(oper),None)
+                    v = HxString.substr(v,len(oper),None)
                 if (len(oper) == 0):
                     oper = "="
                 _this = _gthis.isClass
@@ -1556,10 +1553,19 @@ class xrfragment_Query:
                 _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
                 value = (False if ((_this.matchObj is not None)) else True)
                 setattr(_hx_filter,(("_hx_" + "id") if (("id" in python_Boot.keywords)) else (("_hx_" + "id") if (((((len("id") > 2) and ((ord("id"[0]) == 95))) and ((ord("id"[1]) == 95))) and ((ord("id"[(len("id") - 1)]) != 95)))) else "id")),value)
+                _this = _gthis.isRoot
+                _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+                value = (_this.matchObj is not None)
+                setattr(_hx_filter,(("_hx_" + "root") if (("root" in python_Boot.keywords)) else (("_hx_" + "root") if (((((len("root") > 2) and ((ord("root"[0]) == 95))) and ((ord("root"[1]) == 95))) and ((ord("root"[(len("root") - 1)]) != 95)))) else "root")),value)
                 _this = _gthis.isExclude
                 _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
-                key = (HxString.substr(_hx_str,1,None) if ((_this.matchObj is not None)) else _hx_str)
-                setattr(q,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),_hx_filter)
+                if (_this.matchObj is not None):
+                    _hx_str = HxString.substr(_hx_str,1,None)
+                _this = _gthis.isRoot
+                _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+                if (_this.matchObj is not None):
+                    _hx_str = HxString.substr(_hx_str,1,None)
+                setattr(q,(("_hx_" + _hx_str) if ((_hx_str in python_Boot.keywords)) else (("_hx_" + _hx_str) if (((((len(_hx_str) > 2) and ((ord(_hx_str[0]) == 95))) and ((ord(_hx_str[1]) == 95))) and ((ord(_hx_str[(len(_hx_str) - 1)]) != 95)))) else _hx_str)),_hx_filter)
         process = _hx_local_0
         _g = 0
         _g1 = len(token)
@@ -1599,8 +1605,8 @@ class xrfragment_Query:
         fails = 0
         qualify = 0
         def _hx_local_2(expr):
-            nonlocal conds
             nonlocal fails
+            nonlocal conds
             conds = (conds + 1)
             fails = (fails + (0 if expr else 1))
             return expr

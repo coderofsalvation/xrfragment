@@ -4,6 +4,9 @@ window.AFRAME.registerComponent('xrf', {
   init: function () {
     if( !AFRAME.XRF ) this.initXRFragments()
     if( this.data ){
+      if( document.location.search || document.location.hash.length > 1 ){ // override url
+        this.data = `${document.location.search.substr(1)}${document.location.hash}`
+      }
       AFRAME.XRF.navigator.to(this.data)
                          .then( (model) => {
                            let gets = [ ...document.querySelectorAll('[xrf-get]') ]

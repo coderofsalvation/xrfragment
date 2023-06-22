@@ -118,6 +118,10 @@ html.a-fullscreen a#source{
   margin-right:10px;
 }
 
+html{
+  max-width:unset;
+}
+
 .render {
   position:absolute;
   top:0;

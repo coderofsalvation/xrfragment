@@ -25,6 +25,7 @@ xrf.addEventListener = function(eventName, callback) {
 };
 
 xrf.emit = function(eventName, data){
+  if( typeof data != 'object' ) throw 'emit() requires passing objects'
   return xrf.emit.promise(eventName,data)
 }
 

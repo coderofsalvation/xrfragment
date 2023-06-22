@@ -43,7 +43,7 @@
       window.$ = (s) => document.querySelector(s)
       window.notify = notify(window)
       console.log = ( (log) => function(str){
-        if( String(str).match(/(camera)/) ) window.notify(str)
+        if( String(str).match(/#.*=/) ) window.notify(str)
         log(str)
       })(console.log)
 

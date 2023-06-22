@@ -43,7 +43,7 @@ export function setupConsole(el){
 
   console.log = ( (log) => function(){
     let str = ([...arguments]).join(" ")
-    let s = new Date().toISOString().substr(11).substr(0,8) + " " + str.replace(/.*[0-9]: /,"")
+    let s = str;
     log(s)
     let lines = String($console.innerHTML + "\n"+s).split("\n")
     while( lines.length > 200 ) lines.shift()
@@ -55,15 +55,12 @@ export function setupConsole(el){
 export function setupUrlBar(el,XRF){
 
   var isIframe = (window === window.parent || window.opener) ? false : true;
-  if( isIframe ){
+  if( isIframe || document.location.href.match(/localhost/) ){
     // show internal URL bar to test XR fragments interactively 
     el.style.display = 'block'
     let nav = XRF.navigator
 
-    XRF.navigator.to = ((to) => (url,e) => {
-      to(url,e)
-      reflectUrl(url)
-    })(XRF.navigator.to)
+    XRF.addEventListener('updateHash', () => reflectUrl() )
 
     const reflectUrl = (url) => el.value = url || document.location.search.substr(1) + document.location.hash
     reflectUrl()
@@ -80,7 +77,7 @@ function SnackBar(userOptions) {
     var _OptionDefaults = {
         message: "Operation performed successfully.",
         dismissible: true,
-        timeout: 5000,
+        timeout: 7000,
         status: ""
     }
     var _Options = _OptionDefaults;
