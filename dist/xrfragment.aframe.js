@@ -1181,7 +1181,6 @@ const updatePredefinedView = (opts) => {
     if( mesh.visible && (id == mesh.name || id.substr(1) == mesh.userData.class) ){
       xrf.emit('selection',{...opts,frag})
       .then( () => {
-        console.log("selection event")
         const margin = 1.2
         mesh.scale.multiplyScalar( margin )
         mesh.selection = new xrf.THREE.BoxHelper(mesh,0xff00ff)
@@ -1229,7 +1228,6 @@ const updatePredefinedView = (opts) => {
       if( v.args ) v = v.args[ xrf.roundrobin(v,xrf.model) ]
       // wait for nested instances to arrive at the scene 
       setTimeout( () => traverseScene(v,scene), 100 )
-      console.dir(v)
       if( v.string ) pviews.push(v.string)
     }else if( v.is( xrf.XRF.NAVIGATOR ) ) pviews.push(`${i}=${v.string}`)
   }
