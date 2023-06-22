@@ -1171,12 +1171,14 @@ const updatePredefinedView = (opts) => {
 
   const selectionOfInterest = (frag,scene,mesh) => {
     let id = frag.string
+    let oldSelection
     if(!id) return id // important: ignore empty strings 
-    if( mesh.selection ) return mesh
+    if( mesh.selection ) oldSelection = mesh.selection 
     // Selection of Interest if predefined_view matches object name
     if( mesh.visible && (id == mesh.name || id.substr(1) == mesh.userData.class) ){
       xrf.emit('selection',{...opts,frag})
       .then( () => {
+        console.log("selection event")
         const margin = 1.2
         mesh.scale.multiplyScalar( margin )
         mesh.selection = new xrf.THREE.BoxHelper(mesh,0xff00ff)
@@ -1187,6 +1189,7 @@ const updatePredefinedView = (opts) => {
         scene.add(mesh.selection)
       })
     }
+    return oldSelection
   }
 
   const predefinedView = (frag,scene,mesh) => {
@@ -1211,9 +1214,8 @@ const updatePredefinedView = (opts) => {
       remove.push( selectionOfInterest( v, scene, mesh ) )
       predefinedView( v , scene, mesh )
     })
-    remove.filter( (e) => e ).map( (mesh) => {
-      scene.remove(mesh.selection)
-      delete mesh.selection
+    remove.filter( (e) => e ).map( (selection) => {
+      scene.remove(selection)
     })
   }
 
