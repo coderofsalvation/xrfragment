@@ -90,11 +90,13 @@ xrf.frag.href = function(v, opts){
   }else if( mesh.material){ mesh.material = mesh.material.clone() }
 
   let click = mesh.userData.XRF.href.exec = (e) => {
+    let lastPos = `#pos=${camera.position.x},${camera.position.y},${camera.position.z}`
     xrf
-    .emit('href',{click:true,mesh,xrf:v})               // let all listeners agree
+    .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
+      xrf.navigator.to(lastPos)           // commit last position 
       const flags = v.string[0] == '#' && v.string.match(/(\||#q)/) ? xrf.XRF.PV_OVERRIDE : undefined
-      xrf.navigator.to(v.string,flags)                  // or let's surf to HREF!
+      xrf.navigator.to(v.string,flags)    // let's surf to HREF!
     }) 
   }
 
