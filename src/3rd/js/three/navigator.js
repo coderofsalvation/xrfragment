@@ -5,7 +5,6 @@ xrf.navigator.to = (url,flags) => {
 
   return new Promise( (resolve,reject) => {
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
-    console.log(url)
 
     if( !file || xrf.model.file == file ){ // we're already loaded
       xrf.eval( url, xrf.model, flags )    // and eval local URI XR fragments 
@@ -47,6 +46,7 @@ xrf.navigator.init = () => {
 
 xrf.navigator.updateHash = (hash) => {
   if( hash == document.location.hash || hash.match(/\|/) ) return  // skip unnecesary pushState triggers
+  console.log(`URL: ${document.location.search.substr(1)}#${hash}`)
   document.location.hash = hash
   xrf.emit('updateHash', {hash} )
 }

@@ -83,7 +83,9 @@ function SnackBar(userOptions) {
     var _Options = _OptionDefaults;
 
     function _Create() {
-        _Container = document.getElementsByClassName("js-snackbar-container")[0];
+        let _Containers = [ ...document.querySelectorAll(".js-snackbar-container") ]
+        _Containers.map( (c) => c.remove() )
+        _Container = null
 
         if (!_Container) {
             // need to create a new container for notifications

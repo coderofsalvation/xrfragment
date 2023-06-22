@@ -954,7 +954,6 @@ xrf.navigator.to = (url,flags) => {
 
   return new Promise( (resolve,reject) => {
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
-    console.log(url)
 
     if( !file || xrf.model.file == file ){ // we're already loaded
       xrf.eval( url, xrf.model, flags )    // and eval local URI XR fragments 
@@ -996,6 +995,7 @@ xrf.navigator.init = () => {
 
 xrf.navigator.updateHash = (hash) => {
   if( hash == document.location.hash || hash.match(/\|/) ) return  // skip unnecesary pushState triggers
+  console.log(`URL: ${document.location.search.substr(1)}#${hash}`)
   document.location.hash = hash
   xrf.emit('updateHash', {hash} )
 }
@@ -1107,12 +1107,13 @@ xrf.frag.href = function(v, opts){
   }else if( mesh.material){ mesh.material = mesh.material.clone() }
 
   let click = mesh.userData.XRF.href.exec = (e) => {
+    let isLocal = v.string[0] == '#'
     let lastPos = `#pos=${camera.position.x},${camera.position.y},${camera.position.z}`
     xrf
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
-      xrf.navigator.to(lastPos)           // commit last position 
       const flags = v.string[0] == '#' && v.string.match(/(\||#q)/) ? xrf.XRF.PV_OVERRIDE : undefined
+      if( !isLocal || v.string.match(/pos=/) ) xrf.navigator.to(lastPos) // commit last position 
       xrf.navigator.to(v.string,flags)    // let's surf to HREF!
     }) 
   }
