@@ -239,7 +239,7 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	Frag_h["unit"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["description"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["session"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.EMBEDDED | xrfragment_XRF.PROMPT;
-	if(value.length == 0 && !Object.prototype.hasOwnProperty.call(Frag_h,key)) {
+	if(value.length == 0 && key.length > 0 && !Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		var v = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR);
 		v.validate(key);
 		resultMap[key] = v;
@@ -265,7 +265,7 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 var xrfragment_Query = $hx_exports["xrfragment"]["Query"] = function(str) {
 	this.isNumber = new EReg("^[0-9\\.]+$","");
 	this.isClass = new EReg("^[-]?class$","");
-	this.isRoot = new EReg("^/","");
+	this.isRoot = new EReg("^[-]?/","");
 	this.isExclude = new EReg("^-","");
 	this.isProp = new EReg("^.*:[><=!]?","");
 	this.q = { };
@@ -350,15 +350,15 @@ xrfragment_Query.prototype = {
 				}
 				return;
 			} else {
-				if(_gthis.isRoot.match(k)) {
-					str = HxOverrides.substr(k,1,null);
-					filter["root"] = true;
-				} else if(filter["root"] == true) {
-					Reflect.deleteField(filter,"root");
-				}
 				filter["id"] = _gthis.isExclude.match(str) ? false : true;
-				var key = _gthis.isExclude.match(str) ? HxOverrides.substr(str,1,null) : str;
-				q[key] = filter;
+				filter["root"] = _gthis.isRoot.match(str);
+				if(_gthis.isExclude.match(str)) {
+					str = HxOverrides.substr(str,1,null);
+				}
+				if(_gthis.isRoot.match(str)) {
+					str = HxOverrides.substr(str,1,null);
+				}
+				q[str] = filter;
 			}
 		};
 		var _g = 0;
@@ -663,6 +663,7 @@ xrf.addEventListener = function(eventName, callback) {
 };
 
 xrf.emit = function(eventName, data){
+  if( typeof data != 'object' ) throw 'emit() requires passing objects'
   return xrf.emit.promise(eventName,data)
 }
 
@@ -884,11 +885,13 @@ xrf.eval = function( url, model, flags ){  // evaluate fragments in url
   model = model || xrf.model
   let { THREE, camera } = xrf
   let frag = xrf.URI.parse( url, flags || xrf.XRF.NAVIGATOR )
-  for ( let k in frag ){
-    let opts = {frag, mesh:xrf.camera, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
-    xrf.emit('eval',opts)
-    .then( () => xrf.eval.fragment(k,opts) )
-  }
+  let opts = {frag, mesh:xrf.camera, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
+  xrf.emit('eval',opts)
+  .then( () => {
+    for ( let k in frag ){
+      xrf.eval.fragment(k,opts) 
+    }
+  })
 }
 
 xrf.eval.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) inside mesh of model 
@@ -946,15 +949,15 @@ xrf.add = (object) => {
 
 xrf.navigator = {}
 
-xrf.navigator.to = (url,event) => {
+xrf.navigator.to = (url,flags) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
+
   return new Promise( (resolve,reject) => {
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
-    console.log("xrfragment: navigating to "+url)
+    console.log(url)
 
     if( !file || xrf.model.file == file ){ // we're already loaded
-      document.location.hash = `#${hash}`  // just update the hash
-      xrf.eval( url, xrf.model )           // and eval local URI XR fragments 
+      xrf.eval( url, xrf.model, flags )    // and eval local URI XR fragments 
       return resolve(xrf.model) 
     }
 
@@ -968,10 +971,13 @@ xrf.navigator.to = (url,event) => {
     loader.load( file, function(model){
       model.file = file
       xrf.add( model.scene )
+      // only change url when loading *another* file
+      if( xrf.model ) xrf.navigator.pushState( `${dir}${file}`, hash )
       xrf.model = model 
-      xrf.eval( '#', model )  // execute the default projection '#' (if exist)
-      xrf.eval( url, model )      // and eval URI XR fragments 
-      xrf.navigator.pushState( `${dir}${file}`, hash )
+      xrf.eval( '#', model )     // execute the default projection '#' (if exist)
+      xrf.eval( url, model )     // and eval URI XR fragments 
+      if( !hash.match(/pos=/) ) 
+        xrf.eval( '#pos=0,0,0' ) // set default position if not specified
       resolve(model)
     })
   })
@@ -980,12 +986,18 @@ xrf.navigator.to = (url,event) => {
 xrf.navigator.init = () => {
   if( xrf.navigator.init.inited ) return
   window.addEventListener('popstate', function (event){
-    xrf.navigator.to( document.location.search.substr(1) + document.location.hash, event)
+    xrf.navigator.to( document.location.search.substr(1) + document.location.hash )
   })
   xrf.navigator.material = {
     selection: new xrf.THREE.LineBasicMaterial({color:0xFF00FF,linewidth:2})
   }
   xrf.navigator.init.inited = true
+}
+
+xrf.navigator.updateHash = (hash) => {
+  if( hash == document.location.hash || hash.match(/\|/) ) return  // skip unnecesary pushState triggers
+  document.location.hash = hash
+  xrf.emit('updateHash', {hash} )
 }
 
 xrf.navigator.pushState = (file,hash) => {
@@ -995,36 +1007,12 @@ xrf.navigator.pushState = (file,hash) => {
 xrf.frag.env = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
   let env = mesh.getObjectByName(v.string)
+  if( !env ) return console.warn("xrf.env "+v.string+" not found")
   env.material.map.mapping = THREE.EquirectangularReflectionMapping;
   scene.environment = env.material.map
   //scene.texture = env.material.map    
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 2;
-  // apply to meshes *DISABLED* renderer.environment does this
-  const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
-  setTimeout( () => {
-    scene.traverse( (mesh) => {
-      //if (mesh.material && mesh.material.map && mesh.material.metalness == 1.0) {
-      //  mesh.material = new THREE.MeshBasicMaterial({ map: mesh.material.map });
-      //  mesh.material.dithering = true
-      //  mesh.material.map.anisotropy = maxAnisotropy;
-      //  mesh.material.needsUpdate = true;
-      //}
-      //if (mesh.material && mesh.material.metalness == 1.0 ){
-      //  mesh.material = new THREE.MeshBasicMaterial({
-      //    color:0xffffff,
-      //    emissive: mesh.material.map,
-      //    envMap: env.material.map,
-      //    side: THREE.DoubleSide,
-      //    flatShading: true
-      //  })
-      //  mesh.material.needsUpdate = true
-      //  //mesh.material.envMap = env.material.map;
-      //  //mesh.material.envMap.intensity = 5;
-      //  //mesh.material.needsUpdate = true;
-      //}
-    });
-  },500)
   console.log(`   └ applied image '${v.string}' as environment map`)
 }
 /**
@@ -1122,10 +1110,8 @@ xrf.frag.href = function(v, opts){
     xrf
     .emit('href',{click:true,mesh,xrf:v})               // let all listeners agree
     .then( () => {
-      if( v.string[0] == '#' && v.string.match(/(\||#q)/) ){ // apply modifications to scene *TODO* decide on queries...
-        console.log("ja")
-        xrf.eval( v.string, xrf.model, xrf.XRF.PV_OVERRIDE )
-      }else xrf.navigator.to(v.string)                  // or let's surf to HREF!
+      const flags = v.string[0] == '#' && v.string.match(/(\||#q)/) ? xrf.XRF.PV_OVERRIDE : undefined
+      xrf.navigator.to(v.string,flags)                  // or let's surf to HREF!
     }) 
   }
 
@@ -1173,7 +1159,6 @@ xrf.frag.href = function(v, opts){
  */
 xrf.frag.pos = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-  console.log("   └ setting camera position to "+v.string)
 
   if( !frag.q ){ 
     camera.position.x = v.x
@@ -1181,18 +1166,15 @@ xrf.frag.pos = function(v, opts){
     camera.position.z = v.z
   }
 }
-const doPredefinedView = (opts) => {
+const updatePredefinedView = (opts) => {
   let {frag,scene} = opts 
 
   const selectionOfInterest = (frag,scene,mesh) => {
     let id = frag.string
     if(!id) return id // important: ignore empty strings 
-    if( mesh.selection ){
-      scene.remove(mesh.selection)
-      delete mesh.selection
-    }
+    if( mesh.selection ) return mesh
     // Selection of Interest if predefined_view matches object name
-    if( id == mesh.name || id.substr(1) == mesh.userData.class ){
+    if( mesh.visible && (id == mesh.name || id.substr(1) == mesh.userData.class) ){
       xrf.emit('selection',{...opts,frag})
       .then( () => {
         const margin = 1.2
@@ -1212,39 +1194,51 @@ const doPredefinedView = (opts) => {
     if( !id ) return  // prevent empty matches
     if( mesh.userData[`#${id}`] ){ // get alias
       frag = xrf.URI.parse( mesh.userData[`#${id}`], xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.EMBEDDED )
-      for ( let k in frag ){
-        let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
-        xrf.emit('predefinedView',{...opts,frag})
-        .then( () => xrf.eval.fragment(k,opts) )
-      }
+      xrf.emit('predefinedView',{...opts,frag})
+      .then( () => {
+        for ( let k in frag ){
+          let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
+          xrf.eval.fragment(k,opts) 
+        }
+      })
     }
   }
 
+  const traverseScene = (v,scene) => {
+    let remove = []
+    if( !scene ) return 
+    scene.traverse( (mesh) => {
+      remove.push( selectionOfInterest( v, scene, mesh ) )
+      predefinedView( v , scene, mesh )
+    })
+    remove.filter( (e) => e ).map( (mesh) => {
+      scene.remove(mesh.selection)
+      delete mesh.selection
+    })
+  }
 
+  let pviews = []
   for ( let i in frag  ) {
     let v = frag[i]
     if( v.is( xrf.XRF.PV_EXECUTE ) ){
       if( v.args ) v = v.args[ xrf.roundrobin(v,xrf.model) ]
       // wait for nested instances to arrive at the scene 
-      setTimeout( () => {
-        if( !scene ) return 
-        scene.traverse( (mesh) => {
-          selectionOfInterest( v, scene, mesh )
-          predefinedView( v , scene, mesh )
-        })
-      },100)
-    }
+      setTimeout( () => traverseScene(v,scene), 100 )
+      console.dir(v)
+      if( v.string ) pviews.push(v.string)
+    }else if( v.is( xrf.XRF.NAVIGATOR ) ) pviews.push(`${i}=${v.string}`)
   }
+  if( pviews.length ) xrf.navigator.updateHash( pviews.join("&") )
 }
 
 // when predefined view occurs in url changes
-xrf.addEventListener('eval', doPredefinedView ) 
+xrf.addEventListener('eval', updatePredefinedView ) 
 
 // clicking href url with predefined view 
 xrf.addEventListener('href', (opts) => {
   if( !opts.click || opts.xrf.string[0] != '#' ) return 
   let frag = xrf.URI.parse( opts.xrf.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.EMBEDDED )
-  doPredefinedView({frag,scene:xrf.scene})
+  updatePredefinedView({frag,scene:xrf.scene,href:opts.xrf})
 }) 
 
 //let updateUrl = (opts) => {
@@ -1295,6 +1289,7 @@ xrf.frag.q = function(v, opts){
         let isMeshId       = q[i].id    != undefined 
         let isMeshClass    = q[i].class != undefined 
         let isMeshProperty = q[i].rules != undefined && q[i].rules.length && !isMeshId && !isMeshClass 
+        if( q[i].root && mesh.isSRC ) continue;  // ignore nested object for root-items (queryseletor '/foo' e.g.)
         if( isMeshId       && i == mesh.name           ) mesh.visible = q[i].id 
         if( isMeshClass    && i == mesh.userData.class ) mesh.visible = q[i].class
         if( isMeshProperty && mesh.userData[i]         ) mesh.visible = (new xrf.Query(frag.q.string)).testProperty(i,mesh.userData[i])
@@ -1338,18 +1333,20 @@ xrf.frag.src = function(v, opts){
         console.log("       └ inserting "+i+" (srcScene)")
         srcScene.position.set(0,0,0)
         srcScene.rotation.set(0,0,0)
+        // add interactive elements (href's e.g.)
+        srcScene.add( xrf.interactive.clone() )
         srcScene.traverse( (m) => {
           if( m.userData && (m.userData.src || m.userData.href) ) return ;//delete m.userData.src // prevent infinite recursion 
           xrf.eval.mesh(m,{scene,recursive:true}) 
-          m.name = mesh.name+"."+m.name // prefix meshname so predefined views don't affect objectnames anymore
+          m.isSRC = true
         })
+        console.dir(xrf)
         if( srcScene.visible ) src.add( srcScene )
       }
       src.position.copy( mesh.position )
       src.rotation.copy( mesh.rotation )
       src.scale.copy( mesh.scale )
       mesh.add(src)
-      console.dir(opts)
       if( !opts.recursive ) mesh.material.visible = false // lets hide the preview object because deleting disables animations+nested objs
     },10)
   }

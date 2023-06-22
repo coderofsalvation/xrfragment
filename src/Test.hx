@@ -44,10 +44,7 @@ class Test {
       if( item.expect.fn == "equal.xy"            ) valid = equalXY(res,item);
       if( item.expect.fn == "equal.xyz"           ) valid = equalXYZ(res,item);
       if( item.expect.fn == "equal.multi"         ) valid = equalMulti(res, item);
-      if( item.expect.fn == "testQueryRoot"       ){
-        if( !item.expect.out ) valid = !q.get()[ item.expect.input[0] ].root;
-        else valid = item.expect.out == q.get()[ item.expect.input[0] ].root;
-      }
+      if( item.expect.fn == "testQueryRoot"       ) valid = item.expect.out == q.get()[ item.expect.input[0] ].root;
       var ok:String = valid ? "[ ✔ ] " : "[ ❌] ";
       trace( ok + item.fn + ": '" + item.data + "'" + (item.label ? "    (" + (item.label?item.label:item.expect.fn) +")" : ""));
 			if( !valid ) errors += 1;

@@ -44,7 +44,7 @@ class Query {
   private var q:haxe.DynamicAccess<Dynamic> = {};
   private var isProp:EReg        = ~/^.*:[><=!]?/;
   private var isExclude:EReg     = ~/^-/;
-  private var isRoot:EReg        = ~/^\//;
+  private var isRoot:EReg        = ~/^[-]?\//;
   private var isClass:EReg       = ~/^[-]?class$/;
   private var isNumber:EReg      = ~/^[0-9\.]+$/;
 
@@ -104,12 +104,11 @@ class Query {
         }
         return;
       }else{ // id
-        if( isRoot.match(k) ){
-          str = k.substr(1);                                        // convert "/foo" to "foo"
-          filter[ "root" ] = true;
-        }else if( filter[ "root" ] == true ) filter.remove("root"); // undo root-only
-        filter[ "id" ] = isExclude.match(str) ? false: true;
-        q.set( (isExclude.match(str) ? str.substr(1) : str ) ,filter );
+        filter[ "id"   ] = isExclude.match(str) ? false: true;
+        filter[ "root" ] = isRoot.match(str)    ? true:  false;
+        if( isExclude.match(str) ) str = str.substr(1); // convert '-foo' into 'foo'
+        if( isRoot.match(str)    ) str = str.substr(1); // convert '/foo' into 'foo'
+        q.set( str ,filter );
       }
     }
     for( i in 0...token.length ) process( expandAliases(token[i]) );

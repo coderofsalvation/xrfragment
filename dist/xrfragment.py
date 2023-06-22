@@ -1316,7 +1316,7 @@ class xrfragment_Parser:
         Frag.h["unit"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
         Frag.h["description"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
         Frag.h["session"] = (((((xrfragment_XRF.ASSET | xrfragment_XRF.T_URL) | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.EMBEDDED) | xrfragment_XRF.PROMPT)
-        if ((len(value) == 0) and (not (key in Frag.h))):
+        if (((len(value) == 0) and ((len(key) > 0))) and (not (key in Frag.h))):
             v = xrfragment_XRF(key,(xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR))
             v.validate(key)
             setattr(resultMap,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),v)
@@ -1345,7 +1345,7 @@ class xrfragment_Query:
     def __init__(self,_hx_str):
         self.isNumber = EReg("^[0-9\\.]+$","")
         self.isClass = EReg("^[-]?class$","")
-        self.isRoot = EReg("^/","")
+        self.isRoot = EReg("^[-]?/","")
         self.isExclude = EReg("^-","")
         self.isProp = EReg("^.*:[><=!]?","")
         self.q = _hx_AnonObject({})
@@ -1432,21 +1432,23 @@ class xrfragment_Query:
                     setattr(q,(("_hx_" + k) if ((k in python_Boot.keywords)) else (("_hx_" + k) if (((((len(k) > 2) and ((ord(k[0]) == 95))) and ((ord(k[1]) == 95))) and ((ord(k[(len(k) - 1)]) != 95)))) else k)),_hx_filter)
                 return
             else:
-                _this = _gthis.isRoot
-                _this.matchObj = python_lib_Re.search(_this.pattern,k)
-                if (_this.matchObj is not None):
-                    _hx_str = HxString.substr(k,1,None)
-                    setattr(_hx_filter,(("_hx_" + "root") if (("root" in python_Boot.keywords)) else (("_hx_" + "root") if (((((len("root") > 2) and ((ord("root"[0]) == 95))) and ((ord("root"[1]) == 95))) and ((ord("root"[(len("root") - 1)]) != 95)))) else "root")),True)
-                elif (Reflect.field(_hx_filter,"root") == True):
-                    Reflect.deleteField(_hx_filter,"root")
                 _this = _gthis.isExclude
                 _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
                 value = (False if ((_this.matchObj is not None)) else True)
                 setattr(_hx_filter,(("_hx_" + "id") if (("id" in python_Boot.keywords)) else (("_hx_" + "id") if (((((len("id") > 2) and ((ord("id"[0]) == 95))) and ((ord("id"[1]) == 95))) and ((ord("id"[(len("id") - 1)]) != 95)))) else "id")),value)
+                _this = _gthis.isRoot
+                _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+                value = (_this.matchObj is not None)
+                setattr(_hx_filter,(("_hx_" + "root") if (("root" in python_Boot.keywords)) else (("_hx_" + "root") if (((((len("root") > 2) and ((ord("root"[0]) == 95))) and ((ord("root"[1]) == 95))) and ((ord("root"[(len("root") - 1)]) != 95)))) else "root")),value)
                 _this = _gthis.isExclude
                 _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
-                key = (HxString.substr(_hx_str,1,None) if ((_this.matchObj is not None)) else _hx_str)
-                setattr(q,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),_hx_filter)
+                if (_this.matchObj is not None):
+                    _hx_str = HxString.substr(_hx_str,1,None)
+                _this = _gthis.isRoot
+                _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+                if (_this.matchObj is not None):
+                    _hx_str = HxString.substr(_hx_str,1,None)
+                setattr(q,(("_hx_" + _hx_str) if ((_hx_str in python_Boot.keywords)) else (("_hx_" + _hx_str) if (((((len(_hx_str) > 2) and ((ord(_hx_str[0]) == 95))) and ((ord(_hx_str[1]) == 95))) and ((ord(_hx_str[(len(_hx_str) - 1)]) != 95)))) else _hx_str)),_hx_filter)
         process = _hx_local_0
         _g = 0
         _g1 = len(token)

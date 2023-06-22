@@ -1546,7 +1546,7 @@ __xrfragment_Parser.parse = function(key,value,resultMap)
   else
     Frag_h.session = value1;
   end;
-  if ((__lua_lib_luautf8_Utf8.len(value) == 0) and (Frag_h[key] == nil)) then 
+  if (((__lua_lib_luautf8_Utf8.len(value) == 0) and (__lua_lib_luautf8_Utf8.len(key) > 0)) and (Frag_h[key] == nil)) then 
     local v = __xrfragment_XRF.new(key, _hx_bit.bor(__xrfragment_XRF.PV_EXECUTE,__xrfragment_XRF.NAVIGATOR));
     v:validate(key);
     resultMap[key] = v;
@@ -1633,7 +1633,7 @@ end
 __xrfragment_Query.super = function(self,str) 
   self.isNumber = EReg.new("^[0-9\\.]+$", "");
   self.isClass = EReg.new("^[-]?class$", "");
-  self.isRoot = EReg.new("^/", "");
+  self.isRoot = EReg.new("^[-]?/", "");
   self.isExclude = EReg.new("^-", "");
   self.isProp = EReg.new("^.*:[><=!]?", "");
   self.q = _hx_e();
@@ -1889,29 +1889,6 @@ __xrfragment_Query.prototype.parse = function(self,str,recurse)
       end;
       do return end;
     else
-      if (_gthis.isRoot:match(k)) then 
-        local pos = 1;
-        local len = nil;
-        if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(k)))) then 
-          len = __lua_lib_luautf8_Utf8.len(k);
-        else
-          if (len < 0) then 
-            len = __lua_lib_luautf8_Utf8.len(k) + len;
-          end;
-        end;
-        if (pos < 0) then 
-          pos = __lua_lib_luautf8_Utf8.len(k) + pos;
-        end;
-        if (pos < 0) then 
-          pos = 0;
-        end;
-        str = __lua_lib_luautf8_Utf8.sub(k, pos + 1, pos + len);
-        filter.root = true;
-      else
-        if (Reflect.field(filter, "root") == true) then 
-          Reflect.deleteField(filter, "root");
-        end;
-      end;
       local value = (function() 
         local _hx_7
         if (_gthis.isExclude:match(str)) then 
@@ -1920,7 +1897,8 @@ __xrfragment_Query.prototype.parse = function(self,str,recurse)
         return _hx_7
       end )();
       filter.id = value;
-      local key;
+      local value = _gthis.isRoot:match(str);
+      filter.root = value;
       if (_gthis.isExclude:match(str)) then 
         local pos = 1;
         local len = nil;
@@ -1937,11 +1915,27 @@ __xrfragment_Query.prototype.parse = function(self,str,recurse)
         if (pos < 0) then 
           pos = 0;
         end;
-        key = __lua_lib_luautf8_Utf8.sub(str, pos + 1, pos + len);
-      else
-        key = str;
+        str = __lua_lib_luautf8_Utf8.sub(str, pos + 1, pos + len);
       end;
-      q[key] = filter;
+      if (_gthis.isRoot:match(str)) then 
+        local pos = 1;
+        local len = nil;
+        if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(str)))) then 
+          len = __lua_lib_luautf8_Utf8.len(str);
+        else
+          if (len < 0) then 
+            len = __lua_lib_luautf8_Utf8.len(str) + len;
+          end;
+        end;
+        if (pos < 0) then 
+          pos = __lua_lib_luautf8_Utf8.len(str) + pos;
+        end;
+        if (pos < 0) then 
+          pos = 0;
+        end;
+        str = __lua_lib_luautf8_Utf8.sub(str, pos + 1, pos + len);
+      end;
+      q[str] = filter;
     end;
   end;
   local _g = 0;

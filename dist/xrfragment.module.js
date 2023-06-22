@@ -239,7 +239,7 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	Frag_h["unit"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["description"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["session"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.EMBEDDED | xrfragment_XRF.PROMPT;
-	if(value.length == 0 && !Object.prototype.hasOwnProperty.call(Frag_h,key)) {
+	if(value.length == 0 && key.length > 0 && !Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		var v = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR);
 		v.validate(key);
 		resultMap[key] = v;
@@ -265,7 +265,7 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 var xrfragment_Query = $hx_exports["xrfragment"]["Query"] = function(str) {
 	this.isNumber = new EReg("^[0-9\\.]+$","");
 	this.isClass = new EReg("^[-]?class$","");
-	this.isRoot = new EReg("^/","");
+	this.isRoot = new EReg("^[-]?/","");
 	this.isExclude = new EReg("^-","");
 	this.isProp = new EReg("^.*:[><=!]?","");
 	this.q = { };
@@ -350,15 +350,15 @@ xrfragment_Query.prototype = {
 				}
 				return;
 			} else {
-				if(_gthis.isRoot.match(k)) {
-					str = HxOverrides.substr(k,1,null);
-					filter["root"] = true;
-				} else if(filter["root"] == true) {
-					Reflect.deleteField(filter,"root");
-				}
 				filter["id"] = _gthis.isExclude.match(str) ? false : true;
-				var key = _gthis.isExclude.match(str) ? HxOverrides.substr(str,1,null) : str;
-				q[key] = filter;
+				filter["root"] = _gthis.isRoot.match(str);
+				if(_gthis.isExclude.match(str)) {
+					str = HxOverrides.substr(str,1,null);
+				}
+				if(_gthis.isRoot.match(str)) {
+					str = HxOverrides.substr(str,1,null);
+				}
+				q[str] = filter;
 			}
 		};
 		var _g = 0;
