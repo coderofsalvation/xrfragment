@@ -1,8 +1,11 @@
+// spec: https://xrfragment.org/#queries
+
 xrf.frag.q = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   console.log("   └ running query ")
   let qobjs = Object.keys(v.query)
 
+  // spec: https://xrfragment.org/#src
   const instanceScene = () => {
     v.scene = new THREE.Group()
     for ( let i in v.query  ) {
@@ -33,6 +36,7 @@ xrf.frag.q = function(v, opts){
     negative.map( (mesh) => mesh.visible = false )
   }
 
+  // spec: https://xrfragment.org/#queries
   const showHide = () => {
     let q = frag.q.query 
     scene.traverse( (mesh) => {
@@ -48,6 +52,6 @@ xrf.frag.q = function(v, opts){
     })
   }
 
-  if( opts.embedded && opts.embedded.fragment == "src" ) instanceScene()
-  else showHide() // href
+  if( opts.embedded && opts.embedded.fragment == "src" ) instanceScene()  // spec : https://xrfragment.org/#src
+  else showHide() // predefined view                                      // spec : https://xrfragment.org/#queries
 }

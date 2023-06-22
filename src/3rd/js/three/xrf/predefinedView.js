@@ -1,6 +1,7 @@
 const updatePredefinedView = (opts) => {
   let {frag,scene} = opts 
 
+  // spec: https://xrfragment.org/#Selection%20of%20interest
   const selectionOfInterest = (frag,scene,mesh) => {
     let id = frag.string
     let oldSelection
@@ -23,6 +24,7 @@ const updatePredefinedView = (opts) => {
     return oldSelection
   }
 
+  // spec: https://xrfragment.org/#predefined_view
   const predefinedView = (frag,scene,mesh) => {
     let id   = frag.string
     if( !id ) return  // prevent empty matches
