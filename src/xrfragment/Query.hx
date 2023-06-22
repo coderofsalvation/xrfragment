@@ -66,7 +66,7 @@ class Query {
     return this.q;
   }
 
-  public function parse(str:String,recurse:Bool = false) : Dynamic {
+  public function parse(str:String) : Dynamic {
 
     var token = str.split(" ");
     var q:haxe.DynamicAccess<Dynamic> = {};
