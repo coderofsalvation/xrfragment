@@ -31,8 +31,13 @@ tests(){
 }
 
 doc(){
-  awk -f doc/generate.awk src/xrfragment/URI.hx \
-                          src/xrfragment/Parser.hx > doc/RFC.md
+  set -x
+  awk -f doc/generate.awk src/xrfragment/URI.hx 
+  read -p "press enter after copy/pasting into wiki" a
+  awk -f doc/generate.awk src/xrfragment/Parser.hx 
+  read -p "press enter after copy/pasting into wiki" a
+  awk -f doc/generate.awk src/xrfragment/Query.hx 
+  read -p "press enter after copy/pasting into wiki" a
 }
 
 server(){
