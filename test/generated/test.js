@@ -374,6 +374,9 @@ xrfragment_Parser.parse = function(key,value,store) {
 			console.log("src/xrfragment/Parser.hx:83:","✔ " + key + ": " + v.string);
 		}
 	} else {
+		if(typeof(value) == "string") {
+			v.guessType(v,value);
+		}
 		store["_" + key] = v;
 	}
 	return true;

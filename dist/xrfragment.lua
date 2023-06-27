@@ -1622,6 +1622,9 @@ __xrfragment_Parser.parse = function(key,value,store)
       __haxe_Log.trace(Std.string(Std.string(Std.string("✔ ") .. Std.string(key)) .. Std.string(": ")) .. Std.string(v.string), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=83,className="xrfragment.Parser",methodName="parse"}));
     end;
   else
+    if (__lua_Boot.__instanceof(value, String)) then 
+      v:guessType(v, value);
+    end;
     store[Std.string("_") .. Std.string(key)] = v;
   end;
   do return true end;

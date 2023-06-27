@@ -1334,6 +1334,8 @@ class xrfragment_Parser:
             if xrfragment_Parser.debug:
                 print(str(((("✔ " + ("null" if key is None else key)) + ": ") + HxOverrides.stringOrNull(v.string))))
         else:
+            if Std.isOfType(value,str):
+                v.guessType(v,value)
             key1 = ("_" + ("null" if key is None else key))
             setattr(store,(("_hx_" + key1) if ((key1 in python_Boot.keywords)) else (("_hx_" + key1) if (((((len(key1) > 2) and ((ord(key1[0]) == 95))) and ((ord(key1[1]) == 95))) and ((ord(key1[(len(key1) - 1)]) != 95)))) else key1)),v)
         return True
