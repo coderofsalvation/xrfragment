@@ -11,8 +11,8 @@ class Parser {
     public static var debug:Bool = false;
 
     @:keep
-    public static function parse(key:String,value:String,resultMap:haxe.DynamicAccess<Dynamic>):Bool {
-
+    public static function parse(key:String,value:String,store:haxe.DynamicAccess<Dynamic>):Bool {
+      
       // here we define allowed characteristics & datatypes for each fragment (stored as bitmasked int for performance purposes)
       var Frag:Map<String, Int> = new Map<String, Int>();
 
@@ -64,23 +64,25 @@ class Parser {
 			if( value.length == 0 && key.length > 0 && !Frag.exists(key) ){
 				var v:XRF  = new XRF(key, XRF.PV_EXECUTE | XRF.NAVIGATOR );
         v.validate(key); // will fail but will parse multiple args for us (separated by |)
-				resultMap.set(key, v );
+				store.set(key, v );
 				return true;
 			}
 			if( key.split(".").length > 1 && value.split(".").length > 1 ){
-				resultMap.set(key, new XRF(key, XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_STRING | XRF.PROP_BIND ) );
+				store.set(key, new XRF(key, XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_STRING | XRF.PROP_BIND ) );
 				return true;
 			}
 
 			// regular fragments:
-      if( Frag.exists(key) ){                                              //  1. check if param exist
-        var v:XRF = new XRF(key, Frag.get(key));
+      var v:XRF = new XRF(key, Frag.get(key));
+      if( Frag.exists(key) ){                                              //  1. check if fragment is official XR Fragment
         if( !v.validate(value) ){
-          trace("⚠ fragment '"+key+"' has incompatible value ("+value+")");
+          trace("⚠ fragment '"+key+"' has incompatible value ("+value+")");//  1. don't add to store if value-type is incorrect
           return false;
         }
+        store.set(key, v );                                                //  1. if valid, add to store
         if( debug ) trace("✔ "+key+": "+v.string);
-        resultMap.set(key, v );
+      }else{                                                               //  1. prefix non-offical fragment key's with underscore (and add to store)
+        store.set("_"+key,v);
       }
 
       return true;

@@ -1291,7 +1291,7 @@ class xrfragment_Parser:
     _hx_statics = ["error", "debug", "parse"]
 
     @staticmethod
-    def parse(key,value,resultMap):
+    def parse(key,value,store):
         Frag = haxe_ds_StringMap()
         Frag.h["prio"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_INT)
         Frag.h["#"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_PREDEFINED_VIEW)
@@ -1319,20 +1319,23 @@ class xrfragment_Parser:
         if (((len(value) == 0) and ((len(key) > 0))) and (not (key in Frag.h))):
             v = xrfragment_XRF(key,(xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR))
             v.validate(key)
-            setattr(resultMap,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),v)
+            setattr(store,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),v)
             return True
         if ((len(key.split(".")) > 1) and ((len(value.split(".")) > 1))):
             value1 = xrfragment_XRF(key,(((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_STRING) | xrfragment_XRF.PROP_BIND))
-            setattr(resultMap,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),value1)
+            setattr(store,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),value1)
             return True
+        v = xrfragment_XRF(key,Frag.h.get(key,None))
         if (key in Frag.h):
-            v = xrfragment_XRF(key,Frag.h.get(key,None))
             if (not v.validate(value)):
                 print(str((((("⚠ fragment '" + ("null" if key is None else key)) + "' has incompatible value (") + ("null" if value is None else value)) + ")")))
                 return False
+            setattr(store,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),v)
             if xrfragment_Parser.debug:
                 print(str(((("✔ " + ("null" if key is None else key)) + ": ") + HxOverrides.stringOrNull(v.string))))
-            setattr(resultMap,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),v)
+        else:
+            key1 = ("_" + ("null" if key is None else key))
+            setattr(store,(("_hx_" + key1) if ((key1 in python_Boot.keywords)) else (("_hx_" + key1) if (((((len(key1) > 2) and ((ord(key1[0]) == 95))) and ((ord(key1[1]) == 95))) and ((ord(key1[(len(key1) - 1)]) != 95)))) else key1)),v)
         return True
 
 
@@ -1367,9 +1370,7 @@ class xrfragment_Query:
     def get(self):
         return self.q
 
-    def parse(self,_hx_str,recurse = None):
-        if (recurse is None):
-            recurse = False
+    def parse(self,_hx_str):
         _gthis = self
         token = _hx_str.split(" ")
         q = _hx_AnonObject({})

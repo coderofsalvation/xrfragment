@@ -214,7 +214,7 @@ js_Boot.__string_rec = function(o,s) {
 };
 var xrfragment_Parser = $hx_exports["xrfragment"]["Parser"] = function() { };
 xrfragment_Parser.__name__ = true;
-xrfragment_Parser.parse = function(key,value,resultMap) {
+xrfragment_Parser.parse = function(key,value,store) {
 	var Frag_h = Object.create(null);
 	Frag_h["prio"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_INT;
 	Frag_h["#"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_PREDEFINED_VIEW;
@@ -242,23 +242,25 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	if(value.length == 0 && key.length > 0 && !Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		var v = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR);
 		v.validate(key);
-		resultMap[key] = v;
+		store[key] = v;
 		return true;
 	}
 	if(key.split(".").length > 1 && value.split(".").length > 1) {
-		resultMap[key] = new xrfragment_XRF(key,xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.PROP_BIND);
+		store[key] = new xrfragment_XRF(key,xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.PROP_BIND);
 		return true;
 	}
+	var v = new xrfragment_XRF(key,Frag_h[key]);
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
-		var v = new xrfragment_XRF(key,Frag_h[key]);
 		if(!v.validate(value)) {
 			console.log("src/xrfragment/Parser.hx:79:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
+		store[key] = v;
 		if(xrfragment_Parser.debug) {
-			console.log("src/xrfragment/Parser.hx:82:","✔ " + key + ": " + v.string);
+			console.log("src/xrfragment/Parser.hx:83:","✔ " + key + ": " + v.string);
 		}
-		resultMap[key] = v;
+	} else {
+		store["_" + key] = v;
 	}
 	return true;
 };
@@ -290,10 +292,7 @@ xrfragment_Query.prototype = {
 	,get: function() {
 		return this.q;
 	}
-	,parse: function(str,recurse) {
-		if(recurse == null) {
-			recurse = false;
-		}
+	,parse: function(str) {
 		var _gthis = this;
 		var token = str.split(" ");
 		var q = { };

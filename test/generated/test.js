@@ -136,7 +136,7 @@ StringTools.replace = function(s,sub,by) {
 var Test = function() { };
 Test.__name__ = true;
 Test.main = function() {
-	Test.test([{ fn : "url", expect : { fn : "equal.xyz", input : "pos", out : false}, label : "equal.xyz: should trigger incompatible type)", data : "http://foo.com?foo=1#pos=1.2,2.2"},{ fn : "url", expect : { fn : "equal.xyz", input : "pos", out : "1.2,2.2,3"}, label : "equal.xyz", data : "http://foo.com?foo=1#pos=1.2,2.2,3"},{ fn : "url", expect : { fn : "equal.xy", input : "t", out : "1,100"}, label : "a equal.xy", data : "http://foo.com?foo=1#t=1,100"},{ fn : "url", expect : { fn : "testParsed", input : "prio", out : false}, label : "should trigger incompatible type", data : "http://foo.com?foo=1#prio=foo"},{ fn : "url", expect : { fn : "equal.multi", input : "pos", out : "c|d|1,2,3"}, label : "b equal.multi", data : "http://foo.com?foo=1#pos=c|d|1,2,3"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "t", out : true}, label : "browser URI can override t (defined in asset)", data : "http://foo.com?foo=1#t=2,500"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "q", out : false}, label : "browser URI cannot override q (defined in asset)", data : "http://foo.com?foo=1#q=-bar"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "scale", out : false}, label : "scale does not have NAVIGATOR set", data : "http://foo.com?foo=1#scale=2,2,2"},{ fn : "url", expect : { fn : "testEmbedOverride", input : "scale", out : true}, label : "embedded (src) URI can override scale", data : "http://foo.com?foo=1#scale=2,2,2"},{ fn : "url", expect : { fn : "testPredefinedView", input : "mypredefinedview", out : true}, label : "test predefined view executed", data : "http://foo.com?foo=1#mypredefinedview"},{ fn : "url", expect : { fn : "testPredefinedView", input : "another", out : true}, label : "test predefined view executed (multiple)", data : "http://foo.com?foo=1#mypredefinedview&another"},{ fn : "url", expect : { fn : "testPredefinedView", input : "mypredefinedview", out : true}, label : "test predefined view executed (multiple)", data : "http://foo.com?foo=1#mypredefinedview&another"},{ fn : "url", expect : { fn : "testPropertyAssign", input : "cube.position.x", out : true}, label : "test data assign", data : "#cube.position.x=music.position.x"},{ fn : "url", expect : { fn : "testPropertyAssign", input : "cube.position.x", out : true}, label : "test one-way data bind", data : "#cube.position.x=@music.position.x"}]);
+	Test.test([{ fn : "url", expect : { fn : "equal.xyz", input : "pos", out : false}, label : "equal.xyz: should trigger incompatible type)", data : "http://foo.com?foo=1#pos=1.2,2.2"},{ fn : "url", expect : { fn : "equal.xyz", input : "pos", out : "1.2,2.2,3"}, label : "equal.xyz", data : "http://foo.com?foo=1#pos=1.2,2.2,3"},{ fn : "url", expect : { fn : "equal.xy", input : "t", out : "1,100"}, label : "a equal.xy", data : "http://foo.com?foo=1#t=1,100"},{ fn : "url", expect : { fn : "testParsed", input : "prio", out : false}, label : "should trigger incompatible type", data : "http://foo.com?foo=1#prio=foo"},{ fn : "url", expect : { fn : "equal.multi", input : "pos", out : "c|d|1,2,3"}, label : "b equal.multi", data : "http://foo.com?foo=1#pos=c|d|1,2,3"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "t", out : true}, label : "browser URI can override t (defined in asset)", data : "http://foo.com?foo=1#t=2,500"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "q", out : false}, label : "browser URI cannot override q (defined in asset)", data : "http://foo.com?foo=1#q=-bar"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "scale", out : false}, label : "scale does not have NAVIGATOR set", data : "http://foo.com?foo=1#scale=2,2,2"},{ fn : "url", expect : { fn : "testEmbedOverride", input : "scale", out : true}, label : "embedded (src) URI can override scale", data : "http://foo.com?foo=1#scale=2,2,2"},{ fn : "url", expect : { fn : "testPredefinedView", input : "mypredefinedview", out : true}, label : "test predefined view executed", data : "http://foo.com?foo=1#mypredefinedview"},{ fn : "url", expect : { fn : "testPredefinedView", input : "another", out : true}, label : "test predefined view executed (multiple)", data : "http://foo.com?foo=1#mypredefinedview&another"},{ fn : "url", expect : { fn : "testPredefinedView", input : "mypredefinedview", out : true}, label : "test predefined view executed (multiple)", data : "http://foo.com?foo=1#mypredefinedview&another"},{ fn : "url", expect : { fn : "testPropertyAssign", input : "cube.position.x", out : true}, label : "test data assign", data : "#cube.position.x=music.position.x"},{ fn : "url", expect : { fn : "testPropertyAssign", input : "cube.position.x", out : true}, label : "test one-way data bind", data : "#cube.position.x=@music.position.x"},{ fn : "url", expect : { fn : "testParsed", input : "_mycustom", out : true}, label : "test custom property", data : "http://foo.com?foo=1#mycustom=foo"}]);
 	Test.test([{ fn : "query", expect : { fn : "testProperty", input : ["class","bar"], out : true}, data : "class:bar"},{ fn : "query", expect : { fn : "testProperty", input : ["class","bar"], out : true}, label : ".bar shorthand", data : ".bar"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : false}, data : ".bar -.foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, data : ".bar -.foo .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","bar"], out : true}, data : ".bar -.bar .bar"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo bar:5 .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo bar:>5 .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo bar:>5 .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["class","foo"], out : true}, label : "class:foo", data : ".foo -.foo .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["id","foo"], out : false}, label : "!id:foo", data : ".foo -.foo .foo"},{ fn : "query", expect : { fn : "testProperty", input : ["id","foo"], out : true}, label : "id:foo?", data : "foo -foo foo"},{ fn : "query", expect : { fn : "testQueryRoot", input : ["foo"], out : true}, label : "foo should be root-only", data : "/foo"},{ fn : "query", expect : { fn : "testQueryRoot", input : ["foo"], out : false}, label : "foo should recursively selected", data : "/foo foo"}]);
 	Test.test([]);
 	Test.test([{ fn : "query", expect : { fn : "testProperty", input : ["price","10"], out : true}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","10"], out : false}, data : "price:>=15"},{ fn : "query", expect : { fn : "testProperty", input : ["price","4"], out : false}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","0"], out : false}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","2"], out : true}, data : "price:>=2"},{ fn : "query", expect : { fn : "testProperty", input : ["price","1"], out : false}, label : "price=1", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["price","0"], out : true}, label : "price=0", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["price","6"], out : true}, label : "price=6", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, data : "tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : false}, data : "-tag:foo"},{ fn : "query", expect : { fn : "testPropertyExclude", input : ["tag","foo"], out : true}, label : "testExclude", data : "-tag:foo"},{ fn : "query", expect : { fn : "test", input : [{ price : 5}], out : true}, data : ".foo price:5 -tag:foo"},{ fn : "query", expect : { fn : "test", input : [{ tag : "foo", price : 5}], out : false}, data : ".foo price:5 -tag:foo"}]);
@@ -328,7 +328,7 @@ js_Boot.__string_rec = function(o,s) {
 };
 var xrfragment_Parser = $hx_exports["xrfragment"]["Parser"] = function() { };
 xrfragment_Parser.__name__ = true;
-xrfragment_Parser.parse = function(key,value,resultMap) {
+xrfragment_Parser.parse = function(key,value,store) {
 	var Frag_h = Object.create(null);
 	Frag_h["prio"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_INT;
 	Frag_h["#"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_PREDEFINED_VIEW;
@@ -356,23 +356,25 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	if(value.length == 0 && key.length > 0 && !Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		var v = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR);
 		v.validate(key);
-		resultMap[key] = v;
+		store[key] = v;
 		return true;
 	}
 	if(key.split(".").length > 1 && value.split(".").length > 1) {
-		resultMap[key] = new xrfragment_XRF(key,xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.PROP_BIND);
+		store[key] = new xrfragment_XRF(key,xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.PROP_BIND);
 		return true;
 	}
+	var v = new xrfragment_XRF(key,Frag_h[key]);
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
-		var v = new xrfragment_XRF(key,Frag_h[key]);
 		if(!v.validate(value)) {
 			console.log("src/xrfragment/Parser.hx:79:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
+		store[key] = v;
 		if(xrfragment_Parser.debug) {
-			console.log("src/xrfragment/Parser.hx:82:","✔ " + key + ": " + v.string);
+			console.log("src/xrfragment/Parser.hx:83:","✔ " + key + ": " + v.string);
 		}
-		resultMap[key] = v;
+	} else {
+		store["_" + key] = v;
 	}
 	return true;
 };
@@ -404,10 +406,7 @@ xrfragment_Query.prototype = {
 	,get: function() {
 		return this.q;
 	}
-	,parse: function(str,recurse) {
-		if(recurse == null) {
-			recurse = false;
-		}
+	,parse: function(str) {
 		var _gthis = this;
 		var token = str.split(" ");
 		var q = { };

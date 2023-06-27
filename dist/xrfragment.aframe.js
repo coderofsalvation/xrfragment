@@ -214,7 +214,7 @@ js_Boot.__string_rec = function(o,s) {
 };
 var xrfragment_Parser = $hx_exports["xrfragment"]["Parser"] = function() { };
 xrfragment_Parser.__name__ = true;
-xrfragment_Parser.parse = function(key,value,resultMap) {
+xrfragment_Parser.parse = function(key,value,store) {
 	var Frag_h = Object.create(null);
 	Frag_h["prio"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_INT;
 	Frag_h["#"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_PREDEFINED_VIEW;
@@ -242,23 +242,25 @@ xrfragment_Parser.parse = function(key,value,resultMap) {
 	if(value.length == 0 && key.length > 0 && !Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		var v = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR);
 		v.validate(key);
-		resultMap[key] = v;
+		store[key] = v;
 		return true;
 	}
 	if(key.split(".").length > 1 && value.split(".").length > 1) {
-		resultMap[key] = new xrfragment_XRF(key,xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.PROP_BIND);
+		store[key] = new xrfragment_XRF(key,xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.PROP_BIND);
 		return true;
 	}
+	var v = new xrfragment_XRF(key,Frag_h[key]);
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
-		var v = new xrfragment_XRF(key,Frag_h[key]);
 		if(!v.validate(value)) {
 			console.log("src/xrfragment/Parser.hx:79:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
+		store[key] = v;
 		if(xrfragment_Parser.debug) {
-			console.log("src/xrfragment/Parser.hx:82:","✔ " + key + ": " + v.string);
+			console.log("src/xrfragment/Parser.hx:83:","✔ " + key + ": " + v.string);
 		}
-		resultMap[key] = v;
+	} else {
+		store["_" + key] = v;
 	}
 	return true;
 };
@@ -290,10 +292,7 @@ xrfragment_Query.prototype = {
 	,get: function() {
 		return this.q;
 	}
-	,parse: function(str,recurse) {
-		if(recurse == null) {
-			recurse = false;
-		}
+	,parse: function(str) {
 		var _gthis = this;
 		var token = str.split(" ");
 		var q = { };
@@ -1172,6 +1171,7 @@ xrf.frag.pos = function(v, opts){
 const updatePredefinedView = (opts) => {
   let {frag,scene} = opts 
 
+  // spec: https://xrfragment.org/#Selection%20of%20interest
   const selectionOfInterest = (frag,scene,mesh) => {
     let id = frag.string
     let oldSelection
@@ -1194,6 +1194,7 @@ const updatePredefinedView = (opts) => {
     return oldSelection
   }
 
+  // spec: https://xrfragment.org/#predefined_view
   const predefinedView = (frag,scene,mesh) => {
     let id   = frag.string
     if( !id ) return  // prevent empty matches
@@ -1250,11 +1251,14 @@ xrf.addEventListener('href', (opts) => {
 //
 //xrf.addEventListener('predefinedView', updateUrl )
 //xrf.addEventListener('selection', updateUrl )
+// spec: https://xrfragment.org/#queries
+
 xrf.frag.q = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   console.log("   └ running query ")
   let qobjs = Object.keys(v.query)
 
+  // spec: https://xrfragment.org/#src
   const instanceScene = () => {
     v.scene = new THREE.Group()
     for ( let i in v.query  ) {
@@ -1285,6 +1289,7 @@ xrf.frag.q = function(v, opts){
     negative.map( (mesh) => mesh.visible = false )
   }
 
+  // spec: https://xrfragment.org/#queries
   const showHide = () => {
     let q = frag.q.query 
     scene.traverse( (mesh) => {
@@ -1300,8 +1305,8 @@ xrf.frag.q = function(v, opts){
     })
   }
 
-  if( opts.embedded && opts.embedded.fragment == "src" ) instanceScene()
-  else showHide() // href
+  if( opts.embedded && opts.embedded.fragment == "src" ) instanceScene()  // spec : https://xrfragment.org/#src
+  else showHide() // predefined view                                      // spec : https://xrfragment.org/#queries
 }
 xrf.frag.rot = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
@@ -1359,7 +1364,7 @@ window.AFRAME.registerComponent('xrf', {
   },
   init: function () {
     if( !AFRAME.XRF ) this.initXRFragments()
-    if( this.data ){
+    if( typeof this.data == "string" ){
       if( document.location.search || document.location.hash.length > 1 ){ // override url
         this.data = `${document.location.search.substr(1)}${document.location.hash}`
       }
@@ -1378,22 +1383,22 @@ window.AFRAME.registerComponent('xrf', {
 
     // enable XR fragments
     let aScene = document.querySelector('a-scene')
-    let XRF = AFRAME.XRF = xrf.init({            
+    let XRF = AFRAME.XRF = xrf.init({
       THREE,
-      camera:   aScene.camera, 
+      camera:   aScene.camera,
       scene:    aScene.object3D,
       renderer: aScene.renderer,
       debug: true,
       loaders: { gltf: THREE.GLTFLoader }  // which 3D assets (exts) to check for XR fragments?
     })
     if( !XRF.camera ) throw 'xrfragment: no camera detected, please declare <a-entity camera..> ABOVE entities with xrf-attributes'
-        
-    // override the camera-related XR Fragments so the camera-rig is affected 
+
+    // override the camera-related XR Fragments so the camera-rig is affected
     let camOverride = (xrf,v,opts) => {
-      opts.camera = document.querySelector('[camera]').object3D.parent 
+      opts.camera = document.querySelector('[camera]').object3D.parent
       xrf(v,opts)
     }
-    
+
     xrf.pos  = camOverride
 
     // in order to set the rotation programmatically
@@ -1403,15 +1408,15 @@ window.AFRAME.registerComponent('xrf', {
       let look = document.querySelector('[look-controls]')
       if( look ) look.removeAttribute("look-controls")
       camOverride(xrf,v,opts)
-      // *TODO* make look-controls compatible, because simply 
+      // *TODO* make look-controls compatible, because simply
       // adding the look-controls will revert to the old rotation (cached somehow?)
       //setTimeout( () => look.setAttribute("look-controls",""), 100 )
     }
 
     // convert portal to a-entity so AFRAME
     // raycaster can find & execute it
-    xrf.href = (xrf,v,opts) => { 
-      camOverride(xrf,v,opts)    
+    xrf.href = (xrf,v,opts) => {
+      camOverride(xrf,v,opts)
       let {mesh,camera} = opts;
       let el = document.createElement("a-entity")
       el.setAttribute("xrf-get",mesh.name )
@@ -1427,7 +1432,7 @@ window.AFRAME.registerComponent('xrf', {
       let els = [...document.querySelectorAll('[xrf-get]')]
       els.map( (el) => document.querySelector('a-scene').removeChild(el) )
     })(XRF.reset)
-  
+
     // undo lookup-control shenanigans (which blocks updating camerarig position in VR)
     aScene.addEventListener('enter-vr', () => document.querySelector('[camera]').object3D.parent.matrixAutoUpdate = true )
   },

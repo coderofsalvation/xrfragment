@@ -1406,7 +1406,7 @@ __lua_Thread.__name__ = true
 __xrfragment_Parser.new = {}
 _hx_exports["xrfragment"]["Parser"] = __xrfragment_Parser
 __xrfragment_Parser.__name__ = true
-__xrfragment_Parser.parse = function(key,value,resultMap) 
+__xrfragment_Parser.parse = function(key,value,store) 
   local Frag_h = ({});
   local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_INT);
   if (value1 == nil) then 
@@ -1549,7 +1549,7 @@ __xrfragment_Parser.parse = function(key,value,resultMap)
   if (((__lua_lib_luautf8_Utf8.len(value) == 0) and (__lua_lib_luautf8_Utf8.len(key) > 0)) and (Frag_h[key] == nil)) then 
     local v = __xrfragment_XRF.new(key, _hx_bit.bor(__xrfragment_XRF.PV_EXECUTE,__xrfragment_XRF.NAVIGATOR));
     v:validate(key);
-    resultMap[key] = v;
+    store[key] = v;
     do return true end;
   end;
   local tmp;
@@ -1604,23 +1604,25 @@ __xrfragment_Parser.parse = function(key,value,resultMap)
   end;
   if (tmp) then 
     local value = __xrfragment_XRF.new(key, _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_STRING),__xrfragment_XRF.PROP_BIND));
-    resultMap[key] = value;
+    store[key] = value;
     do return true end;
   end;
+  local ret = Frag_h[key];
+  if (ret == __haxe_ds_StringMap.tnull) then 
+    ret = nil;
+  end;
+  local v = __xrfragment_XRF.new(key, ret);
   if (Frag_h[key] ~= nil) then 
-    local ret = Frag_h[key];
-    if (ret == __haxe_ds_StringMap.tnull) then 
-      ret = nil;
-    end;
-    local v = __xrfragment_XRF.new(key, ret);
     if (not v:validate(value)) then 
       __haxe_Log.trace(Std.string(Std.string(Std.string(Std.string("⚠ fragment '") .. Std.string(key)) .. Std.string("' has incompatible value (")) .. Std.string(value)) .. Std.string(")"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=79,className="xrfragment.Parser",methodName="parse"}));
       do return false end;
     end;
+    store[key] = v;
     if (__xrfragment_Parser.debug) then 
-      __haxe_Log.trace(Std.string(Std.string(Std.string("✔ ") .. Std.string(key)) .. Std.string(": ")) .. Std.string(v.string), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=82,className="xrfragment.Parser",methodName="parse"}));
+      __haxe_Log.trace(Std.string(Std.string(Std.string("✔ ") .. Std.string(key)) .. Std.string(": ")) .. Std.string(v.string), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=83,className="xrfragment.Parser",methodName="parse"}));
     end;
-    resultMap[key] = v;
+  else
+    store[Std.string("_") .. Std.string(key)] = v;
   end;
   do return true end;
 end
@@ -1659,10 +1661,7 @@ end
 __xrfragment_Query.prototype.get = function(self) 
   do return self.q end
 end
-__xrfragment_Query.prototype.parse = function(self,str,recurse) 
-  if (recurse == nil) then 
-    recurse = false;
-  end;
+__xrfragment_Query.prototype.parse = function(self,str) 
   local _gthis = self;
   local idx = 1;
   local ret = _hx_tab_array({}, 0);
