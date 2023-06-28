@@ -32,3 +32,5 @@ xrf.roundrobin = (frag, store) => {
 
 // map library functions to xrf
 for ( let i in xrfragment ) xrf[i] = xrfragment[i] 
+
+if( typeof module != 'undefined' ) module.exports = xrf

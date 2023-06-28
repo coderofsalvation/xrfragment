@@ -18,4 +18,3 @@ print( q.parse("-.foo -plane") )
 print( q.parse("price:>2")     )
 
 frags    = XF.URI.parse('#my_view&t=1,2')
-console.dir(XF)

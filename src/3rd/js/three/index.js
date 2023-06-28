@@ -108,8 +108,10 @@ xrf.reset = () => {
 }
 
 xrf.parseUrl = (url) => {
-  const urlObj = new URL( url.match(/:\/\//) ? url : String(`https://fake.com/${url}`).replace(/\/\//,'/') )
-  let   dir  = url.substring(0, url.lastIndexOf('/') + 1)
+  let   dir = url.substring(0, url.lastIndexOf('/') + 1)
+  // safety-net/fallback for relative and protocol-agnostic urls
+  if( !url.match(/:\/\//) ) url = String(`https://fake.com/${url}`) //.replace(/\/\//,'/') 
+  const urlObj = new URL( url )
   const file = urlObj.pathname.substring(urlObj.pathname.lastIndexOf('/') + 1);
   const hash = url.match(/#/) ? url.replace(/.*#/,'') : ''
   const ext  = file.split('.').pop()

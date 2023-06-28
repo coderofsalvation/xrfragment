@@ -26,6 +26,7 @@ tests(){
   {
     which python3 && python3 test/generated/test.py src/spec/*.json | awk '{ print "py: "$0 } END{ print "\n"}'
     which node    && node test/generated/test.js    src/spec/*.json | awk '{ print "js: "$0 } END{ print "\n"}'
+    which node    && node test/three.js                             | awk '{ print "three.js: "$0 } END{ print "\n"}'
   } | awk '$2 ~ /src/ { $2=sprintf("%-30s",$2); print $0; next; } 1' | tee /tmp/log.txt
   grep error /tmp/log.txt && exit 1 || exit 0
 }
