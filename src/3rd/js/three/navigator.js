@@ -17,8 +17,11 @@ xrf.navigator.to = (url,flags) => {
       if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 
       xrf.reset() // clear xrf objects from scene
       // force relative path 
-      if( dir ) dir = dir[0] == '/' ? `.${dir}` : dir
-      const loader = new Loader().setPath( dir )
+      if( dir ){ 
+        dir = dir[0] == '/' ? `.${dir}` : dir
+        xrf.loaderpath = dir
+      }
+      const loader = new Loader().setPath( dir || xrf.loaderpath )
       loader.load( file, function(model){
         model.file = file
         xrf.add( model.scene )
