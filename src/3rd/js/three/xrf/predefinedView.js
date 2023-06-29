@@ -33,7 +33,7 @@ const updatePredefinedView = (opts) => {
       xrf.emit('predefinedView',{...opts,frag})
       .then( () => {
         for ( let k in frag ){
-          let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
+          let opts = {frag, model: xrf.model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
           xrf.eval.fragment(k,opts) 
         }
       })

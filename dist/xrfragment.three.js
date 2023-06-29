@@ -1088,7 +1088,7 @@ xrf.frag.href = function(v, opts){
   }
   // detect equirectangular image
   let texture = mesh.material && mesh.material.map ? mesh.material.map : null
-  if( texture && texture.source.data.height == texture.source.data.width/2 ){
+  if( texture && texture.source && texture.source.data.height == texture.source.data.width/2 ){
     texture.mapping = THREE.ClampToEdgeWrapping
     texture.needsUpdate = true
 
@@ -1234,7 +1234,7 @@ const updatePredefinedView = (opts) => {
       xrf.emit('predefinedView',{...opts,frag})
       .then( () => {
         for ( let k in frag ){
-          let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
+          let opts = {frag, model: xrf.model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
           xrf.eval.fragment(k,opts) 
         }
       })

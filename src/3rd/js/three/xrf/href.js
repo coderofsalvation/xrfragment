@@ -41,7 +41,7 @@ xrf.frag.href = function(v, opts){
   }
   // detect equirectangular image
   let texture = mesh.material && mesh.material.map ? mesh.material.map : null
-  if( texture && texture.source.data.height == texture.source.data.width/2 ){
+  if( texture && texture.source && texture.source.data.height == texture.source.data.width/2 ){
     texture.mapping = THREE.ClampToEdgeWrapping
     texture.needsUpdate = true
 
