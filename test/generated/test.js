@@ -366,12 +366,12 @@ xrfragment_Parser.parse = function(key,value,store) {
 	var v = new xrfragment_XRF(key,Frag_h[key]);
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		if(!v.validate(value)) {
-			console.log("src/xrfragment/Parser.hx:79:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:82:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 		store[key] = v;
 		if(xrfragment_Parser.debug) {
-			console.log("src/xrfragment/Parser.hx:83:","✔ " + key + ": " + v.string);
+			console.log("src/xrfragment/Parser.hx:86:","✔ " + key + ": " + v.string);
 		}
 	} else {
 		if(typeof(value) == "string") {

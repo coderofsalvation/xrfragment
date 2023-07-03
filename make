@@ -55,6 +55,8 @@ build(){
 }
 
 build_js(){
+  # prepend license to vanilla lib
+  #echo "// https://xrfragment.org\n// SPDX-License-Identifier: MPL-2.0\n$(cat dist/xrfragment.js)" > dist/xrfragment.js
   # add js module
   cat dist/xrfragment.js             > dist/xrfragment.module.js
   echo "export default xrfragment;" >> dist/xrfragment.module.js

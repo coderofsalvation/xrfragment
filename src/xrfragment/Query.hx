@@ -97,6 +97,7 @@ class Query {
         if( str.indexOf("<")  != -1 ) oper = "<";          // 1. then scan for `<` operator
         if( str.indexOf(">=") != -1 ) oper = ">=";         // 1. then scan for `>=` operator
         if( str.indexOf("<=") != -1 ) oper = "<=";         // 1. then scan for `<=` operator
+        if( isExclude.match(k) ){
           oper = "!=";
           k = k.substr(1);      //  1. then strip key-operator: convert "-foo" into "foo" 
         }else v = v.substr(oper.length); // 1. then strip value operator: change value ">=foo" into "foo" 
