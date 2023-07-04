@@ -677,7 +677,7 @@
                 27,
                 28
             ],
-            "name" : "portal_external",
+            "name" : "src_external",
             "rotation" : [
                 0,
                 -0.969214141368866,
@@ -1259,7 +1259,8 @@
                         "NORMAL" : 86,
                         "TEXCOORD_0" : 87
                     },
-                    "indices" : 88
+                    "indices" : 88,
+                    "material" : 7
                 }
             ]
         },

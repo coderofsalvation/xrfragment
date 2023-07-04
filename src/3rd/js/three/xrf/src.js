@@ -39,7 +39,18 @@ xrf.frag.src = function(v, opts){
   }
 
   const externalSRC = () => {
+    debugger
+    console.log("external !")
+    console.dir(v)
     console.dir(frag)
+    //// apply URI XR Fragments inside src-value 
+    //for( var i in frag ){
+    //  xrf.eval.fragment(i, Object.assign(opts,{frag, model,scene}))
+    //}
+    //let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
+    //const Loader = xrf.loaders[ext]
+    //if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 
+    //loader = loader || new Loader().setPath( dir )
 
   }
 
