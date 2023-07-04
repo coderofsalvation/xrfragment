@@ -23,6 +23,7 @@ xrf.patchRenderer = function(renderer){
 }
 
 xrf.patchLoader = function(loader){
+  if( loader.prototype.load.xrf_patched ) return // prevent patching aliased loaders twice
   loader.prototype.load = ((load) => function(url, onLoad, onProgress, onError){
     load.call(  this,
                 url,
@@ -33,6 +34,7 @@ xrf.patchLoader = function(loader){
                 onProgress,
                 onError)
   })(loader.prototype.load)
+  loader.prototype.load.xrf_patched = true
 }
 
 xrf.getFile = (url) => url.split("/").pop().replace(/#.*/,'')

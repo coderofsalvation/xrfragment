@@ -19,8 +19,9 @@
       <input type="submit" value="load 3D asset"></input>
       <input type="text" id="uri" value="" onchange="AFRAME.XRF.navigator.to( $('#uri').value )"/> 
     </div>
-    <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment-aframe-helloworld">clone project</a> 
-    <a class="btn-foot" id="model" target="_blank" href="">⬇️ model</a> 
+    <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment-helloworld">➕ clone project</a> 
+    <a class="btn-foot" id="embed" target="_blank" onclick="embed()">📺 embed</a> 
+    <a class="btn-foot" id="model" target="_blank" href="example.gltf">⬇️ model</a> 
     <textarea style="display:none"></textarea>
     <a-scene light="defaultLightsEnabled: false">
       <a-entity id="player" wasd-controls look-controls>
@@ -39,9 +40,10 @@
     </a-scene>
 
     <script type="module">
-      import { loadFile, setupConsole, setupUrlBar, notify }   from './../../assets/js/utils.js';
+      import { loadFile, setupConsole, setupUrlBar, notify, embed }   from './../../assets/js/utils.js';
       window.$ = (s) => document.querySelector(s)
       window.notify = notify(window)
+      window.embed  = embed
       console.log = ( (log) => function(str){
         if( String(str).match(/:.*#/) ) window.notify(str)
         log(str)
@@ -64,6 +66,7 @@
             const isExtern  = url[0] != '#'
             const notIsHome = url != $('#home').getAttribute("xrf") 
             const promise   = e.promise() // promisify event
+            document.querySelector('#model').setAttribute('href',url.replace(/.*\?/,'') )
             if( !renderer.xr.isPresenting ){
               if( isExtern && notIsHome ){
                 if( !confirm("teleport to "+url+" ?") ) return promise.reject('teleport rejected')
@@ -80,6 +83,13 @@
           setTimeout( () => window.notify("use WASD-keys and mouse-drag to move around",{timeout:false}),2000 )
 
         window.AFRAME.XRF.addEventListener('href', (data) => data.selected ? window.notify(`href: ${data.xrf.string}`) : false )
+
+        // enable user-uploaded asset files
+				let fileLoaders = loadFile({
+          ".gltf": (file) => file.arrayBuffer().then( (data) => xrf.navigator.to(file.name,null, (new xrf.loaders.gltf()), data) ),
+          ".glb":  (file) => file.arrayBuffer().then( (data) => xrf.navigator.to(file.name,null, (new xrf.loaders.gltf()), data) )
+				})
+				$("#overlay > input[type=submit]").addEventListener("click", fileLoaders )
 
       })
     </script>

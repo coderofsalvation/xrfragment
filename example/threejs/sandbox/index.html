@@ -13,8 +13,9 @@
 			<input type="submit" value="load 3D asset"></input>
 			<input type="text" id="uri" value="" onchange="AFRAME.XRF.navigator.to( $('#uri').value )"/>
     </div>
-    <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment-three-helloworld">clone project</a> 
-    <a class="btn-foot" id="model" target="_blank" href="">⬇️ model</a> 
+    <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment-helloworld">➕ clone project</a> 
+    <a class="btn-foot" id="embed" target="_blank" onclick="embed()">📺 embed</a> 
+    <a class="btn-foot" id="model" target="_blank" href="example.gltf">⬇️ model</a> 
 		<textarea style="display:none"></textarea>
 		
 		<script async src="./../../assets/js/alpine.min.js"></script>
@@ -125,7 +126,19 @@
         window.XRF = XRF // expose to form
 
 				let file = document.location.search.length > 2 ? document.location.search.substr(1) + document.location.hash : 'example.gltf#pos=1,0,4&rot=0,-30,0'
-        $('#model').setAttribute("href","./../../asset/"+file)
+
+        // optional decoration of href event        
+        XRF.addEventListener('href',(e) => {
+          if( e.click ){
+            const { mesh, model, camera, scene, renderer, THREE} = e.XRF
+            const url       = e.xrf.string
+            const isExtern  = url[0] != '#'
+            const promise   = e.promise() // promisify event
+            document.querySelector('#model').setAttribute('href',url.replace(/.*\?/,'') )
+            promise.resolve()
+          }
+        })
+
 				XRF.navigator.to( file )
 
 
@@ -208,8 +221,8 @@
         })
 
 				let fileLoaders = loadFile({
-					".gltf": (file) => file.arrayBuffer().then( (data) => loader.parse( data, '', loadGLTF, console.error ) ),
-					".glb":  (file) => file.arrayBuffer().then( (data) => loader.parse( data, '', loadGLTF, console.error ) )
+          ".gltf": (file) => file.arrayBuffer().then( (data) => xrf.navigator.to(file.name,null,xrf.loaders.gltf,data) ),
+          ".glb": (file) => file.arrayBuffer().then( (data) => xrf.navigator.to(file.name,null,xrf.loaders.gltf,data) )
 				})
 				$("#overlay > input[type=submit]").addEventListener("click", fileLoaders )
 

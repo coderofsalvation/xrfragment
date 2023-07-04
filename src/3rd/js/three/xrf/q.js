@@ -13,6 +13,8 @@ xrf.frag.q = function(v, opts){
       if( !scene.getObjectByName(i) && i != '*' ) return console.log(`     └ mesh not found: ${i}`)
       if( i == '*' ){
         let cloneScene = scene.clone()
+        // add interactive elements (href's e.g.)
+        v.scene.add( xrf.interactive.clone() )
         cloneScene.children.forEach( (child) => v.scene.getObjectByName(child.name) ? null : v.scene.add(child) ) 
         target.mesh = v.scene
       }else{

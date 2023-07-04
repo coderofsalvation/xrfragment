@@ -3,6 +3,7 @@
 
 export function loadFile(contentLoaders, multiple){
   return () => {
+    window.notify("if you're on Meta browser, file-uploads might be disabled")
     let input = document.createElement('input');
     input.type = 'file';
     input.multiple = multiple;
@@ -126,7 +127,7 @@ function SnackBar(userOptions) {
         
         _Message = document.createElement("span");
         _Message.classList.add("js-snackbar__message");
-        _Message.textContent = _Options.message;
+        _Message.innerHTML = _Options.message;
 
         innerSnack.appendChild(_Message);
 
@@ -264,4 +265,8 @@ export function notify(scope){
     opts = Object.assign({ message: str , status, timeout:2000 },opts)
     SnackBar( opts )
   }
+}
+
+export function embed(){
+  window.notify(`copy/paste the following into your HTML:<br><br>&lt;iframe src='${document.location.href}'&gt;<br>&lt;/iframe&gt;<br>`,{timeout:null})
 }
