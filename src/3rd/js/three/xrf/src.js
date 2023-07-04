@@ -3,11 +3,12 @@
 xrf.frag.src = function(v, opts){
   opts.embedded = v // indicate embedded XR fragment
   let { mesh, model, camera, scene, renderer, THREE} = opts
-  let src = new THREE.Group()
 
-  if( v.string[0] == "#" ){ // local 
-    console.log("   └ instancing src")
-    let frag = xrfragment.URI.parse(v.string)
+  console.log("   └ instancing src")
+  let src = new THREE.Group()
+  let frag = xrfragment.URI.parse(v.string)
+
+  const localSRC = () => {
     
     // apply embedded XR fragments
     setTimeout( () => {
@@ -38,4 +39,12 @@ xrf.frag.src = function(v, opts){
       if( !opts.recursive ) mesh.material.visible = false // lets hide the preview object because deleting disables animations+nested objs
     },10)
   }
+
+  const externalSRC = () => {
+    console.dir(frag)
+
+  }
+
+  if( v.string[0] == "#" ) localSRC() // local 
+  else externalSRC()
 }
