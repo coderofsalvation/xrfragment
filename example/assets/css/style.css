@@ -91,30 +91,29 @@ input[type="submit"] {
   border-radius: 10px;
   border: 5px solid #1c1c3299;
   padding: 0px 6px;
-  bottom:73px;
   position: absolute;
+  font-weight: bold;
+  font-family: sans-serif;
+  color: #7c7c7c;
+  z-index:2000;
+  cursor:pointer;
+  right: 10px;
 }
 
 a.btn-foot#source{
-  right: 10px;
   color: #888;
-  font-weight: bold;
-  font-family: sans-serif;
-  z-index:2000;
   bottom: 126px;
 }
 
 a.btn-foot#model{
-  position: absolute;
-  right: 10px;
-  color: #7c7c7c;
-  font-weight: bold;
-  font-family: sans-serif;
-  z-index:2000;
+  bottom:73px;
 }
 
-html.a-fullscreen a#model,
-html.a-fullscreen a#source{
+a.btn-foot#embed{
+  bottom:179px;
+}
+
+html.a-fullscreen a.btn-foot {
   margin-right:10px;
 }
 

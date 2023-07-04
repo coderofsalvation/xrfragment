@@ -19,7 +19,8 @@
       <input type="submit" value="load 3D asset"></input>
       <input type="text" id="uri" value="" onchange="AFRAME.XRF.navigator.to( $('#uri').value )"/> 
     </div>
-    <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment-aframe-helloworld">clone project</a> 
+    <a class="btn-foot" id="embed" target="_blank" onclick="embed()">📺 embed</a> 
+    <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment-helloworld">clone project</a> 
     <a class="btn-foot" id="model" target="_blank" href="">⬇️ model</a> 
     <textarea style="display:none"></textarea>
     <a-scene light="defaultLightsEnabled: false">
@@ -39,9 +40,10 @@
     </a-scene>
 
     <script type="module">
-      import { loadFile, setupConsole, setupUrlBar, notify }   from './../../assets/js/utils.js';
+      import { loadFile, setupConsole, setupUrlBar, notify, embed }   from './../../assets/js/utils.js';
       window.$ = (s) => document.querySelector(s)
       window.notify = notify(window)
+      window.embed  = embed
       console.log = ( (log) => function(str){
         if( String(str).match(/:.*#/) ) window.notify(str)
         log(str)
