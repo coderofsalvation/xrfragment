@@ -28,7 +28,10 @@ window.AFRAME.registerComponent('xrf', {
       scene:    aScene.object3D,
       renderer: aScene.renderer,
       debug: true,
-      loaders: { gltf: THREE.GLTFLoader }  // which 3D assets (exts) to check for XR fragments?
+      loaders: { 
+        gltf: THREE.GLTFLoader, // which 3D assets (exts) to check for XR fragments?
+        glb: THREE.GLTFLoader
+      }
     })
     if( !XRF.camera ) throw 'xrfragment: no camera detected, please declare <a-entity camera..> ABOVE entities with xrf-attributes'
 

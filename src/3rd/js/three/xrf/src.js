@@ -21,12 +21,10 @@ xrf.frag.src = function(v, opts){
         console.log("       └ inserting "+i+" (srcScene)")
         srcScene.position.set(0,0,0)
         srcScene.rotation.set(0,0,0)
-        // add interactive elements (href's e.g.)
-        srcScene.add( xrf.interactive.clone() )
         srcScene.traverse( (m) => {
+          m.isSRC = true
           if( m.userData && (m.userData.src || m.userData.href) ) return ;//delete m.userData.src // prevent infinite recursion 
           xrf.eval.mesh(m,{scene,recursive:true}) 
-          m.isSRC = true
         })
         console.dir(xrf)
         if( srcScene.visible ) src.add( srcScene )

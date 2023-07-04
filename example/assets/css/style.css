@@ -100,7 +100,7 @@ input[type="submit"] {
   right: 10px;
 }
 
-a.btn-foot#source{
+a.btn-foot#embed{
   color: #888;
   bottom: 126px;
 }
@@ -109,7 +109,7 @@ a.btn-foot#model{
   bottom:73px;
 }
 
-a.btn-foot#embed{
+a.btn-foot#source{
   bottom:179px;
 }
 

@@ -1,6 +1,6 @@
 xrf.navigator = {}
 
-xrf.navigator.to = (url,flags) => {
+xrf.navigator.to = (url,flags,loader,data) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
 
   return new Promise( (resolve,reject) => {
@@ -12,13 +12,17 @@ xrf.navigator.to = (url,flags) => {
     }
 
     if( xrf.model && xrf.model.scene ) xrf.model.scene.visible = false
-    const Loader = xrf.loaders[ext]
-    if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 
-    xrf.reset() // clear xrf objects from scene
+    if( !loader ){  
+      const Loader = xrf.loaders[ext]
+      if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 
+      loader = loader || new Loader().setPath( dir )
+    }
+
     // force relative path 
     if( dir ) dir = dir[0] == '.' ? dir : `.${dir}`
-    const loader = new Loader().setPath( dir )
-    loader.load( file, function(model){
+    loader = loader || new Loader().setPath( dir )
+    const onLoad = (model) => {
+      xrf.reset() // clear xrf objects from scene
       model.file = file
       xrf.add( model.scene )
       // only change url when loading *another* file
@@ -29,7 +33,10 @@ xrf.navigator.to = (url,flags) => {
       if( !hash.match(/pos=/) ) 
         xrf.eval( '#pos=0,0,0' ) // set default position if not specified
       resolve(model)
-    })
+    }
+
+    if( data ) loader.parse(data, "", onLoad )
+    else       loader.load(url, onLoad )
   })
 }
 

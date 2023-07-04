@@ -851,6 +851,7 @@ xrf.patchRenderer = function(renderer){
 }
 
 xrf.patchLoader = function(loader){
+  if( loader.prototype.load.xrf_patched ) return // prevent patching aliased loaders twice
   loader.prototype.load = ((load) => function(url, onLoad, onProgress, onError){
     load.call(  this,
                 url,
@@ -861,6 +862,7 @@ xrf.patchLoader = function(loader){
                 onProgress,
                 onError)
   })(loader.prototype.load)
+  loader.prototype.load.xrf_patched = true
 }
 
 xrf.getFile = (url) => url.split("/").pop().replace(/#.*/,'')
@@ -951,7 +953,7 @@ xrf.add = (object) => {
 
 xrf.navigator = {}
 
-xrf.navigator.to = (url,flags) => {
+xrf.navigator.to = (url,flags,loader,data) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
 
   return new Promise( (resolve,reject) => {
@@ -963,13 +965,17 @@ xrf.navigator.to = (url,flags) => {
     }
 
     if( xrf.model && xrf.model.scene ) xrf.model.scene.visible = false
-    const Loader = xrf.loaders[ext]
-    if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 
-    xrf.reset() // clear xrf objects from scene
+    if( !loader ){  
+      const Loader = xrf.loaders[ext]
+      if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 
+      loader = loader || new Loader().setPath( dir )
+    }
+
     // force relative path 
     if( dir ) dir = dir[0] == '.' ? dir : `.${dir}`
-    const loader = new Loader().setPath( dir )
-    loader.load( file, function(model){
+    loader = loader || new Loader().setPath( dir )
+    const onLoad = (model) => {
+      xrf.reset() // clear xrf objects from scene
       model.file = file
       xrf.add( model.scene )
       // only change url when loading *another* file
@@ -980,7 +986,10 @@ xrf.navigator.to = (url,flags) => {
       if( !hash.match(/pos=/) ) 
         xrf.eval( '#pos=0,0,0' ) // set default position if not specified
       resolve(model)
-    })
+    }
+
+    if( data ) loader.parse(data, "", onLoad )
+    else       loader.load(url, onLoad )
   })
 }
 
@@ -1269,6 +1278,8 @@ xrf.frag.q = function(v, opts){
       if( !scene.getObjectByName(i) && i != '*' ) return console.log(`     └ mesh not found: ${i}`)
       if( i == '*' ){
         let cloneScene = scene.clone()
+        // add interactive elements (href's e.g.)
+        v.scene.add( xrf.interactive.clone() )
         cloneScene.children.forEach( (child) => v.scene.getObjectByName(child.name) ? null : v.scene.add(child) ) 
         target.mesh = v.scene
       }else{
@@ -1344,12 +1355,10 @@ xrf.frag.src = function(v, opts){
         console.log("       └ inserting "+i+" (srcScene)")
         srcScene.position.set(0,0,0)
         srcScene.rotation.set(0,0,0)
-        // add interactive elements (href's e.g.)
-        srcScene.add( xrf.interactive.clone() )
         srcScene.traverse( (m) => {
+          m.isSRC = true
           if( m.userData && (m.userData.src || m.userData.href) ) return ;//delete m.userData.src // prevent infinite recursion 
           xrf.eval.mesh(m,{scene,recursive:true}) 
-          m.isSRC = true
         })
         console.dir(xrf)
         if( srcScene.visible ) src.add( srcScene )
@@ -1392,7 +1401,10 @@ window.AFRAME.registerComponent('xrf', {
       scene:    aScene.object3D,
       renderer: aScene.renderer,
       debug: true,
-      loaders: { gltf: THREE.GLTFLoader }  // which 3D assets (exts) to check for XR fragments?
+      loaders: { 
+        gltf: THREE.GLTFLoader, // which 3D assets (exts) to check for XR fragments?
+        glb: THREE.GLTFLoader
+      }
     })
     if( !XRF.camera ) throw 'xrfragment: no camera detected, please declare <a-entity camera..> ABOVE entities with xrf-attributes'
 
