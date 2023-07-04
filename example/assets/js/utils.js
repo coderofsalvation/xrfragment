@@ -3,6 +3,7 @@
 
 export function loadFile(contentLoaders, multiple){
   return () => {
+    window.notify("if you're on Meta browser, file-uploads might be disabled")
     let input = document.createElement('input');
     input.type = 'file';
     input.multiple = multiple;
