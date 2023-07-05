@@ -13,13 +13,13 @@ xrf.frag.q = function(v, opts){
       if( !scene.getObjectByName(i) && i != '*' ) return console.log(`     └ mesh not found: ${i}`)
       if( i == '*' ){
         let cloneScene = scene.clone()
-        // add interactive elements (href's e.g.)
+        // add interactive elements (href's e.g.) *TODO* this is called by both internal/external src's
         v.scene.add( xrf.interactive.clone() )
         cloneScene.children.forEach( (child) => v.scene.getObjectByName(child.name) ? null : v.scene.add(child) ) 
         target.mesh = v.scene
       }else{
-        console.log(`     └ query-ing mesh: ${i}`)
         if( !v.scene.getObjectByName(i) && target.id === true ){ 
+          console.log(`     └ query-ing mesh: ${i}`)
           v.scene.add( target.mesh = scene.getObjectByName(i).clone() )
         }
       }
@@ -54,6 +54,7 @@ xrf.frag.q = function(v, opts){
     })
   }
 
-  if( opts.embedded && opts.embedded.fragment == "src" ) instanceScene()  // spec : https://xrfragment.org/#src
-  else showHide() // predefined view                                      // spec : https://xrfragment.org/#queries
+  const doLocalInstancing = opts.embedded && opts.embedded.fragment == 'src' && opts.embedded.string[0] == '#'
+  if( doLocalInstancing ) instanceScene()  // spec : https://xrfragment.org/#src
+  else showHide()                          // spec : https://xrfragment.org/#queries
 }

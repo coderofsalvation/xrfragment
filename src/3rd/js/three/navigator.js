@@ -20,6 +20,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
 
     // force relative path 
     if( dir ) dir = dir[0] == '.' ? dir : `.${dir}`
+    url = url.replace(dir,"")
     loader = loader || new Loader().setPath( dir )
     const onLoad = (model) => {
       xrf.reset() // clear xrf objects from scene
