@@ -12,7 +12,6 @@ xrf.frag.src = function(v, opts){
 
   const localSRC = () => {
     
-    // scale embedded XR fragments https://xrfragment.org/#scaling%20of%20instanced%20objects
     setTimeout( () => {
       // scale URI XR Fragments inside src-value 
       for( var i in frag ){
@@ -58,10 +57,7 @@ xrf.frag.src = function(v, opts){
   else externalSRC()                  // external file
 }
 
-/*
- * replace the src-mesh with the contents of the src
- */
-
+// scale embedded XR fragments https://xrfragment.org/#scaling%20of%20instanced%20objects
 xrf.frag.src.scale = function(scene, opts, url){
     let { mesh, model, camera, renderer, THREE} = opts
     let restrictToBoundingBox = mesh.geometry
@@ -97,6 +93,10 @@ xrf.frag.src.scale = function(scene, opts, url){
     mesh.add( scene )
     if( !opts.recursive && mesh.material ) mesh.material.visible = false // lets hide the preview object because deleting disables animations+nested objs
 }
+
+/*
+ * replace the src-mesh with the contents of the src
+ */
 
 xrf.frag.src.type = {}
 
@@ -142,11 +142,37 @@ xrf.frag.src.type['model/gltf+json'] = function( url, opts ){
  */
 
 xrf.frag.src.type['image/png'] = function(url,opts){
-const texture = new THREE.TextureLoader().load( 'textures/crate.gif' );
-				texture.colorSpace = THREE.SRGBColorSpace;
+  let {mesh} = opts
+  let restrictToBoundingBox = mesh.geometry
+  const texture = new THREE.TextureLoader().load( url );
+	texture.colorSpace = THREE.SRGBColorSpace;
 
-				const geometry = new THREE.BoxGeometry();
-				const material = new THREE.MeshBasicMaterial( { map: texture } );
+  //const geometry = new THREE.BoxGeometry();
+  const material = new THREE.MeshBasicMaterial({ 
+    map: texture, 
+    transparent: url.match(/(png|gif)/) ? true : false,
+    side: THREE.DoubleSide,
+    color: 0xFFFFFF,
+    opacity:1
+  });
+
+  // stretch image by forcing uv-coordinages 
+  if( mesh.geometry ){
+    if( mesh.geometry.attributes.uv ){ // buffergeometries 
+      let uv = mesh.geometry.attributes.uv;
+      //       i  u  v
+      uv.setXY(0, 0, 0 )
+      uv.setXY(1, 1, 0 )
+      uv.setXY(2, 0, 1 )
+      uv.setXY(3, 1, 1 )
+    }else {
+      console.warn("xrfragment: uv's of ${url} might be off for non-buffer-geometries *TODO*")
+      //if( geometry.faceVertexUvs ){
+      // *TODO* force uv's of dynamically created geometries (in threejs)
+      //}
+    }
+  }
+  mesh.material = material
 }
 xrf.frag.src.type['image/gif'] = xrf.frag.src.type['image/png']
 xrf.frag.src.type['image/jpg'] = xrf.frag.src.type['image/png']
