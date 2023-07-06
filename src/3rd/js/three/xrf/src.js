@@ -3,6 +3,8 @@
 xrf.frag.src = function(v, opts){
   opts.embedded = v // indicate embedded XR fragment
   let { mesh, model, camera, scene, renderer, THREE} = opts
+  console.log("SRCCC")
+  console.dir(mesh)
 
   console.log("   └ instancing src")
   let src = new THREE.Group()
@@ -10,9 +12,9 @@ xrf.frag.src = function(v, opts){
 
   const localSRC = () => {
     
-    // apply embedded XR fragments
+    // scale embedded XR fragments https://xrfragment.org/#scaling%20of%20instanced%20objects
     setTimeout( () => {
-      // apply URI XR Fragments inside src-value 
+      // scale URI XR Fragments inside src-value 
       for( var i in frag ){
         xrf.eval.fragment(i, Object.assign(opts,{frag, model,scene}))
       }
@@ -30,7 +32,7 @@ xrf.frag.src = function(v, opts){
         console.dir(xrf)
         if( srcScene.visible ) src.add( srcScene )
       }
-      xrf.frag.src.apply( src, opts )
+      xrf.frag.src.scale( src, opts )
     },10)
   }
 
@@ -46,7 +48,7 @@ xrf.frag.src = function(v, opts){
     })
     .catch( console.error )
 
-    //// apply URI XR Fragments inside src-value 
+    //// scale URI XR Fragments inside src-value 
     //for( var i in frag ){
     //  xrf.eval.fragment(i, Object.assign(opts,{frag, model,scene}))
     //}
@@ -60,13 +62,14 @@ xrf.frag.src = function(v, opts){
  * replace the src-mesh with the contents of the src
  */
 
-xrf.frag.src.apply = function(scene, opts, url){
+xrf.frag.src.scale = function(scene, opts, url){
     let { mesh, model, camera, renderer, THREE} = opts
+    let restrictToBoundingBox = mesh.geometry
     if( url ){
       let frag = xrfragment.URI.parse(url)
       console.log("parse url:"+url)
       console.log("children:"+scene.children.length)
-      // apply URI XR Fragments (queries) inside src-value 
+      // scale URI XR Fragments (queries) inside src-value 
       for( var i in frag ){
         xrf.eval.fragment(i, Object.assign(opts,{frag, model:{scene},scene}))
       }
@@ -77,8 +80,9 @@ xrf.frag.src.apply = function(scene, opts, url){
       xrf.eval( url, {scene} )     // and eval URI XR fragments 
       //if( !hash.match(/pos=/) ) 
       //  xrf.eval( '#pos=0,0,0' ) // set default position if not specified
-     
-      //  apply bounding box scaling for external files
+    }
+    scene.isXRF = model.scene.isSRC = true
+    if( restrictToBoundingBox ){
       let bboxMesh  = new THREE.Box3().setFromObject(mesh);
       let bboxScene = new THREE.Box3().setFromObject(scene);
       let maxScene  = bboxScene.max.y > bboxScene.max.x ? bboxScene.max.y : bboxScene.max.x
@@ -86,8 +90,6 @@ xrf.frag.src.apply = function(scene, opts, url){
       let factor    = maxMesh > maxScene ? maxScene / maxMesh : maxMesh / maxScene
       scene.scale.multiplyScalar( factor )
     }
-    scene.isXRF = model.scene.isSRC = true
-
     //scene.position.copy( mesh.position )
     //scene.rotation.copy( mesh.rotation )
     //scene.scale.copy( mesh.scale )
@@ -125,10 +127,27 @@ xrf.frag.src.type['model/gltf+json'] = function( url, opts ){
     }else loader = new Loader()
 
     const onLoad = (model) => {
-      xrf.frag.src.apply( model.scene, {...opts, model, scene: model.scene}, url )
+      xrf.frag.src.scale( model.scene, {...opts, model, scene: model.scene}, url )
       resolve(model)
     }
 
     loader.load(url, onLoad )
   })
 }
+
+/*
+ * mimetype: image/png 
+ * mimetype: image/jpg 
+ * mimetype: image/gif 
+ */
+
+xrf.frag.src.type['image/png'] = function(url,opts){
+const texture = new THREE.TextureLoader().load( 'textures/crate.gif' );
+				texture.colorSpace = THREE.SRGBColorSpace;
+
+				const geometry = new THREE.BoxGeometry();
+				const material = new THREE.MeshBasicMaterial( { map: texture } );
+}
+xrf.frag.src.type['image/gif'] = xrf.frag.src.type['image/png']
+xrf.frag.src.type['image/jpg'] = xrf.frag.src.type['image/png']
+
