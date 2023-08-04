@@ -20,6 +20,8 @@ install(){
   haxelib install hxjava
   haxelib install hxcs
   haxelib install hscript
+  which javac && haxelib install hxjava 4.2.0
+  which mono  && haxelib install hxcs 4.2.0
 }
 
 tests(){
@@ -41,8 +43,11 @@ doc(){
 }
 
 server(){
-  test -f cert.pem || openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem
-  http-server -c-1 -S -C cert.pem .
+  dir=$(pwd)
+  cd /tmp
+  test -f redbean.com || wget https://redbean.dev/redbean-2.2.com -O redbean.com && chmod 755 redbean.com
+  test -f cert.pem    || openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem
+  ./redbean.com -C cert.pem -K key.pem -D $dir
 }
 
 build(){

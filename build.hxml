@@ -30,22 +30,25 @@ xrfragment
 #xrfragment
 #-cpp dist/xrfragment.cpp
 
+#--next
+#-dce full
+#-cp src
+#xrfragment
+#-php dist/xrfragment.php
+#
+#--next
+#-dce full
+#-cp src
+#xrfragment
+#-java dist/xrfragment.java
+
 --next
 -dce full
 -cp src
-
 Test
 -m Test
 -python test/generated/test.py
 
-#--next
-#
-#-dce full
-#-cp src
-#
-#xrfragment.Query
-#-php dist/xrfragment.php5
-#
 #--next
 #
 #-dce full

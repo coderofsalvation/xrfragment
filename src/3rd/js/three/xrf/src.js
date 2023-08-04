@@ -1,10 +1,9 @@
 // *TODO* use webgl instancing
 
 xrf.frag.src = function(v, opts){
+
   opts.embedded = v // indicate embedded XR fragment
   let { mesh, model, camera, scene, renderer, THREE} = opts
-  console.log("SRCCC")
-  console.dir(mesh)
 
   console.log("   └ instancing src")
   let src = new THREE.Group()
@@ -46,11 +45,6 @@ xrf.frag.src = function(v, opts){
     .finally( () => {
     })
     .catch( console.error )
-
-    //// scale URI XR Fragments inside src-value 
-    //for( var i in frag ){
-    //  xrf.eval.fragment(i, Object.assign(opts,{frag, model,scene}))
-    //}
   }
 
   if( v.string[0] == "#" ) localSRC() // current file 
@@ -69,27 +63,31 @@ xrf.frag.src.scale = function(scene, opts, url){
       for( var i in frag ){
         xrf.eval.fragment(i, Object.assign(opts,{frag, model:{scene},scene}))
       }
-//      if( frag.q ) scene = frag.q.scene 
+      //if( frag.q ) scene = frag.q.scene 
       console.dir(frag)
       //xrf.add( model.scene )
       xrf.eval( '#', {scene} )     // execute the default projection '#' (if exist)
       xrf.eval( url, {scene} )     // and eval URI XR fragments 
-      //if( !hash.match(/pos=/) ) 
-      //  xrf.eval( '#pos=0,0,0' ) // set default position if not specified
+      //if( !hash.match(/pos=/) )  //  xrf.eval( '#pos=0,0,0' ) // set default position if not specified
     }
-    scene.isXRF = model.scene.isSRC = true
-    if( restrictToBoundingBox ){
+    if( restrictToBoundingBox ){ 
+      // spec 3 of https://xrfragment.org/#src
+      // spec 1 of https://xrfragment.org/#scaling%20of%20instanced%20objects  
+      // normalize instanced objectsize to boundingbox
       let bboxMesh  = new THREE.Box3().setFromObject(mesh);
       let bboxScene = new THREE.Box3().setFromObject(scene);
       let maxScene  = bboxScene.max.y > bboxScene.max.x ? bboxScene.max.y : bboxScene.max.x
       let maxMesh   = bboxMesh.max.y > bboxMesh.max.x ? bboxMesh.max.y : bboxMesh.max.x
       let factor    = maxMesh > maxScene ? maxScene / maxMesh : maxMesh / maxScene
+      console.log("maxMesh="+maxMesh+" maxScene="+maxScene)
+      console.log("factor="+factor+" 1/factor="+1/factor)
       scene.scale.multiplyScalar( factor )
+    }else{
+      // spec 4 of https://xrfragment.org/#src
+      // spec 2 of https://xrfragment.org/#scaling%20of%20instanced%20objects  
+      scene.scale.multiply( mesh.scale ) 
     }
-    //scene.position.copy( mesh.position )
-    //scene.rotation.copy( mesh.rotation )
-    //scene.scale.copy( mesh.scale )
-    scene.scale.multiply( mesh.scale )
+    scene.isXRF = model.scene.isSRC = true
     mesh.add( scene )
     if( !opts.recursive && mesh.material ) mesh.material.visible = false // lets hide the preview object because deleting disables animations+nested objs
 }
@@ -156,7 +154,7 @@ xrf.frag.src.type['image/png'] = function(url,opts){
     opacity:1
   });
 
-  // stretch image by forcing uv-coordinages 
+  // stretch image by pinning uv-coordinates to corners 
   if( mesh.geometry ){
     if( mesh.geometry.attributes.uv ){ // buffergeometries 
       let uv = mesh.geometry.attributes.uv;
