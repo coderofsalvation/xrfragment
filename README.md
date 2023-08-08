@@ -3,16 +3,30 @@
 
 [![Actions Status](https://github.com/coderofsalvation/xrfragment/workflows/test/badge.svg)](https://github.com/coderofsalvation/xrfragment/actions)
 
+<img src="https://xrfragment.org/example/assets/logo.png" width="200"/>
+
 # Documentation / Website
 
 https://xrfragment.org 
 
-# available implementations
+# Getting started
 
-* [haXe](src/xrfragment)
+Here are various ways to enhance your 3D assets/scenes with XR Fragments:
+
+| |  ''difficulty'' | ''how'' | ''notes'' |
+| 1 | easiest | the xrfragment.org <a href="https://xrfragment.org/example/aframe/sandbox" target="_blank">Sandbox</a> | open 3D file (fbx/gltf) in <a href="https://blender.org" target="_blank">Blender</a>, add <a href="" target="_blank">custom properties</a>, and load exported files into <a href="/example/aframe/sandbox" target="_blank">the sandbox</a> |
+| 2 | easy | hosted sandbox by <a href="https://github.com/coderofsalvation/xrfragment-helloworld" target="_blank">forking xrfragment-helloworld</a> | Basically #1 but it will be hosted for free at your own github URL |
+| 3 | developer | fork <a href="https://github.com/coderofsalvation/xrfragment-aframe-helloworld">xfragment-aframe-helloworld</a> | requires javascript- and <a href="https://aframe.io" target="_blank">aframe.io</a> developer-knowledge |
+| 4 | developer | fork <a href="https://github.com/coderofsalvation/xrfragment-three-helloworld">xfragment-three-helloworld</a> | requires javascript- and <a href="https://threejs.org" target="_blank">threejs</a> developer-knowledge |
+| 5 | developer++ | use a parser-library below | lowlevel approach, more suitable for other scenarios |
+
+
+# available parser-implementations
+
 * [javascript](dist/xrfragment.js) [(+example)](test/test.js)
 * [python](dist/xrfragment.py) [(+example)](test/test.py)
 * [lua](dist/xrfragment.lua) [(+example)](test/test.lua)
+* [haXe](src/xrfragment) (allows exporting to various programming languages)
 
 See documentation for more info
 
