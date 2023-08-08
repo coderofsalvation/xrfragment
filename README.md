@@ -13,7 +13,8 @@ https://xrfragment.org
 
 Here are various ways to enhance your 3D assets/scenes with XR Fragments:
 
-| |  ''difficulty'' | ''how'' | ''notes'' |
+| |  difficulty | how | notes |
+|-|-|-|-|
 | 1 | easiest | the xrfragment.org <a href="https://xrfragment.org/example/aframe/sandbox" target="_blank">Sandbox</a> | open 3D file (fbx/gltf) in <a href="https://blender.org" target="_blank">Blender</a>, add <a href="" target="_blank">custom properties</a>, and load exported files into <a href="/example/aframe/sandbox" target="_blank">the sandbox</a> |
 | 2 | easy | hosted sandbox by <a href="https://github.com/coderofsalvation/xrfragment-helloworld" target="_blank">forking xrfragment-helloworld</a> | Basically #1 but it will be hosted for free at your own github URL |
 | 3 | developer | fork <a href="https://github.com/coderofsalvation/xrfragment-aframe-helloworld">xfragment-aframe-helloworld</a> | requires javascript- and <a href="https://aframe.io" target="_blank">aframe.io</a> developer-knowledge |
