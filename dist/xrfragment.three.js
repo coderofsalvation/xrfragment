@@ -1186,7 +1186,7 @@ xrf.frag.pos = function(v, opts){
   }
 }
 const updatePredefinedView = (opts) => {
-  let {frag,scene} = opts 
+  let {frag,scene,model} = opts 
 
   // spec: https://xrfragment.org/#Selection%20of%20interest
   const selectionOfInterest = (frag,scene,mesh) => {
