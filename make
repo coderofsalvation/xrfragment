@@ -47,7 +47,7 @@ server(){
   cd /tmp
   test -f redbean.com || wget https://redbean.dev/redbean-2.2.com -O redbean.com && chmod 755 redbean.com
   test -f cert.pem    || openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem
-  ./redbean.com -C cert.pem -K key.pem -D $dir
+  ./redbean.com -c 0 -C cert.pem -K key.pem -D $dir
 }
 
 build(){

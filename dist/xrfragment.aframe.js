@@ -1367,7 +1367,6 @@ xrf.frag.src = function(v, opts){
           if( m.userData && (m.userData.src || m.userData.href) ) return ;//delete m.userData.src // prevent infinite recursion 
           xrf.eval.mesh(m,{scene,recursive:true}) 
         })
-        console.dir(xrf)
         if( srcScene.visible ) src.add( srcScene )
       }
       xrf.frag.src.scale( src, opts )
@@ -1404,7 +1403,6 @@ xrf.frag.src.scale = function(scene, opts, url){
         xrf.eval.fragment(i, Object.assign(opts,{frag, model:{scene},scene}))
       }
       //if( frag.q ) scene = frag.q.scene 
-      console.dir(frag)
       //xrf.add( model.scene )
       xrf.eval( '#', {scene} )     // execute the default projection '#' (if exist)
       xrf.eval( url, {scene} )     // and eval URI XR fragments 
@@ -1417,14 +1415,12 @@ xrf.frag.src.scale = function(scene, opts, url){
       let bboxMesh  = new THREE.Box3().setFromObject(mesh);
       let bboxScene = new THREE.Box3().setFromObject(scene);
       let maxScene  = bboxScene.max.y > bboxScene.max.x ? bboxScene.max.y : bboxScene.max.x
-      let maxMesh   = bboxMesh.max.y > bboxMesh.max.x ? bboxMesh.max.y : bboxMesh.max.x
+      let maxMesh   = bboxMesh.max.y  > bboxMesh.max.x  ? bboxMesh.max.y  : bboxMesh.max.x 
       let factor    = maxMesh > maxScene ? maxScene / maxMesh : maxMesh / maxScene
-      console.log("maxMesh="+maxMesh+" maxScene="+maxScene)
-      console.log("factor="+factor+" 1/factor="+1/factor)
       scene.scale.multiplyScalar( factor )
     }else{
       // spec 4 of https://xrfragment.org/#src
-      // spec 2 of https://xrfragment.org/#scaling%20of%20instanced%20objects  
+      // spec 2 of https://xrfragment.org/#scaling%20of%20instanced%20objects
       scene.scale.multiply( mesh.scale ) 
     }
     scene.isXRF = model.scene.isSRC = true

@@ -9,9 +9,9 @@
       nodejs-slim_20
 
       # extra
-      php82
-      mono
-      jdk
+      #php82
+      #mono
+      #jdk
 
     ];
 }
