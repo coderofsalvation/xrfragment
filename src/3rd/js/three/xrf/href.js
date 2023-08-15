@@ -129,7 +129,7 @@ xrf.frag.href = function(v, opts){
     mesh.scale.copy(world.scale)
     mesh.setRotationFromQuaternion(world.quat);
     xrf.interactive.add(mesh)
-  }, 20, mesh )
+  }, 10, mesh )
 }
 
 /**

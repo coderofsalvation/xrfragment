@@ -46,7 +46,8 @@ window.AFRAME.registerComponent('xrf', {
     // in order to set the rotation programmatically
     // we need to disable look-controls
     xrf.rot  = (xrf,v,opts) => {
-      let {renderer} = opts;
+      let {frag,renderer} = opts;
+      if( frag.q ) return // camera was not targeted for rotation 
       let look = document.querySelector('[look-controls]')
       if( look ) look.removeAttribute("look-controls")
       camOverride(xrf,v,opts)

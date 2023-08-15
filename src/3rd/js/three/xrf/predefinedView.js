@@ -1,4 +1,11 @@
-const updatePredefinedView = (opts) => {
+xrf.frag.defaultPredefinedView = (opts) => {
+  let {scene,model} = opts;
+  let frag = {}
+  xrf.Parser.parse("#","",frag)
+  xrf.frag.updatePredefinedView({frag,model,scene})
+}
+
+xrf.frag.updatePredefinedView = (opts) => {
   let {frag,scene,model} = opts 
 
   // spec: https://xrfragment.org/#Selection%20of%20interest
@@ -26,15 +33,19 @@ const updatePredefinedView = (opts) => {
 
   // spec: https://xrfragment.org/#predefined_view
   const predefinedView = (frag,scene,mesh) => {
-    let id   = frag.string
-    if( !id ) return  // prevent empty matches
-    if( mesh.userData[`#${id}`] ){ // get alias
-      frag = xrf.URI.parse( mesh.userData[`#${id}`], xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.EMBEDDED )
+    let id   = frag.string || frag.fragment
+    id       = `#${id}`
+    if( id == '##' ) id = '#'; // default predefined view
+    if( !id ) return           // prevent empty matches
+    if( mesh.userData[id] ){   // get alias
+      frag = xrf.URI.parse( mesh.userData[id], xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
       xrf.emit('predefinedView',{...opts,frag})
       .then( () => {
         for ( let k in frag ){
           let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
-          xrf.eval.fragment(k,opts) 
+          if( frag[k].is( xrf.XRF.PV_EXECUTE ) && scene.XRF_PV_ORIGIN != k ){  // cyclic detection
+            traverseScene(frag[k],scene)                                       // recurse predefined views
+          }else xrf.eval.fragment(k,opts) 
         }
       })
     }
@@ -56,9 +67,10 @@ const updatePredefinedView = (opts) => {
   for ( let i in frag  ) {
     let v = frag[i]
     if( v.is( xrf.XRF.PV_EXECUTE ) ){
+      scene.XRF_PV_ORIGIN = v.string
       if( v.args ) v = v.args[ xrf.roundrobin(v,xrf.model) ]
-      // wait for nested instances to arrive at the scene 
-      setTimeout( () => traverseScene(v,scene), 100 )
+      // wait for nested instances to arrive at the scene ?
+      traverseScene(v,scene)
       if( v.string ) pviews.push(v.string)
     }else if( v.is( xrf.XRF.NAVIGATOR ) ) pviews.push(`${i}=${v.string}`)
   }
@@ -66,13 +78,16 @@ const updatePredefinedView = (opts) => {
 }
 
 // when predefined view occurs in url changes
-xrf.addEventListener('eval', updatePredefinedView ) 
+//xrf.addEventListener('updateHash', (opts) => {
+//  let frag = xrf.URI.parse( opts.xrf.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
+//  xrf.frag.updatePredefinedView({frag,scene:xrf.scene,href:opts.xrf})
+//}) 
 
 // clicking href url with predefined view 
 xrf.addEventListener('href', (opts) => {
   if( !opts.click || opts.xrf.string[0] != '#' ) return 
-  let frag = xrf.URI.parse( opts.xrf.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.EMBEDDED )
-  updatePredefinedView({frag,scene:xrf.scene,href:opts.xrf})
+  let frag = xrf.URI.parse( opts.xrf.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
+  xrf.frag.updatePredefinedView({frag,scene:xrf.scene,href:opts.xrf})
 }) 
 
 //let updateUrl = (opts) => {

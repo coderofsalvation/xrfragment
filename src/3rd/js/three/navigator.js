@@ -25,12 +25,14 @@ xrf.navigator.to = (url,flags,loader,data) => {
     const onLoad = (model) => {
       xrf.reset() // clear xrf objects from scene
       model.file = file
-      xrf.add( model.scene )
       // only change url when loading *another* file
       if( xrf.model ) xrf.navigator.pushState( `${dir}${file}`, hash )
       xrf.model = model 
-      xrf.eval( '#', model )     // execute the default projection '#' (if exist)
-      xrf.eval( url, model )     // and eval URI XR fragments 
+      // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
+      xrf.frag.defaultPredefinedView({model,scene:model.scene})
+      // spec: 2. execute predefined view(s) from URL (https://xrfragment.org/#predefined_view)
+      xrf.eval( url, model )                                                 // and eval URI XR fragments 
+      xrf.add( model.scene )
       if( !hash.match(/pos=/) ) 
         xrf.eval( '#pos=0,0,0' ) // set default position if not specified
       resolve(model)

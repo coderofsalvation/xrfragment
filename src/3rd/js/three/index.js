@@ -57,7 +57,6 @@ xrf.parseModel = function(model,url){
 xrf.getLastModel = ()           => xrf.model.last 
 
 xrf.eval = function( url, model, flags ){  // evaluate fragments in url
-  let notice = false
   model = model || xrf.model
   let { THREE, camera } = xrf
   let frag = xrf.URI.parse( url, flags || xrf.XRF.NAVIGATOR )
@@ -84,10 +83,11 @@ xrf.eval.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) 
 }
 
 xrf.eval.fragment = (k, opts ) => { // evaluate one fragment
+  let frag = opts.frag[k];
   // call native function (xrf/env.js e.g.), or pass it to user decorator
   let func = xrf.frag[k] || function(){} 
-  if(  xrf[k] ) xrf[k]( func, opts.frag[k], opts)
-  else                  func( opts.frag[k], opts)
+  if(  xrf[k] ) xrf[k]( func, frag, opts)
+  else                  func( frag, opts)
 }
 
 xrf.reset = () => {
