@@ -233,7 +233,8 @@ xrfragment_Parser.parse = function(key,value,store) {
 	Frag_h["physics"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
 	Frag_h["fov"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_INT | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
 	Frag_h["clip"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
-	Frag_h["fog"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
+	Frag_h["fog"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
+	Frag_h["bg"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
 	Frag_h["namespace"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["SPDX"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["unit"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
@@ -254,12 +255,12 @@ xrfragment_Parser.parse = function(key,value,store) {
 	var v = new xrfragment_XRF(key,Frag_h[key]);
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		if(!v.validate(value)) {
-			console.log("src/xrfragment/Parser.hx:82:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:83:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 		store[key] = v;
 		if(xrfragment_Parser.debug) {
-			console.log("src/xrfragment/Parser.hx:86:","✔ " + key + ": " + v.string);
+			console.log("src/xrfragment/Parser.hx:87:","✔ " + key + ": " + v.string);
 		}
 	} else {
 		if(typeof(value) == "string") {
@@ -1024,6 +1025,23 @@ xrf.navigator.pushState = (file,hash) => {
   if( file == document.location.search.substr(1) ) return // page is in its default state
   window.history.pushState({},`${file}#${hash}`, document.location.pathname + `?${file}#${hash}` )
 }
+xrf.frag.bg = function(v, opts){
+  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+
+  console.log("└ bg "+v.x+","+v.y+","+v.z);
+  if( scene.background ) delete scene.background
+  scene.background = new THREE.Color( v.x, v.y, v.z )
+}
+xrf.frag.clip = function(v, opts){
+  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+
+  if( v.x == 0 ) v.x = 1;  // THREE.js .near restriction
+  console.log("└ clip "+v.x+","+v.y);
+
+  camera.near = v.x
+  camera.far  = v.y
+  camera.updateProjectionMatrix();
+}
 xrf.frag.env = function(v, opts){
   let { mesh, model, camera, scene, renderer, THREE} = opts
   let env = mesh.getObjectByName(v.string)
@@ -1034,6 +1052,22 @@ xrf.frag.env = function(v, opts){
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 2;
   console.log(`   └ applied image '${v.string}' as environment map`)
+}
+xrf.frag.fog = function(v, opts){
+  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+
+  console.log("└ fog "+v.x+","+v.y);
+  if( v.x == 0 && v.y == 0 ){  
+    if( scene.fog ) delete scene.fog
+    scene.fog = null;
+  }else scene.fog = new THREE.Fog( scene.background, v.x, v.y );
+}
+xrf.frag.fov = function(v, opts){
+  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+
+  console.log("└ fov "+v.int);
+  camera.fov = v.int;
+  camera.updateProjectionMatrix();
 }
 /**
  * 

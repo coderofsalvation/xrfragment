@@ -1427,7 +1427,8 @@ class xrfragment_Parser:
         Frag.h["physics"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA)
         Frag.h["fov"] = ((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_INT) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
         Frag.h["clip"] = ((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
-        Frag.h["fog"] = ((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_STRING) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
+        Frag.h["fog"] = ((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
+        Frag.h["bg"] = ((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
         Frag.h["namespace"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
         Frag.h["SPDX"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
         Frag.h["unit"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
@@ -1610,8 +1611,8 @@ class xrfragment_Query:
         fails = 0
         qualify = 0
         def _hx_local_2(expr):
-            nonlocal fails
             nonlocal conds
+            nonlocal fails
             conds = (conds + 1)
             fails = (fails + (0 if expr else 1))
             return expr

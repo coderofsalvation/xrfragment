@@ -40,7 +40,8 @@ class Parser {
       // category: device / viewport settings
       Frag.set("fov",           XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_INT     | XRF.NAVIGATOR | XRF.METADATA );
       Frag.set("clip",          XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR2 | XRF.NAVIGATOR | XRF.METADATA );
-      Frag.set("fog",           XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_STRING  | XRF.NAVIGATOR | XRF.METADATA );
+      Frag.set("fog",           XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR2 | XRF.NAVIGATOR | XRF.METADATA );
+      Frag.set("bg",            XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR3 | XRF.NAVIGATOR | XRF.METADATA );
 
       // category: author / metadata
       Frag.set("namespace",     XRF.ASSET | XRF.T_STRING                                  );

@@ -1510,11 +1510,17 @@ __xrfragment_Parser.parse = function(key,value,store)
   else
     Frag_h.clip = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_STRING),__xrfragment_XRF.NAVIGATOR),__xrfragment_XRF.METADATA);
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_VECTOR2),__xrfragment_XRF.NAVIGATOR),__xrfragment_XRF.METADATA);
   if (value1 == nil) then 
     Frag_h.fog = __haxe_ds_StringMap.tnull;
   else
     Frag_h.fog = value1;
+  end;
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.NAVIGATOR),__xrfragment_XRF.METADATA);
+  if (value1 == nil) then 
+    Frag_h.bg = __haxe_ds_StringMap.tnull;
+  else
+    Frag_h.bg = value1;
   end;
   local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
   if (value1 == nil) then 
@@ -1616,12 +1622,12 @@ __xrfragment_Parser.parse = function(key,value,store)
   local v = __xrfragment_XRF.new(key, ret);
   if (Frag_h[key] ~= nil) then 
     if (not v:validate(value)) then 
-      __haxe_Log.trace(Std.string(Std.string(Std.string(Std.string("⚠ fragment '") .. Std.string(key)) .. Std.string("' has incompatible value (")) .. Std.string(value)) .. Std.string(")"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=82,className="xrfragment.Parser",methodName="parse"}));
+      __haxe_Log.trace(Std.string(Std.string(Std.string(Std.string("⚠ fragment '") .. Std.string(key)) .. Std.string("' has incompatible value (")) .. Std.string(value)) .. Std.string(")"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=83,className="xrfragment.Parser",methodName="parse"}));
       do return false end;
     end;
     store[key] = v;
     if (__xrfragment_Parser.debug) then 
-      __haxe_Log.trace(Std.string(Std.string(Std.string("✔ ") .. Std.string(key)) .. Std.string(": ")) .. Std.string(v.string), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=86,className="xrfragment.Parser",methodName="parse"}));
+      __haxe_Log.trace(Std.string(Std.string(Std.string("✔ ") .. Std.string(key)) .. Std.string(": ")) .. Std.string(v.string), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=87,className="xrfragment.Parser",methodName="parse"}));
     end;
   else
     if (__lua_Boot.__instanceof(value, String)) then 
