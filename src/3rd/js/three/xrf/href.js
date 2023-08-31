@@ -91,12 +91,14 @@ xrf.frag.href = function(v, opts){
 
   let click = mesh.userData.XRF.href.exec = (e) => {
     let isLocal = v.string[0] == '#'
-    let lastPos = `#pos=${camera.position.x},${camera.position.y},${camera.position.z}`
+    let lastPos = `pos=${camera.position.x.toFixed(1)},${camera.position.y.toFixed(1)},${camera.position.z.toFixed(1)}`
     xrf
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
-      const flags = v.string[0] == '#' && v.string.match(/(\||#q)/) ? xrf.XRF.PV_OVERRIDE : undefined
-      if( !isLocal || v.string.match(/pos=/) ) xrf.navigator.to(lastPos) // commit last position 
+      const flags = v.string[0] == '#' ? xrf.XRF.PV_OVERRIDE : undefined
+      //const flags = v.string[0] == '#' && v.string.match(/(\||#q)/) ? xrf.XRF.PV_OVERRIDE : undefined
+      if( !v.string.match(/pos=/) ) v.string += `${v.string[0] == '#' ? '&' : '#'}${lastPos}` // always commit last position 
+      console.log(v.string)
       xrf.navigator.to(v.string,flags)    // let's surf to HREF!
     }) 
   }

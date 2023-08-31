@@ -77,10 +77,12 @@ xrf.frag.updatePredefinedView = (opts) => {
   if( pviews.length ) xrf.navigator.updateHash( pviews.join("&") )
 }
 
-// when predefined view occurs in url changes
+// react to url changes 
 //xrf.addEventListener('updateHash', (opts) => {
-//  let frag = xrf.URI.parse( opts.xrf.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-//  xrf.frag.updatePredefinedView({frag,scene:xrf.scene,href:opts.xrf})
+//  console.log("update hash");
+//  console.dir(opts)
+//  let frag = xrf.URI.parse( opts.hash, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
+//  xrf.frag.updatePredefinedView({frag,scene:xrf.scene})
 //}) 
 
 // clicking href url with predefined view 

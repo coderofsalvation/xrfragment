@@ -63,5 +63,6 @@ xrf.navigator.updateHash = (hash) => {
 
 xrf.navigator.pushState = (file,hash) => {
   if( file == document.location.search.substr(1) ) return // page is in its default state
+  console.log("pushstate")
   window.history.pushState({},`${file}#${hash}`, document.location.pathname + `?${file}#${hash}` )
 }

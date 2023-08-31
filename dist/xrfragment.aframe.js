@@ -1023,6 +1023,7 @@ xrf.navigator.updateHash = (hash) => {
 
 xrf.navigator.pushState = (file,hash) => {
   if( file == document.location.search.substr(1) ) return // page is in its default state
+  console.log("pushstate")
   window.history.pushState({},`${file}#${hash}`, document.location.pathname + `?${file}#${hash}` )
 }
 xrf.frag.bg = function(v, opts){
@@ -1162,12 +1163,14 @@ xrf.frag.href = function(v, opts){
 
   let click = mesh.userData.XRF.href.exec = (e) => {
     let isLocal = v.string[0] == '#'
-    let lastPos = `#pos=${camera.position.x},${camera.position.y},${camera.position.z}`
+    let lastPos = `pos=${camera.position.x.toFixed(1)},${camera.position.y.toFixed(1)},${camera.position.z.toFixed(1)}`
     xrf
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
-      const flags = v.string[0] == '#' && v.string.match(/(\||#q)/) ? xrf.XRF.PV_OVERRIDE : undefined
-      if( !isLocal || v.string.match(/pos=/) ) xrf.navigator.to(lastPos) // commit last position 
+      const flags = v.string[0] == '#' ? xrf.XRF.PV_OVERRIDE : undefined
+      //const flags = v.string[0] == '#' && v.string.match(/(\||#q)/) ? xrf.XRF.PV_OVERRIDE : undefined
+      if( !v.string.match(/pos=/) ) v.string += `${v.string[0] == '#' ? '&' : '#'}${lastPos}` // always commit last position 
+      console.log(v.string)
       xrf.navigator.to(v.string,flags)    // let's surf to HREF!
     }) 
   }
@@ -1324,10 +1327,12 @@ xrf.frag.updatePredefinedView = (opts) => {
   if( pviews.length ) xrf.navigator.updateHash( pviews.join("&") )
 }
 
-// when predefined view occurs in url changes
+// react to url changes 
 //xrf.addEventListener('updateHash', (opts) => {
-//  let frag = xrf.URI.parse( opts.xrf.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-//  xrf.frag.updatePredefinedView({frag,scene:xrf.scene,href:opts.xrf})
+//  console.log("update hash");
+//  console.dir(opts)
+//  let frag = xrf.URI.parse( opts.hash, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
+//  xrf.frag.updatePredefinedView({frag,scene:xrf.scene})
 //}) 
 
 // clicking href url with predefined view 
