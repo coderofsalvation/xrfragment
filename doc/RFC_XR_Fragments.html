@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>XR Fragments</title>
+  <meta name="GENERATOR" content="github.com/mmarkdown/mmark Mmark Markdown Processor - mmark.miek.nl">
+  <meta charset="utf-8">
+</head>
+<body>
+
+<!-- for annotated version see: https://raw.githubusercontent.com/ietf-tools/rfcxml-templates-and-schemas/main/draft-rfcxml-general-template-annotated-00.xml -->
+
+
+  <style type="text/css">
+  body{
+    font-family: monospace;
+    max-width: 900px;
+    text-align: justify;
+    font-size: 15px;
+    padding: 0% 20%;
+    line-height: 30px;
+    color:#555;
+    background:#F0F0F3
+  }
+  h1 { margin-top:40px; }
+  pre{ line-height:18px; }
+
+  </style>
+
+<br>
+<h1>XR Fragments</h1>
+<br>
+
+<pre>
+stream:    IETF
+area:      Internet
+status:    informational
+author:    Leon van Kammen
+date:      2023-04-12T00:00:00Z
+workgroup: Internet Engineering Task Force
+value:     draft-XRFRAGMENTS-leonvankammen-00
+</pre>  
+
+
+
+<h1 class="special" id="abstract">Abstract</h1>
+
+<p>This draft offers a specification for 4D URLs &amp; navigation, to link 3D scenes and text together with- or without a network-connection.
+The specification promotes spatial addressibility, sharing, navigation, query-ing and interactive text across for (XR) Browsers.
+XR Fragments allows us to enrich existing dataformats, by recursive use of existing technologies like <a href="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</a> &amp; <a href="https://visual-meta.info">visual-meta</a>.</p>
+<section data-matter="main">
+<h1 id="introduction">Introduction</h1>
+
+<p>How can we add more features to existing text &amp; 3D scenes, without introducing new dataformats?
+Historically, there&rsquo;s many attempts to create the ultimate markuplanguage or 3D fileformat.
+However, thru the lens of authorina,g their lowest common denominator is still: plain text.
+XR Fragments allows us to enrich existing dataformats, by recursive use of existing technologies:</p>
+
+<ul>
+<li>addressibility &amp; navigation of 3D objects: <a href="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</a> + (src/href) metadata</li>
+<li>addressibility &amp; navigation of text objects: <a href="https://visual-meta.info">visual-meta</a></li>
+</ul>
+
+<h1 id="conventions-and-definitions">Conventions and Definitions</h1>
+
+<ul>
+<li>scene: a (local/remote) 3D scene or 3D file (index.gltf e.g.)</li>
+<li>3D object: an object inside a scene characterized by vertex-, face- and customproperty data.</li>
+<li>metadata: custom properties defined in 3D Scene or Object(nodes)</li>
+<li>XR fragment: URI Fragment with spatial hints (<code>#pos=0,0,0&amp;t=1,100</code> e.g.)</li>
+<li>src: a (HTML-piggybacked) metadata-attribute of a 3D object which instances content</li>
+<li>href: a (HTML-piggybacked) metadata-attribute of a 3D object which links to content</li>
+<li>query: an URI Fragment-operator which queries object(s) from a scene (<code>#q=cube</code>)</li>
+</ul>
+
+<p>{::boilerplate bcp14-tagged}</p>
+
+<h1 id="navigating-3d">Navigating 3D</h1>
+
+<p>Here&rsquo;s an ascii representation of a 3D scene-graph which contains 3D objects (<code>◻</code>) and their metadata:</p>
+
+<pre><code> index.gltf
+   │
+   ├── ◻ buttonA
+   │      └ href: #pos=1,0,1&amp;t=100,200
+   │
+   └── ◻ buttonB
+          └ href: other.fbx
+
+</code></pre>
+
+<p>An XR Fragment-compatible browser viewing this scene, allows the end-user to interact with the <code>buttonA</code> and <code>buttonB</code>.
+In case of <code>buttonA</code> the end-user will be teleported to another location and time in the <strong>current loaded scene</strong>, but <code>buttonB</code> will
+ <strong>replace the current scene</strong> with a new one (<code>other.fbx</code>).</p>
+
+<h1 id="navigating-text">Navigating text</h1>
+
+<p>TODO</p>
+
+<h1 id="embedding-3d-content">Embedding 3D content</h1>
+
+<p>Here&rsquo;s an ascii representation of a 3D scene-graph with 3D objects (<code>◻</code>) which embeds remote &amp; local 3D objects (<code>◻</code>) (without) using queries:</p>
+
+<pre><code>  +------------------------------------------------------------+  +---------------------------+ 
+  |                                                            |  |                           |
+  |  index.gltf                                                |  | rescue.com/aquarium.gltf  |
+  |    │                                                       |  |   │                       |
+  |    ├── ◻ canvas                                            |  |   └── ◻ fishbowl          |
+  |    │      └ src: painting.png                              |  |         ├─ ◻ bassfish     |
+  |    │                                                       |  |         └─ ◻ tuna         |
+  |    ├── ◻ aquariumcube                                      |  |                           |       
+  |    │      └ src: ://rescue.com/fish.gltf#q=bassfish%20tuna |  +---------------------------+
+  |    │                                                       |    
+  |    ├── ◻ bedroom                                           |   
+  |    │      └ src: #q=canvas                                 |
+  |    │                                                       |   
+  |    └── ◻ livingroom                                        |      
+  |           └ src: #q=canvas                                 |
+  |                                                            |
+  +------------------------------------------------------------+
+</code></pre>
+
+<p>An XR Fragment-compatible browser viewing this scene, lazy-loads and projects <code>painting.png</code> onto the (plane) object called <code>canvas</code> (which is copy-instanced in the bed and livingroom).
+Also, after lazy-loading <code>rescue.com/aquarium.gltf</code>, only the queried objects <code>bassfish</code> and <code>tuna</code> will be instanced inside <code>aquariumcube</code>.
+Resizing will be happen accordingly to its placeholder object (<code>aquariumcube</code>), see chapter Scaling.</p>
+
+<h1 id="embedding-text">Embedding text</h1>
+
+<h1 id="list-of-xr-uri-fragments">List of XR URI Fragments</h1>
+
+<h1 id="security-considerations">Security Considerations</h1>
+
+<p>TODO Security</p>
+
+<h1 id="iana-considerations">IANA Considerations</h1>
+
+<p>This document has no IANA actions.</p>
+
+<h1 id="acknowledgments">Acknowledgments</h1>
+
+<p>TODO acknowledge.</p>
+</section>
+
+</body>
+</html>
+

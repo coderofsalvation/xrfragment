@@ -1,0 +1,224 @@
+
+
+
+
+Internet Engineering Task Force                          L.R. van Kammen
+Internet-Draft                                            31 August 2023
+Intended status: Informational                                          
+Expires: 3 March 2024
+
+
+                              XR Fragments
+                   draft-XRFRAGMENTS-leonvankammen-00
+
+Abstract
+
+   This draft offers a specification for 4D URLs & navigation, to link
+   3D scenes and text together with- or without a network-connection.
+   The specification promotes spatial addressibility, sharing,
+   navigation, query-ing and interactive text across for (XR) Browsers.
+   XR Fragments allows us to enrich existing dataformats, by recursive
+   use of existing technologies like URI Fragments
+   (https://en.wikipedia.org/wiki/URI_fragment) & visual-meta
+   (https://visual-meta.info).
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 3 March 2024.
+
+Copyright Notice
+
+   Copyright (c) 2023 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+
+
+
+
+
+
+
+
+
+van Kammen                Expires 3 March 2024                  [Page 1]
+
+Internet-Draft                XR Fragments                   August 2023
+
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+   2.  Conventions and Definitions . . . . . . . . . . . . . . . . .   2
+   3.  Navigating 3D . . . . . . . . . . . . . . . . . . . . . . . .   3
+   4.  Navigating text . . . . . . . . . . . . . . . . . . . . . . .   3
+   5.  Embedding 3D content  . . . . . . . . . . . . . . . . . . . .   3
+   6.  Embedding text  . . . . . . . . . . . . . . . . . . . . . . .   4
+   7.  List of XR URI Fragments  . . . . . . . . . . . . . . . . . .   4
+   8.  Security Considerations . . . . . . . . . . . . . . . . . . .   4
+   9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   4
+   10. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .   4
+
+1.  Introduction
+
+   How can we add more features to existing text & 3D scenes, without
+   introducing new dataformats?  Historically, there's many attempts to
+   create the ultimate markuplanguage or 3D fileformat.  However, thru
+   the lens of authorina,g their lowest common denominator is still:
+   plain text.  XR Fragments allows us to enrich existing dataformats,
+   by recursive use of existing technologies:
+
+   *  addressibility & navigation of 3D objects: URI Fragments
+      (https://en.wikipedia.org/wiki/URI_fragment) + (src/href) metadata
+   *  addressibility & navigation of text objects: visual-meta
+      (https://visual-meta.info)
+
+2.  Conventions and Definitions
+
+   *  scene: a (local/remote) 3D scene or 3D file (index.gltf e.g.)
+   *  3D object: an object inside a scene characterized by vertex-,
+      face- and customproperty data.
+   *  metadata: custom properties defined in 3D Scene or Object(nodes)
+   *  XR fragment: URI Fragment with spatial hints (#pos=0,0,0&t=1,100
+      e.g.)
+   *  src: a (HTML-piggybacked) metadata-attribute of a 3D object which
+      instances content
+   *  href: a (HTML-piggybacked) metadata-attribute of a 3D object which
+      links to content
+
+
+
+van Kammen                Expires 3 March 2024                  [Page 2]
+
+Internet-Draft                XR Fragments                   August 2023
+
+
+   *  query: an URI Fragment-operator which queries object(s) from a
+      scene (#q=cube)
+
+   {::boilerplate bcp14-tagged}
+
+3.  Navigating 3D
+
+   Here's an ascii representation of a 3D scene-graph which contains 3D
+   objects (&#9723;) and their metadata:
+
+    index.gltf
+      │
+      ├── ◻ buttonA
+      │      └ href: #pos=1,0,1&t=100,200
+      │
+      └── ◻ buttonB
+             └ href: other.fbx
+
+   An XR Fragment-compatible browser viewing this scene, allows the end-
+   user to interact with the buttonA and buttonB.  In case of buttonA
+   the end-user will be teleported to another location and time in the
+   *current loaded scene*, but buttonB will *replace the current scene*
+   with a new one (other.fbx).
+
+4.  Navigating text
+
+   TODO
+
+5.  Embedding 3D content
+
+   Here's an ascii representation of a 3D scene-graph with 3D objects
+   (&#9723;) which embeds remote & local 3D objects (&#9723;) (without)
+   using queries:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+van Kammen                Expires 3 March 2024                  [Page 3]
+
+Internet-Draft                XR Fragments                   August 2023
+
+
+  +------------------------------------------------------------+  +---------------------------+
+  |                                                            |  |                           |
+  |  index.gltf                                                |  | rescue.com/aquarium.gltf  |
+  |    │                                                       |  |   │                       |
+  |    ├── ◻ canvas                                            |  |   └── ◻ fishbowl          |
+  |    │      └ src: painting.png                              |  |         ├─ ◻ bassfish     |
+  |    │                                                       |  |         └─ ◻ tuna         |
+  |    ├── ◻ aquariumcube                                      |  |                           |
+  |    │      └ src: ://rescue.com/fish.gltf#q=bassfish%20tuna |  +---------------------------+
+  |    │                                                       |
+  |    ├── ◻ bedroom                                           |
+  |    │      └ src: #q=canvas                                 |
+  |    │                                                       |
+  |    └── ◻ livingroom                                        |
+  |           └ src: #q=canvas                                 |
+  |                                                            |
+  +------------------------------------------------------------+
+
+   An XR Fragment-compatible browser viewing this scene, lazy-loads and
+   projects painting.png onto the (plane) object called canvas (which is
+   copy-instanced in the bed and livingroom).  Also, after lazy-loading
+   rescue.com/aquarium.gltf, only the queried objects bassfish and tuna
+   will be instanced inside aquariumcube.  Resizing will be happen
+   accordingly to its placeholder object (aquariumcube), see chapter
+   Scaling.
+
+6.  Embedding text
+
+7.  List of XR URI Fragments
+
+8.  Security Considerations
+
+   TODO Security
+
+9.  IANA Considerations
+
+   This document has no IANA actions.
+
+10.  Acknowledgments
+
+   TODO acknowledge.
+
+
+
+
+
+
+
+
+
+
+van Kammen                Expires 3 March 2024                  [Page 4]
