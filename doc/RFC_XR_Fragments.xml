@@ -15,19 +15,15 @@ The specification promotes spatial addressibility, sharing, navigation, query-in
 XR Fragments allows us to enrich existing dataformats, by recursive use of existing technologies like <eref target="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</eref> &amp; <eref target="https://visual-meta.info">visual-meta</eref>.</t>
 </abstract>
 
-</front>
-
-<middle>
-
 <section anchor="introduction"><name>Introduction</name>
 <t>How can we add more features to existing text &amp; 3D scenes, without introducing new dataformats?
 Historically, there's many attempts to create the ultimate markuplanguage or 3D fileformat.
-However, thru the lens of authorina,g their lowest common denominator is still: plain text.
+However, thru the lens of authoring their lowest common denominator is still: plain text.
 XR Fragments allows us to enrich existing dataformats, by recursive use of existing technologies:</t>
 
 <ul spacing="compact">
 <li>addressibility &amp; navigation of 3D objects: <eref target="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</eref> + (src/href) metadata</li>
-<li>addressibility &amp; navigation of text objects: <eref target="https://visual-meta.info">visual-meta</eref></li>
+<li>bi-directional links between text and spatial objects: <eref target="https://visual-meta.info">visual-meta</eref></li>
 </ul>
 </section>
 
@@ -41,6 +37,7 @@ XR Fragments allows us to enrich existing dataformats, by recursive use of exist
 <li>src: a (HTML-piggybacked) metadata-attribute of a 3D object which instances content</li>
 <li>href: a (HTML-piggybacked) metadata-attribute of a 3D object which links to content</li>
 <li>query: an URI Fragment-operator which queries object(s) from a scene (<tt>#q=cube</tt>)</li>
+<li><eref target="https://visual.meta.info">visual-meta</eref>: metadata appended to text which is only indirectly visible/editable in XR.</li>
 </ul>
 <t>{::boilerplate bcp14-tagged}</t>
 </section>
@@ -48,13 +45,17 @@ XR Fragments allows us to enrich existing dataformats, by recursive use of exist
 <section anchor="navigating-3d"><name>Navigating 3D</name>
 <t>Here's an ascii representation of a 3D scene-graph which contains 3D objects (<tt>◻</tt>) and their metadata:</t>
 
-<artwork> index.gltf
-   │
-   ├── ◻ buttonA
-   │      └ href: #pos=1,0,1&amp;t=100,200
-   │
-   └── ◻ buttonB
-          └ href: other.fbx
+<artwork>  +--------------------------------------------------------+ 
+  |                                                        |
+  |  index.gltf                                            |
+  |    │                                                   |
+  |    ├── ◻ buttonA                                       |
+  |    │      └ href: #pos=1,0,1&amp;t=100,200                 |
+  |    │                                                   |
+  |    └── ◻ buttonB                                       |
+  |           └ href: other.fbx                            |
+  |                                                        |
+  +--------------------------------------------------------+
 
 </artwork>
 <t>An XR Fragment-compatible browser viewing this scene, allows the end-user to interact with the <tt>buttonA</tt> and <tt>buttonB</tt>.
@@ -62,37 +63,180 @@ In case of <tt>buttonA</tt> the end-user will be teleported to another location 
  <strong>replace the current scene</strong> with a new one (<tt>other.fbx</tt>).</t>
 </section>
 
-<section anchor="navigating-text"><name>Navigating text</name>
-<t>TODO</t>
-</section>
-
 <section anchor="embedding-3d-content"><name>Embedding 3D content</name>
 <t>Here's an ascii representation of a 3D scene-graph with 3D objects (<tt>◻</tt>) which embeds remote &amp; local 3D objects (<tt>◻</tt>) (without) using queries:</t>
 
-<artwork>  +------------------------------------------------------------+  +---------------------------+ 
-  |                                                            |  |                           |
-  |  index.gltf                                                |  | rescue.com/aquarium.gltf  |
-  |    │                                                       |  |   │                       |
-  |    ├── ◻ canvas                                            |  |   └── ◻ fishbowl          |
-  |    │      └ src: painting.png                              |  |         ├─ ◻ bassfish     |
-  |    │                                                       |  |         └─ ◻ tuna         |
-  |    ├── ◻ aquariumcube                                      |  |                           |       
-  |    │      └ src: ://rescue.com/fish.gltf#q=bassfish%20tuna |  +---------------------------+
-  |    │                                                       |    
-  |    ├── ◻ bedroom                                           |   
-  |    │      └ src: #q=canvas                                 |
-  |    │                                                       |   
-  |    └── ◻ livingroom                                        |      
-  |           └ src: #q=canvas                                 |
-  |                                                            |
-  +------------------------------------------------------------+
+<artwork>  +--------------------------------------------------------+  +-------------------------+ 
+  |                                                        |  |                         |
+  |  index.gltf                                            |  | ocean.com/aquarium.fbx  |
+  |    │                                                   |  |   │                     |
+  |    ├── ◻ canvas                                        |  |   └── ◻ fishbowl        |
+  |    │      └ src: painting.png                          |  |         ├─ ◻ bass       |
+  |    │                                                   |  |         └─ ◻ tuna       |
+  |    ├── ◻ aquariumcube                                  |  |                         |       
+  |    │      └ src: ://rescue.com/fish.gltf#q=bass%20tuna |  +-------------------------+
+  |    │                                                   |    
+  |    ├── ◻ bedroom                                       |   
+  |    │      └ src: #q=canvas                             |
+  |    │                                                   |   
+  |    └── ◻ livingroom                                    |      
+  |           └ src: #q=canvas                             |
+  |                                                        |
+  +--------------------------------------------------------+
 </artwork>
 <t>An XR Fragment-compatible browser viewing this scene, lazy-loads and projects <tt>painting.png</tt> onto the (plane) object called <tt>canvas</tt> (which is copy-instanced in the bed and livingroom).
-Also, after lazy-loading <tt>rescue.com/aquarium.gltf</tt>, only the queried objects <tt>bassfish</tt> and <tt>tuna</tt> will be instanced inside <tt>aquariumcube</tt>.
+Also, after lazy-loading <tt>ocean.com/aquarium.gltf</tt>, only the queried objects <tt>bass</tt> and <tt>tuna</tt> will be instanced inside <tt>aquariumcube</tt>.
 Resizing will be happen accordingly to its placeholder object (<tt>aquariumcube</tt>), see chapter Scaling.</t>
 </section>
 
 <section anchor="embedding-text"><name>Embedding text</name>
+<t>Text in XR has to be unobtrusive, for readers as well as authors.
+We think and speak in simple text, and given the new paradigm of XR interfaces, logically (spoken) text must be enriched <em>afterwards</em> (lazy metadata).
+Therefore, XR Fragment-compliant text will just be plain text, and <strong>not yet-another-markuplanguage</strong>.
+In contrast to markup languages, this means humans need to be always served first, and machines later.</t>
+<blockquote><t>Basically, XR interfaces work best when direct feedbackloops between unobtrusive text and humans are guaranteed.</t>
+</blockquote><t>In the next chapter you can see how XR Fragments enjoys hasslefree rich text, by supporting <eref target="https://visual.meta.info">visual-meta</eref>(data).</t>
+
+<section anchor="default-data-uri-mimetype"><name>Default Data URI mimetype</name>
+<t>The XR Fragment specification bumps the traditional default browser-mimetype</t>
+<t><tt>text/plain;charset=US-ASCII</tt></t>
+<t>to:</t>
+<t><tt>text/plain;charset=utf-8;visual-meta=1</tt></t>
+<t>This means that <eref target="https://visual.meta.info">visual-meta</eref>(data) can be appended to plain text without being displayed.</t>
+
+<section anchor="url-and-data-uri"><name>URL and Data URI</name>
+
+<artwork>  +--------------------------------------------------------------+  +------------------------+
+  |                                                              |  | author.com/article.txt |
+  |  index.gltf                                                  |  +------------------------+
+  |    │                                                         |  |                        |
+  |    ├── ◻ article_canvas                                      |  | Hello friends.         |
+  |    │    └ src: ://author.com/article.txt                     |  |                        |
+  |    │                                                         |  | @{visual-meta-start}   |
+  |    └── ◻ note_canvas                                         |  | ...                    |
+  |           └ src:`data:welcome human @{visual-meta-start}...` |  +------------------------+ 
+  |                                                              | 
+  |                                                              |
+  +--------------------------------------------------------------+
+</artwork>
+<t>The enduser will only see <tt>welcome human</tt> rendered spatially.
+The beauty is that text (AND visual-meta) in Data URI is saved into the scene, which also promotes rich copy-paste.
+In both cases will the text get rendered immediately (onto a plane geometry, hence the name '_canvas').
+The XR Fragment-compatible browser can let the enduser access visual-meta(data)-fields after interacting with the object (contextmenu e.g.).</t>
+<blockquote><t>NOTE: this is not to say that XR Browsers should not load HTML/PDF/etc-URLs thru <tt>src</tt>, it is just that <tt>text/plain;charset=utf-8;visual-meta=1</tt> is the default.</t>
+</blockquote><t>The mapping between 3D objects and text (src-data) is simple:</t>
+<t>Example:</t>
+
+<artwork>  +------------------------------------------------------------------------------------+ 
+  |                                                                                    | 
+  |  index.gltf                                                                        | 
+  |    │                                                                               | 
+  |    ├── ◻ AI                                                                        | 
+  |    │    └ class: tech                                                              | 
+  |    │                                                                               | 
+  |    └ src:`data:@{visual-meta-start}                                                | 
+  |                @{glossary-start}                                                   |
+  |                @entry{                                                             |
+  |                    name=&quot;AI&quot;,                                                      |
+  |                    alt-name1 = &quot;Artificial Intelligence&quot;,                          |
+  |                    description=&quot;Artificial intelligence&quot;,                          |
+  |                    url = &quot;https://en.wikipedia.org/wiki/Artificial_intelligence&quot;,  |
+  |                }                                                                   |
+  |                @entry{                                                             |
+  |                    name=&quot;tech&quot;                                                     |
+  |                    alt-name1=&quot;technology&quot;                                          |
+  |                    description=&quot;when monkeys start to play with things&quot;            |
+  |                }`                                                                  |
+  +------------------------------------------------------------------------------------+
+</artwork>
+<t>Attaching visualmeta as <tt>src</tt> metadata to the (root) scene-node hints the XR Fragment browser.
+3D object names and classes map to <tt>name</tt> of visual-meta glossary-entries.
+This allows rich interaction and interlinking between text and 3D objects:</t>
+
+<ol spacing="compact">
+<li>When the user surfs to https://.../index.gltf#AI the XR Fragments-parser points the enduser to the AI object, and can show contextual info about it.</li>
+<li>When (partial) remote content is embedded thru XR Fragment queries (see XR Fragment queries), its related visual-meta can be embedded along.</li>
+</ol>
+</section>
+</section>
+</section>
+
+<section anchor="hyper-copy-paste"><name>HYPER copy/paste</name>
+<t>The previous example, offers something exciting compared to simple copy/paste of 3D objects or text.
+XR Fragment allows HYPER-copy/paste: time, space and text interlinked.
+Therefore, the enduser in an XR Fragment-compatible browser can copy/paste/share data in these ways:</t>
+
+<ul spacing="compact">
+<li>time/space: 3D object (current animation-loop)</li>
+<li>text: Text object (including visual-meta if any)</li>
+<li>interlinked: Collected objects by visual-meta tag</li>
+</ul>
+</section>
+
+<section anchor="xr-fragment-queries"><name>XR Fragment queries</name>
+<t>Include, exclude, hide/shows objects using space-separated strings:</t>
+
+<ul spacing="compact">
+<li><tt>#q=cube</tt></li>
+<li><tt>#q=cube -ball_inside_cube</tt></li>
+<li><tt>#q=* -sky</tt></li>
+<li><tt>#q=-.language .english</tt></li>
+<li><tt>#q=cube&amp;rot=0,90,0</tt></li>
+<li><tt>#q=price:&gt;2 price:&lt;5</tt></li>
+</ul>
+<t>It's simple but powerful syntax which allows &lt;b&gt;css&lt;/b&gt;-like class/id-selectors with a searchengine prompt-style feeling:</t>
+
+<ol spacing="compact">
+<li>queries are only executed when &lt;b&gt;embedded&lt;/b&gt; in the asset/scene (thru <tt>src</tt>). This is to prevent sharing of scene-tampered URL's.</li>
+<li>search words are matched against 3D object names or metadata-key(values)</li>
+<li><tt>#</tt> equals <tt>#q=*</tt></li>
+<li>words starting with <tt>.</tt> (<tt>.language</tt>) indicate class-properties</li>
+</ol>
+<blockquote><t>*(*For example**: <tt>#q=.foo</tt> is a shorthand for <tt>#q=class:foo</tt>, which will select objects with custom property <tt>class</tt>:<tt>foo</tt>. Just a simple <tt>#q=cube</tt> will simply select an object named <tt>cube</tt>.</t>
+</blockquote>
+<ul spacing="compact">
+<li>see <eref target="https://coderofsalvation.github.io/xrfragment.media/queries.mp4">an example video here</eref></li>
+</ul>
+
+<section anchor="including-excluding"><name>including/excluding</name>
+<t>|''operator''  | ''info'' |
+|<tt>*</tt> | select all objects (only allowed in <tt>src</tt> custom property) in the &lt;b&gt;current&lt;/b&gt; scene (&lt;b&gt;after&lt;/b&gt; the default [[predefined_view|predefined_view]] <tt>#</tt> was executed)|
+|<tt>-</tt> | removes/hides object(s) |
+|<tt>:</tt> | indicates an object-embedded custom property key/value |
+|<tt>.</tt> | alias for <tt>class:</tt> (<tt>.foo</tt> equals <tt>class:foo</tt> |
+|<tt>&gt;</tt> <tt>&lt;</tt>| compare float or int number|
+|<tt>/</tt> | reference to root-scene.<br />
+Useful in case of (preventing) showing/hiding objects in nested scenes (instanced by [[src]])<br />
+<tt>#q=-/cube</tt> hides object <tt>cube</tt> only in the root-scene (not nested <tt>cube</tt> objects)<br />
+ <tt>#q=-cube</tt> hides both object <tt>cube</tt> in the root-scene &lt;b&gt;AND&lt;/b&gt; nested <tt>skybox</tt> objects |</t>
+<t><eref target="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/q.js">» example implementation</eref>
+<eref target="https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/query.gltf#L192">» example 3D asset</eref>
+<eref target="https://github.com/coderofsalvation/xrfragment/issues/3">» discussion</eref></t>
+</section>
+</section>
+
+<section anchor="query-parser"><name>Query Parser</name>
+<t>Here's how to write a query parser:</t>
+
+<ol spacing="compact">
+<li>create an associative array/object to store query-arguments as objects</li>
+<li>detect object id's &amp; properties <tt>foo:1</tt> and <tt>foo</tt> (reference regex: <tt>/^.*:[&gt;&lt;=!]?/</tt>  )</li>
+<li>detect excluders like <tt>-foo</tt>,<tt>-foo:1</tt>,<tt>-.foo</tt>,<tt>-/foo</tt> (reference regex: <tt>/^-/</tt> )</li>
+<li>detect root selectors like <tt>/foo</tt> (reference regex: <tt>/^[-]?\//</tt> )</li>
+<li>detect class selectors like <tt>.foo</tt> (reference regex: <tt>/^[-]?class$/</tt> )</li>
+<li>detect number values like <tt>foo:1</tt> (reference regex: <tt>/^[0-9\.]+$/</tt> )</li>
+<li>expand aliases like <tt>.foo</tt> into <tt>class:foo</tt></li>
+<li>for every query token split string on <tt>:</tt></li>
+<li>create an empty array <tt>rules</tt></li>
+<li>then strip key-operator: convert &quot;-foo&quot; into &quot;foo&quot;</li>
+<li>add operator and value to rule-array</li>
+<li>therefore we we set <tt>id</tt> to <tt>true</tt> or <tt>false</tt> (false=excluder <tt>-</tt>)</li>
+<li>and we set <tt>root</tt> to <tt>true</tt> or <tt>false</tt> (true=<tt>/</tt> root selector is present)</li>
+<li>we convert key '/foo' into 'foo'</li>
+<li>finally we add the key/value to the store (<tt>store.foo = {id:false,root:true}</tt> e.g.)</li>
+</ol>
+<blockquote><t>An example query-parser (which compiles to many languages) can be <eref target="https://github.com/coderofsalvation/xrfragment/blob/main/src/xrfragment/Query.hx">found here</eref></t>
+</blockquote></section>
 </section>
 
 <section anchor="list-of-xr-uri-fragments"><name>List of XR URI Fragments</name>
@@ -110,6 +254,6 @@ Resizing will be happen accordingly to its placeholder object (<tt>aquariumcube<
 <t>TODO acknowledge.</t>
 </section>
 
-</middle>
+</front>
 
 </rfc>

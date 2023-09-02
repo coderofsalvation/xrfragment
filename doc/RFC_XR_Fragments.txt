@@ -3,9 +3,9 @@
 
 
 Internet Engineering Task Force                          L.R. van Kammen
-Internet-Draft                                            31 August 2023
+Internet-Draft                                          1 September 2023
 Intended status: Informational                                          
-Expires: 3 March 2024
+Expires: 4 March 2024
 
 
                               XR Fragments
@@ -37,7 +37,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 3 March 2024.
+   This Internet-Draft will expire on 4 March 2024.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-van Kammen                Expires 3 March 2024                  [Page 1]
+van Kammen                Expires 4 March 2024                  [Page 1]
 
-Internet-Draft                XR Fragments                   August 2023
+Internet-Draft                XR Fragments                September 2023
 
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -73,21 +73,25 @@ Table of Contents
    2.  Conventions and Definitions . . . . . . . . . . . . . . . . .   2
    3.  Navigating 3D . . . . . . . . . . . . . . . . . . . . . . . .   3
    4.  Navigating text . . . . . . . . . . . . . . . . . . . . . . .   3
-   5.  Embedding 3D content  . . . . . . . . . . . . . . . . . . . .   3
-   6.  Embedding text  . . . . . . . . . . . . . . . . . . . . . . .   4
-   7.  List of XR URI Fragments  . . . . . . . . . . . . . . . . . .   4
-   8.  Security Considerations . . . . . . . . . . . . . . . . . . .   4
-   9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   4
-   10. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .   4
+     4.1.  Default Data URI mimetype . . . . . . . . . . . . . . . .   4
+       4.1.1.  URL and Data URI  . . . . . . . . . . . . . . . . . .   4
+     4.2.  omnidirectional XR annotations  . . . . . . . . . . . . .   5
+   5.  HYPER copy/paste  . . . . . . . . . . . . . . . . . . . . . .   5
+     5.1.  Plain Text (with optional visual-meta)  . . . . . . . . .   6
+   6.  Embedding 3D content  . . . . . . . . . . . . . . . . . . . .   6
+   7.  List of XR URI Fragments  . . . . . . . . . . . . . . . . . .   7
+   8.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
+   9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
+   10. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .   7
 
 1.  Introduction
 
    How can we add more features to existing text & 3D scenes, without
    introducing new dataformats?  Historically, there's many attempts to
    create the ultimate markuplanguage or 3D fileformat.  However, thru
-   the lens of authorina,g their lowest common denominator is still:
-   plain text.  XR Fragments allows us to enrich existing dataformats,
-   by recursive use of existing technologies:
+   the lens of authoring their lowest common denominator is still: plain
+   text.  XR Fragments allows us to enrich existing dataformats, by
+   recursive use of existing technologies:
 
    *  addressibility & navigation of 3D objects: URI Fragments
       (https://en.wikipedia.org/wiki/URI_fragment) + (src/href) metadata
@@ -102,20 +106,22 @@ Table of Contents
    *  metadata: custom properties defined in 3D Scene or Object(nodes)
    *  XR fragment: URI Fragment with spatial hints (#pos=0,0,0&t=1,100
       e.g.)
+
+
+
+van Kammen                Expires 4 March 2024                  [Page 2]
+
+Internet-Draft                XR Fragments                September 2023
+
+
    *  src: a (HTML-piggybacked) metadata-attribute of a 3D object which
       instances content
    *  href: a (HTML-piggybacked) metadata-attribute of a 3D object which
       links to content
-
-
-
-van Kammen                Expires 3 March 2024                  [Page 2]
-
-Internet-Draft                XR Fragments                   August 2023
-
-
    *  query: an URI Fragment-operator which queries object(s) from a
       scene (#q=cube)
+   *  visual-meta (https://visual.meta.info): metadata appended to text
+      which is only indirectly visible/editable in XR.
 
    {::boilerplate bcp14-tagged}
 
@@ -124,13 +130,17 @@ Internet-Draft                XR Fragments                   August 2023
    Here's an ascii representation of a 3D scene-graph which contains 3D
    objects (&#9723;) and their metadata:
 
-    index.gltf
-      │
-      ├── ◻ buttonA
-      │      └ href: #pos=1,0,1&t=100,200
-      │
-      └── ◻ buttonB
-             └ href: other.fbx
+     +--------------------------------------------------------+
+     |                                                        |
+     |  index.gltf                                            |
+     |    │                                                   |
+     |    ├── ◻ buttonA                                       |
+     |    │      └ href: #pos=1,0,1&t=100,200                 |
+     |    │                                                   |
+     |    └── ◻ buttonB                                       |
+     |           └ href: other.fbx                            |
+     |                                                        |
+     +--------------------------------------------------------+
 
    An XR Fragment-compatible browser viewing this scene, allows the end-
    user to interact with the buttonA and buttonB.  In case of buttonA
@@ -140,14 +150,180 @@ Internet-Draft                XR Fragments                   August 2023
 
 4.  Navigating text
 
-   TODO
+   Text in XR has to be unobtrusive, for readers as well as authors.  We
+   think and speak in simple text, and given the new paradigm of XR
+   interfaces, logically (spoken) text must be enriched _afterwards_
+   (lazy metadata).  Therefore, XR Fragment-compliant text will just be
+   plain text, and *not yet-another-markuplanguage*. In contrast to
+   markup languages, this means humans need to be always served first,
+   and machines later.
 
-5.  Embedding 3D content
+   |  Basically, a direct feedbackloop between unobtrusive text and
+   |  human eye.
+
+
+
+
+
+van Kammen                Expires 4 March 2024                  [Page 3]
+
+Internet-Draft                XR Fragments                September 2023
+
+
+   Reality has shown that outsourcing rich textmanipulation to
+   commercial formats or mono-markup browsers (HTML) have there
+   usecases, but also introduce barriers to thought-translation (which
+   uses simple words).  As Marshall MCluhan said: we have become
+   irrevocably involved with, and responsible for, each other.
+
+   In order enjoy hasslefree batteries-included programmable text
+   (glossaries, flexible views, drag-drop e.g.), XR Fragment supports
+   visual-meta (https://visual.meta.info)(data).
+
+4.1.  Default Data URI mimetype
+
+   The XR Fragment specification bumps the traditional default browser-
+   mimetype
+
+   text/plain;charset=US-ASCII
+
+   into:
+
+   text/plain;charset=utf-8;visual-meta=1
+
+   This means that visual-meta (https://visual.meta.info)(data) can be
+   appended to plain text without being displayed.
+
+4.1.1.  URL and Data URI
+
+  +--------------------------------------------------------------+  +------------------------+
+  |                                                              |  | author.com/article.txt |
+  |  index.gltf                                                  |  +------------------------+
+  |    │                                                         |  |                        |
+  |    ├── ◻ article_canvas                                      |  | Hello friends.         |
+  |    │    └ src: ://author.com/article.txt                     |  |                        |
+  |    │                                                         |  | @{visual-meta-start}   |
+  |    └── ◻ note_canvas                                         |  | ...                    |
+  |           └ src:`data:welcome human @{visual-meta-start}...` |  +------------------------+
+  |                                                              |
+  |                                                              |
+  +--------------------------------------------------------------+
+
+   The difference is that text (+visual-meta data) in Data URI is saved
+   into the scene, which also promotes rich copy-paste.  In both cases
+   will the text get rendered immediately (onto a plane geometry, hence
+   the name '_canvas').  The enduser can access visual-meta(data)-fields
+   only after interacting with the object.
+
+   |  NOTE: this is not to say that XR Browsers should not load
+   |  HTML/PDF/etc-URLs thru src-metadata, it is just that text/
+   |  plain;charset=utf-8;visual-meta=1 is the minimum requirement.
+
+
+
+van Kammen                Expires 4 March 2024                  [Page 4]
+
+Internet-Draft                XR Fragments                September 2023
+
+
+4.2.  omnidirectional XR annotations
+
+     +---------------------------------------------------------------+
+     |                                                               |
+     |  index.gltf                                                   |
+     |    │                                                          |
+     |    ├── ◻ todo                                                 |
+     |    │      └ src:`data:learn about ARC @{visual-meta-start}...`|
+     |    │                                                          |
+     |    └── ◻ ARC                                                  |
+     |           └── ◻ plane                                         |
+     |                   └ src: `data:ARC was revolutionary          |
+     |                          @{visual-meta-start}                 |
+     |                          @{glossary-start}                    |
+     |                          @entry{                              |
+     |                           name = {ARC},                       |
+     |                           description = {Engelbart Concept:   |
+     |                             Augmentation Research Center,     |
+     |                             The name of Doug's lab at SRI.    |
+     |                           },                                  |
+     |                          }`                                   |
+     |                                                               |
+     +---------------------------------------------------------------+
+
+   Here we can see an 3D object of ARC, to which the enduser added a
+   textnote (basically a plane geometry with src).  The enduser can
+   view/edit visual-meta(data)-fields only after interacting with the
+   object.  This allows the 3D scene to perform omnidirectional features
+   for free, by omni-connecting the word 'ARC':
+
+   *  the ARC object can draw a line to the 'ARC was revolutionary'-note
+   *  the 'ARC was revolutionary'-note can draw line to the 'learn about
+      ARC'-note
+   *  the 'learn about ARC'-note can draw a line to the ARC 3D object
+
+5.  HYPER copy/paste
+
+   The previous example, offers something exciting compared to simple
+   textual copy-paste. , XR Fragment offers 4D- and HYPER- copy/paste:
+   time, space and text interlinked.  Therefore, the enduser in an XR
+   Fragment-compatible browser can copy/paste/share data in these ways:
+
+   *  copy ARC 3D object (incl. animation) & paste elsewhere including
+      visual-meta(data)
+   *  select the word ARC in any text, and paste a bundle of anything
+      ARC-related
+
+
+
+
+
+van Kammen                Expires 4 March 2024                  [Page 5]
+
+Internet-Draft                XR Fragments                September 2023
+
+
+5.1.  Plain Text (with optional visual-meta)
+
+   In contrast to markuplanguage, the (dictated/written) text needs no
+   parsing, stays intact, by postponing metadata to the appendix.
+
+   This allows for a very economic XR way to:
+
+   *  directly write, dictate, render text (=fast, without markup-
+      parser-overhead)
+   *  add/load metadata later (if provided)
+   *  enduser interactions with text (annotations,mutations) can be
+      reflected back into the visual-meta(data) Data URI
+   *  copy/pasting of text will automatically cite the (mutated) source
+   *  allows annotating 3D objects as if they were textual
+      representations (convert 3D document to text)
+
+   |  NOTE: visualmeta never breaks the original intended text (in
+   |  contrast to forgetting a html closing-tag e.g.)
+
+6.  Embedding 3D content
 
    Here's an ascii representation of a 3D scene-graph with 3D objects
    (&#9723;) which embeds remote & local 3D objects (&#9723;) (without)
    using queries:
 
+  +--------------------------------------------------------+  +-------------------------+
+  |                                                        |  |                         |
+  |  index.gltf                                            |  | ocean.com/aquarium.fbx  |
+  |    │                                                   |  |   │                     |
+  |    ├── ◻ canvas                                        |  |   └── ◻ fishbowl        |
+  |    │      └ src: painting.png                          |  |         ├─ ◻ bass       |
+  |    │                                                   |  |         └─ ◻ tuna       |
+  |    ├── ◻ aquariumcube                                  |  |                         |
+  |    │      └ src: ://rescue.com/fish.gltf#q=bass%20tuna |  +-------------------------+
+  |    │                                                   |
+  |    ├── ◻ bedroom                                       |
+  |    │      └ src: #q=canvas                             |
+  |    │                                                   |
+  |    └── ◻ livingroom                                    |
+  |           └ src: #q=canvas                             |
+  |                                                        |
+  +--------------------------------------------------------+
 
 
 
@@ -157,46 +333,18 @@ Internet-Draft                XR Fragments                   August 2023
 
 
 
-
-
-
-
-
-
-
-
-van Kammen                Expires 3 March 2024                  [Page 3]
+van Kammen                Expires 4 March 2024                  [Page 6]
 
-Internet-Draft                XR Fragments                   August 2023
+Internet-Draft                XR Fragments                September 2023
 
-
-  +------------------------------------------------------------+  +---------------------------+
-  |                                                            |  |                           |
-  |  index.gltf                                                |  | rescue.com/aquarium.gltf  |
-  |    │                                                       |  |   │                       |
-  |    ├── ◻ canvas                                            |  |   └── ◻ fishbowl          |
-  |    │      └ src: painting.png                              |  |         ├─ ◻ bassfish     |
-  |    │                                                       |  |         └─ ◻ tuna         |
-  |    ├── ◻ aquariumcube                                      |  |                           |
-  |    │      └ src: ://rescue.com/fish.gltf#q=bassfish%20tuna |  +---------------------------+
-  |    │                                                       |
-  |    ├── ◻ bedroom                                           |
-  |    │      └ src: #q=canvas                                 |
-  |    │                                                       |
-  |    └── ◻ livingroom                                        |
-  |           └ src: #q=canvas                                 |
-  |                                                            |
-  +------------------------------------------------------------+
 
    An XR Fragment-compatible browser viewing this scene, lazy-loads and
    projects painting.png onto the (plane) object called canvas (which is
    copy-instanced in the bed and livingroom).  Also, after lazy-loading
-   rescue.com/aquarium.gltf, only the queried objects bassfish and tuna
-   will be instanced inside aquariumcube.  Resizing will be happen
+   ocean.com/aquarium.gltf, only the queried objects bass and tuna will
+   be instanced inside aquariumcube.  Resizing will be happen
    accordingly to its placeholder object (aquariumcube), see chapter
    Scaling.
-
-6.  Embedding text
 
 7.  List of XR URI Fragments
 
@@ -221,4 +369,24 @@ Internet-Draft                XR Fragments                   August 2023
 
 
 
-van Kammen                Expires 3 March 2024                  [Page 4]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+van Kammen                Expires 4 March 2024                  [Page 7]

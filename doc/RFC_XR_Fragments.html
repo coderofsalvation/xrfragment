@@ -14,7 +14,6 @@
   body{
     font-family: monospace;
     max-width: 900px;
-    text-align: justify;
     font-size: 15px;
     padding: 0% 20%;
     line-height: 30px;
@@ -23,6 +22,22 @@
   }
   h1 { margin-top:40px; }
   pre{ line-height:18px; }
+  a,a:visited,a:active{ color: #70f; }
+  code{
+    border: 1px solid #AAA;
+    border-radius: 3px;
+    padding: 0px 5px 2px 5px;
+  }
+  pre>code{
+    border:none;
+    border-radius:0px;
+    padding:0;
+  }
+  blockquote{
+    padding-left: 30px;
+    margin: 0;
+    border-left: 5px solid #CCC;
+  }
 
   </style>
 
@@ -52,7 +67,7 @@ XR Fragments allows us to enrich existing dataformats, by recursive use of exist
 
 <p>How can we add more features to existing text &amp; 3D scenes, without introducing new dataformats?
 Historically, there&rsquo;s many attempts to create the ultimate markuplanguage or 3D fileformat.
-However, thru the lens of authorina,g their lowest common denominator is still: plain text.
+However, thru the lens of authoring their lowest common denominator is still: plain text.
 XR Fragments allows us to enrich existing dataformats, by recursive use of existing technologies:</p>
 
 <ul>
@@ -70,6 +85,7 @@ XR Fragments allows us to enrich existing dataformats, by recursive use of exist
 <li>src: a (HTML-piggybacked) metadata-attribute of a 3D object which instances content</li>
 <li>href: a (HTML-piggybacked) metadata-attribute of a 3D object which links to content</li>
 <li>query: an URI Fragment-operator which queries object(s) from a scene (<code>#q=cube</code>)</li>
+<li><a href="https://visual.meta.info">visual-meta</a>: metadata appended to text which is only indirectly visible/editable in XR.</li>
 </ul>
 
 <p>{::boilerplate bcp14-tagged}</p>
@@ -78,13 +94,17 @@ XR Fragments allows us to enrich existing dataformats, by recursive use of exist
 
 <p>Here&rsquo;s an ascii representation of a 3D scene-graph which contains 3D objects (<code>◻</code>) and their metadata:</p>
 
-<pre><code> index.gltf
-   │
-   ├── ◻ buttonA
-   │      └ href: #pos=1,0,1&amp;t=100,200
-   │
-   └── ◻ buttonB
-          └ href: other.fbx
+<pre><code>  +--------------------------------------------------------+ 
+  |                                                        |
+  |  index.gltf                                            |
+  |    │                                                   |
+  |    ├── ◻ buttonA                                       |
+  |    │      └ href: #pos=1,0,1&amp;t=100,200                 |
+  |    │                                                   |
+  |    └── ◻ buttonB                                       |
+  |           └ href: other.fbx                            |
+  |                                                        |
+  +--------------------------------------------------------+
 
 </code></pre>
 
@@ -94,36 +114,148 @@ In case of <code>buttonA</code> the end-user will be teleported to another locat
 
 <h1 id="navigating-text">Navigating text</h1>
 
-<p>TODO</p>
+<p>Text in XR has to be unobtrusive, for readers as well as authors.
+We think and speak in simple text, and given the new paradigm of XR interfaces, logically (spoken) text must be enriched <em>afterwards</em> (lazy metadata).
+Therefore, XR Fragment-compliant text will just be plain text, and <strong>not yet-another-markuplanguage</strong>.
+In contrast to markup languages, this means humans need to be always served first, and machines later.</p>
+
+<blockquote>
+<p>Basically, a direct feedbackloop between unobtrusive text and human eye.</p>
+</blockquote>
+
+<p>Reality has shown that outsourcing rich textmanipulation to commercial formats or mono-markup browsers (HTML) have there usecases, but
+also introduce barriers to thought-translation (which uses simple words).
+As Marshall MCluhan said: we have become irrevocably involved with, and responsible for, each other.</p>
+
+<p>In order enjoy hasslefree batteries-included programmable text (glossaries, flexible views, drag-drop e.g.), XR Fragment supports
+<a href="https://visual.meta.info">visual-meta</a>(data).</p>
+
+<h2 id="default-data-uri-mimetype">Default Data URI mimetype</h2>
+
+<p>The XR Fragment specification bumps the traditional default browser-mimetype</p>
+
+<p><code>text/plain;charset=US-ASCII</code></p>
+
+<p>into:</p>
+
+<p><code>text/plain;charset=utf-8;visual-meta=1</code></p>
+
+<p>This means that <a href="https://visual.meta.info">visual-meta</a>(data) can be appended to plain text without being displayed.</p>
+
+<h3 id="url-and-data-uri">URL and Data URI</h3>
+
+<pre><code>  +--------------------------------------------------------------+  +------------------------+
+  |                                                              |  | author.com/article.txt |
+  |  index.gltf                                                  |  +------------------------+
+  |    │                                                         |  |                        |
+  |    ├── ◻ article_canvas                                      |  | Hello friends.         |
+  |    │    └ src: ://author.com/article.txt                     |  |                        |
+  |    │                                                         |  | @{visual-meta-start}   |
+  |    └── ◻ note_canvas                                         |  | ...                    |
+  |           └ src:`data:welcome human @{visual-meta-start}...` |  +------------------------+ 
+  |                                                              | 
+  |                                                              |
+  +--------------------------------------------------------------+
+</code></pre>
+
+<p>The difference is that text (+visual-meta data) in Data URI is saved into the scene, which also promotes rich copy-paste.
+In both cases will the text get rendered immediately (onto a plane geometry, hence the name &lsquo;_canvas&rsquo;).
+The enduser can access visual-meta(data)-fields only after interacting with the object.</p>
+
+<blockquote>
+<p>NOTE: this is not to say that XR Browsers should not load HTML/PDF/etc-URLs thru <code>src</code>-metadata, it is just that <code>text/plain;charset=utf-8;visual-meta=1</code> is the minimum requirement.</p>
+</blockquote>
+
+<h2 id="omnidirectional-xr-annotations">omnidirectional XR annotations</h2>
+
+<pre><code>  +---------------------------------------------------------------+ 
+  |                                                               |
+  |  index.gltf                                                   |
+  |    │                                                          |
+  |    ├── ◻ todo                                                 | 
+  |    │      └ src:`data:learn about ARC @{visual-meta-start}...`|  
+  |    │                                                          |
+  |    └── ◻ ARC                                                  |
+  |           └── ◻ plane                                         |
+  |                   └ src: `data:ARC was revolutionary          |
+  |                          @{visual-meta-start}                 |
+  |                          @{glossary-start}                    |
+  |                          @entry{                              |
+  |                           name = {ARC},                       |
+  |                           description = {Engelbart Concept:   |
+  |                             Augmentation Research Center,     |
+  |                             The name of Doug's lab at SRI.    |
+  |                           },                                  |
+  |                          }`                                   |
+  |                                                               |
+  +---------------------------------------------------------------+
+</code></pre>
+
+<p>Here we can see an 3D object of ARC, to which the enduser added a textnote (basically a plane geometry with <code>src</code>).
+The enduser can view/edit visual-meta(data)-fields only after interacting with the object.
+This allows the 3D scene to perform omnidirectional features for free, by omni-connecting the word &lsquo;ARC&rsquo;:</p>
+
+<ul>
+<li>the ARC object can draw a line to the &lsquo;ARC was revolutionary&rsquo;-note</li>
+<li>the &lsquo;ARC was revolutionary&rsquo;-note can draw line to the &lsquo;learn about ARC&rsquo;-note</li>
+<li>the &lsquo;learn about ARC&rsquo;-note can draw a line to the ARC 3D object</li>
+</ul>
+
+<h1 id="hyper-copy-paste">HYPER copy/paste</h1>
+
+<p>The previous example, offers something exciting compared to simple textual copy-paste.
+, XR Fragment offers 4D- and HYPER- copy/paste: time, space and text interlinked.
+Therefore, the enduser in an XR Fragment-compatible browser can copy/paste/share data in these ways:</p>
+
+<ul>
+<li>copy ARC 3D object (incl. animation) &amp; paste elsewhere including visual-meta(data)</li>
+<li>select the word ARC in any text, and paste a bundle of anything ARC-related</li>
+</ul>
+
+<h2 id="plain-text-with-optional-visual-meta">Plain Text (with optional visual-meta)</h2>
+
+<p>In contrast to markuplanguage, the (dictated/written) text needs no parsing, stays intact, by postponing metadata to the appendix.</p>
+
+<p>This allows for a very economic XR way to:</p>
+
+<ul>
+<li>directly write, dictate, render text (=fast, without markup-parser-overhead)</li>
+<li>add/load metadata later (if provided)</li>
+<li>enduser interactions with text (annotations,mutations) can be reflected back into the visual-meta(data) Data URI</li>
+<li>copy/pasting of text will automatically cite the (mutated) source</li>
+<li>allows annotating 3D objects as if they were textual representations (convert 3D document to text)</li>
+</ul>
+
+<blockquote>
+<p>NOTE: visualmeta never breaks the original intended text (in contrast to forgetting a html closing-tag e.g.)</p>
+</blockquote>
 
 <h1 id="embedding-3d-content">Embedding 3D content</h1>
 
 <p>Here&rsquo;s an ascii representation of a 3D scene-graph with 3D objects (<code>◻</code>) which embeds remote &amp; local 3D objects (<code>◻</code>) (without) using queries:</p>
 
-<pre><code>  +------------------------------------------------------------+  +---------------------------+ 
-  |                                                            |  |                           |
-  |  index.gltf                                                |  | rescue.com/aquarium.gltf  |
-  |    │                                                       |  |   │                       |
-  |    ├── ◻ canvas                                            |  |   └── ◻ fishbowl          |
-  |    │      └ src: painting.png                              |  |         ├─ ◻ bassfish     |
-  |    │                                                       |  |         └─ ◻ tuna         |
-  |    ├── ◻ aquariumcube                                      |  |                           |       
-  |    │      └ src: ://rescue.com/fish.gltf#q=bassfish%20tuna |  +---------------------------+
-  |    │                                                       |    
-  |    ├── ◻ bedroom                                           |   
-  |    │      └ src: #q=canvas                                 |
-  |    │                                                       |   
-  |    └── ◻ livingroom                                        |      
-  |           └ src: #q=canvas                                 |
-  |                                                            |
-  +------------------------------------------------------------+
+<pre><code>  +--------------------------------------------------------+  +-------------------------+ 
+  |                                                        |  |                         |
+  |  index.gltf                                            |  | ocean.com/aquarium.fbx  |
+  |    │                                                   |  |   │                     |
+  |    ├── ◻ canvas                                        |  |   └── ◻ fishbowl        |
+  |    │      └ src: painting.png                          |  |         ├─ ◻ bass       |
+  |    │                                                   |  |         └─ ◻ tuna       |
+  |    ├── ◻ aquariumcube                                  |  |                         |       
+  |    │      └ src: ://rescue.com/fish.gltf#q=bass%20tuna |  +-------------------------+
+  |    │                                                   |    
+  |    ├── ◻ bedroom                                       |   
+  |    │      └ src: #q=canvas                             |
+  |    │                                                   |   
+  |    └── ◻ livingroom                                    |      
+  |           └ src: #q=canvas                             |
+  |                                                        |
+  +--------------------------------------------------------+
 </code></pre>
 
 <p>An XR Fragment-compatible browser viewing this scene, lazy-loads and projects <code>painting.png</code> onto the (plane) object called <code>canvas</code> (which is copy-instanced in the bed and livingroom).
-Also, after lazy-loading <code>rescue.com/aquarium.gltf</code>, only the queried objects <code>bassfish</code> and <code>tuna</code> will be instanced inside <code>aquariumcube</code>.
+Also, after lazy-loading <code>ocean.com/aquarium.gltf</code>, only the queried objects <code>bass</code> and <code>tuna</code> will be instanced inside <code>aquariumcube</code>.
 Resizing will be happen accordingly to its placeholder object (<code>aquariumcube</code>), see chapter Scaling.</p>
-
-<h1 id="embedding-text">Embedding text</h1>
 
 <h1 id="list-of-xr-uri-fragments">List of XR URI Fragments</h1>
 
