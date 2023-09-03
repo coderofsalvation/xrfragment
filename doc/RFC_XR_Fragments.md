@@ -84,7 +84,7 @@ However, thru the lens of authoring their lowest common denominator is still: pl
 XR Fragments allows us to enrich existing dataformats, by recursive use of existing technologies:
 
 * addressibility & navigation of 3D objects: [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) + (src/href) metadata
-* bi-directional links between text and spatial objects: [visual-meta](https://visual-meta.info)
+* hasslefree bi-directional links between text and spatial objects using [visual-meta & RDF](https://visual-meta.info)
 
 # Conventions and Definitions
 
@@ -171,12 +171,25 @@ Resizing will be happen accordingly to its placeholder object (`aquariumcube`), 
 # Embedding text
 
 Text in XR has to be unobtrusive, for readers as well as authors.
-We think and speak in simple text, and given the new paradigm of XR interfaces, logically (spoken) text must be enriched *afterwards* (lazy metadata).
-Therefore, **yet-another-markuplanguage** is not going to get us very far.
-What will get us far, is when XR interfaces always guarantee direct feedbackloops between plainttext and humans.
-Humans need to be always served first, and machines later.
+We think and speak in simple text, and given the new (non-keyboard) paradigm of XR interfaces, keeping text as is (not obscuring with markup) is preferred.
+Therefore, forcing text into **yet-another-markuplanguage** is not going to get us very far.
+When XR interfaces always guarantee direct feedbackloops between plainttext and humans, metadata must come **with** the text (not **in** the text).
+XR Fragments enjoys hasslefree rich text, by adding BibTex metadata (like [visual-meta](https://visual.meta.info)) support to plain text & 3D ojects:
 
-In the next chapter you can see how XR Fragments enjoys hasslefree rich text, by adding [visual-meta](https://visual.meta.info)(data) support to plain text.
+```
+This is John, and his houses can be seen here
+
+@house{houses,
+  note = {todo: find out who John is}
+  url  = {#pos=0,0,1&rot=0,0,0&t=1,100}         <--- optional
+  mov  = {1,0,0}                                <--- optional
+}
+```
+
+Now 3D- and/or text-object(s) named 'house' or have class '.house' are now associated with this text.
+Optionally, an url **with** XR Fragments can be added to, to restore the user position during metadata-creation.
+
+> This way, humans get always get served first, and machines later.
 
 ## Default Data URI mimetype 
 
@@ -186,9 +199,28 @@ The XR Fragment specification bumps the traditional default browser-mimetype
 
 to:
 
-`text/plain;charset=utf-8;visual-meta=1`
+`text/plain;charset=utf-8;meta=bibtex`
 
-This means that [visual-meta](https://visual.meta.info)(data) can be appended to plain text without being displayed.
+The idea is that (unrendered) offline metadata is always transmitted/copypasted along with the actual text.
+This expands human expressiveness significantly, by removing layers of complexity.
+BibTex-notation is already wide-spread in the academic world, and has shown to be the lowest common denominator for copy/pasting content AND metadata:
+
+| characteristic                | UTF-8 BibTex                | RDF          |
+|-------------------------------|-----------------------------|--------------|
+| perspective                   | introspective               | extrospective|
+| space/scope                   | local                       | world        |
+| leaves (dictated) text intact | yes                         | no           |
+| markup language(s)            | no (appendix)               | ~4 different |                 
+| polyglot                      | no                          | yes          |
+| easy to parse                 | yes (fits on A4 paper)      | depends      |
+| infrastructure                | selfcontained (plain text)  | networked    |
+| tagging                       | yes                         | yes          |
+| freeform tagging/notes        | yes                         | depends      |     
+| file-agnostic                 | yes                         | yes          |
+| copy-paste preserves metadata | yes                         | depends      |
+| emoji                         | yes                         | depends      |
+
+> This is NOT to say that RDF should not be used by XR Browsers in auxilary or interlinked ways, it means that the XR Fragments spec has a more introspective scope.
 
 ### URL and Data URI
 
@@ -248,6 +280,71 @@ This allows rich interaction and interlinking between text and 3D objects:
 
 1. When the user surfs to https://.../index.gltf#AI the XR Fragments-parser points the enduser to the AI object, and can show contextual info about it.
 2. When (partial) remote content is embedded thru XR Fragment queries (see XR Fragment queries), its related visual-meta can be embedded along.
+
+## BibTex: dumb (non-multiline)
+
+With around 6 regexes, BibTex tags can be (de)serialized by XR Fragment browsers:
+
+```
+bibtex = {
+  decode: (str) => {
+    var vm = {}, st = [vm];
+    str
+    .split(/\r?\n/ )
+    .map( s => s.trim() ).join("\n") // be nice
+    .split('\n').map( (line) => {
+          if( line.match(/^}/) && st.length > 1 ) st.shift()
+          else if( line.match(/^@/)    ) st.unshift( st[0][ line.replace(/,/g,'') ] = {} )
+          else line.replace( /(\w+)\s*=\s*{(.*)}(,)?/g, (m,k,v) => st[0][k] = v )        
+    })
+    return vm
+  },
+    
+  encode: (o) => {
+    if (typeof o === "object") {
+       return Object.keys(o).map(k => 
+           typeof o[k] == "string" 
+           ? `  ${k} = {${o[k]}},`
+           : `${ k.match(/[}{]$/) ? k.replace('}','-start}') : `${k},` }\n` +
+             `${ VM.encode(o[k])}\n`                         +
+             `${  k.match(/}$/) ? k.replace('}','-end}') : '}' }\n`
+             .split("\n").filter( s => s.trim() ).join("\n")
+        )
+        .join("\n")
+    }
+    return o.toString();
+  }
+}
+```
+
+> NOTE: XR Fragments assumes non-multiline stringvalues
+
+Here's a more robust decoder, which is more gentle to authors and supports BibTex startstop-sections (used by [visual-meta](https://visual-meta.info)):
+
+```
+bibtex = {
+  decode: (str) => {
+    var vm = {}, st = [vm];
+    str
+    .split(/\r?\n/ )
+    .map( s => s.trim() ).join("\n") // be nice 
+    .replace( /}@/,  "}\n@"  )       // to authors
+    .replace( /},}/, "},\n}" )       // which struggle
+    .replace( /^}/,  "\n}"   )       // with writing single-line BiBTeX
+    .split(   /\n/           )       //
+    .filter( c => c.trim()   )       // actual processing:
+    .map( (s) => {
+      if( s.match(/(^}|-end})/) && st.length > 1 ) st.shift()
+      else if( s.match(/^@/)    ) st.unshift( st[0][ s.replace(/(-start|,)/g,'') ] = {} )
+      else s.replace( /(\w+)\s*=\s*{(.*)}(,)?/g, (m,k,v) => st[0][k] = v )
+    })
+    return vm
+  },
+}
+```
+
+> Still fits on a papertowel, and easy for LLVM's to translate to any language.
+
 
 # HYPER copy/paste 
 
