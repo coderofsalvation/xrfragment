@@ -25,7 +25,7 @@ fullname="L.R. van Kammen"
   <style type="text/css">
   body{
     font-family: monospace;
-    max-width: 900px;
+    max-width: 1000px;
     font-size: 15px;
     padding: 0% 20%;
     line-height: 30px;
@@ -40,6 +40,15 @@ fullname="L.R. van Kammen"
     border-radius: 3px;
     padding: 0px 5px 2px 5px;
   }
+
+  pre{
+    line-height: 18px;
+    overflow: auto;
+    padding: 12px;
+  }
+  pre + code {
+    background:#DDD;
+  }
   pre>code{
     border:none;
     border-radius:0px;
@@ -49,6 +58,18 @@ fullname="L.R. van Kammen"
     padding-left: 30px;
     margin: 0;
     border-left: 5px solid #CCC;
+  }
+  th {
+      border-bottom: 1px solid #000;
+      text-align: left;
+      padding-right:45px;
+      padding-left:7px;
+      background: #DDD;
+  }
+
+  td {
+      border-bottom: 1px solid #CCC;
+      font-size:13px; 
   }
 
   </style>
@@ -72,53 +93,77 @@ value:     draft-XRFRAGMENTS-leonvankammen-00
 
 .# Abstract
 
-This draft offers a specification for 4D URLs & navigation, to link 3D scenes and text together with- or without a network-connection.
-The specification promotes spatial addressibility, sharing, navigation, query-ing and interactive text across for (XR) Browsers.
-XR Fragments allows us to enrich existing dataformats, by recursive use of existing technologies like [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) & [visual-meta](https://visual-meta.info).
+This draft offers a specification for 4D URLs & navigation, to link 3D scenes and text together with- or without a network-connection.<br>
+The specification promotes spatial addressibility, sharing, navigation, query-ing and tagging interactive (text)objects across for (XR) Browsers.<br>
+XR Fragments allows us to enrich existing dataformats, by recursive use of existing proven technologies like [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) and [visual-meta](https://visual-meta.info).<br>
+
+{mainmatter}
 
 # Introduction
 
-How can we add more features to existing text & 3D scenes, without introducing new dataformats?
-Historically, there's many attempts to create the ultimate markuplanguage or 3D fileformat.
-However, thru the lens of authoring their lowest common denominator is still: plain text.
-XR Fragments allows us to enrich existing dataformats, by recursive use of existing technologies:
+How can we add more features to existing text & 3D scenes, without introducing new dataformats?<br>
+Historically, there's many attempts to create the ultimate markuplanguage or 3D fileformat.<br>
+However, thru the lens of authoring their lowest common denominator is still: plain text.<br>
+XR Fragments allows us to enrich existing dataformats, by recursive use of existing technologies:<br>
 
-* addressibility & navigation of 3D objects: [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) + (src/href) metadata
-* hasslefree bi-directional links between text and spatial objects using [visual-meta & RDF](https://visual-meta.info)
+1. addressibility and navigation of 3D scenes/objects: [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) + src/href spatial metadata 
+1. hasslefree tagging across text and spatial objects using BiBTeX ([visual-meta](https://visual-meta.info) e.g.)
+
+> NOTE: The chapters in this document are ordered from highlevel to lowlevel (technical) as much as possible
 
 # Conventions and Definitions
 
-* scene: a (local/remote) 3D scene or 3D file (index.gltf e.g.)
-* 3D object: an object inside a scene characterized by vertex-, face- and customproperty data.
-* metadata: custom properties defined in 3D Scene or Object(nodes) 
-* XR fragment: URI Fragment with spatial hints (`#pos=0,0,0&t=1,100` e.g.)
-* src: a (HTML-piggybacked) metadata-attribute of a 3D object which instances content
-* href: a (HTML-piggybacked) metadata-attribute of a 3D object which links to content 
-* query: an URI Fragment-operator which queries object(s) from a scene (`#q=cube`)
-* [visual-meta](https://visual.meta.info): metadata appended to text which is only indirectly visible/editable in XR.
+|definition            | explanation                                                                                                               |
+|----------------------|---------------------------------------------------------------------------------------------------------------------------|
+|human                 | a sentient being who thinks fuzzy, absorbs, and shares thought (by plain text, not markuplanguage)                        |
+|scene                 | a (local/remote) 3D scene or 3D file (index.gltf e.g.)                                                                    |
+|3D object             | an object inside a scene characterized by vertex-, face- and customproperty data.                                         |
+|metadata              | custom properties of text, 3D Scene or Object(nodes), relevant to machines and a human minority (academics/developers)    |
+|XR fragment           | URI Fragment with spatial hints (`#pos=0,0,0&t=1,100` e.g.)                                                               |
+|src                   | (HTML-piggybacked) metadata of a 3D object which instances content                                                        |
+|href                  | (HTML-piggybacked) metadata of a 3D object which links to content                                                         |
+|query                 | an URI Fragment-operator which queries object(s) from a scene (`#q=cube`)                                                 |
+|visual-meta           | [visual-meta](https://visual.meta.info) data appended to text which is indirectly visible/editable in XR.                 |
+|requestless metadata  | opposite of networked metadata (RDF/HTML request-fanouts easily cause framerate-dropping, hence not used a lot in games). |
+|FPS                   | frames per second in spatial experiences (games,VR,AR e.g.), should be as high as possible                                |
+|introspective         | inward sensemaking ("I feel this belongs to that")                                                                        |
+|extrospective         | outward sensemaking ("I'm fairly sure John is a person who lives in oklahoma")                                            |
+|`◻`                   | ascii representation of an 3D object/mesh                                                                                 |
 
-{::boilerplate bcp14-tagged}
+# Core principle
+
+XR Fragments strives to serve humans first, machine(implementations) later, by ensuring hasslefree text-to-thought feedback loops.<br>
+This also means that the repair-ability of machine-matters should be human friendly too (not too complex).<br>
+
+> "When a car breaks down, the ones without turbosupercharger are easier to fix"
 
 # List of URI Fragments
 
-| fragment     | type     | example       | info                                                 |
-|--------------|----------|---------------|------------------------------------------------------|
-| #pos         | vector3  | #pos=0.5,0,0  | positions camera to xyz-coord 0.5,0,0                |
-| #rot         | vector3  | #rot=0,90,0   | rotates camera to xyz-coord 0.5,0,0                  |
-| #t           | vector2  | #t=500,1000   | sets animation-loop range between frame 500 and 1000 |
+| fragment     | type     | example           | info                                                              |
+|--------------|----------|-------------------|-------------------------------------------------------------------|
+| `#pos`       | vector3  | `#pos=0.5,0,0`    | positions camera to xyz-coord 0.5,0,0                             |
+| `#rot`       | vector3  | `#rot=0,90,0`     | rotates camera to xyz-coord 0.5,0,0                               |
+| `#t`         | vector2  | `#t=500,1000`     | sets animation-loop range between frame 500 and 1000              |
+| `#......`    | string   | `#.cubes` `#cube` | object(s) of interest (fragment to object name or class mapping)  |
+
+> xyz coordinates are similar to ones found in SVG Media Fragments
 
 # List of metadata for 3D nodes 
 
-| key          | type     | example         | info                                                   |
-|--------------|----------|-----------------|--------------------------------------------------------|
-| name         | string   | name: "cube"    | already available in all 3D fileformats & scenes       |
-| class        | string   | class: "cubes"  | supported through custom property in 3D fileformats    |
-| href         | string   | href: "b.gltf"  | supported through custom property in 3D fileformats    |
-| src          | string   | src: "#q=cube"  | supported through custom property in 3D fileformats    |
+| key          | type     | example (JSON)     | info                                                   |
+|--------------|----------|--------------------|--------------------------------------------------------|
+| `name`       | string   | `"name": "cube"`   | available in all 3D fileformats & scenes               |
+| `class`      | string   | `"class": "cubes"` | available through custom property in 3D fileformats    |
+| `href`       | string   | `"href": "b.gltf"` | available through custom property in 3D fileformats    |
+| `src`        | string   | `"src": "#q=cube"` | available through custom property in 3D fileformats    |
+
+Popular compatible 3D fileformats: `.gltf`, `.obj`, `.fbx`, `.usdz`, `.json` (THREEjs), `COLLADA` and so on.
+
+> NOTE: XR Fragments are file-agnostic, which means that the metadata exist in programmatic 3D scene(nodes) too.
 
 # Navigating 3D
 
-Here's an ascii representation of a 3D scene-graph which contains 3D objects (`◻`) and their metadata:
+Here's an ascii representation of a 3D scene-graph which contains 3D objects `◻` and their metadata:
 
 ```
   +--------------------------------------------------------+ 
@@ -129,13 +174,13 @@ Here's an ascii representation of a 3D scene-graph which contains 3D objects (`�
   |    │      └ href: #pos=1,0,1&t=100,200                 |
   |    │                                                   |
   |    └── ◻ buttonB                                       |
-  |           └ href: other.fbx                            |
+  |           └ href: other.fbx                            |   <-- file-agnostic (can be .gltf .obj etc)
   |                                                        |
   +--------------------------------------------------------+
 
 ```
 
-An XR Fragment-compatible browser viewing this scene, allows the end-user to interact with the `buttonA` and `buttonB`.
+An XR Fragment-compatible browser viewing this scene, allows the end-user to interact with the `buttonA` and `buttonB`.<br>
 In case of `buttonA` the end-user will be teleported to another location and time in the **current loaded scene**, but `buttonB` will
  **replace the current scene** with a new one (`other.fbx`).
 
@@ -163,66 +208,86 @@ Here's an ascii representation of a 3D scene-graph with 3D objects (`◻`) which
   +--------------------------------------------------------+
 ```
 
-An XR Fragment-compatible browser viewing this scene, lazy-loads and projects `painting.png` onto the (plane) object called `canvas` (which is copy-instanced in the bed and livingroom).
-Also, after lazy-loading `ocean.com/aquarium.gltf`, only the queried objects `bass` and `tuna` will be instanced inside `aquariumcube`.
-Resizing will be happen accordingly to its placeholder object (`aquariumcube`), see chapter Scaling.
+An XR Fragment-compatible browser viewing this scene, lazy-loads and projects `painting.png` onto the (plane) object called `canvas` (which is copy-instanced in the bed and livingroom).<br>
+Also, after lazy-loading `ocean.com/aquarium.gltf`, only the queried objects `bass` and `tuna` will be instanced inside `aquariumcube`.<br>
+Resizing will be happen accordingly to its placeholder object (`aquariumcube`), see chapter Scaling.<br>
 
 
-# Embedding text
+# Text in XR (tagging,linking to spatial objects)
 
-Text in XR has to be unobtrusive, for readers as well as authors.
-We think and speak in simple text, and given the new (non-keyboard) paradigm of XR interfaces, keeping text as is (not obscuring with markup) is preferred.
-Therefore, forcing text into **yet-another-markuplanguage** is not going to get us very far.
-When XR interfaces always guarantee direct feedbackloops between plainttext and humans, metadata must come **with** the text (not **in** the text).
-XR Fragments enjoys hasslefree rich text, by adding BibTex metadata (like [visual-meta](https://visual.meta.info)) support to plain text & 3D ojects:
+We still think and speak in simple text, not in HTML or RDF.<br>
+It would be funny when people would shout `<h1>FIRE!</h1>` in case of emergency.<br>
+Given the myriad of new (non-keyboard) XR interfaces, keeping text as is (not obscuring with markup) is preferred.<br>
+Ideally metadata must come **later with** text, but not **obfuscate** the text, or **in another** file.<br>
+
+> Humans first, machines (AI) later.
+
+This way:
+
+1. XR Fragments allows <b id="tagging-text">hasslefree XR text tagging</b>, using BibTeX metadata **at the end of content** (like [visual-meta](https://visual.meta.info)).
+1. XR Fragments allows hasslefree <a href="#textual-tag">textual tagging</a>, <a href="#spatial-tag">spatial tagging</a>, and <a href="#supra-tagging">supra tagging</a>, by mapping 3D/text object (class)names to BibTeX
+3. inline BibTeX is the minimum required **requestless metadata**-layer for XR text, RDF/JSON is great but optional (and too verbose for the spec-usecases).
+5. Default font (unless specified otherwise) is a modern monospace font, for maximized tabular expressiveness (see [the core principle](#core-principle)).
+6. anti-pattern: hardcoupling a mandatory **obtrusive markuplanguage** or framework with an XR browsers (HTML/VRML/Javascript) (see [the core principle](#core-principle))
+7. anti-pattern: limiting human introspection, by immediately funneling human thought into typesafe, precise, pre-categorized metadata like RDF (see [the core principle](#core-principle))
+
+This allows recursive connections between text itself, as well as 3D objects and vice versa, using **BiBTeX-tags** :
 
 ```
-This is John, and his houses can be seen here
-
-@house{houses,
-  note = {todo: find out who John is}
-  url  = {#pos=0,0,1&rot=0,0,0&t=1,100}         <--- optional
-  mov  = {1,0,0}                                <--- optional
-}
+  +--------------------------------------------------+
+  | My Notes                                         |
+  |                                                  |
+  | The houses seen here are built in baroque style. |   
+  |                                                  |   
+  | @house{houses,                                <----- XR Fragment triple/tag: tiny & phrase-matching BiBTeX
+  |   url  = {#.house}              <------------------- XR Fragment URI
+  | }                                                |
+  +--------------------------------------------------+
 ```
 
-Now 3D- and/or text-object(s) named 'house' or have class '.house' are now associated with this text.
-Optionally, an url **with** XR Fragments can be added to, to restore the user position during metadata-creation.
+This sets up the following associations in the scene:
 
-> This way, humans get always get served first, and machines later.
+1. <b id="textual-tagging">textual tag</b>: text or spatial-occurences named 'houses' is now automatically tagged with 'house' 
+1. <b id="spatial-tagging">spatial tag</b>: spatial object(s) with class:house (#.house) is now automatically tagged with 'house'
+1. <b id="supra-tagging">supra-tag</b>: text- or spatial-object named 'house' (spatially) elsewhere, is now automatically tagged with 'house' 
+
+Spatial wires can be rendered, words can be highlighted, spatial objects can be highlighted, links can be manipulated by the user.
+
+> The simplicity of appending BibTeX (humans first, machines later) is demonstrated by [visual-meta](https://visual-meta.info) in greater detail, and makes it perfect for GUI's to generate (bib)text later. Humans can still view/edit the metadata manually, by clicking 'toggle metadata' on the 'back' (contextmenu e.g.) of any XR text, anywhere anytime.
 
 ## Default Data URI mimetype 
+
+The `src`-values work as expected (respecting mime-types), however:
 
 The XR Fragment specification bumps the traditional default browser-mimetype 
 
 `text/plain;charset=US-ASCII` 
 
-to:
+to a green eco-friendly:
 
-`text/plain;charset=utf-8;meta=bibtex`
+`text/plain;charset=utf-8;bibtex=^@`
 
-The idea is that (unrendered) offline metadata is always transmitted/copypasted along with the actual text.
-This expands human expressiveness significantly, by removing layers of complexity.
-BibTex-notation is already wide-spread in the academic world, and has shown to be the lowest common denominator for copy/pasting content AND metadata:
+This indicates that any bibtex metadata starting with `@` will automatically get filtered out and:
 
-| characteristic                | UTF-8 BibTex                | RDF          |
-|-------------------------------|-----------------------------|--------------|
-| perspective                   | introspective               | extrospective|
-| space/scope                   | local                       | world        |
-| leaves (dictated) text intact | yes                         | no           |
-| markup language(s)            | no (appendix)               | ~4 different |                 
-| polyglot                      | no                          | yes          |
-| easy to parse                 | yes (fits on A4 paper)      | depends      |
-| infrastructure                | selfcontained (plain text)  | networked    |
-| tagging                       | yes                         | yes          |
-| freeform tagging/notes        | yes                         | depends      |     
-| file-agnostic                 | yes                         | yes          |
-| copy-paste preserves metadata | yes                         | depends      |
-| emoji                         | yes                         | depends      |
+* automatically detects textual links between textual and spatial objects 
 
-> This is NOT to say that RDF should not be used by XR Browsers in auxilary or interlinked ways, it means that the XR Fragments spec has a more introspective scope.
+It's concept is similar to literate programming.
+Its implications are that local/remote responses can now:
 
-### URL and Data URI
+* (de)multiplex/repair human text and requestless metadata (see [the core principle](#core-principle))
+* no separated implementation/network-overhead for metadata (see [the core principle](#core-principle)) 
+* ensuring high FPS: HTML/RDF historically is too 'requesty' for game studios
+* rich send/receive/copy-paste everywhere by default, metadata being retained (see [the core principle](#core-principle))
+* less network requests, therefore less webservices, therefore less servers, and overall better FPS in XR 
+
+> This significantly expands expressiveness and portability of human text, by **postponing machine-concerns to the end of the human text** in contrast to literal interweaving of content and markupsymbols (or extra network requests, webservices e.g.).
+
+For all other purposes, regular mimetypes can be used (but are not required by the spec).<br>
+To keep XR Fragments a lightweight spec, BiBTeX is used for text-spatial object mappings (not a scripting language or RDF e.g.). 
+
+> Applications are also free to attach any JSON(LD / RDF) to spatial objects using custom properties (but is not interpreted by this spec).
+
+## URL and Data URI
 
 ```
   +--------------------------------------------------------------+  +------------------------+
@@ -231,20 +296,18 @@ BibTex-notation is already wide-spread in the academic world, and has shown to b
   |    │                                                         |  |                        |
   |    ├── ◻ article_canvas                                      |  | Hello friends.         |
   |    │    └ src: ://author.com/article.txt                     |  |                        |
-  |    │                                                         |  | @{visual-meta-start}   |
-  |    └── ◻ note_canvas                                         |  | ...                    |
-  |           └ src:`data:welcome human @{visual-meta-start}...` |  +------------------------+ 
-  |                                                              | 
+  |    │                                                         |  | @friend{friends        |
+  |    └── ◻ note_canvas                                         |  |   ...                  |
+  |           └ src:`data:welcome human @...`                    |  | }                      | 
+  |                                                              |  +------------------------+
   |                                                              |
   +--------------------------------------------------------------+
 ```
 
-The enduser will only see `welcome human` rendered spatially.
-The beauty is that text (AND visual-meta) in Data URI is saved into the scene, which also promotes rich copy-paste.
-In both cases will the text get rendered immediately (onto a plane geometry, hence the name '_canvas').
+The enduser will only see `welcome human` and `Hello friends` rendered spatially.
+The beauty is that text (AND visual-meta) in Data URI promotes rich copy-paste.
+In both cases, the text gets rendered immediately (onto a plane geometry, hence the name '_canvas').
 The XR Fragment-compatible browser can let the enduser access visual-meta(data)-fields after interacting with the object (contextmenu e.g.).
-
-> NOTE: this is not to say that XR Browsers should not load HTML/PDF/etc-URLs thru `src`, it is just that `text/plain;charset=utf-8;visual-meta=1` is the default.
 
 The mapping between 3D objects and text (src-data) is simple:
 
@@ -255,22 +318,13 @@ Example:
   |                                                                                    | 
   |  index.gltf                                                                        | 
   |    │                                                                               | 
-  |    ├── ◻ AI                                                                        | 
-  |    │    └ class: tech                                                              | 
-  |    │                                                                               | 
-  |    └ src:`data:@{visual-meta-start}                                                | 
-  |                @{glossary-start}                                                   |
-  |                @entry{                                                             |
-  |                    name="AI",                                                      |
-  |                    alt-name1 = "Artificial Intelligence",                          |
-  |                    description="Artificial intelligence",                          |
-  |                    url = "https://en.wikipedia.org/wiki/Artificial_intelligence",  |
-  |                }                                                                   |
-  |                @entry{                                                             |
-  |                    name="tech"                                                     |
-  |                    alt-name1="technology"                                          |
-  |                    description="when monkeys start to play with things"            |
-  |                }`                                                                  |
+  |    └── ◻ rentalhouse                                                               | 
+  |           └ class: house                                                           | 
+  |           └ ◻ note                                                                 | 
+  |                 └ src:`data: todo: call owner                                      |
+  |                              @house{owner,                                         |
+  |                                url  = {#.house}                                    |
+  |                              }`                                                    |
   +------------------------------------------------------------------------------------+
 ```
 
@@ -281,70 +335,106 @@ This allows rich interaction and interlinking between text and 3D objects:
 1. When the user surfs to https://.../index.gltf#AI the XR Fragments-parser points the enduser to the AI object, and can show contextual info about it.
 2. When (partial) remote content is embedded thru XR Fragment queries (see XR Fragment queries), its related visual-meta can be embedded along.
 
-## BibTex: dumb (non-multiline)
+## BibTeX as lowest common denominator for tagging/triple
 
-With around 6 regexes, BibTex tags can be (de)serialized by XR Fragment browsers:
+The everything-is-text focus of BiBTex is a great advantage for introspection, and perhaps a necessary bridge towards RDF (extrospective).
+BibTeX-appendices (visual-meta e.g.) are already adopted in the physical world (academic books), perhaps due to its terseness & simplicity:
+
+1. <b id="frictionless-copy-paste">frictionless copy/pasting</b> (by humans) of (unobtrusive) content AND metadata
+1. an introspective 'sketchpad' for metadata, which can (optionally) mature into RDF later 
+
+| characteristic                     | Plain Text (with BibTeX)    | RDF                       |
+|------------------------------------|-----------------------------|---------------------------|
+| perspective                        | introspective               | extrospective             |
+| space/scope                        | local                       | world                     |
+| everything is text (string)        | yes                         | no                        |
+| leaves (dictated) text intact      | yes                         | no                        |
+| markup language(s)                 | no (appendix)               | ~4 different              |                 
+| polyglot format                    | no                          | yes                       |
+| easy to copy/paste content+metadata| yes                         | depends                   |
+| easy to write/repair               | yes                         | depends                   |
+| easy to parse                      | yes (fits on A4 paper)      | depends                   |
+| infrastructure storage             | selfcontained (plain text)  | (semi)networked           |
+| tagging                            | yes                         | yes                       |
+| freeform tagging/notes             | yes                         | depends                   |     
+| specialized file-type              | no                          | yes                       |
+| copy-paste preserves metadata      | yes                         | depends                   |
+| emoji                              | yes                         | depends                   |
+| predicates                         | free                        | pre-determined            |
+| implementation/network overhead    | no                          | depends                   |
+| used in (physical) books/PDF       | yes (visual-meta)           | no                        |
+| terse categoryless predicates      | yes                         | no                        |
+| nested structures                  | no                          | yes                       |
+
+> To serve humans first, human 'fuzzy symbolical mind' comes first, and ['categorized typesafe RDF hive mind'](https://en.wikipedia.org/wiki/Borg)) later.
+
+## XR text (BibTeX) example parser
+
+Here's a naive XR Text (de)multiplexer in javascript (which also supports visual-meta start/end-blocks):
 
 ```
-bibtex = {
-  decode: (str) => {
-    var vm = {}, st = [vm];
-    str
-    .split(/\r?\n/ )
-    .map( s => s.trim() ).join("\n") // be nice
-    .split('\n').map( (line) => {
-          if( line.match(/^}/) && st.length > 1 ) st.shift()
-          else if( line.match(/^@/)    ) st.unshift( st[0][ line.replace(/,/g,'') ] = {} )
-          else line.replace( /(\w+)\s*=\s*{(.*)}(,)?/g, (m,k,v) => st[0][k] = v )        
-    })
-    return vm
+xrtext = {
+    
+  decode: {
+    text: (str) => {
+        let meta={}, text='', last='', data = '';
+        str.split(/\r?\n/).map( (line) => {
+            if( !data ) data = last === '' && line.match(/^@/) ? line[0] : ''  
+            if( data ){
+                if( line === '' ){
+                    xrtext.decode.bibtex(data.substr(1),meta)
+                    data=''
+                }else data += `${line}\n`
+            }
+            text += data ? '' : `${line}\n`
+            last=line
+        })
+        return {text, meta}      
+    },
+    bibtex: (str,meta) => {
+        let st = [meta]
+        str
+        .split(/\r?\n/ )
+        .map( s => s.trim() ).join("\n") // be nice
+        .replace( /}@/,  "}\n@"  )       // to authors
+        .replace( /},}/, "},\n}" )       // which struggle
+        .replace( /^}/,  "\n}"   )       // with writing single-line BiBTeX
+        .split(   /\n/           )       //
+        .filter( c => c.trim()   )       // actual processing:
+        .map( (s) => {
+          if( s.match(/(^}|-end})/) && st.length > 1 ) st.shift()
+          else if( s.match(/^@/)    ) st.unshift( st[0][ s.replace(/(-start|,)/g,'') ] = {} )
+          else s.replace( /(\w+)\s*=\s*{(.*)}(,)?/g, (m,k,v) => st[0][k] = v )
+        })
+        return meta
+    }
   },
     
-  encode: (o) => {
-    if (typeof o === "object") {
-       return Object.keys(o).map(k => 
-           typeof o[k] == "string" 
-           ? `  ${k} = {${o[k]}},`
-           : `${ k.match(/[}{]$/) ? k.replace('}','-start}') : `${k},` }\n` +
-             `${ VM.encode(o[k])}\n`                         +
-             `${  k.match(/}$/) ? k.replace('}','-end}') : '}' }\n`
-             .split("\n").filter( s => s.trim() ).join("\n")
-        )
-        .join("\n")
-    }
-    return o.toString();
+  encode: (text,meta) => {
+    if( text === false ){
+        if (typeof meta === "object") {
+           return Object.keys(meta).map(k => 
+               typeof meta[k] == "string" 
+               ? `  ${k} = {${meta[k]}},`
+               : `${ k.match(/[}{]$/) ? k.replace('}','-start}') : `${k},` }\n` +
+                 `${ xrtext.encode( false, meta[k])}\n`                         +
+                 `${  k.match(/}$/) ? k.replace('}','-end}') : '}' }\n`
+                 .split("\n").filter( s => s.trim() ).join("\n")
+            )
+            .join("\n")
+        }
+        return meta.toString();
+    }else return `${text}\n${xrtext.encode(false,meta)}`
   }
+
 }
+
+var {meta,text} = xrtext.decode.text(str)          // demultiplex text & bibtex
+meta['@foo{']   = { "note":"note from the user"}   // edit metadata
+xrtext.encode(text,meta)                           // multiplex text & bibtex back together 
 ```
 
-> NOTE: XR Fragments assumes non-multiline stringvalues
-
-Here's a more robust decoder, which is more gentle to authors and supports BibTex startstop-sections (used by [visual-meta](https://visual-meta.info)):
-
-```
-bibtex = {
-  decode: (str) => {
-    var vm = {}, st = [vm];
-    str
-    .split(/\r?\n/ )
-    .map( s => s.trim() ).join("\n") // be nice 
-    .replace( /}@/,  "}\n@"  )       // to authors
-    .replace( /},}/, "},\n}" )       // which struggle
-    .replace( /^}/,  "\n}"   )       // with writing single-line BiBTeX
-    .split(   /\n/           )       //
-    .filter( c => c.trim()   )       // actual processing:
-    .map( (s) => {
-      if( s.match(/(^}|-end})/) && st.length > 1 ) st.shift()
-      else if( s.match(/^@/)    ) st.unshift( st[0][ s.replace(/(-start|,)/g,'') ] = {} )
-      else s.replace( /(\w+)\s*=\s*{(.*)}(,)?/g, (m,k,v) => st[0][k] = v )
-    })
-    return vm
-  },
-}
-```
-
-> Still fits on a papertowel, and easy for LLVM's to translate to any language.
-
+> above can be used as a startingpoint for LLVM's to translate/steelman to any language.
 
 # HYPER copy/paste 
 
@@ -353,7 +443,7 @@ XR Fragment allows HYPER-copy/paste: time, space and text interlinked.
 Therefore, the enduser in an XR Fragment-compatible browser can copy/paste/share data in these ways:
 
 * time/space: 3D object (current animation-loop)
-* text: Text object (including visual-meta if any)
+* text: TeXt object (including BiBTeX/visual-meta if any)
 * interlinked: Collected objects by visual-meta tag
 
 # XR Fragment queries
@@ -378,7 +468,7 @@ It's simple but powerful syntax which allows <b>css</b>-like class/id-selectors 
 
 * see [an example video here](https://coderofsalvation.github.io/xrfragment.media/queries.mp4)
 
-### including/excluding
+## including/excluding
 
 |''operator''  | ''info'' |
 |`*` | select all objects (only allowed in `src` custom property) in the <b>current</b> scene (<b>after</b> the default [[predefined_view|predefined_view]] `#` was executed)|
@@ -414,11 +504,26 @@ Here's how to write a query parser:
 
 > An example query-parser (which compiles to many languages) can be [found here](https://github.com/coderofsalvation/xrfragment/blob/main/src/xrfragment/Query.hx)
 
-# List of XR URI Fragments 
+## XR Fragment URI Grammar 
+
+```
+reserved    = gen-delims / sub-delims
+gen-delims  = "#" / "&"
+sub-delims  = "," / "="
+```
+
+> Example: `://foo.com/my3d.gltf#pos=1,0,0&prio=-5&t=0,100`
+
+| Demo                          | Explanation                     |
+|-------------------------------|---------------------------------|
+| `pos=1,2,3`                   | vector/coordinate argument e.g. |
+| `pos=1,2,3&rot=0,90,0&q=.foo` | combinators                     |
 
 # Security Considerations
 
-TODO Security
+Since XR Text contains metadata too, the user should be able to set up tagging-rules, so the copy-paste feature can :
+
+* filter out sensitive data when copy/pasting (XR text with `class:secret` e.g.)
 
 # IANA Considerations
 
