@@ -103,39 +103,41 @@ XR Fragments allows us to enrich existing dataformats, by recursive use of exist
 
 How can we add more features to existing text & 3D scenes, without introducing new dataformats?<br>
 Historically, there's many attempts to create the ultimate markuplanguage or 3D fileformat.<br>
-However, thru the lens of authoring their lowest common denominator is still: plain text.<br>
-XR Fragments allows us to enrich existing dataformats, by recursive use of existing technologies:<br>
+However, thru the lens of authoring, their lowest common denominator is still: plain text.<br>
+XR Fragments allows us to enrich/connect existing dataformats, by recursive use of existing technologies:<br>
 
 1. addressibility and navigation of 3D scenes/objects: [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) + src/href spatial metadata 
-1. hasslefree tagging across text and spatial objects using BiBTeX ([visual-meta](https://visual-meta.info) e.g.)
+1. hasslefree tagging across text and spatial objects using [BiBTeX](https://en.wikipedia.org/wiki/BibTeX) ([visual-meta](https://visual-meta.info) e.g.)
 
 > NOTE: The chapters in this document are ordered from highlevel to lowlevel (technical) as much as possible
 
-# Conventions and Definitions
-
-|definition            | explanation                                                                                                               |
-|----------------------|---------------------------------------------------------------------------------------------------------------------------|
-|human                 | a sentient being who thinks fuzzy, absorbs, and shares thought (by plain text, not markuplanguage)                        |
-|scene                 | a (local/remote) 3D scene or 3D file (index.gltf e.g.)                                                                    |
-|3D object             | an object inside a scene characterized by vertex-, face- and customproperty data.                                         |
-|metadata              | custom properties of text, 3D Scene or Object(nodes), relevant to machines and a human minority (academics/developers)    |
-|XR fragment           | URI Fragment with spatial hints (`#pos=0,0,0&t=1,100` e.g.)                                                               |
-|src                   | (HTML-piggybacked) metadata of a 3D object which instances content                                                        |
-|href                  | (HTML-piggybacked) metadata of a 3D object which links to content                                                         |
-|query                 | an URI Fragment-operator which queries object(s) from a scene (`#q=cube`)                                                 |
-|visual-meta           | [visual-meta](https://visual.meta.info) data appended to text which is indirectly visible/editable in XR.                 |
-|requestless metadata  | opposite of networked metadata (RDF/HTML request-fanouts easily cause framerate-dropping, hence not used a lot in games). |
-|FPS                   | frames per second in spatial experiences (games,VR,AR e.g.), should be as high as possible                                |
-|introspective         | inward sensemaking ("I feel this belongs to that")                                                                        |
-|extrospective         | outward sensemaking ("I'm fairly sure John is a person who lives in oklahoma")                                            |
-|`◻`                   | ascii representation of an 3D object/mesh                                                                                 |
-
 # Core principle
 
-XR Fragments strives to serve humans first, machine(implementations) later, by ensuring hasslefree text-to-thought feedback loops.<br>
+XR Fragments strives to serve humans first, machine(implementations) later, by ensuring hasslefree text-vs-thought feedback loops.<br>
 This also means that the repair-ability of machine-matters should be human friendly too (not too complex).<br>
 
-> "When a car breaks down, the ones without turbosupercharger are easier to fix"
+> "When a car breaks down, the ones **without** turbosupercharger are easier to fix"
+
+Let's always focus on average humans: the 'fuzzy symbolical mind' must be served first, before serving the greater ['categorized typesafe RDF hive mind'](https://en.wikipedia.org/wiki/Borg)).
+
+# Conventions and Definitions
+
+|definition            | explanation                                                                                                                   |
+|----------------------|-------------------------------------------------------------------------------------------------------------------------------|
+|human                 | a sentient being who thinks fuzzy, absorbs, and shares thought (by plain text, not markuplanguage)                            |
+|scene                 | a (local/remote) 3D scene or 3D file (index.gltf e.g.)                                                                        |
+|3D object             | an object inside a scene characterized by vertex-, face- and customproperty data.                                             |
+|metadata              | custom properties of text, 3D Scene or Object(nodes), relevant to machines and a human minority (academics/developers)        |
+|XR fragment           | URI Fragment with spatial hints (`#pos=0,0,0&t=1,100` e.g.)                                                                   |
+|src                   | (HTML-piggybacked) metadata of a 3D object which instances content                                                            |
+|href                  | (HTML-piggybacked) metadata of a 3D object which links to content                                                             |
+|query                 | an URI Fragment-operator which queries object(s) from a scene (`#q=cube`)                                                     |
+|visual-meta           | [visual-meta](https://visual.meta.info) data appended to text which is indirectly visible/editable in XR.                     |
+|requestless metadata  | opposite of networked metadata (RDF/HTML requests can easily fan out into framerate-dropping, hence not used a lot in games). |
+|FPS                   | frames per second in spatial experiences (games,VR,AR e.g.), should be as high as possible                                    |
+|introspective         | inward sensemaking ("I feel this belongs to that")                                                                            |
+|extrospective         | outward sensemaking ("I'm fairly sure John is a person who lives in oklahoma")                                                |
+|`◻`                   | ascii representation of an 3D object/mesh                                                                                     |
 
 # List of URI Fragments
 
@@ -216,8 +218,8 @@ Resizing will be happen accordingly to its placeholder object (`aquariumcube`), 
 # Text in XR (tagging,linking to spatial objects)
 
 We still think and speak in simple text, not in HTML or RDF.<br>
-It would be funny when people would shout `<h1>FIRE!</h1>` in case of emergency.<br>
-Given the myriad of new (non-keyboard) XR interfaces, keeping text as is (not obscuring with markup) is preferred.<br>
+The most advanced human will probably not shout `<h1>FIRE!</h1>` in case of emergency.<br>
+Given the new dawn of (non-keyboard) XR interfaces, keeping text as is (not obscuring with markup) is preferred.<br>
 Ideally metadata must come **later with** text, but not **obfuscate** the text, or **in another** file.<br>
 
 > Humans first, machines (AI) later.
@@ -226,7 +228,7 @@ This way:
 
 1. XR Fragments allows <b id="tagging-text">hasslefree XR text tagging</b>, using BibTeX metadata **at the end of content** (like [visual-meta](https://visual.meta.info)).
 1. XR Fragments allows hasslefree <a href="#textual-tag">textual tagging</a>, <a href="#spatial-tag">spatial tagging</a>, and <a href="#supra-tagging">supra tagging</a>, by mapping 3D/text object (class)names to BibTeX
-3. inline BibTeX is the minimum required **requestless metadata**-layer for XR text, RDF/JSON is great but optional (and too verbose for the spec-usecases).
+3. inline BibTeX is the minimum required **requestless metadata**-layer for XR text, RDF/JSON is great (but fits better in the application-layer)
 5. Default font (unless specified otherwise) is a modern monospace font, for maximized tabular expressiveness (see [the core principle](#core-principle)).
 6. anti-pattern: hardcoupling a mandatory **obtrusive markuplanguage** or framework with an XR browsers (HTML/VRML/Javascript) (see [the core principle](#core-principle))
 7. anti-pattern: limiting human introspection, by immediately funneling human thought into typesafe, precise, pre-categorized metadata like RDF (see [the core principle](#core-principle))
@@ -239,7 +241,7 @@ This allows recursive connections between text itself, as well as 3D objects and
   |                                                  |
   | The houses seen here are built in baroque style. |   
   |                                                  |   
-  | @house{houses,                                <----- XR Fragment triple/tag: tiny & phrase-matching BiBTeX
+  | @house{houses,                                <----- XR Fragment triple/tag: phrase-matching BiBTeX 
   |   url  = {#.house}              <------------------- XR Fragment URI
   | }                                                |
   +--------------------------------------------------+
@@ -248,12 +250,12 @@ This allows recursive connections between text itself, as well as 3D objects and
 This sets up the following associations in the scene:
 
 1. <b id="textual-tagging">textual tag</b>: text or spatial-occurences named 'houses' is now automatically tagged with 'house' 
-1. <b id="spatial-tagging">spatial tag</b>: spatial object(s) with class:house (#.house) is now automatically tagged with 'house'
-1. <b id="supra-tagging">supra-tag</b>: text- or spatial-object named 'house' (spatially) elsewhere, is now automatically tagged with 'house' 
+1. <b id="spatial-tagging">spatial tag</b>: spatial object(s) with `"class":"house"` (#.house) are now automatically tagged with 'house'
+1. <b id="supra-tagging">supra-tag</b>: text- or spatial-object(s) named 'house' elsewhere, are automatically tagged with 'house' 
 
-Spatial wires can be rendered, words can be highlighted, spatial objects can be highlighted, links can be manipulated by the user.
+This allows spatial wires to be rendered, words can be highlighted, spatial objects can be highlighted/moved/scaled, links can be manipulated by the user.<br>
 
-> The simplicity of appending BibTeX (humans first, machines later) is demonstrated by [visual-meta](https://visual-meta.info) in greater detail, and makes it perfect for GUI's to generate (bib)text later. Humans can still view/edit the metadata manually, by clicking 'toggle metadata' on the 'back' (contextmenu e.g.) of any XR text, anywhere anytime.
+> The simplicity of appending BibTeX (humans first, machines later) is demonstrated by [visual-meta](https://visual-meta.info) in greater detail, and makes it perfect for HUDs/GUI's to generate (bib)text later. Humans can still view/edit the metadata manually, by clicking 'toggle metadata' on the 'back' (contextmenu e.g.) of any XR text, anywhere anytime.
 
 ## Default Data URI mimetype 
 
@@ -343,30 +345,27 @@ BibTeX-appendices (visual-meta e.g.) are already adopted in the physical world (
 1. <b id="frictionless-copy-paste">frictionless copy/pasting</b> (by humans) of (unobtrusive) content AND metadata
 1. an introspective 'sketchpad' for metadata, which can (optionally) mature into RDF later 
 
-| characteristic                     | Plain Text (with BibTeX)    | RDF                       |
-|------------------------------------|-----------------------------|---------------------------|
-| perspective                        | introspective               | extrospective             |
-| space/scope                        | local                       | world                     |
-| everything is text (string)        | yes                         | no                        |
-| leaves (dictated) text intact      | yes                         | no                        |
-| markup language(s)                 | no (appendix)               | ~4 different              |                 
-| polyglot format                    | no                          | yes                       |
-| easy to copy/paste content+metadata| yes                         | depends                   |
-| easy to write/repair               | yes                         | depends                   |
-| easy to parse                      | yes (fits on A4 paper)      | depends                   |
-| infrastructure storage             | selfcontained (plain text)  | (semi)networked           |
-| tagging                            | yes                         | yes                       |
-| freeform tagging/notes             | yes                         | depends                   |     
-| specialized file-type              | no                          | yes                       |
-| copy-paste preserves metadata      | yes                         | depends                   |
-| emoji                              | yes                         | depends                   |
-| predicates                         | free                        | pre-determined            |
-| implementation/network overhead    | no                          | depends                   |
-| used in (physical) books/PDF       | yes (visual-meta)           | no                        |
-| terse categoryless predicates      | yes                         | no                        |
-| nested structures                  | no                          | yes                       |
-
-> To serve humans first, human 'fuzzy symbolical mind' comes first, and ['categorized typesafe RDF hive mind'](https://en.wikipedia.org/wiki/Borg)) later.
+| characteristic                     | UTF8 Plain Text (with BibTeX) | RDF                       |
+|------------------------------------|-------------------------------|---------------------------|
+| perspective                        | introspective                 | extrospective             |
+| space/scope                        | local                         | world                     |
+| everything is text (string)        | yes                           | no                        |
+| leaves (dictated) text intact      | yes                           | no                        |
+| markup language                    | just an appendix              | ~4 different              |                 
+| polyglot format                    | no                            | yes                       |
+| easy to copy/paste content+metadata| yes                           | up to application         |
+| easy to write/repair for layman    | yes                           | depends                   |
+| easy to (de)serialize              | yes (fits on A4 paper)        | depends                   |
+| infrastructure                     | selfcontained (plain text)    | (semi)networked           |
+| freeform tagging                   | yes, terse                    | yes, verbose              |
+| can be appended to text-content    | yes                           | up to application         |
+| copy-paste text preserves metadata | yes                           | up to application         |
+| emoji                              | yes                           | depends on encoding       |
+| predicates                         | free                          | semi pre-determined       |
+| implementation/network overhead    | no                            | depends                   |
+| used in (physical) books/PDF       | yes (visual-meta)             | no                        |
+| terse non-verb predicates          | yes                           | no                        |
+| nested structures                  | no                            | yes                       |
 
 ## XR text (BibTeX) example parser
 
