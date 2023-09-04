@@ -335,7 +335,7 @@ This allows rich interaction and interlinking between text and 3D objects:
 1. When the user surfs to https://.../index.gltf#AI the XR Fragments-parser points the enduser to the AI object, and can show contextual info about it.
 2. When (partial) remote content is embedded thru XR Fragment queries (see XR Fragment queries), its related visual-meta can be embedded along.
 
-## BibTeX as lowest common denominator for tagging/triple
+## BibTeX as lowest common denominator for tagging/triples
 
 The everything-is-text focus of BiBTex is a great advantage for introspection, and perhaps a necessary bridge towards RDF (extrospective).
 BibTeX-appendices (visual-meta e.g.) are already adopted in the physical world (academic books), perhaps due to its terseness & simplicity:
