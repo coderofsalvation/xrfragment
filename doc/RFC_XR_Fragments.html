@@ -82,7 +82,7 @@ value:     draft-XRFRAGMENTS-leonvankammen-00
 
 <p>This draft offers a specification for 4D URLs &amp; navigation, to link 3D scenes and text together with- or without a network-connection.<br>
 The specification promotes spatial addressibility, sharing, navigation, query-ing and tagging interactive (text)objects across for (XR) Browsers.<br>
-XR Fragments allows us to enrich existing dataformats, by recursive use of existing proven technologies like <a href="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</a> and BibTeX notation.<br></p>
+XR Fragments allows us to enrich existing dataformats, by recursive use of existing proven technologies like <a href="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</a> and BibTags notation.<br></p>
 
 <blockquote>
 <p>Almost every idea in this document is demonstrated at <a href="https://xrfragment.org">https://xrfragment.org</a></p>
@@ -97,7 +97,7 @@ XR Fragments allows us to enrich/connect existing dataformats, by recursive use 
 
 <ol>
 <li>addressibility and navigation of 3D scenes/objects: <a href="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</a> + src/href spatial metadata</li>
-<li>hasslefree tagging across text and spatial objects using <a href="https://en.wikipedia.org/wiki/BibTeX">BibTeX</a> &lsquo;tags&rsquo; as appendix (see <a href="https://visual-meta.info">visual-meta</a> e.g.)</li>
+<li>hasslefree tagging across text and spatial objects using <a href="https://en.wikipedia.org/wiki/BibTeX">BibTags</a> as appendix (see <a href="https://visual-meta.info">visual-meta</a> e.g.)</li>
 </ol>
 
 <blockquote>
@@ -203,6 +203,16 @@ This also means that the repair-ability of machine-matters should be human frien
 <tr>
 <td>(un)obtrusive</td>
 <td>obtrusive: wrapping human text/thought in XML/HTML/JSON obfuscates human text into a salad of machine-symbols and words</td>
+</tr>
+
+<tr>
+<td>BibTeX</td>
+<td>simple tagging/citing/referencing standard for plaintext</td>
+</tr>
+
+<tr>
+<td>BibTag</td>
+<td>a BibTeX tag</td>
 </tr>
 </tbody>
 </table>
@@ -367,23 +377,24 @@ Ideally metadata must come <strong>later with</strong> text, but not <strong>obf
 <ol>
 <li>XR Fragments allows <b id="tagging-text">hasslefree XR text tagging</b>, using BibTeX metadata <strong>at the end of content</strong> (like <a href="https://visual.meta.info">visual-meta</a>).</li>
 <li>XR Fragments allows hasslefree <a href="#textual-tag">textual tagging</a>, <a href="#spatial-tag">spatial tagging</a>, and <a href="#supra-tagging">supra tagging</a>, by mapping 3D/text object (class)names using BibTeX &lsquo;tags&rsquo;</li>
-<li>inline BibTeX &lsquo;tags&rsquo; are the minimum required <strong>requestless metadata</strong>-layer for XR text, RDF/JSON is great (but fits better in the application-layer)</li>
+<li>Bibs/BibTeX-appendices is first-choice <strong>requestless metadata</strong>-layer for XR text, HTML/RDF/JSON is great (but fits better in the application-layer)</li>
 <li>Default font (unless specified otherwise) is a modern monospace font, for maximized tabular expressiveness (see <a href="#core-principle">the core principle</a>).</li>
 <li>anti-pattern: hardcoupling a mandatory <strong>obtrusive markuplanguage</strong> or framework with an XR browsers (HTML/VRML/Javascript) (see <a href="#core-principle">the core principle</a>)</li>
 <li>anti-pattern: limiting human introspection, by immediately funneling human thought into typesafe, precise, pre-categorized metadata like RDF (see <a href="#core-principle">the core principle</a>)</li>
 </ol>
 
-<p>This allows recursive connections between text itself, as well as 3D objects and vice versa, using <strong>BibTeX-tags</strong> :</p>
+<p>This allows recursive connections between text itself, as well as 3D objects and vice versa, using <strong>BibTags</strong> :</p>
 
-<pre><code>  +--------------------------------------------------+
-  | My Notes                                         |
-  |                                                  |
-  | The houses seen here are built in baroque style. |   
-  |                                                  |   
-  | @house{houses,                                &lt;----- XR Fragment triple/tag: phrase-matching BibTeX 
-  |   url  = {#.house}              &lt;------------------- XR Fragment URI
-  | }                                                |
-  +--------------------------------------------------+
+<pre><code>  +---------------------------------------------+         +------------------+
+  | My Notes                                    |         |        / \       |
+  |                                             |         |       /   \      |
+  | The houses here are built in baroque style. |         |      /house\     |
+  |                                             |         |      |_____|     |
+  |                                             |         +---------|--------+ 
+  | @house{houses,                              &gt;----'house'--------|    class/name match?
+  |   url  = {#.house}                          &gt;----'houses'-------`    class/name match? 
+  | }                                           |
+  +---------------------------------------------+
 </code></pre>
 
 <p>This allows instant realtime tagging of objects at various scopes:</p>
@@ -682,7 +693,7 @@ In that sense, it&rsquo;s one step up from the <code>.ini</code> fileformat (whi
 <li>The XR Fragments spec does not aim to harden the BiBTeX format</li>
 <li>However, respect multi-line BibTex values because of <a href="#core-principle">the core principle</a></li>
 <li>Expand bibs and rulers (like <code>${visual-meta-start}</code>) according to the <a href="https://github.com/coderofsalvation/tagbibs">tagbibs spec</a></li>
-<li>BibTeX snippets should always start in the beginning of a line (regex: ^@), hence mimetype <code>text/plain;charset=utf-8;tag=^@</code></li>
+<li>BibTeX snippets should always start in the beginning of a line (regex: ^@), hence mimetype <code>text/plain;charset=utf-8;bib=^@</code></li>
 </ol>
 
 <p>Here&rsquo;s an XR Text (de)multiplexer in javascript, which ticks all the above boxes:</p>

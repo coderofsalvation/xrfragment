@@ -14,7 +14,7 @@
 
 The specification promotes spatial addressibility, sharing, navigation, query-ing and tagging interactive (text)objects across for (XR) Browsers.<br />
 
-XR Fragments allows us to enrich existing dataformats, by recursive use of existing proven technologies like <eref target="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</eref> and BibTeX notation.<br />
+XR Fragments allows us to enrich existing dataformats, by recursive use of existing proven technologies like <eref target="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</eref> and BibTags notation.<br />
 </t>
 <t>Almost every idea in this document is demonstrated at <eref target="https://xrfragment.org">https://xrfragment.org</eref></t>
 </abstract>
@@ -35,7 +35,7 @@ XR Fragments allows us to enrich/connect existing dataformats, by recursive use 
 
 <ol spacing="compact">
 <li>addressibility and navigation of 3D scenes/objects: <eref target="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</eref> + src/href spatial metadata</li>
-<li>hasslefree tagging across text and spatial objects using <eref target="https://en.wikipedia.org/wiki/BibTeX">BibTeX</eref> 'tags' as appendix (see <eref target="https://visual-meta.info">visual-meta</eref> e.g.)</li>
+<li>hasslefree tagging across text and spatial objects using <eref target="https://en.wikipedia.org/wiki/BibTeX">BibTags</eref> as appendix (see <eref target="https://visual-meta.info">visual-meta</eref> e.g.)</li>
 </ol>
 <blockquote><t>NOTE: The chapters in this document are ordered from highlevel to lowlevel (technical) as much as possible</t>
 </blockquote></section>
@@ -133,6 +133,16 @@ This also means that the repair-ability of machine-matters should be human frien
 <tr>
 <td>(un)obtrusive</td>
 <td>obtrusive: wrapping human text/thought in XML/HTML/JSON obfuscates human text into a salad of machine-symbols and words</td>
+</tr>
+
+<tr>
+<td>BibTeX</td>
+<td>simple tagging/citing/referencing standard for plaintext</td>
+</tr>
+
+<tr>
+<td>BibTag</td>
+<td>a BibTeX tag</td>
 </tr>
 </tbody>
 </table></section>
@@ -290,22 +300,23 @@ Ideally metadata must come <strong>later with</strong> text, but not <strong>obf
 <ol spacing="compact">
 <li>XR Fragments allows &lt;b id=&quot;tagging-text&quot;&gt;hasslefree XR text tagging&lt;/b&gt;, using BibTeX metadata <strong>at the end of content</strong> (like <eref target="https://visual.meta.info">visual-meta</eref>).</li>
 <li>XR Fragments allows hasslefree &lt;a href=&quot;#textual-tag&quot;&gt;textual tagging&lt;/a&gt;, &lt;a href=&quot;#spatial-tag&quot;&gt;spatial tagging&lt;/a&gt;, and &lt;a href=&quot;#supra-tagging&quot;&gt;supra tagging&lt;/a&gt;, by mapping 3D/text object (class)names using BibTeX 'tags'</li>
-<li>inline BibTeX 'tags' are the minimum required <strong>requestless metadata</strong>-layer for XR text, RDF/JSON is great (but fits better in the application-layer)</li>
+<li>Bibs/BibTeX-appendices is first-choice <strong>requestless metadata</strong>-layer for XR text, HTML/RDF/JSON is great (but fits better in the application-layer)</li>
 <li>Default font (unless specified otherwise) is a modern monospace font, for maximized tabular expressiveness (see <eref target="#core-principle">the core principle</eref>).</li>
 <li>anti-pattern: hardcoupling a mandatory <strong>obtrusive markuplanguage</strong> or framework with an XR browsers (HTML/VRML/Javascript) (see <eref target="#core-principle">the core principle</eref>)</li>
 <li>anti-pattern: limiting human introspection, by immediately funneling human thought into typesafe, precise, pre-categorized metadata like RDF (see <eref target="#core-principle">the core principle</eref>)</li>
 </ol>
-<t>This allows recursive connections between text itself, as well as 3D objects and vice versa, using <strong>BibTeX-tags</strong> :</t>
+<t>This allows recursive connections between text itself, as well as 3D objects and vice versa, using <strong>BibTags</strong> :</t>
 
-<artwork>  +--------------------------------------------------+
-  | My Notes                                         |
-  |                                                  |
-  | The houses seen here are built in baroque style. |   
-  |                                                  |   
-  | @house{houses,                                &lt;----- XR Fragment triple/tag: phrase-matching BibTeX 
-  |   url  = {#.house}              &lt;------------------- XR Fragment URI
-  | }                                                |
-  +--------------------------------------------------+
+<artwork>  +---------------------------------------------+         +------------------+
+  | My Notes                                    |         |        / \       |
+  |                                             |         |       /   \      |
+  | The houses here are built in baroque style. |         |      /house\     |
+  |                                             |         |      |_____|     |
+  |                                             |         +---------|--------+ 
+  | @house{houses,                              &gt;----'house'--------|    class/name match?
+  |   url  = {#.house}                          &gt;----'houses'-------`    class/name match? 
+  | }                                           |
+  +---------------------------------------------+
 </artwork>
 <t>This allows instant realtime tagging of objects at various scopes:</t>
 <table>
@@ -582,7 +593,7 @@ In that sense, it's one step up from the <tt>.ini</tt> fileformat (which has nev
 <li>The XR Fragments spec does not aim to harden the BiBTeX format</li>
 <li>However, respect multi-line BibTex values because of <eref target="#core-principle">the core principle</eref></li>
 <li>Expand bibs and rulers (like <tt>${visual-meta-start}</tt>) according to the <eref target="https://github.com/coderofsalvation/tagbibs">tagbibs spec</eref></li>
-<li>BibTeX snippets should always start in the beginning of a line (regex: ^@), hence mimetype <tt>text/plain;charset=utf-8;tag=^@</tt></li>
+<li>BibTeX snippets should always start in the beginning of a line (regex: ^@), hence mimetype <tt>text/plain;charset=utf-8;bib=^@</tt></li>
 </ol>
 <t>Here's an XR Text (de)multiplexer in javascript, which ticks all the above boxes:</t>
 

@@ -95,7 +95,7 @@ value:     draft-XRFRAGMENTS-leonvankammen-00
 
 This draft offers a specification for 4D URLs & navigation, to link 3D scenes and text together with- or without a network-connection.<br>
 The specification promotes spatial addressibility, sharing, navigation, query-ing and tagging interactive (text)objects across for (XR) Browsers.<br>
-XR Fragments allows us to enrich existing dataformats, by recursive use of existing proven technologies like [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) and BibTeX notation.<br>
+XR Fragments allows us to enrich existing dataformats, by recursive use of existing proven technologies like [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) and BibTags notation.<br>
 
 > Almost every idea in this document is demonstrated at [https://xrfragment.org](https://xrfragment.org)
 
@@ -109,7 +109,7 @@ However, thru the lens of authoring, their lowest common denominator is still: p
 XR Fragments allows us to enrich/connect existing dataformats, by recursive use of existing technologies:<br>
 
 1. addressibility and navigation of 3D scenes/objects: [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) + src/href spatial metadata 
-1. hasslefree tagging across text and spatial objects using [BibTeX](https://en.wikipedia.org/wiki/BibTeX) 'tags' as appendix (see [visual-meta](https://visual-meta.info) e.g.)
+1. hasslefree tagging across text and spatial objects using [BibTags](https://en.wikipedia.org/wiki/BibTeX) as appendix (see [visual-meta](https://visual-meta.info) e.g.)
 
 > NOTE: The chapters in this document are ordered from highlevel to lowlevel (technical) as much as possible
 
@@ -143,6 +143,8 @@ Let's always focus on average humans: the 'fuzzy symbolical mind' must be served
 |extrospective         | outward sensemaking ("I'm fairly sure John is a person who lives in oklahoma")                                                |
 |`◻`                   | ascii representation of an 3D object/mesh                                                                                     |
 |(un)obtrusive         | obtrusive: wrapping human text/thought in XML/HTML/JSON obfuscates human text into a salad of machine-symbols and words       |
+|BibTeX                | simple tagging/citing/referencing standard for plaintext                                                                      |
+|BibTag                | a BibTeX tag                                                                                                                  |
 
 # List of URI Fragments
 
@@ -233,23 +235,24 @@ This way:
 
 1. XR Fragments allows <b id="tagging-text">hasslefree XR text tagging</b>, using BibTeX metadata **at the end of content** (like [visual-meta](https://visual.meta.info)).
 1. XR Fragments allows hasslefree <a href="#textual-tag">textual tagging</a>, <a href="#spatial-tag">spatial tagging</a>, and <a href="#supra-tagging">supra tagging</a>, by mapping 3D/text object (class)names using BibTeX 'tags'
-3. inline BibTeX 'tags' are the minimum required **requestless metadata**-layer for XR text, RDF/JSON is great (but fits better in the application-layer)
-5. Default font (unless specified otherwise) is a modern monospace font, for maximized tabular expressiveness (see [the core principle](#core-principle)).
-6. anti-pattern: hardcoupling a mandatory **obtrusive markuplanguage** or framework with an XR browsers (HTML/VRML/Javascript) (see [the core principle](#core-principle))
-7. anti-pattern: limiting human introspection, by immediately funneling human thought into typesafe, precise, pre-categorized metadata like RDF (see [the core principle](#core-principle))
+1. Bibs/BibTeX-appendices is first-choice **requestless metadata**-layer for XR text, HTML/RDF/JSON is great (but fits better in the application-layer)
+1. Default font (unless specified otherwise) is a modern monospace font, for maximized tabular expressiveness (see [the core principle](#core-principle)).
+1. anti-pattern: hardcoupling a mandatory **obtrusive markuplanguage** or framework with an XR browsers (HTML/VRML/Javascript) (see [the core principle](#core-principle))
+1. anti-pattern: limiting human introspection, by immediately funneling human thought into typesafe, precise, pre-categorized metadata like RDF (see [the core principle](#core-principle))
 
-This allows recursive connections between text itself, as well as 3D objects and vice versa, using **BibTeX-tags** :
+This allows recursive connections between text itself, as well as 3D objects and vice versa, using **BibTags** :
 
 ```
-  +--------------------------------------------------+
-  | My Notes                                         |
-  |                                                  |
-  | The houses seen here are built in baroque style. |   
-  |                                                  |   
-  | @house{houses,                                <----- XR Fragment triple/tag: phrase-matching BibTeX 
-  |   url  = {#.house}              <------------------- XR Fragment URI
-  | }                                                |
-  +--------------------------------------------------+
+  +---------------------------------------------+         +------------------+
+  | My Notes                                    |         |        / \       |
+  |                                             |         |       /   \      |
+  | The houses here are built in baroque style. |         |      /house\     |
+  |                                             |         |      |_____|     |
+  |                                             |         +---------|--------+ 
+  | @house{houses,                              >----'house'--------|    class/name match?
+  |   url  = {#.house}                          >----'houses'-------`    class/name match? 
+  | }                                           |
+  +---------------------------------------------+
 ```
 
 This allows instant realtime tagging of objects at various scopes:
@@ -391,7 +394,7 @@ In that sense, it's one step up from the `.ini` fileformat (which has never leak
 1. The XR Fragments spec does not aim to harden the BiBTeX format
 2. However, respect multi-line BibTex values because of [the core principle](#core-principle)
 3. Expand bibs and rulers (like `${visual-meta-start}`) according to the [tagbibs spec](https://github.com/coderofsalvation/tagbibs)
-4. BibTeX snippets should always start in the beginning of a line (regex: ^@), hence mimetype `text/plain;charset=utf-8;tag=^@`
+4. BibTeX snippets should always start in the beginning of a line (regex: ^@), hence mimetype `text/plain;charset=utf-8;bib=^@`
 
 Here's an XR Text (de)multiplexer in javascript, which ticks all the above boxes:
 

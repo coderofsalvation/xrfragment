@@ -20,7 +20,7 @@ Abstract
    for (XR) Browsers.
    XR Fragments allows us to enrich existing dataformats, by recursive
    use of existing proven technologies like URI Fragments
-   (https://en.wikipedia.org/wiki/URI_fragment) and BibTeX notation.
+   (https://en.wikipedia.org/wiki/URI_fragment) and BibTags notation.
 
    Almost every idea in this document is demonstrated at
    https://xrfragment.org (https://xrfragment.org)
@@ -73,20 +73,20 @@ Table of Contents
    5.  List of metadata for 3D nodes . . . . . . . . . . . . . . . .   5
    6.  Navigating 3D . . . . . . . . . . . . . . . . . . . . . . . .   5
    7.  Embedding 3D content  . . . . . . . . . . . . . . . . . . . .   6
-   8.  Text in XR (tagging,linking to spatial objects) . . . . . . .   6
-     8.1.  Default Data URI mimetype . . . . . . . . . . . . . . . .   9
-     8.2.  URL and Data URI  . . . . . . . . . . . . . . . . . . . .  10
+   8.  Text in XR (tagging,linking to spatial objects) . . . . . . .   7
+     8.1.  Default Data URI mimetype . . . . . . . . . . . . . . . .  10
+     8.2.  URL and Data URI  . . . . . . . . . . . . . . . . . . . .  11
      8.3.  Bibs-enabled BibTeX: lowest common denominator for tagging/
-           triples . . . . . . . . . . . . . . . . . . . . . . . . .  11
-     8.4.  XR Text example parser  . . . . . . . . . . . . . . . . .  13
-   9.  HYPER copy/paste  . . . . . . . . . . . . . . . . . . . . . .  15
-   10. XR Fragment queries . . . . . . . . . . . . . . . . . . . . .  16
-     10.1.  including/excluding  . . . . . . . . . . . . . . . . . .  16
-     10.2.  Query Parser . . . . . . . . . . . . . . . . . . . . . .  17
-     10.3.  XR Fragment URI Grammar  . . . . . . . . . . . . . . . .  18
-   11. Security Considerations . . . . . . . . . . . . . . . . . . .  18
-   12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  18
-   13. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  18
+           triples . . . . . . . . . . . . . . . . . . . . . . . . .  12
+     8.4.  XR Text example parser  . . . . . . . . . . . . . . . . .  14
+   9.  HYPER copy/paste  . . . . . . . . . . . . . . . . . . . . . .  16
+   10. XR Fragment queries . . . . . . . . . . . . . . . . . . . . .  17
+     10.1.  including/excluding  . . . . . . . . . . . . . . . . . .  17
+     10.2.  Query Parser . . . . . . . . . . . . . . . . . . . . . .  18
+     10.3.  XR Fragment URI Grammar  . . . . . . . . . . . . . . . .  19
+   11. Security Considerations . . . . . . . . . . . . . . . . . . .  19
+   12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  19
+   13. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  19
 
 1.  Introduction
 
@@ -102,9 +102,9 @@ Table of Contents
    1.  addressibility and navigation of 3D scenes/objects: URI Fragments
        (https://en.wikipedia.org/wiki/URI_fragment) + src/href spatial
        metadata
-   2.  hasslefree tagging across text and spatial objects using BibTeX
-       (https://en.wikipedia.org/wiki/BibTeX) 'tags' as appendix (see
-       visual-meta (https://visual-meta.info) e.g.)
+   2.  hasslefree tagging across text and spatial objects using BibTags
+       (https://en.wikipedia.org/wiki/BibTeX) as appendix (see visual-
+       meta (https://visual-meta.info) e.g.)
 
 
 
@@ -197,6 +197,11 @@ Internet-Draft                XR Fragments                September 2023
       |               | XML/HTML/JSON obfuscates human text into a  |
       |               | salad of machine-symbols and words          |
       +---------------+---------------------------------------------+
+      | BibTeX        | simple tagging/citing/referencing standard  |
+      |               | for plaintext                               |
+      +---------------+---------------------------------------------+
+      | BibTag        | a BibTeX tag                                |
+      +---------------+---------------------------------------------+
 
                                   Table 1
 
@@ -213,11 +218,6 @@ Internet-Draft                XR Fragments                September 2023
     +----------+---------+--------------+----------------------------+
     | #t       | vector2 | #t=500,1000  | sets animation-loop range  |
     |          |         |              | between frame 500 and 1000 |
-    +----------+---------+--------------+----------------------------+
-    | #......  | string  | #.cubes      | object(s) of interest      |
-    |          |         | #cube        | (fragment to object name   |
-    |          |         |              | or class mapping)          |
-    +----------+---------+--------------+----------------------------+
 
 
 
@@ -225,6 +225,12 @@ van Kammen                Expires 9 March 2024                  [Page 4]
 
 Internet-Draft                XR Fragments                September 2023
 
+
+    +----------+---------+--------------+----------------------------+
+    | #......  | string  | #.cubes      | object(s) of interest      |
+    |          |         | #cube        | (fragment to object name   |
+    |          |         |              | or class mapping)          |
+    +----------+---------+--------------+----------------------------+
 
                                  Table 2
 
@@ -261,6 +267,21 @@ Internet-Draft                XR Fragments                September 2023
    Here's an ascii representation of a 3D scene-graph which contains 3D
    objects &#9723; and their metadata:
 
+
+
+
+
+
+
+
+
+
+
+van Kammen                Expires 9 March 2024                  [Page 5]
+
+Internet-Draft                XR Fragments                September 2023
+
+
   +--------------------------------------------------------+
   |                                                        |
   |  index.gltf                                            |
@@ -272,15 +293,6 @@ Internet-Draft                XR Fragments                September 2023
   |           └ href: other.fbx                            |   <-- file-agnostic (can be .gltf .obj etc)
   |                                                        |
   +--------------------------------------------------------+
-
-
-
-
-
-van Kammen                Expires 9 March 2024                  [Page 5]
-
-Internet-Draft                XR Fragments                September 2023
-
 
    An XR Fragment-compatible browser viewing this scene, allows the end-
    user to interact with the buttonA and buttonB.
@@ -312,6 +324,20 @@ Internet-Draft                XR Fragments                September 2023
   |                                                        |
   +--------------------------------------------------------+
 
+
+
+
+
+
+
+
+
+
+van Kammen                Expires 9 March 2024                  [Page 6]
+
+Internet-Draft                XR Fragments                September 2023
+
+
    An XR Fragment-compatible browser viewing this scene, lazy-loads and
    projects painting.png onto the (plane) object called canvas (which is
    copy-instanced in the bed and livingroom).
@@ -330,14 +356,6 @@ Internet-Draft                XR Fragments                September 2023
    Ideally metadata must come *later with* text, but not *obfuscate* the
    text, or *in another* file.
 
-
-
-
-van Kammen                Expires 9 March 2024                  [Page 6]
-
-Internet-Draft                XR Fragments                September 2023
-
-
    |  Humans first, machines (AI) later (core principle (#core-
    |  principle)
 
@@ -350,9 +368,9 @@ Internet-Draft                XR Fragments                September 2023
        tagging</a>, <a href="#spatial-tag">spatial tagging</a>, and <a
        href="#supra-tagging">supra tagging</a>, by mapping 3D/text
        object (class)names using BibTeX 'tags'
-   3.  inline BibTeX 'tags' are the minimum required *requestless
-       metadata*-layer for XR text, RDF/JSON is great (but fits better
-       in the application-layer)
+   3.  Bibs/BibTeX-appendices is first-choice *requestless metadata*-
+       layer for XR text, HTML/RDF/JSON is great (but fits better in the
+       application-layer)
    4.  Default font (unless specified otherwise) is a modern monospace
        font, for maximized tabular expressiveness (see the core
        principle (#core-principle)).
@@ -364,17 +382,28 @@ Internet-Draft                XR Fragments                September 2023
        metadata like RDF (see the core principle (#core-principle))
 
    This allows recursive connections between text itself, as well as 3D
-   objects and vice versa, using *BibTeX-tags* :
+   objects and vice versa, using *BibTags* :
 
-  +--------------------------------------------------+
-  | My Notes                                         |
-  |                                                  |
-  | The houses seen here are built in baroque style. |
-  |                                                  |
-  | @house{houses,                                <----- XR Fragment triple/tag: phrase-matching BibTeX
-  |   url  = {#.house}              <------------------- XR Fragment URI
-  | }                                                |
-  +--------------------------------------------------+
+
+
+
+
+
+van Kammen                Expires 9 March 2024                  [Page 7]
+
+Internet-Draft                XR Fragments                September 2023
+
+
+  +---------------------------------------------+         +------------------+
+  | My Notes                                    |         |        / \       |
+  |                                             |         |       /   \      |
+  | The houses here are built in baroque style. |         |      /house\     |
+  |                                             |         |      |_____|     |
+  |                                             |         +---------|--------+
+  | @house{houses,                              >----'house'--------|    class/name match?
+  |   url  = {#.house}                          >----'houses'-------`    class/name match?
+  | }                                           |
+  +---------------------------------------------+
 
    This allows instant realtime tagging of objects at various scopes:
 
@@ -389,7 +418,34 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                  [Page 7]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+van Kammen                Expires 9 March 2024                  [Page 8]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -445,7 +501,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                  [Page 8]
+van Kammen                Expires 9 March 2024                  [Page 9]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -501,7 +557,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                  [Page 9]
+van Kammen                Expires 9 March 2024                 [Page 10]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -557,7 +613,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                 [Page 10]
+van Kammen                Expires 9 March 2024                 [Page 11]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -613,7 +669,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                 [Page 11]
+van Kammen                Expires 9 March 2024                 [Page 12]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -669,7 +725,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                 [Page 12]
+van Kammen                Expires 9 March 2024                 [Page 13]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -704,7 +760,7 @@ Internet-Draft                XR Fragments                September 2023
    3.  Expand bibs and rulers (like ${visual-meta-start}) according to
        the tagbibs spec (https://github.com/coderofsalvation/tagbibs)
    4.  BibTeX snippets should always start in the beginning of a line
-       (regex: ^@), hence mimetype text/plain;charset=utf-8;tag=^@
+       (regex: ^@), hence mimetype text/plain;charset=utf-8;bib=^@
 
    Here's an XR Text (de)multiplexer in javascript, which ticks all the
    above boxes:
@@ -725,7 +781,7 @@ xrtext = {
 
 
 
-van Kammen                Expires 9 March 2024                 [Page 13]
+van Kammen                Expires 9 March 2024                 [Page 14]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -781,7 +837,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                 [Page 14]
+van Kammen                Expires 9 March 2024                 [Page 15]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -837,7 +893,7 @@ console.log( xrtext.encode(text,tags) )       // multiplex text & bibtex back to
 
 
 
-van Kammen                Expires 9 March 2024                 [Page 15]
+van Kammen                Expires 9 March 2024                 [Page 16]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -893,7 +949,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                 [Page 16]
+van Kammen                Expires 9 March 2024                 [Page 17]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -949,7 +1005,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                 [Page 17]
+van Kammen                Expires 9 March 2024                 [Page 18]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -1005,4 +1061,4 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                 [Page 18]
+van Kammen                Expires 9 March 2024                 [Page 19]
