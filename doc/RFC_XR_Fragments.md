@@ -265,8 +265,8 @@ This allows instant realtime tagging of objects at various scopes:
 This empowers the enduser spatial expressiveness (see [the core principle](#core-principle)): spatial wires can be rendered, words can be highlighted, spatial objects can be highlighted/moved/scaled, links can be manipulated by the user.<br>
 The simplicity of appending BibTeX 'tags' (humans first, machines later) is also demonstrated by [visual-meta](https://visual-meta.info) in greater detail.
 
-1. The XR Browser needs to offer a global setting/control to adjust tag-scope with at least range: `[text, spatial, text+spatial, supra, omni, infinite]`
-1. The XR Browser should always allow the human to view/edit the BibTex metadata manually, by clicking 'toggle metadata' on the 'back' (contextmenu e.g.) of any XR text, anywhere anytime.
+1. The XR Browser needs to adjust tag-scope based on the endusers needs/focus (infinite tagging only makes sense when environment is scaled down significantly)
+1. The XR Browser should always allow the human to view/edit the metadata, by clicking 'toggle metadata' on the 'back' (contextmenu e.g.) of any XR text, anywhere anytime.
 
 > NOTE: infinite matches both 'house' and 'houses' in text, as well as spatial objects with `"class":"house"` or name "house". This multiplexing of id/category is deliberate because of [the core principle](#core-principle).
 
@@ -280,25 +280,25 @@ The XR Fragment specification bumps the traditional default browser-mimetype
 
 to a green eco-friendly:
 
-`text/plain;charset=utf-8;bibtex=^@`
+`text/plain;charset=utf-8;bib=^@`
 
-This indicates that any bibtex metadata starting with `@` will automatically get filtered out and:
+This indicates that [bibs](https://github.com/coderofsalvation/tagbibs) and [bibtags](https://en.wikipedia.org/wiki/BibTeX) matching regex `^@` will automatically get filtered out, in order to:
 
-* automatically detects textual links between textual and spatial objects 
+* automatically detect links between textual/spatial objects 
+* detect opiniated bibtag appendices ([visual-meta](https://visual-meta.info) e.g.)
 
-It's concept is similar to literate programming.
-Its implications are that local/remote responses can now:
+It's concept is similar to literate programming, which empower local/remote responses to:
 
-* (de)multiplex/repair human text and requestless metadata (see [the core principle](#core-principle))
-* no separated implementation/network-overhead for metadata (see [the core principle](#core-principle)) 
-* ensuring high FPS: HTML/RDF historically is too 'requesty' for game studios
+* (de)multiplex human text and metadata in one go (see [the core principle](#core-principle))
+* no network-overhead for metadata (see [the core principle](#core-principle)) 
+* ensuring high FPS: HTML/RDF historically is too 'requesty'/'parsy' for game studios
 * rich send/receive/copy-paste everywhere by default, metadata being retained (see [the core principle](#core-principle))
-* less network requests, therefore less webservices, therefore less servers, and overall better FPS in XR 
+* netto result: less webservices, therefore less servers, and overall better FPS in XR 
 
-> This significantly expands expressiveness and portability of human text, by **postponing machine-concerns to the end of the human text** in contrast to literal interweaving of content and markupsymbols (or extra network requests, webservices e.g.).
+> This significantly expands expressiveness and portability of human tagged text, by **postponing machine-concerns to the end of the human text** in contrast to literal interweaving of content and markupsymbols (or extra network requests, webservices e.g.).
 
 For all other purposes, regular mimetypes can be used (but are not required by the spec).<br>
-To keep XR Fragments a lightweight spec, BibTeX is used for text-spatial object mappings (not a scripting language or RDF e.g.). 
+To keep XR Fragments a lightweight spec, BibTeX is used for text/spatial tagging (not a scripting language or RDF e.g.). 
 
 > Applications are also free to attach any JSON(LD / RDF) to spatial objects using custom properties (but is not interpreted by this spec).
 
@@ -343,21 +343,20 @@ Example:
   +------------------------------------------------------------------------------------+
 ```
 
-Attaching visualmeta as `src` metadata to the (root) scene-node hints the XR Fragment browser.
-3D object names and classes map to `name` of visual-meta glossary-entries.
+3D object names and/or classes map to `name` of visual-meta glossary-entries.
 This allows rich interaction and interlinking between text and 3D objects:
 
-1. When the user surfs to https://.../index.gltf#AI the XR Fragments-parser points the enduser to the AI object, and can show contextual info about it.
-2. When (partial) remote content is embedded thru XR Fragment queries (see XR Fragment queries), its related visual-meta can be embedded along.
+1. When the user surfs to https://.../index.gltf#rentalhouse the XR Fragments-parser points the enduser to the rentalhouse object, and can show contextual info about it.
+2. When (partial) remote content is embedded thru XR Fragment queries (see XR Fragment queries), indirectly related metadata can be embedded along.
 
-## BibTeX as lowest common denominator for tagging/triples
+## Bibs-enabled BibTeX: lowest common denominator for tagging/triples
 
 > "When a car breaks down, the ones **without** turbosupercharger are easier to fix"
 
 Unlike XML or JSON, the typeless, unnested, everything-is-text nature of BibTeX tags is a great advantage for introspection.<br>
-In a way, the RDF project should welcome it as a missing sensemaking precursor to (eventual) extrospective RDF.<br>
+It's a missing sensemaking precursor to (eventual) extrospective RDF.<br>
 BibTeX-appendices are already used in the digital AND physical world (academic books, [visual-meta](https://visual-meta.info)), perhaps due to its terseness & simplicity.<br>
-In that sense, it's one step up from the `.ini` fileformat (which has never leaked into the physical book-world):
+In that sense, it's one step up from the `.ini` fileformat (which has never leaked into the physical world like BibTex):
 
 1. <b id="frictionless-copy-paste">frictionless copy/pasting</b> (by humans) of (unobtrusive) content AND metadata
 1. an introspective 'sketchpad' for metadata, which can (optionally) mature into RDF later 
@@ -368,6 +367,7 @@ In that sense, it's one step up from the `.ini` fileformat (which has never leak
 | structure                          | fuzzy (sensemaking)           | precise                   |
 | space/scope                        | local                         | world                     |
 | everything is text (string)        | yes                           | no                        |
+| paperfriendly                      | [bibs](https://github.com/coderofsalvation/tagbibs) | no  |
 | leaves (dictated) text intact      | yes                           | no                        |
 | markup language                    | just an appendix              | ~4 different              |                 
 | polyglot format                    | no                            | yes                       |
@@ -383,81 +383,90 @@ In that sense, it's one step up from the `.ini` fileformat (which has never leak
 | implementation/network overhead    | no                            | depends                   |
 | used in (physical) books/PDF       | yes (visual-meta)             | no                        |
 | terse non-verb predicates          | yes                           | no                        |
-| nested structures                  | no                            | yes                       |
+| nested structures                  | no (but: BibTex rulers)       | yes                       |
 
-## XR Text (w. BibTeX) example parser
+## XR Text example parser
 
-Here's a XR Text (de)multiplexer in javascript (which also consumes start/end-blocks like in visual-meta):
+
+1. The XR Fragments spec does not aim to harden the BiBTeX format
+2. However, respect multi-line BibTex values because of [the core principle](#core-principle)
+3. Expand bibs and rulers (like `${visual-meta-start}`) according to the [tagbibs spec](https://github.com/coderofsalvation/tagbibs)
+4. BibTeX snippets should always start in the beginning of a line (regex: ^@), hence mimetype `text/plain;charset=utf-8;tag=^@`
+
+Here's an XR Text (de)multiplexer in javascript, which ticks all the above boxes:
 
 ```
 xrtext = {
     
   decode: (str) => {
-        let meta={}, text='', bibtex = [], cur = meta, section = ''
-        regex= {
-           bibtex:   /^@/,
-           section:  { start: /@{(\S+)-start}/, suffix: /-(start|end)/},
-           prop:     { key:   /=.*?{/ ,         stop:   /},/          },
-           tag:      { start: /^@\S+[{,}]$/,    stop:   /}/           }           
-        }
-        let reset = () => { bibtex = []; cur = meta }
-        str.split(/\r?\n/).map( (line) => {  
-            if( Object.keys(meta).length == 0 && !line.match(regex.bibtex) ) 
-                text += line+'\n'
-            if( line.match(regex.section.start) ) 
-                section = line.match(regex.section.start)
-            if( bibtex.length ){
-                bibtex.push(line) 
-                token = bibtex.join('')
-                if( token.match( regex.prop.key ) && token.match(/},/) ){ 
-                    value  = token.substr( token.indexOf('{')+1, token.lastIndexOf('}') )
-                    key    = token.replace(/=.*/,'').trim()
-                    cur[ key ] = value.replace(regex.prop.stop,'').trim()
-                    token = token.lastIndexOf('}') == token.length-1 
-                            ? ''
-                            : token.substr( token.lastIndexOf('},')+2 )
-                    bibtex = [ token + ' ']
-                }else if( token.match(regex.tag.stop) ) reset()
-            }else if( line.trim().match(regex.bibtex) ){
-                bibtex = [' ']
-                key = line.trim().match(regex.tag.start)[0]
-                if( key.match(regex.section.suffix) ) return
-                cur = ( cur[ key ] = {} )
-                if( section ){
-                  cur.section = section[0].replace(regex.section.suffix,'')
-                                          .replace(/[@}{]/g,'')                
-                }
-            }          
+         // bibtex:     ↓@   ↓<tag|tag{phrase,|{ruler}>  ↓property  ↓end
+         let pat    = [ /@/, /^\S+[,{}]/,                /},/,      /}/ ]
+         let tags   = [], text='', i=0, prop=''
+         var bibs   = { regex: /(@[a-zA-Z0-9_+]+@[a-zA-Z0-9_@]+)/g, tags: {}}
+         let lines  = str.replace(/\r?\n/g,'\n').split(/\n/)
+         for( let i = 0; !lines[i].match( /^@/ ); i++ ) text += lines[i]+'\n'
+
+         bibtex = lines.join('\n').substr( text.length )
+         bibtex.replace( bibs.regex , (m,k,v) => {
+             tok   = m.substr(1).split("@")
+             match = tok.shift()            
+             tok.map( (t) => bibs.tags[match] = `@${t}{${match},\n}\n` )
+         })
+         bibtex = Object.values(bibs.tags).join('\n') + bibtex.replace( bibs.regex, '') 
+         bibtex.split( pat[0] ).map( (t) => {
+             try{
+                let v = {}
+                if( !(t = t.trim())         ) return            
+                if( tag = t.match( pat[1] ) ) tag = tag[0]
+                if( tag.match( /^{.*}$/ )   ) return tags.push({ruler:tag})
+                t = t.substr( tag.length )
+                t.split( pat[2] )
+                .map( kv => {
+                  if( !(kv = kv.trim()) || kv == "}" ) return
+                  v[ kv.match(/\s?(\S+)\s?=/)[1] ] = kv.substr( kv.indexOf("{")+1 )              
+                })
+                tags.push( { k:tag, v } )
+             }catch(e){ console.error(e) }
         })
-        return {text, meta}      
+        return {text, tags}      
   },
     
-  encode: (text,meta) => {
-    str = text+"\n"
-    for( let i in meta ){
-      let item = meta[i]
-      str += `${i}\n`
-      for( let j in item ) str += `  ${j} = {${item[j]}}\n`
+  encode: (text,tags) => {
+    let str = text+"\n"
+    for( let i in tags ){
+      let item = tags[i]
+      if( item.ruler ){ 
+          str += `@${item.ruler}\n`
+          continue;
+      }
+      str += `@${item.k}\n`
+      for( let j in item.v ) str += `  ${j} = {${item.v[j]}}\n`
       str += `}\n`
     }
     return str 
   }
-
 }
-
-var {meta,text} = xrtext.decode(str)             // demultiplex text & bibtex tags
-meta['@foo{']   = { "note":"note from the user"} // edit metadata
-out = xrtext.encode(text,meta)                   // multiplex text & bibtex tags back together 
 ```
+
+The above (de)multiplexes text/metadata, expands bibs, (de)serializes bibtex (and all fits more or less on one A4 paper)
 
 > above can be used as a startingpoint for LLVM's to translate/steelman to a more formal form/language.
 
-1. The XR Fragments spec (de)serializes does not aim to harden the BiBTeX format
-2. Dumb, unnested BiBTeX: always deserialize to a flat lookuptable of tags for speed & simplicity ([core principle](#core-principle))
-3. multi-line BibTex values should be supported 
-4. BibTeX snippets should always start in the beginning of a line (regex: ^@), hence mimetype `text/plain;charset=utf-8;bibtex=^@`
-5. Be strict in sending (`encode()`) Dumb Bibtex (start/stop-section becomes a property) (*)
-6. Be liberal in receiving, hence a relatively bigger `decode()`  (also supports [visual-meta](https://visual-meta.info) start/stop-sections e.g.)
+```
+str = `
+hello world
+
+@hello@greeting
+@{some-section}
+@flap{
+  asdf = {23423}
+}`
+
+var {tags,text} = xrtext.decode(str)          // demultiplex text & bibtex
+tags.find( (t) => t.k == 'flap{' ).v.asdf = 1 // edit tag
+tags.push({ k:'bar{', v:{abc:123} })          // add tag
+console.log( xrtext.encode(text,tags) )       // multiplex text & bibtex back together 
+```
 
 ```
 @{references-start}

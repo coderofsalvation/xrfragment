@@ -129,6 +129,11 @@ This also means that the repair-ability of machine-matters should be human frien
 <td><tt>◻</tt></td>
 <td>ascii representation of an 3D object/mesh</td>
 </tr>
+
+<tr>
+<td>(un)obtrusive</td>
+<td>obtrusive: wrapping human text/thought in XML/HTML/JSON obfuscates human text into a salad of machine-symbols and words</td>
+</tr>
 </tbody>
 </table></section>
 
@@ -342,8 +347,8 @@ Ideally metadata must come <strong>later with</strong> text, but not <strong>obf
 The simplicity of appending BibTeX 'tags' (humans first, machines later) is also demonstrated by <eref target="https://visual-meta.info">visual-meta</eref> in greater detail.</t>
 
 <ol spacing="compact">
-<li>The XR Browser needs to offer a global setting/control to adjust tag-scope with at least range: <tt>[text, spatial, text+spatial, supra, omni, infinite]</tt></li>
-<li>The XR Browser should always allow the human to view/edit the BibTex metadata manually, by clicking 'toggle metadata' on the 'back' (contextmenu e.g.) of any XR text, anywhere anytime.</li>
+<li>The XR Browser needs to adjust tag-scope based on the endusers needs/focus (infinite tagging only makes sense when environment is scaled down significantly)</li>
+<li>The XR Browser should always allow the human to view/edit the metadata, by clicking 'toggle metadata' on the 'back' (contextmenu e.g.) of any XR text, anywhere anytime.</li>
 </ol>
 <blockquote><t>NOTE: infinite matches both 'house' and 'houses' in text, as well as spatial objects with <tt>&quot;class&quot;:&quot;house&quot;</tt> or name &quot;house&quot;. This multiplexing of id/category is deliberate because of <eref target="#core-principle">the core principle</eref>.</t>
 </blockquote>
@@ -352,26 +357,26 @@ The simplicity of appending BibTeX 'tags' (humans first, machines later) is also
 <t>The XR Fragment specification bumps the traditional default browser-mimetype</t>
 <t><tt>text/plain;charset=US-ASCII</tt></t>
 <t>to a green eco-friendly:</t>
-<t><tt>text/plain;charset=utf-8;bibtex=^@</tt></t>
-<t>This indicates that any bibtex metadata starting with <tt>@</tt> will automatically get filtered out and:</t>
+<t><tt>text/plain;charset=utf-8;bib=^@</tt></t>
+<t>This indicates that <eref target="https://github.com/coderofsalvation/tagbibs">bibs</eref> and <eref target="https://en.wikipedia.org/wiki/BibTeX">bibtags</eref> matching regex <tt>^@</tt> will automatically get filtered out, in order to:</t>
 
 <ul spacing="compact">
-<li>automatically detects textual links between textual and spatial objects</li>
+<li>automatically detect links between textual/spatial objects</li>
+<li>detect opiniated bibtag appendices (<eref target="https://visual-meta.info">visual-meta</eref> e.g.)</li>
 </ul>
-<t>It's concept is similar to literate programming.
-Its implications are that local/remote responses can now:</t>
+<t>It's concept is similar to literate programming, which empower local/remote responses to:</t>
 
 <ul spacing="compact">
-<li>(de)multiplex/repair human text and requestless metadata (see <eref target="#core-principle">the core principle</eref>)</li>
-<li>no separated implementation/network-overhead for metadata (see <eref target="#core-principle">the core principle</eref>)</li>
-<li>ensuring high FPS: HTML/RDF historically is too 'requesty' for game studios</li>
+<li>(de)multiplex human text and metadata in one go (see <eref target="#core-principle">the core principle</eref>)</li>
+<li>no network-overhead for metadata (see <eref target="#core-principle">the core principle</eref>)</li>
+<li>ensuring high FPS: HTML/RDF historically is too 'requesty'/'parsy' for game studios</li>
 <li>rich send/receive/copy-paste everywhere by default, metadata being retained (see <eref target="#core-principle">the core principle</eref>)</li>
-<li>less network requests, therefore less webservices, therefore less servers, and overall better FPS in XR</li>
+<li>netto result: less webservices, therefore less servers, and overall better FPS in XR</li>
 </ul>
-<blockquote><t>This significantly expands expressiveness and portability of human text, by <strong>postponing machine-concerns to the end of the human text</strong> in contrast to literal interweaving of content and markupsymbols (or extra network requests, webservices e.g.).</t>
+<blockquote><t>This significantly expands expressiveness and portability of human tagged text, by <strong>postponing machine-concerns to the end of the human text</strong> in contrast to literal interweaving of content and markupsymbols (or extra network requests, webservices e.g.).</t>
 </blockquote><t>For all other purposes, regular mimetypes can be used (but are not required by the spec).<br />
 
-To keep XR Fragments a lightweight spec, BibTeX is used for text-spatial object mappings (not a scripting language or RDF e.g.).</t>
+To keep XR Fragments a lightweight spec, BibTeX is used for text/spatial tagging (not a scripting language or RDF e.g.).</t>
 <blockquote><t>Applications are also free to attach any JSON(LD / RDF) to spatial objects using custom properties (but is not interpreted by this spec).</t>
 </blockquote></section>
 
@@ -410,25 +415,24 @@ The XR Fragment-compatible browser can let the enduser access visual-meta(data)-
   |                              }`                                                    |
   +------------------------------------------------------------------------------------+
 </artwork>
-<t>Attaching visualmeta as <tt>src</tt> metadata to the (root) scene-node hints the XR Fragment browser.
-3D object names and classes map to <tt>name</tt> of visual-meta glossary-entries.
+<t>3D object names and/or classes map to <tt>name</tt> of visual-meta glossary-entries.
 This allows rich interaction and interlinking between text and 3D objects:</t>
 
 <ol spacing="compact">
-<li>When the user surfs to https://.../index.gltf#AI the XR Fragments-parser points the enduser to the AI object, and can show contextual info about it.</li>
-<li>When (partial) remote content is embedded thru XR Fragment queries (see XR Fragment queries), its related visual-meta can be embedded along.</li>
+<li>When the user surfs to https://.../index.gltf#rentalhouse the XR Fragments-parser points the enduser to the rentalhouse object, and can show contextual info about it.</li>
+<li>When (partial) remote content is embedded thru XR Fragment queries (see XR Fragment queries), indirectly related metadata can be embedded along.</li>
 </ol>
 </section>
 
-<section anchor="bibtex-as-lowest-common-denominator-for-tagging-triples"><name>BibTeX as lowest common denominator for tagging/triples</name>
+<section anchor="bibs-enabled-bibtex-lowest-common-denominator-for-tagging-triples"><name>Bibs-enabled BibTeX: lowest common denominator for tagging/triples</name>
 <blockquote><t>&quot;When a car breaks down, the ones <strong>without</strong> turbosupercharger are easier to fix&quot;</t>
 </blockquote><t>Unlike XML or JSON, the typeless, unnested, everything-is-text nature of BibTeX tags is a great advantage for introspection.<br />
 
-In a way, the RDF project should welcome it as a missing sensemaking precursor to (eventual) extrospective RDF.<br />
+It's a missing sensemaking precursor to (eventual) extrospective RDF.<br />
 
 BibTeX-appendices are already used in the digital AND physical world (academic books, <eref target="https://visual-meta.info">visual-meta</eref>), perhaps due to its terseness &amp; simplicity.<br />
 
-In that sense, it's one step up from the <tt>.ini</tt> fileformat (which has never leaked into the physical book-world):</t>
+In that sense, it's one step up from the <tt>.ini</tt> fileformat (which has never leaked into the physical world like BibTex):</t>
 
 <ol spacing="compact">
 <li>&lt;b id=&quot;frictionless-copy-paste&quot;&gt;frictionless copy/pasting&lt;/b&gt; (by humans) of (unobtrusive) content AND metadata</li>
@@ -465,6 +469,12 @@ In that sense, it's one step up from the <tt>.ini</tt> fileformat (which has nev
 <tr>
 <td>everything is text (string)</td>
 <td>yes</td>
+<td>no</td>
+</tr>
+
+<tr>
+<td>paperfriendly</td>
+<td><eref target="https://github.com/coderofsalvation/tagbibs">bibs</eref></td>
 <td>no</td>
 </tr>
 
@@ -560,77 +570,115 @@ In that sense, it's one step up from the <tt>.ini</tt> fileformat (which has nev
 
 <tr>
 <td>nested structures</td>
-<td>no</td>
+<td>no (but: BibTex rulers)</td>
 <td>yes</td>
 </tr>
 </tbody>
 </table></section>
 
-<section anchor="xr-text-w-bibtex-example-parser"><name>XR Text (w. BibTeX) example parser</name>
-<t>Here's a naive XR Text (de)multiplexer in javascript (which also supports visual-meta start/end-blocks):</t>
+<section anchor="xr-text-example-parser"><name>XR Text example parser</name>
+
+<ol spacing="compact">
+<li>The XR Fragments spec does not aim to harden the BiBTeX format</li>
+<li>However, respect multi-line BibTex values because of <eref target="#core-principle">the core principle</eref></li>
+<li>Expand bibs and rulers (like <tt>${visual-meta-start}</tt>) according to the <eref target="https://github.com/coderofsalvation/tagbibs">tagbibs spec</eref></li>
+<li>BibTeX snippets should always start in the beginning of a line (regex: ^@), hence mimetype <tt>text/plain;charset=utf-8;tag=^@</tt></li>
+</ol>
+<t>Here's an XR Text (de)multiplexer in javascript, which ticks all the above boxes:</t>
 
 <artwork>xrtext = {
     
-  decode: {
-    text: (str) =&gt; {
-        let meta={}, text='', last='', data = '';
-        str.split(/\r?\n/).map( (line) =&gt; {
-            if( !data ) data = last === '' &amp;&amp; line.match(/^@/) ? line[0] : ''  
-            if( data ){
-                if( line === '' ){
-                    xrtext.decode.bibtex(data.substr(1),meta)
-                    data=''
-                }else data += `${line}\n`
-            }
-            text += data ? '' : `${line}\n`
-            last=line
+  decode: (str) =&gt; {
+         // bibtex:     ↓@   ↓&lt;tag|tag{phrase,|{ruler}&gt;  ↓property  ↓end
+         let pat    = [ /@/, /^\S+[,{}]/,                /},/,      /}/ ]
+         let tags   = [], text='', i=0, prop=''
+         var bibs   = { regex: /(@[a-zA-Z0-9_+]+@[a-zA-Z0-9_@]+)/g, tags: {}}
+         let lines  = str.replace(/\r?\n/g,'\n').split(/\n/)
+         for( let i = 0; !lines[i].match( /^@/ ); i++ ) text += lines[i]+'\n'
+
+         bibtex = lines.join('\n').substr( text.length )
+         bibtex.replace( bibs.regex , (m,k,v) =&gt; {
+             tok   = m.substr(1).split(&quot;@&quot;)
+             match = tok.shift()            
+             tok.map( (t) =&gt; bibs.tags[match] = `@${t}{${match},\n}\n` )
+         })
+         bibtex = Object.values(bibs.tags).join('\n') + bibtex.replace( bibs.regex, '') 
+         bibtex.split( pat[0] ).map( (t) =&gt; {
+             try{
+                let v = {}
+                if( !(t = t.trim())         ) return            
+                if( tag = t.match( pat[1] ) ) tag = tag[0]
+                if( tag.match( /^{.*}$/ )   ) return tags.push({ruler:tag})
+                t = t.substr( tag.length )
+                t.split( pat[2] )
+                .map( kv =&gt; {
+                  if( !(kv = kv.trim()) || kv == &quot;}&quot; ) return
+                  v[ kv.match(/\s?(\S+)\s?=/)[1] ] = kv.substr( kv.indexOf(&quot;{&quot;)+1 )              
+                })
+                tags.push( { k:tag, v } )
+             }catch(e){ console.error(e) }
         })
-        return {text, meta}      
-    },
-    bibtex: (str,meta) =&gt; {
-        let st = [meta]
-        str
-        .split(/\r?\n/ )
-        .map( s =&gt; s.trim() ).join(&quot;\n&quot;) // be nice
-        .replace( /}@/,  &quot;}\n@&quot;  )       // to authors
-        .replace( /},}/, &quot;},\n}&quot; )       // which struggle
-        .replace( /^}/,  &quot;\n}&quot;   )       // with writing single-line BibTeX
-        .split(   /\n/           )       //
-        .filter( c =&gt; c.trim()   )       // actual processing:
-        .map( (s) =&gt; {
-          if( s.match(/(^}|-end})/) &amp;&amp; st.length &gt; 1 ) st.shift()
-          else if( s.match(/^@/)    ) st.unshift( st[0][ s.replace(/(-start|,)/g,'') ] = {} )
-          else s.replace( /(\w+)\s*=\s*{(.*)}(,)?/g, (m,k,v) =&gt; st[0][k] = v )
-        })
-        return meta
-    }
+        return {text, tags}      
   },
     
-  encode: (text,meta) =&gt; {
-    if( text === false ){
-        if (typeof meta === &quot;object&quot;) {
-           return Object.keys(meta).map(k =&gt; 
-               typeof meta[k] == &quot;string&quot; 
-               ? `  ${k} = {${meta[k]}},`
-               : `${ k.match(/[}{]$/) ? k.replace('}','-start}') : `${k},` }\n` +
-                 `${ xrtext.encode( false, meta[k])}\n`                         +
-                 `${  k.match(/}$/) ? k.replace('}','-end}') : '}' }\n`
-                 .split(&quot;\n&quot;).filter( s =&gt; s.trim() ).join(&quot;\n&quot;)
-            )
-            .join(&quot;\n&quot;)
-        }
-        return meta.toString();
-    }else return `${text}\n${xrtext.encode(false,meta)}`
+  encode: (text,tags) =&gt; {
+    let str = text+&quot;\n&quot;
+    for( let i in tags ){
+      let item = tags[i]
+      if( item.ruler ){ 
+          str += `@${item.ruler}\n`
+          continue;
+      }
+      str += `@${item.k}\n`
+      for( let j in item.v ) str += `  ${j} = {${item.v[j]}}\n`
+      str += `}\n`
+    }
+    return str 
   }
-
 }
-
-var {meta,text} = xrtext.decode.text(str)          // demultiplex text &amp; bibtex
-meta['@foo{']   = { &quot;note&quot;:&quot;note from the user&quot;}   // edit metadata
-xrtext.encode(text,meta)                           // multiplex text &amp; bibtex back together 
 </artwork>
-<blockquote><t>above can be used as a startingpoint for LLVM's to translate/steelman to any language.</t>
-</blockquote></section>
+<t>The above (de)multiplexes text/metadata, expands bibs, (de)serializes bibtex (and all fits more or less on one A4 paper)</t>
+<blockquote><t>above can be used as a startingpoint for LLVM's to translate/steelman to a more formal form/language.</t>
+</blockquote>
+<artwork>str = `
+hello world
+
+@hello@greeting
+@{some-section}
+@flap{
+  asdf = {23423}
+}`
+
+var {tags,text} = xrtext.decode(str)          // demultiplex text &amp; bibtex
+tags.find( (t) =&gt; t.k == 'flap{' ).v.asdf = 1 // edit tag
+tags.push({ k:'bar{', v:{abc:123} })          // add tag
+console.log( xrtext.encode(text,tags) )       // multiplex text &amp; bibtex back together 
+</artwork>
+
+<artwork>@{references-start}
+@misc{emilyHegland/Edgar&amp;Frod,
+ author = {Emily Hegland},
+ title = {Edgar &amp; Frode Hegland, November 2021},
+ year = {2021},
+ month = {11},
+}
+</artwork>
+<t>The above BibTeX-flavor can be imported, however will be rewritten to Dumb BibTeX, to satisfy rule 2 &amp; 5, as well as the <eref target="#core-principle">core principle</eref></t>
+
+<artwork>@visual-meta{
+ version = {1.1},
+ generator = {Author 7.6.2 (1064)},
+ section = {visual-meta-header}
+}
+@misc{emilyHegland/Edgar&amp;Frod,
+ author = {Emily Hegland},
+ title = {Edgar &amp; Frode Hegland, November 2021},
+ year = {2021},
+ month = {11},
+ section = {references}
+}
+</artwork>
+</section>
 </section>
 
 <section anchor="hyper-copy-paste"><name>HYPER copy/paste</name>

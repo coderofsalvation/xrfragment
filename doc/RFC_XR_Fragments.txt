@@ -3,7 +3,7 @@
 
 
 Internet Engineering Task Force                          L.R. van Kammen
-Internet-Draft                                          5 September 2023
+Internet-Draft                                          6 September 2023
 Intended status: Informational                                          
 
 
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 8 March 2024.
+   This Internet-Draft will expire on 9 March 2024.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-van Kammen                Expires 8 March 2024                  [Page 1]
+van Kammen                Expires 9 March 2024                  [Page 1]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -76,17 +76,17 @@ Table of Contents
    8.  Text in XR (tagging,linking to spatial objects) . . . . . . .   6
      8.1.  Default Data URI mimetype . . . . . . . . . . . . . . . .   9
      8.2.  URL and Data URI  . . . . . . . . . . . . . . . . . . . .  10
-     8.3.  BibTeX as lowest common denominator for tagging/
+     8.3.  Bibs-enabled BibTeX: lowest common denominator for tagging/
            triples . . . . . . . . . . . . . . . . . . . . . . . . .  11
-     8.4.  XR Text (w.  BibTeX) example parser . . . . . . . . . . .  13
-   9.  HYPER copy/paste  . . . . . . . . . . . . . . . . . . . . . .  14
-   10. XR Fragment queries . . . . . . . . . . . . . . . . . . . . .  15
-     10.1.  including/excluding  . . . . . . . . . . . . . . . . . .  15
-     10.2.  Query Parser . . . . . . . . . . . . . . . . . . . . . .  16
-     10.3.  XR Fragment URI Grammar  . . . . . . . . . . . . . . . .  17
-   11. Security Considerations . . . . . . . . . . . . . . . . . . .  17
-   12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  17
-   13. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  17
+     8.4.  XR Text example parser  . . . . . . . . . . . . . . . . .  13
+   9.  HYPER copy/paste  . . . . . . . . . . . . . . . . . . . . . .  15
+   10. XR Fragment queries . . . . . . . . . . . . . . . . . . . . .  16
+     10.1.  including/excluding  . . . . . . . . . . . . . . . . . .  16
+     10.2.  Query Parser . . . . . . . . . . . . . . . . . . . . . .  17
+     10.3.  XR Fragment URI Grammar  . . . . . . . . . . . . . . . .  18
+   11. Security Considerations . . . . . . . . . . . . . . . . . . .  18
+   12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  18
+   13. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  18
 
 1.  Introduction
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-van Kammen                Expires 8 March 2024                  [Page 2]
+van Kammen                Expires 9 March 2024                  [Page 2]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -165,7 +165,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 8 March 2024                  [Page 3]
+van Kammen                Expires 9 March 2024                  [Page 3]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -193,6 +193,10 @@ Internet-Draft                XR Fragments                September 2023
       +---------------+---------------------------------------------+
       | &#9723;       | ascii representation of an 3D object/mesh   |
       +---------------+---------------------------------------------+
+      | (un)obtrusive | obtrusive: wrapping human text/thought in   |
+      |               | XML/HTML/JSON obfuscates human text into a  |
+      |               | salad of machine-symbols and words          |
+      +---------------+---------------------------------------------+
 
                                   Table 1
 
@@ -215,16 +219,16 @@ Internet-Draft                XR Fragments                September 2023
     |          |         |              | or class mapping)          |
     +----------+---------+--------------+----------------------------+
 
-                                 Table 2
-
-   |  xyz coordinates are similar to ones found in SVG Media Fragments
 
 
-
-van Kammen                Expires 8 March 2024                  [Page 4]
+van Kammen                Expires 9 March 2024                  [Page 4]
 
 Internet-Draft                XR Fragments                September 2023
 
+
+                                 Table 2
+
+   |  xyz coordinates are similar to ones found in SVG Media Fragments
 
 5.  List of metadata for 3D nodes
 
@@ -269,18 +273,20 @@ Internet-Draft                XR Fragments                September 2023
   |                                                        |
   +--------------------------------------------------------+
 
+
+
+
+
+van Kammen                Expires 9 March 2024                  [Page 5]
+
+Internet-Draft                XR Fragments                September 2023
+
+
    An XR Fragment-compatible browser viewing this scene, allows the end-
    user to interact with the buttonA and buttonB.
    In case of buttonA the end-user will be teleported to another
    location and time in the *current loaded scene*, but buttonB will
    *replace the current scene* with a new one, like other.fbx.
-
-
-
-van Kammen                Expires 8 March 2024                  [Page 5]
-
-Internet-Draft                XR Fragments                September 2023
-
 
 7.  Embedding 3D content
 
@@ -324,19 +330,18 @@ Internet-Draft                XR Fragments                September 2023
    Ideally metadata must come *later with* text, but not *obfuscate* the
    text, or *in another* file.
 
+
+
+
+van Kammen                Expires 9 March 2024                  [Page 6]
+
+Internet-Draft                XR Fragments                September 2023
+
+
    |  Humans first, machines (AI) later (core principle (#core-
    |  principle)
 
    This way:
-
-
-
-
-
-van Kammen                Expires 8 March 2024                  [Page 6]
-
-Internet-Draft                XR Fragments                September 2023
-
 
    1.  XR Fragments allows <b id="tagging-text">hasslefree XR text
        tagging</b>, using BibTeX metadata *at the end of content* (like
@@ -384,12 +389,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-
-
-
-
-
-van Kammen                Expires 8 March 2024                  [Page 7]
+van Kammen                Expires 9 March 2024                  [Page 7]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -445,17 +445,17 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 8 March 2024                  [Page 8]
+van Kammen                Expires 9 March 2024                  [Page 8]
 
 Internet-Draft                XR Fragments                September 2023
 
 
-   1.  The XR Browser needs to offer a global setting/control to adjust
-       tag-scope with at least range: [text, spatial, text+spatial,
-       supra, omni, infinite]
+   1.  The XR Browser needs to adjust tag-scope based on the endusers
+       needs/focus (infinite tagging only makes sense when environment
+       is scaled down significantly)
    2.  The XR Browser should always allow the human to view/edit the
-       BibTex metadata manually, by clicking 'toggle metadata' on the
-       'back' (contextmenu e.g.) of any XR text, anywhere anytime.
+       metadata, by clicking 'toggle metadata' on the 'back'
+       (contextmenu e.g.) of any XR text, anywhere anytime.
 
    |  NOTE: infinite matches both 'house' and 'houses' in text, as well
    |  as spatial objects with "class":"house" or name "house".  This
@@ -473,48 +473,48 @@ Internet-Draft                XR Fragments                September 2023
 
    to a green eco-friendly:
 
-   text/plain;charset=utf-8;bibtex=^@
+   text/plain;charset=utf-8;bib=^@
 
-   This indicates that any bibtex metadata starting with @ will
-   automatically get filtered out and:
+   This indicates that bibs (https://github.com/coderofsalvation/
+   tagbibs) and bibtags (https://en.wikipedia.org/wiki/BibTeX) matching
+   regex ^@ will automatically get filtered out, in order to:
 
-   *  automatically detects textual links between textual and spatial
-      objects
+   *  automatically detect links between textual/spatial objects
+   *  detect opiniated bibtag appendices (visual-meta (https://visual-
+      meta.info) e.g.)
 
-   It's concept is similar to literate programming.  Its implications
-   are that local/remote responses can now:
+   It's concept is similar to literate programming, which empower local/
+   remote responses to:
 
-   *  (de)multiplex/repair human text and requestless metadata (see the
-      core principle (#core-principle))
-   *  no separated implementation/network-overhead for metadata (see the
-      core principle (#core-principle))
-   *  ensuring high FPS: HTML/RDF historically is too 'requesty' for
-      game studios
+   *  (de)multiplex human text and metadata in one go (see the core
+      principle (#core-principle))
+   *  no network-overhead for metadata (see the core principle (#core-
+      principle))
+   *  ensuring high FPS: HTML/RDF historically is too 'requesty'/'parsy'
+      for game studios
    *  rich send/receive/copy-paste everywhere by default, metadata being
       retained (see the core principle (#core-principle))
-   *  less network requests, therefore less webservices, therefore less
-      servers, and overall better FPS in XR
+   *  netto result: less webservices, therefore less servers, and
+      overall better FPS in XR
 
 
 
 
 
-
-
-van Kammen                Expires 8 March 2024                  [Page 9]
+van Kammen                Expires 9 March 2024                  [Page 9]
 
 Internet-Draft                XR Fragments                September 2023
 
 
    |  This significantly expands expressiveness and portability of human
-   |  text, by *postponing machine-concerns to the end of the human
-   |  text* in contrast to literal interweaving of content and
+   |  tagged text, by *postponing machine-concerns to the end of the
+   |  human text* in contrast to literal interweaving of content and
    |  markupsymbols (or extra network requests, webservices e.g.).
 
    For all other purposes, regular mimetypes can be used (but are not
    required by the spec).
-   To keep XR Fragments a lightweight spec, BibTeX is used for text-
-   spatial object mappings (not a scripting language or RDF e.g.).
+   To keep XR Fragments a lightweight spec, BibTeX is used for text/
+   spatial tagging (not a scripting language or RDF e.g.).
 
    |  Applications are also free to attach any JSON(LD / RDF) to spatial
    |  objects using custom properties (but is not interpreted by this
@@ -557,7 +557,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 8 March 2024                 [Page 10]
+van Kammen                Expires 9 March 2024                 [Page 10]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -575,32 +575,30 @@ Internet-Draft                XR Fragments                September 2023
   |                              }`                                                    |
   +------------------------------------------------------------------------------------+
 
-   Attaching visualmeta as src metadata to the (root) scene-node hints
-   the XR Fragment browser. 3D object names and classes map to name of
-   visual-meta glossary-entries.  This allows rich interaction and
-   interlinking between text and 3D objects:
+   3D object names and/or classes map to name of visual-meta glossary-
+   entries.  This allows rich interaction and interlinking between text
+   and 3D objects:
 
-   1.  When the user surfs to https://.../index.gltf#AI the XR
-       Fragments-parser points the enduser to the AI object, and can
-       show contextual info about it.
+   1.  When the user surfs to https://.../index.gltf#rentalhouse the XR
+       Fragments-parser points the enduser to the rentalhouse object,
+       and can show contextual info about it.
    2.  When (partial) remote content is embedded thru XR Fragment
-       queries (see XR Fragment queries), its related visual-meta can be
-       embedded along.
+       queries (see XR Fragment queries), indirectly related metadata
+       can be embedded along.
 
-8.3.  BibTeX as lowest common denominator for tagging/triples
+8.3.  Bibs-enabled BibTeX: lowest common denominator for tagging/triples
 
    |  "When a car breaks down, the ones *without* turbosupercharger are
    |  easier to fix"
 
    Unlike XML or JSON, the typeless, unnested, everything-is-text nature
    of BibTeX tags is a great advantage for introspection.
-   In a way, the RDF project should welcome it as a missing sensemaking
-   precursor to (eventual) extrospective RDF.
+   It's a missing sensemaking precursor to (eventual) extrospective RDF.
    BibTeX-appendices are already used in the digital AND physical world
    (academic books, visual-meta (https://visual-meta.info)), perhaps due
    to its terseness & simplicity.
    In that sense, it's one step up from the .ini fileformat (which has
-   never leaked into the physical book-world):
+   never leaked into the physical world like BibTex):
 
    1.  <b id="frictionless-copy-paste">frictionless copy/pasting</b> (by
        humans) of (unobtrusive) content AND metadata
@@ -613,157 +611,219 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 8 March 2024                 [Page 11]
+
+
+van Kammen                Expires 9 March 2024                 [Page 11]
 
 Internet-Draft                XR Fragments                September 2023
 
 
-        +====================+=================+=================+
-        | characteristic     | UTF8 Plain Text | RDF             |
-        |                    | (with BibTeX)   |                 |
-        +====================+=================+=================+
-        | perspective        | introspective   | extrospective   |
-        +--------------------+-----------------+-----------------+
-        | structure          | fuzzy           | precise         |
-        |                    | (sensemaking)   |                 |
-        +--------------------+-----------------+-----------------+
-        | space/scope        | local           | world           |
-        +--------------------+-----------------+-----------------+
-        | everything is text | yes             | no              |
-        | (string)           |                 |                 |
-        +--------------------+-----------------+-----------------+
-        | leaves (dictated)  | yes             | no              |
-        | text intact        |                 |                 |
-        +--------------------+-----------------+-----------------+
-        | markup language    | just an         | ~4 different    |
-        |                    | appendix        |                 |
-        +--------------------+-----------------+-----------------+
-        | polyglot format    | no              | yes             |
-        +--------------------+-----------------+-----------------+
-        | easy to copy/paste | yes             | up to           |
-        | content+metadata   |                 | application     |
-        +--------------------+-----------------+-----------------+
-        | easy to write/     | yes             | depends         |
-        | repair for layman  |                 |                 |
-        +--------------------+-----------------+-----------------+
-        | easy to            | yes (fits on A4 | depends         |
-        | (de)serialize      | paper)          |                 |
-        +--------------------+-----------------+-----------------+
-        | infrastructure     | selfcontained   | (semi)networked |
-        |                    | (plain text)    |                 |
-        +--------------------+-----------------+-----------------+
-        | freeform tagging/  | yes, terse      | yes, verbose    |
-        | annotation         |                 |                 |
-        +--------------------+-----------------+-----------------+
-        | can be appended to | yes             | up to           |
-        | text-content       |                 | application     |
-        +--------------------+-----------------+-----------------+
-        | copy-paste text    | yes             | up to           |
-        | preserves metadata |                 | application     |
-        +--------------------+-----------------+-----------------+
-        | emoji              | yes             | depends on      |
-        |                    |                 | encoding        |
-        +--------------------+-----------------+-----------------+
-        | predicates         | free            | semi pre-       |
-        |                    |                 | determined      |
+   +================+=====================================+===============+
+   |characteristic  |UTF8 Plain Text (with BibTeX)        |RDF            |
+   +================+=====================================+===============+
+   |perspective     |introspective                        |extrospective  |
+   +----------------+-------------------------------------+---------------+
+   |structure       |fuzzy (sensemaking)                  |precise        |
+   +----------------+-------------------------------------+---------------+
+   |space/scope     |local                                |world          |
+   +----------------+-------------------------------------+---------------+
+   |everything is   |yes                                  |no             |
+   |text (string)   |                                     |               |
+   +----------------+-------------------------------------+---------------+
+   |paperfriendly   |bibs                                 |no             |
+   |                |(https://github.com/coderofsalvation/|               |
+   |                |tagbibs)                             |               |
+   +----------------+-------------------------------------+---------------+
+   |leaves          |yes                                  |no             |
+   |(dictated) text |                                     |               |
+   |intact          |                                     |               |
+   +----------------+-------------------------------------+---------------+
+   |markup language |just an appendix                     |~4 different   |
+   +----------------+-------------------------------------+---------------+
+   |polyglot format |no                                   |yes            |
+   +----------------+-------------------------------------+---------------+
+   |easy to copy/   |yes                                  |up to          |
+   |paste           |                                     |application    |
+   |content+metadata|                                     |               |
+   +----------------+-------------------------------------+---------------+
+   |easy to write/  |yes                                  |depends        |
+   |repair for      |                                     |               |
+   |layman          |                                     |               |
+   +----------------+-------------------------------------+---------------+
+   |easy to         |yes (fits on A4 paper)               |depends        |
+   |(de)serialize   |                                     |               |
+   +----------------+-------------------------------------+---------------+
+   |infrastructure  |selfcontained (plain text)           |(semi)networked|
+   +----------------+-------------------------------------+---------------+
+   |freeform        |yes, terse                           |yes, verbose   |
+   |tagging/        |                                     |               |
+   |annotation      |                                     |               |
+   +----------------+-------------------------------------+---------------+
+   |can be appended |yes                                  |up to          |
+   |to text-content |                                     |application    |
+   +----------------+-------------------------------------+---------------+
+   |copy-paste text |yes                                  |up to          |
+   |preserves       |                                     |application    |
+   |metadata        |                                     |               |
+   +----------------+-------------------------------------+---------------+
 
 
 
-van Kammen                Expires 8 March 2024                 [Page 12]
+van Kammen                Expires 9 March 2024                 [Page 12]
 
 Internet-Draft                XR Fragments                September 2023
 
 
-        +--------------------+-----------------+-----------------+
-        | implementation/    | no              | depends         |
-        | network overhead   |                 |                 |
-        +--------------------+-----------------+-----------------+
-        | used in (physical) | yes (visual-    | no              |
-        | books/PDF          | meta)           |                 |
-        +--------------------+-----------------+-----------------+
-        | terse non-verb     | yes             | no              |
-        | predicates         |                 |                 |
-        +--------------------+-----------------+-----------------+
-        | nested structures  | no              | yes             |
-        +--------------------+-----------------+-----------------+
+   |emoji           |yes                                  |depends on     |
+   |                |                                     |encoding       |
+   +----------------+-------------------------------------+---------------+
+   |predicates      |free                                 |semi pre-      |
+   |                |                                     |determined     |
+   +----------------+-------------------------------------+---------------+
+   |implementation/ |no                                   |depends        |
+   |network overhead|                                     |               |
+   +----------------+-------------------------------------+---------------+
+   |used in         |yes (visual-meta)                    |no             |
+   |(physical)      |                                     |               |
+   |books/PDF       |                                     |               |
+   +----------------+-------------------------------------+---------------+
+   |terse non-verb  |yes                                  |no             |
+   |predicates      |                                     |               |
+   +----------------+-------------------------------------+---------------+
+   |nested          |no (but: BibTex rulers)              |yes            |
+   |structures      |                                     |               |
+   +----------------+-------------------------------------+---------------+
 
-                                 Table 5
+                                  Table 5
 
-8.4.  XR Text (w.  BibTeX) example parser
+8.4.  XR Text example parser
 
-   Here's a naive XR Text (de)multiplexer in javascript (which also
-   supports visual-meta start/end-blocks):
+   1.  The XR Fragments spec does not aim to harden the BiBTeX format
+   2.  However, respect multi-line BibTex values because of the core
+       principle (#core-principle)
+   3.  Expand bibs and rulers (like ${visual-meta-start}) according to
+       the tagbibs spec (https://github.com/coderofsalvation/tagbibs)
+   4.  BibTeX snippets should always start in the beginning of a line
+       (regex: ^@), hence mimetype text/plain;charset=utf-8;tag=^@
+
+   Here's an XR Text (de)multiplexer in javascript, which ticks all the
+   above boxes:
 
 xrtext = {
 
-  decode: {
-    text: (str) => {
-        let meta={}, text='', last='', data = '';
-        str.split(/\r?\n/).map( (line) => {
-            if( !data ) data = last === '' && line.match(/^@/) ? line[0] : ''
-            if( data ){
-                if( line === '' ){
-                    xrtext.decode.bibtex(data.substr(1),meta)
-                    data=''
-                }else data += `${line}\n`
-            }
-            text += data ? '' : `${line}\n`
-            last=line
-        })
-        return {text, meta}
-    },
-    bibtex: (str,meta) => {
-        let st = [meta]
-        str
-        .split(/\r?\n/ )
-        .map( s => s.trim() ).join("\n") // be nice
-        .replace( /}@/,  "}\n@"  )       // to authors
-        .replace( /},}/, "},\n}" )       // which struggle
-        .replace( /^}/,  "\n}"   )       // with writing single-line BibTeX
-        .split(   /\n/           )       //
-        .filter( c => c.trim()   )       // actual processing:
+  decode: (str) => {
+         // bibtex:     ↓@   ↓<tag|tag{phrase,|{ruler}>  ↓property  ↓end
+         let pat    = [ /@/, /^\S+[,{}]/,                /},/,      /}/ ]
+         let tags   = [], text='', i=0, prop=''
+         var bibs   = { regex: /(@[a-zA-Z0-9_+]+@[a-zA-Z0-9_@]+)/g, tags: {}}
+         let lines  = str.replace(/\r?\n/g,'\n').split(/\n/)
+         for( let i = 0; !lines[i].match( /^@/ ); i++ ) text += lines[i]+'\n'
+
+         bibtex = lines.join('\n').substr( text.length )
+         bibtex.replace( bibs.regex , (m,k,v) => {
+             tok   = m.substr(1).split("@")
 
 
 
-van Kammen                Expires 8 March 2024                 [Page 13]
+van Kammen                Expires 9 March 2024                 [Page 13]
 
 Internet-Draft                XR Fragments                September 2023
 
 
-        .map( (s) => {
-          if( s.match(/(^}|-end})/) && st.length > 1 ) st.shift()
-          else if( s.match(/^@/)    ) st.unshift( st[0][ s.replace(/(-start|,)/g,'') ] = {} )
-          else s.replace( /(\w+)\s*=\s*{(.*)}(,)?/g, (m,k,v) => st[0][k] = v )
+             match = tok.shift()
+             tok.map( (t) => bibs.tags[match] = `@${t}{${match},\n}\n` )
+         })
+         bibtex = Object.values(bibs.tags).join('\n') + bibtex.replace( bibs.regex, '')
+         bibtex.split( pat[0] ).map( (t) => {
+             try{
+                let v = {}
+                if( !(t = t.trim())         ) return
+                if( tag = t.match( pat[1] ) ) tag = tag[0]
+                if( tag.match( /^{.*}$/ )   ) return tags.push({ruler:tag})
+                t = t.substr( tag.length )
+                t.split( pat[2] )
+                .map( kv => {
+                  if( !(kv = kv.trim()) || kv == "}" ) return
+                  v[ kv.match(/\s?(\S+)\s?=/)[1] ] = kv.substr( kv.indexOf("{")+1 )
+                })
+                tags.push( { k:tag, v } )
+             }catch(e){ console.error(e) }
         })
-        return meta
-    }
+        return {text, tags}
   },
 
-  encode: (text,meta) => {
-    if( text === false ){
-        if (typeof meta === "object") {
-           return Object.keys(meta).map(k =>
-               typeof meta[k] == "string"
-               ? `  ${k} = {${meta[k]}},`
-               : `${ k.match(/[}{]$/) ? k.replace('}','-start}') : `${k},` }\n` +
-                 `${ xrtext.encode( false, meta[k])}\n`                         +
-                 `${  k.match(/}$/) ? k.replace('}','-end}') : '}' }\n`
-                 .split("\n").filter( s => s.trim() ).join("\n")
-            )
-            .join("\n")
-        }
-        return meta.toString();
-    }else return `${text}\n${xrtext.encode(false,meta)}`
+  encode: (text,tags) => {
+    let str = text+"\n"
+    for( let i in tags ){
+      let item = tags[i]
+      if( item.ruler ){
+          str += `@${item.ruler}\n`
+          continue;
+      }
+      str += `@${item.k}\n`
+      for( let j in item.v ) str += `  ${j} = {${item.v[j]}}\n`
+      str += `}\n`
+    }
+    return str
   }
-
 }
 
-var {meta,text} = xrtext.decode.text(str)          // demultiplex text & bibtex
-meta['@foo{']   = { "note":"note from the user"}   // edit metadata
-xrtext.encode(text,meta)                           // multiplex text & bibtex back together
+   The above (de)multiplexes text/metadata, expands bibs, (de)serializes
+   bibtex (and all fits more or less on one A4 paper)
 
    |  above can be used as a startingpoint for LLVM's to translate/
-   |  steelman to any language.
+   |  steelman to a more formal form/language.
+
+
+
+
+
+
+
+
+van Kammen                Expires 9 March 2024                 [Page 14]
+
+Internet-Draft                XR Fragments                September 2023
+
+
+str = `
+hello world
+
+@hello@greeting
+@{some-section}
+@flap{
+  asdf = {23423}
+}`
+
+var {tags,text} = xrtext.decode(str)          // demultiplex text & bibtex
+tags.find( (t) => t.k == 'flap{' ).v.asdf = 1 // edit tag
+tags.push({ k:'bar{', v:{abc:123} })          // add tag
+console.log( xrtext.encode(text,tags) )       // multiplex text & bibtex back together
+
+   @{references-start}
+   @misc{emilyHegland/Edgar&Frod,
+    author = {Emily Hegland},
+    title = {Edgar & Frode Hegland, November 2021},
+    year = {2021},
+    month = {11},
+   }
+
+   The above BibTeX-flavor can be imported, however will be rewritten to
+   Dumb BibTeX, to satisfy rule 2 & 5, as well as the core principle
+   (#core-principle)
+
+   @visual-meta{
+    version = {1.1},
+    generator = {Author 7.6.2 (1064)},
+    section = {visual-meta-header}
+   }
+   @misc{emilyHegland/Edgar&Frod,
+    author = {Emily Hegland},
+    title = {Edgar & Frode Hegland, November 2021},
+    year = {2021},
+    month = {11},
+    section = {references}
+   }
 
 9.  HYPER copy/paste
 
@@ -774,17 +834,16 @@ xrtext.encode(text,meta)                           // multiplex text & bibtex ba
    ways:
 
    1.  time/space: 3D object (current animation-loop)
-   2.  text: TeXt object (including BibTeX/visual-meta if any)
-   3.  interlinked: Collected objects by visual-meta tag
 
 
 
-
-
-van Kammen                Expires 8 March 2024                 [Page 14]
+van Kammen                Expires 9 March 2024                 [Page 15]
 
 Internet-Draft                XR Fragments                September 2023
 
+
+   2.  text: TeXt object (including BibTeX/visual-meta if any)
+   3.  interlinked: Collected objects by visual-meta tag
 
 10.  XR Fragment queries
 
@@ -831,17 +890,17 @@ Internet-Draft                XR Fragments                September 2023
       |          | property)                                       |
       +----------+-------------------------------------------------+
       | -        | removes/hides object(s)                         |
-      +----------+-------------------------------------------------+
-      | :        | indicates an object-embedded custom property    |
-      |          | key/value                                       |
 
 
 
-van Kammen                Expires 8 March 2024                 [Page 15]
+van Kammen                Expires 9 March 2024                 [Page 16]
 
 Internet-Draft                XR Fragments                September 2023
 
 
+      +----------+-------------------------------------------------+
+      | :        | indicates an object-embedded custom property    |
+      |          | key/value                                       |
       +----------+-------------------------------------------------+
       | .        | alias for "class" :".foo" equals class:foo      |
       +----------+-------------------------------------------------+
@@ -886,18 +945,18 @@ Internet-Draft                XR Fragments                September 2023
    10.  then strip key-operator: convert "-foo" into "foo"
    11.  add operator and value to rule-array
    12.  therefore we we set id to true or false (false=excluder -)
-   13.  and we set root to true or false (true=/ root selector is
-        present)
-   14.  we convert key '/foo' into 'foo'
 
 
 
 
-van Kammen                Expires 8 March 2024                 [Page 16]
+van Kammen                Expires 9 March 2024                 [Page 17]
 
 Internet-Draft                XR Fragments                September 2023
 
 
+   13.  and we set root to true or false (true=/ root selector is
+        present)
+   14.  we convert key '/foo' into 'foo'
    15.  finally we add the key/value to the store like store.foo =
         {id:false,root:true} e.g.
 
@@ -946,7 +1005,4 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-
-
-
-van Kammen                Expires 8 March 2024                 [Page 17]
+van Kammen                Expires 9 March 2024                 [Page 18]
