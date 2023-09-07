@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>XR Macros</title>
+  <meta name="GENERATOR" content="github.com/mmarkdown/mmark Mmark Markdown Processor - mmark.miek.nl">
+  <meta charset="utf-8">
+</head>
+<body>
+
+<!-- for annotated version see: https://raw.githubusercontent.com/ietf-tools/rfcxml-templates-and-schemas/main/draft-rfcxml-general-template-annotated-00.xml -->
+
+
+  <style type="text/css">
+  body{
+    font-family: monospace;
+    max-width: 1000px;
+    font-size: 15px;
+    padding: 0% 20%;
+    line-height: 30px;
+    color:#555;
+    background:#F0F0F3
+  }
+  h1 { margin-top:40px; }
+  pre{ line-height:18px; }
+  a,a:visited,a:active{ color: #70f; }
+  code{
+    border: 1px solid #AAA;
+    border-radius: 3px;
+    padding: 0px 5px 2px 5px;
+  }
+
+  pre{
+    line-height: 18px;
+    overflow: auto;
+    padding: 12px;
+  }
+  pre + code {
+    background:#DDD;
+  }
+  pre>code{
+    border:none;
+    border-radius:0px;
+    padding:0;
+  }
+  blockquote{
+    padding-left: 30px;
+    margin: 0;
+    border-left: 5px solid #CCC;
+  }
+  th {
+      border-bottom: 1px solid #000;
+      text-align: left;
+      padding-right:45px;
+      padding-left:7px;
+      background: #DDD;
+  }
+
+  td {
+      border-bottom: 1px solid #CCC;
+      font-size:13px; 
+  }
+
+  </style>
+
+<br>
+<h1>XR Macros</h1>
+<br>
+
+<pre>
+stream:    IETF
+area:      Internet
+status:    informational
+author:    Leon van Kammen
+date:      2023-04-12T00:00:00Z
+workgroup: Internet Engineering Task Force
+value:     draft-XRMACROS-leonvankammen-00
+</pre>  
+
+
+
+<h1 class="special" id="abstract">Abstract</h1>
+
+<p>This draft offers a specification for embedding macros in existing 3D scenes/assets, to offer simple interactions and configure the renderer further.<br>
+Together with URI Fragments, it allows for rich immersive experiences without the need of a complicated sandboxed scripting languages.</p>
+
+<blockquote>
+<p>Almost every idea in this document is demonstrated at <a href="https://xrfragment.org">https://xrfragment.org</a>, as this spec was created during the <a href="https://xrfragment.org">XR Fragments</a> spec.</p>
+</blockquote>
+<section data-matter="main">
+<h1 id="introduction">Introduction</h1>
+
+<p>How can we add more features to existing text &amp; 3D scenes, without introducing new dataformats?<br>
+Historically, there&rsquo;s many attempts to create the ultimate markuplanguage or 3D fileformat.<br>
+Their lowest common denominator is: (co)authoring using plain text.<br>
+Therefore, XR Macros allows us to enrich/connect existing dataformats, by offering a polyglot notation based on existing notations:<br></p>
+
+<ol>
+<li>getting/setting common used 3D properties using querystring- or JSON-notation</li>
+<li>querying 3D properties using the lightweight searchengine notation used in <a href="https://xrfragment.org">XR Fragments</a></li>
+</ol>
+
+<blockquote>
+<p>NOTE: The chapters in this document are ordered from highlevel to lowlevel (technical) as much as possible</p>
+</blockquote>
+
+<h1 id="core-principle">Core principle</h1>
+
+<ol>
+<li>XR Macros use querystrings, but are HTML-agnostic (though pseudo-XR Fragment browsers <strong>can</strong> be implemented on top of HTML/Javascript).</li>
+<li>XR Macros represents setting/getting common used properties found in all popular 3D frameworks/(game)editors/internet browsers.</li>
+<li>XR Macros acts as simple eventhandlers for URI Fragments</li>
+</ol>
+
+<h1 id="conventions-and-definitions">Conventions and Definitions</h1>
+
+<p>See appendix below in case certain terms are not clear.</p>
+
+<h1 id="list-of-xr-macros">List of XR Macros</h1>
+
+<p>(XR) Macros can be embedded in 3D assets/scenes.<br>
+Macros enrich existing spatial content with a lowcode, limited logic-layer, by recursive (economic) use of the querystring syntax (which search engines and <a href="https://xrfragment.org">XR Fragments</a> already uses.<br>
+This is done by allowing string/integer variables, and the <code>|</code> symbol to roundrobin variable values.<br>
+Macros also act as events, so more serious scripting languages can react to them as well.<br></p>
+
+<h2 id="usecase-click-object">Usecase: click object</h2>
+
+<table>
+<thead>
+<tr>
+<th>custom property</th>
+<th>value</th>
+<th>trigger when</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>!clickme</td>
+<td>bg=1,1,1&amp;foo=2</td>
+<td>object clicked</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="usecase-conditional-click-object">Usecase: conditional click object</h2>
+
+<table>
+<thead>
+<tr>
+<th>custom property</th>
+<th>value</th>
+<th>trigger when</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>#</td>
+<td>foo=1</td>
+<td>scene</td>
+</tr>
+
+<tr>
+<td>!clickme</td>
+<td>q=foo&gt;2&amp;bg=1,1,1</td>
+<td>object clicked and foo &gt; 2</td>
+</tr>
+</tbody>
+</table>
+
+<blockquote>
+<p>when a user clicks an object with the custom properties above, it should set the backgroundcolor to <code>1,1,1</code> when <code>foo</code> is greater than <code>2</code> (see previous example)</p>
+</blockquote>
+
+<h2 id="usecase-click-object-roundrobin">Usecase: click object (roundrobin)</h2>
+
+<table>
+<thead>
+<tr>
+<th>custom property</th>
+<th>value</th>
+<th>trigger when</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>!clickme</td>
+<td>day|noon|night</td>
+<td>object clicked</td>
+</tr>
+
+<tr>
+<td>day</td>
+<td>bg=1,1,1</td>
+<td>roundrobin</td>
+</tr>
+
+<tr>
+<td>noon</td>
+<td>bg=0.5,0.5,0.5</td>
+<td>roundrobin</td>
+</tr>
+
+<tr>
+<td>night</td>
+<td>bg=0,0,0&amp;foo=2</td>
+<td>roundrobin</td>
+</tr>
+</tbody>
+</table>
+
+<blockquote>
+<p>when a user clicks an object with the custom properties above, it should trigger either <code>day</code> <code>noon</code> or <code>night</code> in roundrobin fashion.</p>
+</blockquote>
+
+<h2 id="usecase-click-object-uri-fragment-and-scene-load">Usecase: click object, URI fragment and scene load</h2>
+
+<table>
+<thead>
+<tr>
+<th>custom property</th>
+<th>value</th>
+<th>trigger when</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>#</td>
+<td>random</td>
+<td>scene loaded</td>
+</tr>
+
+<tr>
+<td>#random</td>
+<td>random</td>
+<td>URL contains #random</td>
+</tr>
+
+<tr>
+<td>!random</td>
+<td>day|noon|night</td>
+<td>#random, # or click</td>
+</tr>
+
+<tr>
+<td>day</td>
+<td>bg=1,1,1</td>
+<td>roundrobin</td>
+</tr>
+
+<tr>
+<td>noon</td>
+<td>bg=0.5,0.5,0.5</td>
+<td>roundrobin</td>
+</tr>
+
+<tr>
+<td>night</td>
+<td>bg=0,0,0&amp;foo=2</td>
+<td>roundrobin</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="usecase-present-context-menu-with-options">Usecase: present context menu with options</h2>
+
+<table>
+<thead>
+<tr>
+<th>custom property</th>
+<th>value</th>
+<th>trigger when</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>!random</td>
+<td>day</td>
+<td>noon</td>
+</tr>
+
+<tr>
+<td>!day</td>
+<td>bg=1,1,1</td>
+<td>clicked in contextmenu</td>
+</tr>
+
+<tr>
+<td>!noon</td>
+<td>bg=0.5,0.5,0.5</td>
+<td>clicked in contextmenu</td>
+</tr>
+
+<tr>
+<td>!night</td>
+<td>bg=0,0,0&amp;foo=2</td>
+<td>clicked in contextmenu</td>
+</tr>
+</tbody>
+</table>
+
+<blockquote>
+<p>The XR Browser should offer a contextmenu with these options when more than one <code>!</code>-macro is present on an object.</p>
+</blockquote>
+
+<h1 id="security-considerations">Security Considerations</h1>
+
+<h1 id="iana-considerations">IANA Considerations</h1>
+
+<p>This document has no IANA actions.</p>
+
+<h1 id="acknowledgments">Acknowledgments</h1>
+
+<ul>
+<li><a href="https://nlnet.nl">NLNET</a></li>
+<li><a href="https://futureoftext.org">Future of Text</a></li>
+<li><a href="https://visual-meta.info">visual-meta.info</a></li>
+</ul>
+
+<h1 id="appendix-definitions">Appendix: Definitions</h1>
+
+<table>
+<thead>
+<tr>
+<th>definition</th>
+<th>explanation</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>scene</td>
+<td>a (local/remote) 3D scene or 3D file (index.gltf e.g.)</td>
+</tr>
+
+<tr>
+<td>3D object</td>
+<td>an object inside a scene characterized by vertex-, face- and customproperty data.</td>
+</tr>
+
+<tr>
+<td>XR fragments</td>
+<td>URI Fragment with spatial hints like <code>#pos=0,0,0&amp;t=1,100</code> e.g.</td>
+</tr>
+
+<tr>
+<td>query</td>
+<td>an URI Fragment-operator which queries object(s) from a scene like <code>#q=cube</code></td>
+</tr>
+
+<tr>
+<td>FPS</td>
+<td>frames per second in spatial experiences (games,VR,AR e.g.), should be as high as possible</td>
+</tr>
+
+<tr>
+<td><code>◻</code></td>
+<td>ascii representation of an 3D object/mesh</td>
+</tr>
+
+<tr>
+<td>(un)obtrusive</td>
+<td>obtrusive: wrapping human text/thought in XML/HTML/JSON obfuscates human text into a salad of machine-symbols and words</td>
+</tr>
+</tbody>
+</table>
+</section>
+
+</body>
+</html>
+

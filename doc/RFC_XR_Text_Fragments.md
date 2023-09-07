@@ -5,7 +5,7 @@ workgroup = "Internet Engineering Task Force"
 
 [seriesInfo]
 name = "XR-Macros"
-value = "draft-XRMACROS-leonvankammen-00"
+value = "draft-XRTEXTFRAGMENTS-leonvankammen-00"
 stream = "IETF"
 status = "informational"
 
@@ -75,7 +75,7 @@ fullname="L.R. van Kammen"
   </style>
 
 <br>
-<h1>XR Macros</h1>
+<h1>XR Text Fragments</h1>
 <br>
 
 <pre>
@@ -85,7 +85,7 @@ status:    informational
 author:    Leon van Kammen
 date:      2023-04-12T00:00:00Z
 workgroup: Internet Engineering Task Force
-value:     draft-XRMACROS-leonvankammen-00
+value:     draft-XRTEXTFRAGMENTS-leonvankammen-00
 </pre>  
 
 

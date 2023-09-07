@@ -552,6 +552,8 @@ hello world
 }
 ```
 
+> when an XR browser updates the human text, a quick scan for nonmatching tags (`@book{nonmatchingbook` e.g.) should be performed and prompt the enduser for deleting them.
+
 # HYPER copy/paste 
 
 The previous example, offers something exciting compared to simple copy/paste of 3D objects or text.

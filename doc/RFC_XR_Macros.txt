@@ -1,0 +1,336 @@
+
+
+
+
+Internet Engineering Task Force                          L.R. van Kammen
+Internet-Draft                                          7 September 2023
+Intended status: Informational                                          
+
+
+
+                               XR Macros
+                    draft-XRMACROS-leonvankammen-00
+
+Abstract
+
+   This draft offers a specification for embedding macros in existing 3D
+   scenes/assets, to offer simple interactions and configure the
+   renderer further.
+   Together with URI Fragments, it allows for rich immersive experiences
+   without the need of a complicated sandboxed scripting languages.
+
+   Almost every idea in this document is demonstrated at
+   https://xrfragment.org (https://xrfragment.org), as this spec was
+   created during the XR Fragments (https://xrfragment.org) spec.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 10 March 2024.
+
+Copyright Notice
+
+   Copyright (c) 2023 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+
+
+
+van Kammen                Expires 10 March 2024                 [Page 1]
+
+Internet-Draft                  XR Macros                 September 2023
+
+
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+   2.  Core principle  . . . . . . . . . . . . . . . . . . . . . . .   2
+   3.  Conventions and Definitions . . . . . . . . . . . . . . . . .   3
+   4.  List of XR Macros . . . . . . . . . . . . . . . . . . . . . .   3
+     4.1.  Usecase: click object . . . . . . . . . . . . . . . . . .   3
+     4.2.  Usecase: conditional click object . . . . . . . . . . . .   3
+     4.3.  Usecase: click object (roundrobin)  . . . . . . . . . . .   4
+     4.4.  Usecase: click object, URI fragment and scene load  . . .   4
+     4.5.  Usecase: present context menu with options  . . . . . . .   4
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   5
+   6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   5
+   7.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .   5
+   8.  Appendix: Definitions . . . . . . . . . . . . . . . . . . . .   5
+
+1.  Introduction
+
+   How can we add more features to existing text & 3D scenes, without
+   introducing new dataformats?
+   Historically, there's many attempts to create the ultimate
+   markuplanguage or 3D fileformat.
+   Their lowest common denominator is: (co)authoring using plain text.
+   Therefore, XR Macros allows us to enrich/connect existing
+   dataformats, by offering a polyglot notation based on existing
+   notations:
+
+   1.  getting/setting common used 3D properties using querystring- or
+       JSON-notation
+   2.  querying 3D properties using the lightweight searchengine
+       notation used in XR Fragments (https://xrfragment.org)
+
+   |  NOTE: The chapters in this document are ordered from highlevel to
+   |  lowlevel (technical) as much as possible
+
+2.  Core principle
+
+   1.  XR Macros use querystrings, but are HTML-agnostic (though pseudo-
+       XR Fragment browsers *can* be implemented on top of HTML/
+       Javascript).
+   2.  XR Macros represents setting/getting common used properties found
+       in all popular 3D frameworks/(game)editors/internet browsers.
+   3.  XR Macros acts as simple eventhandlers for URI Fragments
+
+
+
+
+van Kammen                Expires 10 March 2024                 [Page 2]
+
+Internet-Draft                  XR Macros                 September 2023
+
+
+3.  Conventions and Definitions
+
+   See appendix below in case certain terms are not clear.
+
+4.  List of XR Macros
+
+   (XR) Macros can be embedded in 3D assets/scenes.
+   Macros enrich existing spatial content with a lowcode, limited logic-
+   layer, by recursive (economic) use of the querystring syntax (which
+   search engines and XR Fragments (https://xrfragment.org) already
+   uses.
+   This is done by allowing string/integer variables, and the | symbol
+   to roundrobin variable values.
+   Macros also act as events, so more serious scripting languages can
+   react to them as well.
+
+4.1.  Usecase: click object
+
+           +=================+================+================+
+           | custom property | value          | trigger when   |
+           +=================+================+================+
+           | !clickme        | bg=1,1,1&foo=2 | object clicked |
+           +-----------------+----------------+----------------+
+
+                                  Table 1
+
+4.2.  Usecase: conditional click object
+
+    +=================+==================+============================+
+    | custom property | value            | trigger when               |
+    +=================+==================+============================+
+    | #               | foo=1            | scene                      |
+    +-----------------+------------------+----------------------------+
+    | !clickme        | q=foo>2&bg=1,1,1 | object clicked and foo > 2 |
+    +-----------------+------------------+----------------------------+
+
+                                  Table 2
+
+   |  when a user clicks an object with the custom properties above, it
+   |  should set the backgroundcolor to 1,1,1 when foo is greater than 2
+   |  (see previous example)
+
+
+
+
+
+
+
+
+
+
+van Kammen                Expires 10 March 2024                 [Page 3]
+
+Internet-Draft                  XR Macros                 September 2023
+
+
+4.3.  Usecase: click object (roundrobin)
+
+           +=================+================+================+
+           | custom property | value          | trigger when   |
+           +=================+================+================+
+           | !clickme        | day|noon|night | object clicked |
+           +-----------------+----------------+----------------+
+           | day             | bg=1,1,1       | roundrobin     |
+           +-----------------+----------------+----------------+
+           | noon            | bg=0.5,0.5,0.5 | roundrobin     |
+           +-----------------+----------------+----------------+
+           | night           | bg=0,0,0&foo=2 | roundrobin     |
+           +-----------------+----------------+----------------+
+
+                                  Table 3
+
+   |  when a user clicks an object with the custom properties above, it
+   |  should trigger either day noon or night in roundrobin fashion.
+
+4.4.  Usecase: click object, URI fragment and scene load
+
+        +=================+================+======================+
+        | custom property | value          | trigger when         |
+        +=================+================+======================+
+        | #               | random         | scene loaded         |
+        +-----------------+----------------+----------------------+
+        | #random         | random         | URL contains #random |
+        +-----------------+----------------+----------------------+
+        | !random         | day|noon|night | #random, # or click  |
+        +-----------------+----------------+----------------------+
+        | day             | bg=1,1,1       | roundrobin           |
+        +-----------------+----------------+----------------------+
+        | noon            | bg=0.5,0.5,0.5 | roundrobin           |
+        +-----------------+----------------+----------------------+
+        | night           | bg=0,0,0&foo=2 | roundrobin           |
+        +-----------------+----------------+----------------------+
+
+                                  Table 4
+
+4.5.  Usecase: present context menu with options
+
+       +=================+================+========================+
+       | custom property | value          | trigger when           |
+       +=================+================+========================+
+       | !random         | day            | noon                   |
+       +-----------------+----------------+------------------------+
+       | !day            | bg=1,1,1       | clicked in contextmenu |
+       +-----------------+----------------+------------------------+
+
+
+
+van Kammen                Expires 10 March 2024                 [Page 4]
+
+Internet-Draft                  XR Macros                 September 2023
+
+
+       | !noon           | bg=0.5,0.5,0.5 | clicked in contextmenu |
+       +-----------------+----------------+------------------------+
+       | !night          | bg=0,0,0&foo=2 | clicked in contextmenu |
+       +-----------------+----------------+------------------------+
+
+                                  Table 5
+
+   |  The XR Browser should offer a contextmenu with these options when
+   |  more than one !-macro is present on an object.
+
+5.  Security Considerations
+
+6.  IANA Considerations
+
+   This document has no IANA actions.
+
+7.  Acknowledgments
+
+   *  NLNET (https://nlnet.nl)
+   *  Future of Text (https://futureoftext.org)
+   *  visual-meta.info (https://visual-meta.info)
+
+8.  Appendix: Definitions
+
+   +===============+===================================================+
+   | definition    | explanation                                       |
+   +===============+===================================================+
+   | scene         | a (local/remote) 3D scene or 3D file              |
+   |               | (index.gltf e.g.)                                 |
+   +---------------+---------------------------------------------------+
+   | 3D object     | an object inside a scene characterized by         |
+   |               | vertex-, face- and customproperty data.           |
+   +---------------+---------------------------------------------------+
+   | XR fragments  | URI Fragment with spatial hints like              |
+   |               | #pos=0,0,0&t=1,100 e.g.                           |
+   +---------------+---------------------------------------------------+
+   | query         | an URI Fragment-operator which queries            |
+   |               | object(s) from a scene like #q=cube               |
+   +---------------+---------------------------------------------------+
+   | FPS           | frames per second in spatial experiences          |
+   |               | (games,VR,AR e.g.), should be as high as          |
+   |               | possible                                          |
+   +---------------+---------------------------------------------------+
+   | &#9723;       | ascii representation of an 3D object/mesh         |
+   +---------------+---------------------------------------------------+
+   | (un)obtrusive | obtrusive: wrapping human text/thought in         |
+   |               | XML/HTML/JSON obfuscates human text into          |
+   |               | a salad of machine-symbols and words              |
+
+
+
+van Kammen                Expires 10 March 2024                 [Page 5]
+
+Internet-Draft                  XR Macros                 September 2023
+
+
+   +---------------+---------------------------------------------------+
+
+                                  Table 6
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+van Kammen                Expires 10 March 2024                 [Page 6]
