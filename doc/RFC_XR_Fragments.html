@@ -92,12 +92,12 @@ XR Fragments allows us to enrich existing dataformats, by recursive use of exist
 
 <p>How can we add more features to existing text &amp; 3D scenes, without introducing new dataformats?<br>
 Historically, there&rsquo;s many attempts to create the ultimate markuplanguage or 3D fileformat.<br>
-However, thru the lens of authoring, their lowest common denominator is still: plain text.<br>
+Their lowest common denominator is: (co)authoring using plain text.<br>
 XR Fragments allows us to enrich/connect existing dataformats, by recursive use of existing technologies:<br></p>
 
 <ol>
 <li>addressibility and navigation of 3D scenes/objects: <a href="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</a> + src/href spatial metadata</li>
-<li>hasslefree tagging across text and spatial objects using <a href="https://en.wikipedia.org/wiki/BibTeX">BibTags</a> as appendix (see <a href="https://visual-meta.info">visual-meta</a> e.g.)</li>
+<li>hasslefree tagging across text and spatial objects using <a href="https://github.com/coderofsalvation/tagbibs">bibs</a> / <a href="https://en.wikipedia.org/wiki/BibTeX">BibTags</a> as appendix (see <a href="https://visual-meta.info">visual-meta</a> e.g.)</li>
 </ol>
 
 <blockquote>
@@ -113,109 +113,18 @@ This also means that the repair-ability of machine-matters should be human frien
 <p>&ldquo;When a car breaks down, the ones <strong>without</strong> turbosupercharger are easier to fix&rdquo;</p>
 </blockquote>
 
-<p>Let&rsquo;s always focus on average humans: the &lsquo;fuzzy symbolical mind&rsquo; must be served first, before serving the greater <a href="https://en.wikipedia.org/wiki/Borg">&lsquo;categorized typesafe RDF hive mind&rsquo;</a>).</p>
+<p>Let&rsquo;s always focus on average humans: our fuzzy symbolical mind must be served first, before serving a greater <a href="https://en.wikipedia.org/wiki/Borg">categorized typesafe RDF hive mind</a>).</p>
 
 <blockquote>
 <p>Humans first, machines (AI) later.</p>
 </blockquote>
 
+<p>Thererfore, XR Fragments does not look at XR (or the web) thru the lens of HTML.<br>
+XR Fragments itself is HTML-agnostic, though pseudo-XR Fragment browsers <strong>can</strong> be implemented on top of HTML/Javascript.</p>
+
 <h1 id="conventions-and-definitions">Conventions and Definitions</h1>
 
-<table>
-<thead>
-<tr>
-<th>definition</th>
-<th>explanation</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td>human</td>
-<td>a sentient being who thinks fuzzy, absorbs, and shares thought (by plain text, not markuplanguage)</td>
-</tr>
-
-<tr>
-<td>scene</td>
-<td>a (local/remote) 3D scene or 3D file (index.gltf e.g.)</td>
-</tr>
-
-<tr>
-<td>3D object</td>
-<td>an object inside a scene characterized by vertex-, face- and customproperty data.</td>
-</tr>
-
-<tr>
-<td>metadata</td>
-<td>custom properties of text, 3D Scene or Object(nodes), relevant to machines and a human minority (academics/developers)</td>
-</tr>
-
-<tr>
-<td>XR fragment</td>
-<td>URI Fragment with spatial hints like <code>#pos=0,0,0&amp;t=1,100</code> e.g.</td>
-</tr>
-
-<tr>
-<td>src</td>
-<td>(HTML-piggybacked) metadata of a 3D object which instances content</td>
-</tr>
-
-<tr>
-<td>href</td>
-<td>(HTML-piggybacked) metadata of a 3D object which links to content</td>
-</tr>
-
-<tr>
-<td>query</td>
-<td>an URI Fragment-operator which queries object(s) from a scene like <code>#q=cube</code></td>
-</tr>
-
-<tr>
-<td>visual-meta</td>
-<td><a href="https://visual.meta.info">visual-meta</a> data appended to text/books/papers which is indirectly visible/editable in XR.</td>
-</tr>
-
-<tr>
-<td>requestless metadata</td>
-<td>opposite of networked metadata (RDF/HTML requests can easily fan out into framerate-dropping, hence not used a lot in games).</td>
-</tr>
-
-<tr>
-<td>FPS</td>
-<td>frames per second in spatial experiences (games,VR,AR e.g.), should be as high as possible</td>
-</tr>
-
-<tr>
-<td>introspective</td>
-<td>inward sensemaking (&ldquo;I feel this belongs to that&rdquo;)</td>
-</tr>
-
-<tr>
-<td>extrospective</td>
-<td>outward sensemaking (&ldquo;I&rsquo;m fairly sure John is a person who lives in oklahoma&rdquo;)</td>
-</tr>
-
-<tr>
-<td><code>◻</code></td>
-<td>ascii representation of an 3D object/mesh</td>
-</tr>
-
-<tr>
-<td>(un)obtrusive</td>
-<td>obtrusive: wrapping human text/thought in XML/HTML/JSON obfuscates human text into a salad of machine-symbols and words</td>
-</tr>
-
-<tr>
-<td>BibTeX</td>
-<td>simple tagging/citing/referencing standard for plaintext</td>
-</tr>
-
-<tr>
-<td>BibTag</td>
-<td>a BibTeX tag</td>
-</tr>
-</tbody>
-</table>
+<p>See appendix below in case certain terms are not clear.</p>
 
 <h1 id="list-of-uri-fragments">List of URI Fragments</h1>
 
@@ -306,7 +215,7 @@ This also means that the repair-ability of machine-matters should be human frien
 </tr>
 </tbody>
 </table>
-<p>Popular compatible 3D fileformats: <code>.gltf</code>, <code>.obj</code>, <code>.fbx</code>, <code>.usdz</code>, <code>.json</code> (THREEjs), <code>COLLADA</code> and so on.</p>
+<p>Popular compatible 3D fileformats: <code>.gltf</code>, <code>.obj</code>, <code>.fbx</code>, <code>.usdz</code>, <code>.json</code> (THREE.js), <code>.dae</code> and so on.</p>
 
 <blockquote>
 <p>NOTE: XR Fragments are file-agnostic, which means that the metadata exist in programmatic 3D scene(nodes) too.</p>
@@ -958,7 +867,109 @@ Therefore, the enduser in an XR Fragment-compatible browser can copy/paste/share
 
 <h1 id="acknowledgments">Acknowledgments</h1>
 
-<p>TODO acknowledge.</p>
+<ul>
+<li><a href="https://nlnet.nl">NLNET</a></li>
+<li><a href="https://futureoftext.org">Future of Text</a></li>
+<li><a href="https://visual-meta.info">visual-meta.info</a></li>
+</ul>
+
+<h1 id="appendix-definitions">Appendix: Definitions</h1>
+
+<table>
+<thead>
+<tr>
+<th>definition</th>
+<th>explanation</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>human</td>
+<td>a sentient being who thinks fuzzy, absorbs, and shares thought (by plain text, not markuplanguage)</td>
+</tr>
+
+<tr>
+<td>scene</td>
+<td>a (local/remote) 3D scene or 3D file (index.gltf e.g.)</td>
+</tr>
+
+<tr>
+<td>3D object</td>
+<td>an object inside a scene characterized by vertex-, face- and customproperty data.</td>
+</tr>
+
+<tr>
+<td>metadata</td>
+<td>custom properties of text, 3D Scene or Object(nodes), relevant to machines and a human minority (academics/developers)</td>
+</tr>
+
+<tr>
+<td>XR fragment</td>
+<td>URI Fragment with spatial hints like <code>#pos=0,0,0&amp;t=1,100</code> e.g.</td>
+</tr>
+
+<tr>
+<td>src</td>
+<td>(HTML-piggybacked) metadata of a 3D object which instances content</td>
+</tr>
+
+<tr>
+<td>href</td>
+<td>(HTML-piggybacked) metadata of a 3D object which links to content</td>
+</tr>
+
+<tr>
+<td>query</td>
+<td>an URI Fragment-operator which queries object(s) from a scene like <code>#q=cube</code></td>
+</tr>
+
+<tr>
+<td>visual-meta</td>
+<td><a href="https://visual.meta.info">visual-meta</a> data appended to text/books/papers which is indirectly visible/editable in XR.</td>
+</tr>
+
+<tr>
+<td>requestless metadata</td>
+<td>metadata which never spawns new requests (unlike RDF/HTML, which can cause framerate-dropping, hence not used a lot in games)</td>
+</tr>
+
+<tr>
+<td>FPS</td>
+<td>frames per second in spatial experiences (games,VR,AR e.g.), should be as high as possible</td>
+</tr>
+
+<tr>
+<td>introspective</td>
+<td>inward sensemaking (&ldquo;I feel this belongs to that&rdquo;)</td>
+</tr>
+
+<tr>
+<td>extrospective</td>
+<td>outward sensemaking (&ldquo;I&rsquo;m fairly sure John is a person who lives in oklahoma&rdquo;)</td>
+</tr>
+
+<tr>
+<td><code>◻</code></td>
+<td>ascii representation of an 3D object/mesh</td>
+</tr>
+
+<tr>
+<td>(un)obtrusive</td>
+<td>obtrusive: wrapping human text/thought in XML/HTML/JSON obfuscates human text into a salad of machine-symbols and words</td>
+</tr>
+
+<tr>
+<td>BibTeX</td>
+<td>simple tagging/citing/referencing standard for plaintext</td>
+</tr>
+
+<tr>
+<td>BibTag</td>
+<td>a BibTeX tag</td>
+</tr>
+</tbody>
+</table>
 </section>
 
 </body>

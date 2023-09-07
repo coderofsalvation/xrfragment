@@ -69,24 +69,25 @@ Table of Contents
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
    2.  Core principle  . . . . . . . . . . . . . . . . . . . . . . .   3
    3.  Conventions and Definitions . . . . . . . . . . . . . . . . .   3
-   4.  List of URI Fragments . . . . . . . . . . . . . . . . . . . .   4
-   5.  List of metadata for 3D nodes . . . . . . . . . . . . . . . .   5
-   6.  Navigating 3D . . . . . . . . . . . . . . . . . . . . . . . .   5
-   7.  Embedding 3D content  . . . . . . . . . . . . . . . . . . . .   6
-   8.  XR Fragment queries . . . . . . . . . . . . . . . . . . . . .   7
-     8.1.  including/excluding . . . . . . . . . . . . . . . . . . .   8
-     8.2.  Query Parser  . . . . . . . . . . . . . . . . . . . . . .   8
-     8.3.  XR Fragment URI Grammar . . . . . . . . . . . . . . . . .   9
-   9.  Text in XR (tagging,linking to spatial objects) . . . . . . .   9
-     9.1.  Default Data URI mimetype . . . . . . . . . . . . . . . .  12
-     9.2.  URL and Data URI  . . . . . . . . . . . . . . . . . . . .  13
+   4.  List of URI Fragments . . . . . . . . . . . . . . . . . . . .   3
+   5.  List of metadata for 3D nodes . . . . . . . . . . . . . . . .   4
+   6.  Navigating 3D . . . . . . . . . . . . . . . . . . . . . . . .   4
+   7.  Embedding 3D content  . . . . . . . . . . . . . . . . . . . .   5
+   8.  XR Fragment queries . . . . . . . . . . . . . . . . . . . . .   5
+     8.1.  including/excluding . . . . . . . . . . . . . . . . . . .   6
+     8.2.  Query Parser  . . . . . . . . . . . . . . . . . . . . . .   7
+     8.3.  XR Fragment URI Grammar . . . . . . . . . . . . . . . . .   7
+   9.  Text in XR (tagging,linking to spatial objects) . . . . . . .   8
+     9.1.  Default Data URI mimetype . . . . . . . . . . . . . . . .  11
+     9.2.  URL and Data URI  . . . . . . . . . . . . . . . . . . . .  12
      9.3.  Bibs & BibTeX: lowest common denominator for linking
-           data  . . . . . . . . . . . . . . . . . . . . . . . . . .  14
-     9.4.  XR Text example parser  . . . . . . . . . . . . . . . . .  16
-   10. HYPER copy/paste  . . . . . . . . . . . . . . . . . . . . . .  18
-   11. Security Considerations . . . . . . . . . . . . . . . . . . .  18
-   12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  19
-   13. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  19
+           data  . . . . . . . . . . . . . . . . . . . . . . . . . .  13
+     9.4.  XR Text example parser  . . . . . . . . . . . . . . . . .  15
+   10. HYPER copy/paste  . . . . . . . . . . . . . . . . . . . . . .  17
+   11. Security Considerations . . . . . . . . . . . . . . . . . . .  17
+   12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  18
+   13. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  18
+   14. Appendix: Definitions . . . . . . . . . . . . . . . . . . . .  18
 
 1.  Introduction
 
@@ -94,18 +95,17 @@ Table of Contents
    introducing new dataformats?
    Historically, there's many attempts to create the ultimate
    markuplanguage or 3D fileformat.
-   However, thru the lens of authoring, their lowest common denominator
-   is still: plain text.
+   Their lowest common denominator is: (co)authoring using plain text.
    XR Fragments allows us to enrich/connect existing dataformats, by
    recursive use of existing technologies:
 
    1.  addressibility and navigation of 3D scenes/objects: URI Fragments
        (https://en.wikipedia.org/wiki/URI_fragment) + src/href spatial
        metadata
-   2.  hasslefree tagging across text and spatial objects using BibTags
+   2.  hasslefree tagging across text and spatial objects using bibs
+       (https://github.com/coderofsalvation/tagbibs) / BibTags
        (https://en.wikipedia.org/wiki/BibTeX) as appendix (see visual-
        meta (https://visual-meta.info) e.g.)
-
 
 
 
@@ -128,82 +128,20 @@ Internet-Draft                XR Fragments                September 2023
    |  "When a car breaks down, the ones *without* turbosupercharger are
    |  easier to fix"
 
-   Let's always focus on average humans: the 'fuzzy symbolical mind'
-   must be served first, before serving the greater 'categorized
-   typesafe RDF hive mind' (https://en.wikipedia.org/wiki/Borg)).
+   Let's always focus on average humans: our fuzzy symbolical mind must
+   be served first, before serving a greater categorized typesafe RDF
+   hive mind (https://en.wikipedia.org/wiki/Borg)).
 
    |  Humans first, machines (AI) later.
 
+   Thererfore, XR Fragments does not look at XR (or the web) thru the
+   lens of HTML.
+   XR Fragments itself is HTML-agnostic, though pseudo-XR Fragment
+   browsers *can* be implemented on top of HTML/Javascript.
+
 3.  Conventions and Definitions
 
-      +===============+=============================================+
-      | definition    | explanation                                 |
-      +===============+=============================================+
-      | human         | a sentient being who thinks fuzzy, absorbs, |
-      |               | and shares thought (by plain text, not      |
-      |               | markuplanguage)                             |
-      +---------------+---------------------------------------------+
-      | scene         | a (local/remote) 3D scene or 3D file        |
-      |               | (index.gltf e.g.)                           |
-      +---------------+---------------------------------------------+
-      | 3D object     | an object inside a scene characterized by   |
-      |               | vertex-, face- and customproperty data.     |
-      +---------------+---------------------------------------------+
-      | metadata      | custom properties of text, 3D Scene or      |
-      |               | Object(nodes), relevant to machines and a   |
-      |               | human minority (academics/developers)       |
-      +---------------+---------------------------------------------+
-      | XR fragment   | URI Fragment with spatial hints like        |
-      |               | #pos=0,0,0&t=1,100 e.g.                     |
-      +---------------+---------------------------------------------+
-      | src           | (HTML-piggybacked) metadata of a 3D object  |
-      |               | which instances content                     |
-      +---------------+---------------------------------------------+
-      | href          | (HTML-piggybacked) metadata of a 3D object  |
-      |               | which links to content                      |
-      +---------------+---------------------------------------------+
-
-
-
-van Kammen                Expires 10 March 2024                 [Page 3]
-
-Internet-Draft                XR Fragments                September 2023
-
-
-      | query         | an URI Fragment-operator which queries      |
-      |               | object(s) from a scene like #q=cube         |
-      +---------------+---------------------------------------------+
-      | visual-meta   | visual-meta (https://visual.meta.info) data |
-      |               | appended to text/books/papers which is      |
-      |               | indirectly visible/editable in XR.          |
-      +---------------+---------------------------------------------+
-      | requestless   | opposite of networked metadata (RDF/HTML    |
-      | metadata      | requests can easily fan out into framerate- |
-      |               | dropping, hence not used a lot in games).   |
-      +---------------+---------------------------------------------+
-      | FPS           | frames per second in spatial experiences    |
-      |               | (games,VR,AR e.g.), should be as high as    |
-      |               | possible                                    |
-      +---------------+---------------------------------------------+
-      | introspective | inward sensemaking ("I feel this belongs to |
-      |               | that")                                      |
-      +---------------+---------------------------------------------+
-      | extrospective | outward sensemaking ("I'm fairly sure John  |
-      |               | is a person who lives in oklahoma")         |
-      +---------------+---------------------------------------------+
-      | &#9723;       | ascii representation of an 3D object/mesh   |
-      +---------------+---------------------------------------------+
-      | (un)obtrusive | obtrusive: wrapping human text/thought in   |
-      |               | XML/HTML/JSON obfuscates human text into a  |
-      |               | salad of machine-symbols and words          |
-      +---------------+---------------------------------------------+
-      | BibTeX        | simple tagging/citing/referencing standard  |
-      |               | for plaintext                               |
-      +---------------+---------------------------------------------+
-      | BibTag        | a BibTeX tag                                |
-      +---------------+---------------------------------------------+
-
-                                  Table 1
+   See appendix below in case certain terms are not clear.
 
 4.  List of URI Fragments
 
@@ -218,21 +156,21 @@ Internet-Draft                XR Fragments                September 2023
     +----------+---------+--------------+----------------------------+
     | #t       | vector2 | #t=500,1000  | sets animation-loop range  |
     |          |         |              | between frame 500 and 1000 |
-
-
-
-van Kammen                Expires 10 March 2024                 [Page 4]
-
-Internet-Draft                XR Fragments                September 2023
-
-
     +----------+---------+--------------+----------------------------+
     | #......  | string  | #.cubes      | object(s) of interest      |
     |          |         | #cube        | (fragment to object name   |
     |          |         |              | or class mapping)          |
     +----------+---------+--------------+----------------------------+
 
-                                 Table 2
+
+
+
+van Kammen                Expires 10 March 2024                 [Page 3]
+
+Internet-Draft                XR Fragments                September 2023
+
+
+                                 Table 1
 
    |  xyz coordinates are similar to ones found in SVG Media Fragments
 
@@ -254,10 +192,10 @@ Internet-Draft                XR Fragments                September 2023
      |       |        | "#q=cube"      | property in 3D fileformats |
      +-------+--------+----------------+----------------------------+
 
-                                 Table 3
+                                 Table 2
 
    Popular compatible 3D fileformats: .gltf, .obj, .fbx, .usdz, .json
-   (THREEjs), COLLADA and so on.
+   (THREE.js), .dae and so on.
 
    |  NOTE: XR Fragments are file-agnostic, which means that the
    |  metadata exist in programmatic 3D scene(nodes) too.
@@ -266,21 +204,6 @@ Internet-Draft                XR Fragments                September 2023
 
    Here's an ascii representation of a 3D scene-graph which contains 3D
    objects &#9723; and their metadata:
-
-
-
-
-
-
-
-
-
-
-
-van Kammen                Expires 10 March 2024                 [Page 5]
-
-Internet-Draft                XR Fragments                September 2023
-
 
   +--------------------------------------------------------+
   |                                                        |
@@ -293,6 +216,15 @@ Internet-Draft                XR Fragments                September 2023
   |           └ href: other.fbx                            |   <-- file-agnostic (can be .gltf .obj etc)
   |                                                        |
   +--------------------------------------------------------+
+
+
+
+
+
+van Kammen                Expires 10 March 2024                 [Page 4]
+
+Internet-Draft                XR Fragments                September 2023
+
 
    An XR Fragment-compatible browser viewing this scene, allows the end-
    user to interact with the buttonA and buttonB.
@@ -324,20 +256,6 @@ Internet-Draft                XR Fragments                September 2023
   |                                                        |
   +--------------------------------------------------------+
 
-
-
-
-
-
-
-
-
-
-van Kammen                Expires 10 March 2024                 [Page 6]
-
-Internet-Draft                XR Fragments                September 2023
-
-
    An XR Fragment-compatible browser viewing this scene, lazy-loads and
    projects painting.png onto the (plane) object called canvas (which is
    copy-instanced in the bed and livingroom).
@@ -356,6 +274,13 @@ Internet-Draft                XR Fragments                September 2023
    *  #q=-.language .english
    *  #q=cube&rot=0,90,0
    *  #q=price:>2 price:<5
+
+
+
+van Kammen                Expires 10 March 2024                 [Page 5]
+
+Internet-Draft                XR Fragments                September 2023
+
 
    It's simple but powerful syntax which allows <b>css</b>-like class/
    id-selectors with a searchengine prompt-style feeling:
@@ -382,18 +307,6 @@ Internet-Draft                XR Fragments                September 2023
    *  see an example video here
       (https://coderofsalvation.github.io/xrfragment.media/queries.mp4)
 
-
-
-
-
-
-
-
-van Kammen                Expires 10 March 2024                 [Page 7]
-
-Internet-Draft                XR Fragments                September 2023
-
-
 8.1.  including/excluding
 
       +==========+=================================================+
@@ -416,7 +329,14 @@ Internet-Draft                XR Fragments                September 2023
       |          | objects in nested scenes (instanced by src) (*) |
       +----------+-------------------------------------------------+
 
-                                 Table 4
+                                 Table 3
+
+
+
+van Kammen                Expires 10 March 2024                 [Page 6]
+
+Internet-Draft                XR Fragments                September 2023
+
 
    |  * = #q=-/cube hides object cube only in the root-scene (not nested
    |  cube objects)
@@ -441,15 +361,6 @@ Internet-Draft                XR Fragments                September 2023
    3.   detect excluders like -foo,-foo:1,-.foo,-/foo (reference regex:
         /^-/ )
    4.   detect root selectors like /foo (reference regex: /^[-]?\// )
-
-
-
-
-van Kammen                Expires 10 March 2024                 [Page 8]
-
-Internet-Draft                XR Fragments                September 2023
-
-
    5.   detect class selectors like .foo (reference regex: /^[-]?class$/
         )
    6.   detect number values like foo:1 (reference regex: /^[0-9\.]+$/ )
@@ -476,6 +387,13 @@ Internet-Draft                XR Fragments                September 2023
    gen-delims  = "#" / "&"
    sub-delims  = "," / "="
 
+
+
+van Kammen                Expires 10 March 2024                 [Page 7]
+
+Internet-Draft                XR Fragments                September 2023
+
+
    |  Example: ://foo.com/my3d.gltf#pos=1,0,0&prio=-5&t=0,100
 
      +=============================+=================================+
@@ -486,7 +404,7 @@ Internet-Draft                XR Fragments                September 2023
      | pos=1,2,3&rot=0,90,0&q=.foo | combinators                     |
      +-----------------------------+---------------------------------+
 
-                                  Table 5
+                                  Table 4
 
 9.  Text in XR (tagging,linking to spatial objects)
 
@@ -497,14 +415,6 @@ Internet-Draft                XR Fragments                September 2023
    is (not obscuring with markup) is preferred.
    Ideally metadata must come *later with* text, but not *obfuscate* the
    text, or *in another* file.
-
-
-
-
-van Kammen                Expires 10 March 2024                 [Page 9]
-
-Internet-Draft                XR Fragments                September 2023
-
 
    |  Humans first, machines (AI) later (core principle (#core-
    |  principle)
@@ -530,6 +440,15 @@ Internet-Draft                XR Fragments                September 2023
    6.  anti-pattern: limiting human introspection, by immediately
        funneling human thought into typesafe, precise, pre-categorized
        metadata like RDF (see the core principle (#core-principle))
+
+
+
+
+
+van Kammen                Expires 10 March 2024                 [Page 8]
+
+Internet-Draft                XR Fragments                September 2023
+
 
    This allows recursive connections between text itself, as well as 3D
    objects and vice versa, using *BibTags* :
@@ -557,7 +476,32 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 10 March 2024                [Page 10]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+van Kammen                Expires 10 March 2024                 [Page 9]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -600,7 +544,7 @@ Internet-Draft                XR Fragments                September 2023
    |                                    | node to all nodes)          |
    +------------------------------------+-----------------------------+
 
-                                 Table 6
+                                 Table 5
 
    This empowers the enduser spatial expressiveness (see the core
    principle (#core-principle)): spatial wires can be rendered, words
@@ -613,7 +557,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 10 March 2024                [Page 11]
+van Kammen                Expires 10 March 2024                [Page 10]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -669,7 +613,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 10 March 2024                [Page 12]
+van Kammen                Expires 10 March 2024                [Page 11]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -725,7 +669,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 10 March 2024                [Page 13]
+van Kammen                Expires 10 March 2024                [Page 12]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -781,7 +725,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 10 March 2024                [Page 14]
+van Kammen                Expires 10 March 2024                [Page 13]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -837,7 +781,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 10 March 2024                [Page 15]
+van Kammen                Expires 10 March 2024                [Page 14]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -862,7 +806,7 @@ Internet-Draft                XR Fragments                September 2023
    |structures      |                                     |               |
    +----------------+-------------------------------------+---------------+
 
-                                  Table 7
+                                  Table 6
 
 9.4.  XR Text example parser
 
@@ -893,7 +837,7 @@ xrtext = {
 
 
 
-van Kammen                Expires 10 March 2024                [Page 16]
+van Kammen                Expires 10 March 2024                [Page 15]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -949,7 +893,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 10 March 2024                [Page 17]
+van Kammen                Expires 10 March 2024                [Page 16]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -1005,7 +949,7 @@ console.log( xrtext.encode(text,tags) )       // multiplex text & bibtex back to
 
 
 
-van Kammen                Expires 10 March 2024                [Page 18]
+van Kammen                Expires 10 March 2024                [Page 17]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -1016,24 +960,80 @@ Internet-Draft                XR Fragments                September 2023
 
 13.  Acknowledgments
 
-   TODO acknowledge.
+   *  NLNET (https://nlnet.nl)
+   *  Future of Text (https://futureoftext.org)
+   *  visual-meta.info (https://visual-meta.info)
+
+14.  Appendix: Definitions
+
+     +===============+==============================================+
+     | definition    | explanation                                  |
+     +===============+==============================================+
+     | human         | a sentient being who thinks fuzzy, absorbs,  |
+     |               | and shares thought (by plain text, not       |
+     |               | markuplanguage)                              |
+     +---------------+----------------------------------------------+
+     | scene         | a (local/remote) 3D scene or 3D file         |
+     |               | (index.gltf e.g.)                            |
+     +---------------+----------------------------------------------+
+     | 3D object     | an object inside a scene characterized by    |
+     |               | vertex-, face- and customproperty data.      |
+     +---------------+----------------------------------------------+
+     | metadata      | custom properties of text, 3D Scene or       |
+     |               | Object(nodes), relevant to machines and a    |
+     |               | human minority (academics/developers)        |
+     +---------------+----------------------------------------------+
+     | XR fragment   | URI Fragment with spatial hints like         |
+     |               | #pos=0,0,0&t=1,100 e.g.                      |
+     +---------------+----------------------------------------------+
+     | src           | (HTML-piggybacked) metadata of a 3D object   |
+     |               | which instances content                      |
+     +---------------+----------------------------------------------+
+     | href          | (HTML-piggybacked) metadata of a 3D object   |
+     |               | which links to content                       |
+     +---------------+----------------------------------------------+
+     | query         | an URI Fragment-operator which queries       |
+     |               | object(s) from a scene like #q=cube          |
+     +---------------+----------------------------------------------+
+     | visual-meta   | visual-meta (https://visual.meta.info) data  |
+     |               | appended to text/books/papers which is       |
+     |               | indirectly visible/editable in XR.           |
+     +---------------+----------------------------------------------+
+     | requestless   | metadata which never spawns new requests     |
+     | metadata      | (unlike RDF/HTML, which can cause framerate- |
+     |               | dropping, hence not used a lot in games)     |
 
 
 
+van Kammen                Expires 10 March 2024                [Page 18]
+
+Internet-Draft                XR Fragments                September 2023
 
 
+     +---------------+----------------------------------------------+
+     | FPS           | frames per second in spatial experiences     |
+     |               | (games,VR,AR e.g.), should be as high as     |
+     |               | possible                                     |
+     +---------------+----------------------------------------------+
+     | introspective | inward sensemaking ("I feel this belongs to  |
+     |               | that")                                       |
+     +---------------+----------------------------------------------+
+     | extrospective | outward sensemaking ("I'm fairly sure John   |
+     |               | is a person who lives in oklahoma")          |
+     +---------------+----------------------------------------------+
+     | &#9723;       | ascii representation of an 3D object/mesh    |
+     +---------------+----------------------------------------------+
+     | (un)obtrusive | obtrusive: wrapping human text/thought in    |
+     |               | XML/HTML/JSON obfuscates human text into a   |
+     |               | salad of machine-symbols and words           |
+     +---------------+----------------------------------------------+
+     | BibTeX        | simple tagging/citing/referencing standard   |
+     |               | for plaintext                                |
+     +---------------+----------------------------------------------+
+     | BibTag        | a BibTeX tag                                 |
+     +---------------+----------------------------------------------+
 
-
-
-
-
-
-
-
-
-
-
-
+                                 Table 7
 
 
 
