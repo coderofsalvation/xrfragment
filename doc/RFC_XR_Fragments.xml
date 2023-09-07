@@ -285,6 +285,134 @@ Resizing will be happen accordingly to its placeholder object <tt>aquariumcube</
 </t>
 </section>
 
+<section anchor="xr-fragment-queries"><name>XR Fragment queries</name>
+<t>Include, exclude, hide/shows objects using space-separated strings:</t>
+
+<ul spacing="compact">
+<li><tt>#q=cube</tt></li>
+<li><tt>#q=cube -ball_inside_cube</tt></li>
+<li><tt>#q=* -sky</tt></li>
+<li><tt>#q=-.language .english</tt></li>
+<li><tt>#q=cube&amp;rot=0,90,0</tt></li>
+<li><tt>#q=price:&gt;2 price:&lt;5</tt></li>
+</ul>
+<t>It's simple but powerful syntax which allows &lt;b&gt;css&lt;/b&gt;-like class/id-selectors with a searchengine prompt-style feeling:</t>
+
+<ol spacing="compact">
+<li>queries are showing/hiding objects <strong>only</strong> when defined as <tt>src</tt> value (prevents sharing of scene-tampered URL's).</li>
+<li>queries are highlighting objects when defined in the top-Level (browser) URL (bar).</li>
+<li>search words like <tt>cube</tt> and <tt>foo</tt> in <tt>#q=cube foo</tt> are matched against 3D object names or custom metadata-key(values)</li>
+<li>search words like <tt>cube</tt> and <tt>foo</tt> in <tt>#q=cube foo</tt> are matched against tags (BibTeX) inside plaintext <tt>src</tt> values like <tt>@cube{redcube, ...</tt> e.g.</li>
+<li><tt>#</tt> equals <tt>#q=*</tt></li>
+<li>words starting with <tt>.</tt> like <tt>.german</tt> match class-metadata of 3D objects like <tt>&quot;class&quot;:&quot;german&quot;</tt></li>
+<li>words starting with <tt>.</tt> like <tt>.german</tt> match class-metadata of (BibTeX) tags in XR Text objects like <tt>@german{KarlHeinz, ...</tt> e.g.</li>
+</ol>
+<blockquote><t><strong>For example</strong>: <tt>#q=.foo</tt> is a shorthand for <tt>#q=class:foo</tt>, which will select objects with custom property <tt>class</tt>:<tt>foo</tt>. Just a simple <tt>#q=cube</tt> will simply select an object named <tt>cube</tt>.</t>
+</blockquote>
+<ul spacing="compact">
+<li>see <eref target="https://coderofsalvation.github.io/xrfragment.media/queries.mp4">an example video here</eref></li>
+</ul>
+
+<section anchor="including-excluding"><name>including/excluding</name>
+<table>
+<thead>
+<tr>
+<th>operator</th>
+<th>info</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><tt>*</tt></td>
+<td>select all objects (only useful in <tt>src</tt> custom property)</td>
+</tr>
+
+<tr>
+<td><tt>-</tt></td>
+<td>removes/hides object(s)</td>
+</tr>
+
+<tr>
+<td><tt>:</tt></td>
+<td>indicates an object-embedded custom property key/value</td>
+</tr>
+
+<tr>
+<td><tt>.</tt></td>
+<td>alias for <tt>&quot;class&quot; :&quot;.foo&quot;</tt> equals <tt>class:foo</tt></td>
+</tr>
+
+<tr>
+<td><tt>&gt;</tt> <tt>&lt;</tt></td>
+<td>compare float or int number</td>
+</tr>
+
+<tr>
+<td><tt>/</tt></td>
+<td>reference to root-scene.<br />
+Useful in case of (preventing) showing/hiding objects in nested scenes (instanced by <tt>src</tt>) (*)</td>
+</tr>
+</tbody>
+</table><blockquote><t>* = <tt>#q=-/cube</tt> hides object <tt>cube</tt> only in the root-scene (not nested <tt>cube</tt> objects)<br />
+ <tt>#q=-cube</tt> hides both object <tt>cube</tt> in the root-scene &lt;b&gt;AND&lt;/b&gt; nested <tt>skybox</tt> objects |</t>
+</blockquote><t><eref target="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/q.js">» example implementation</eref>
+<eref target="https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/query.gltf#L192">» example 3D asset</eref>
+<eref target="https://github.com/coderofsalvation/xrfragment/issues/3">» discussion</eref></t>
+</section>
+
+<section anchor="query-parser"><name>Query Parser</name>
+<t>Here's how to write a query parser:</t>
+
+<ol spacing="compact">
+<li>create an associative array/object to store query-arguments as objects</li>
+<li>detect object id's &amp; properties <tt>foo:1</tt> and <tt>foo</tt> (reference regex: <tt>/^.*:[&gt;&lt;=!]?/</tt>  )</li>
+<li>detect excluders like <tt>-foo</tt>,<tt>-foo:1</tt>,<tt>-.foo</tt>,<tt>-/foo</tt> (reference regex: <tt>/^-/</tt> )</li>
+<li>detect root selectors like <tt>/foo</tt> (reference regex: <tt>/^[-]?\//</tt> )</li>
+<li>detect class selectors like <tt>.foo</tt> (reference regex: <tt>/^[-]?class$/</tt> )</li>
+<li>detect number values like <tt>foo:1</tt> (reference regex: <tt>/^[0-9\.]+$/</tt> )</li>
+<li>expand aliases like <tt>.foo</tt> into <tt>class:foo</tt></li>
+<li>for every query token split string on <tt>:</tt></li>
+<li>create an empty array <tt>rules</tt></li>
+<li>then strip key-operator: convert &quot;-foo&quot; into &quot;foo&quot;</li>
+<li>add operator and value to rule-array</li>
+<li>therefore we we set <tt>id</tt> to <tt>true</tt> or <tt>false</tt> (false=excluder <tt>-</tt>)</li>
+<li>and we set <tt>root</tt> to <tt>true</tt> or <tt>false</tt> (true=<tt>/</tt> root selector is present)</li>
+<li>we convert key '/foo' into 'foo'</li>
+<li>finally we add the key/value to the store like <tt>store.foo = {id:false,root:true}</tt> e.g.</li>
+</ol>
+<blockquote><t>An example query-parser (which compiles to many languages) can be <eref target="https://github.com/coderofsalvation/xrfragment/blob/main/src/xrfragment/Query.hx">found here</eref></t>
+</blockquote></section>
+
+<section anchor="xr-fragment-uri-grammar"><name>XR Fragment URI Grammar</name>
+
+<artwork>reserved    = gen-delims / sub-delims
+gen-delims  = &quot;#&quot; / &quot;&amp;&quot;
+sub-delims  = &quot;,&quot; / &quot;=&quot;
+</artwork>
+<blockquote><t>Example: <tt>://foo.com/my3d.gltf#pos=1,0,0&amp;prio=-5&amp;t=0,100</tt></t>
+</blockquote><table>
+<thead>
+<tr>
+<th>Demo</th>
+<th>Explanation</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><tt>pos=1,2,3</tt></td>
+<td>vector/coordinate argument e.g.</td>
+</tr>
+
+<tr>
+<td><tt>pos=1,2,3&amp;rot=0,90,0&amp;q=.foo</tt></td>
+<td>combinators</td>
+</tr>
+</tbody>
+</table></section>
+</section>
+
 <section anchor="text-in-xr-tagging-linking-to-spatial-objects"><name>Text in XR (tagging,linking to spatial objects)</name>
 <t>We still think and speak in simple text, not in HTML or RDF.<br />
 
@@ -401,7 +529,7 @@ To keep XR Fragments a lightweight spec, BibTeX is used for text/spatial tagging
   |    │    └ src: ://author.com/article.txt                     |  |                        |
   |    │                                                         |  | @friend{friends        |
   |    └── ◻ note_canvas                                         |  |   ...                  |
-  |           └ src:`data:welcome human @...`                    |  | }                      | 
+  |           └ src:`data:welcome human\n@...`                   |  | }                      | 
   |                                                              |  +------------------------+
   |                                                              |
   +--------------------------------------------------------------+
@@ -410,24 +538,24 @@ To keep XR Fragments a lightweight spec, BibTeX is used for text/spatial tagging
 The beauty is that text (AND visual-meta) in Data URI promotes rich copy-paste.
 In both cases, the text gets rendered immediately (onto a plane geometry, hence the name '_canvas').
 The XR Fragment-compatible browser can let the enduser access visual-meta(data)-fields after interacting with the object (contextmenu e.g.).</t>
-<t>The mapping between 3D objects and text (src-data) is simple:</t>
+<blockquote><t>additional tagging using <eref target="https://github.com/coderofsalvation/tagbibs">bibs</eref>: to tag spatial object <tt>note_canvas</tt> with 'todo', the enduser can type or speak <tt>@note_canvas@todo</tt></t>
+</blockquote><t>The mapping between 3D objects and text (src-data) is simple (the :</t>
 <t>Example:</t>
 
-<artwork>  +------------------------------------------------------------------------------------+ 
-  |                                                                                    | 
-  |  index.gltf                                                                        | 
-  |    │                                                                               | 
-  |    └── ◻ rentalhouse                                                               | 
-  |           └ class: house                                                           | 
-  |           └ ◻ note                                                                 | 
-  |                 └ src:`data: todo: call owner                                      |
-  |                              @house{owner,                                         |
-  |                                url  = {#.house}                                    |
-  |                              }`                                                    |
-  +------------------------------------------------------------------------------------+
+<artwork>  +------------------------------------------------+ 
+  |                                                | 
+  |  index.gltf                                    | 
+  |    │                                           | 
+  |    └── ◻ rentalhouse                           | 
+  |           └ class: house              &lt;----------------- matches -------+
+  |           └ ◻ note                             |                        |
+  |                 └ src:`data: todo: call owner  |       bib              |
+  |                              @owner@house@todo | ----&gt; expands to     @house{owner,
+  |                                                |          bibtex:     }
+  |                        `                       |                      @contact{
+  +------------------------------------------------+                      }
 </artwork>
-<t>3D object names and/or classes map to <tt>name</tt> of visual-meta glossary-entries.
-This allows rich interaction and interlinking between text and 3D objects:</t>
+<t>Bi-directional mapping between 3D object names and/or classnames and text using bibs,BibTags &amp; XR Fragments, allows for rich interlinking between text and 3D objects:</t>
 
 <ol spacing="compact">
 <li>When the user surfs to https://.../index.gltf#rentalhouse the XR Fragments-parser points the enduser to the rentalhouse object, and can show contextual info about it.</li>
@@ -435,11 +563,11 @@ This allows rich interaction and interlinking between text and 3D objects:</t>
 </ol>
 </section>
 
-<section anchor="bibs-enabled-bibtex-lowest-common-denominator-for-tagging-triples"><name>Bibs-enabled BibTeX: lowest common denominator for tagging/triples</name>
+<section anchor="bibs-bibtex-lowest-common-denominator-for-linking-data"><name>Bibs &amp; BibTeX: lowest common denominator for linking data</name>
 <blockquote><t>&quot;When a car breaks down, the ones <strong>without</strong> turbosupercharger are easier to fix&quot;</t>
 </blockquote><t>Unlike XML or JSON, the typeless, unnested, everything-is-text nature of BibTeX tags is a great advantage for introspection.<br />
 
-It's a missing sensemaking precursor to (eventual) extrospective RDF.<br />
+It's a missing sensemaking precursor to extrospective RDF.<br />
 
 BibTeX-appendices are already used in the digital AND physical world (academic books, <eref target="https://visual-meta.info">visual-meta</eref>), perhaps due to its terseness &amp; simplicity.<br />
 
@@ -484,7 +612,7 @@ In that sense, it's one step up from the <tt>.ini</tt> fileformat (which has nev
 </tr>
 
 <tr>
-<td>paperfriendly</td>
+<td>voice/paper-friendly</td>
 <td><eref target="https://github.com/coderofsalvation/tagbibs">bibs</eref></td>
 <td>no</td>
 </tr>
@@ -648,7 +776,7 @@ In that sense, it's one step up from the <tt>.ini</tt> fileformat (which has nev
   }
 }
 </artwork>
-<t>The above (de)multiplexes text/metadata, expands bibs, (de)serializes bibtex (and all fits more or less on one A4 paper)</t>
+<t>The above functions (de)multiplexe text/metadata, expands bibs, (de)serialize bibtex (and all fits more or less on one A4 paper)</t>
 <blockquote><t>above can be used as a startingpoint for LLVM's to translate/steelman to a more formal form/language.</t>
 </blockquote>
 <artwork>str = `
@@ -665,28 +793,19 @@ tags.find( (t) =&gt; t.k == 'flap{' ).v.asdf = 1 // edit tag
 tags.push({ k:'bar{', v:{abc:123} })          // add tag
 console.log( xrtext.encode(text,tags) )       // multiplex text &amp; bibtex back together 
 </artwork>
+<t>This outputs:</t>
 
-<artwork>@{references-start}
-@misc{emilyHegland/Edgar&amp;Frod,
- author = {Emily Hegland},
- title = {Edgar &amp; Frode Hegland, November 2021},
- year = {2021},
- month = {11},
-}
-</artwork>
-<t>The above BibTeX-flavor can be imported, however will be rewritten to Dumb BibTeX, to satisfy rule 2 &amp; 5, as well as the <eref target="#core-principle">core principle</eref></t>
+<artwork>hello world
 
-<artwork>@visual-meta{
- version = {1.1},
- generator = {Author 7.6.2 (1064)},
- section = {visual-meta-header}
+
+@greeting{hello,
 }
-@misc{emilyHegland/Edgar&amp;Frod,
- author = {Emily Hegland},
- title = {Edgar &amp; Frode Hegland, November 2021},
- year = {2021},
- month = {11},
- section = {references}
+@{some-section}
+@flap{
+  asdf = {1}
+}
+@bar{
+  abc = {123}
 }
 </artwork>
 </section>
@@ -694,7 +813,7 @@ console.log( xrtext.encode(text,tags) )       // multiplex text &amp; bibtex bac
 
 <section anchor="hyper-copy-paste"><name>HYPER copy/paste</name>
 <t>The previous example, offers something exciting compared to simple copy/paste of 3D objects or text.
-XR Fragment allows HYPER-copy/paste: time, space and text interlinked.
+XR Text according to the XR Fragment spec, allows HYPER-copy/paste: time, space and text interlinked.
 Therefore, the enduser in an XR Fragment-compatible browser can copy/paste/share data in these ways:</t>
 
 <ol spacing="compact">
@@ -702,134 +821,6 @@ Therefore, the enduser in an XR Fragment-compatible browser can copy/paste/share
 <li>text: TeXt object (including BibTeX/visual-meta if any)</li>
 <li>interlinked: Collected objects by visual-meta tag</li>
 </ol>
-</section>
-
-<section anchor="xr-fragment-queries"><name>XR Fragment queries</name>
-<t>Include, exclude, hide/shows objects using space-separated strings:</t>
-
-<ul spacing="compact">
-<li><tt>#q=cube</tt></li>
-<li><tt>#q=cube -ball_inside_cube</tt></li>
-<li><tt>#q=* -sky</tt></li>
-<li><tt>#q=-.language .english</tt></li>
-<li><tt>#q=cube&amp;rot=0,90,0</tt></li>
-<li><tt>#q=price:&gt;2 price:&lt;5</tt></li>
-</ul>
-<t>It's simple but powerful syntax which allows &lt;b&gt;css&lt;/b&gt;-like class/id-selectors with a searchengine prompt-style feeling:</t>
-
-<ol spacing="compact">
-<li>queries are showing/hiding objects <strong>only</strong> when defined as <tt>src</tt> value (prevents sharing of scene-tampered URL's).</li>
-<li>queries are highlighting objects when defined in the top-Level (browser) URL (bar).</li>
-<li>search words like <tt>cube</tt> and <tt>foo</tt> in <tt>#q=cube foo</tt> are matched against 3D object names or custom metadata-key(values)</li>
-<li>search words like <tt>cube</tt> and <tt>foo</tt> in <tt>#q=cube foo</tt> are matched against tags (BibTeX) inside plaintext <tt>src</tt> values like <tt>@cube{redcube, ...</tt> e.g.</li>
-<li><tt>#</tt> equals <tt>#q=*</tt></li>
-<li>words starting with <tt>.</tt> like <tt>.german</tt> match class-metadata of 3D objects like <tt>&quot;class&quot;:&quot;german&quot;</tt></li>
-<li>words starting with <tt>.</tt> like <tt>.german</tt> match class-metadata of (BibTeX) tags in XR Text objects like <tt>@german{KarlHeinz, ...</tt> e.g.</li>
-</ol>
-<blockquote><t><strong>For example</strong>: <tt>#q=.foo</tt> is a shorthand for <tt>#q=class:foo</tt>, which will select objects with custom property <tt>class</tt>:<tt>foo</tt>. Just a simple <tt>#q=cube</tt> will simply select an object named <tt>cube</tt>.</t>
-</blockquote>
-<ul spacing="compact">
-<li>see <eref target="https://coderofsalvation.github.io/xrfragment.media/queries.mp4">an example video here</eref></li>
-</ul>
-
-<section anchor="including-excluding"><name>including/excluding</name>
-<table>
-<thead>
-<tr>
-<th>operator</th>
-<th>info</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td><tt>*</tt></td>
-<td>select all objects (only useful in <tt>src</tt> custom property)</td>
-</tr>
-
-<tr>
-<td><tt>-</tt></td>
-<td>removes/hides object(s)</td>
-</tr>
-
-<tr>
-<td><tt>:</tt></td>
-<td>indicates an object-embedded custom property key/value</td>
-</tr>
-
-<tr>
-<td><tt>.</tt></td>
-<td>alias for <tt>&quot;class&quot; :&quot;.foo&quot;</tt> equals <tt>class:foo</tt></td>
-</tr>
-
-<tr>
-<td><tt>&gt;</tt> <tt>&lt;</tt></td>
-<td>compare float or int number</td>
-</tr>
-
-<tr>
-<td><tt>/</tt></td>
-<td>reference to root-scene.<br />
-Useful in case of (preventing) showing/hiding objects in nested scenes (instanced by <tt>src</tt>) (*)</td>
-</tr>
-</tbody>
-</table><blockquote><t>* = <tt>#q=-/cube</tt> hides object <tt>cube</tt> only in the root-scene (not nested <tt>cube</tt> objects)<br />
- <tt>#q=-cube</tt> hides both object <tt>cube</tt> in the root-scene &lt;b&gt;AND&lt;/b&gt; nested <tt>skybox</tt> objects |</t>
-</blockquote><t><eref target="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/q.js">» example implementation</eref>
-<eref target="https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/query.gltf#L192">» example 3D asset</eref>
-<eref target="https://github.com/coderofsalvation/xrfragment/issues/3">» discussion</eref></t>
-</section>
-
-<section anchor="query-parser"><name>Query Parser</name>
-<t>Here's how to write a query parser:</t>
-
-<ol spacing="compact">
-<li>create an associative array/object to store query-arguments as objects</li>
-<li>detect object id's &amp; properties <tt>foo:1</tt> and <tt>foo</tt> (reference regex: <tt>/^.*:[&gt;&lt;=!]?/</tt>  )</li>
-<li>detect excluders like <tt>-foo</tt>,<tt>-foo:1</tt>,<tt>-.foo</tt>,<tt>-/foo</tt> (reference regex: <tt>/^-/</tt> )</li>
-<li>detect root selectors like <tt>/foo</tt> (reference regex: <tt>/^[-]?\//</tt> )</li>
-<li>detect class selectors like <tt>.foo</tt> (reference regex: <tt>/^[-]?class$/</tt> )</li>
-<li>detect number values like <tt>foo:1</tt> (reference regex: <tt>/^[0-9\.]+$/</tt> )</li>
-<li>expand aliases like <tt>.foo</tt> into <tt>class:foo</tt></li>
-<li>for every query token split string on <tt>:</tt></li>
-<li>create an empty array <tt>rules</tt></li>
-<li>then strip key-operator: convert &quot;-foo&quot; into &quot;foo&quot;</li>
-<li>add operator and value to rule-array</li>
-<li>therefore we we set <tt>id</tt> to <tt>true</tt> or <tt>false</tt> (false=excluder <tt>-</tt>)</li>
-<li>and we set <tt>root</tt> to <tt>true</tt> or <tt>false</tt> (true=<tt>/</tt> root selector is present)</li>
-<li>we convert key '/foo' into 'foo'</li>
-<li>finally we add the key/value to the store like <tt>store.foo = {id:false,root:true}</tt> e.g.</li>
-</ol>
-<blockquote><t>An example query-parser (which compiles to many languages) can be <eref target="https://github.com/coderofsalvation/xrfragment/blob/main/src/xrfragment/Query.hx">found here</eref></t>
-</blockquote></section>
-
-<section anchor="xr-fragment-uri-grammar"><name>XR Fragment URI Grammar</name>
-
-<artwork>reserved    = gen-delims / sub-delims
-gen-delims  = &quot;#&quot; / &quot;&amp;&quot;
-sub-delims  = &quot;,&quot; / &quot;=&quot;
-</artwork>
-<blockquote><t>Example: <tt>://foo.com/my3d.gltf#pos=1,0,0&amp;prio=-5&amp;t=0,100</tt></t>
-</blockquote><table>
-<thead>
-<tr>
-<th>Demo</th>
-<th>Explanation</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td><tt>pos=1,2,3</tt></td>
-<td>vector/coordinate argument e.g.</td>
-</tr>
-
-<tr>
-<td><tt>pos=1,2,3&amp;rot=0,90,0&amp;q=.foo</tt></td>
-<td>combinators</td>
-</tr>
-</tbody>
-</table></section>
 </section>
 
 <section anchor="security-considerations"><name>Security Considerations</name>

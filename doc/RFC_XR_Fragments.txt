@@ -3,7 +3,7 @@
 
 
 Internet Engineering Task Force                          L.R. van Kammen
-Internet-Draft                                          6 September 2023
+Internet-Draft                                          7 September 2023
 Intended status: Informational                                          
 
 
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 9 March 2024.
+   This Internet-Draft will expire on 10 March 2024.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-van Kammen                Expires 9 March 2024                  [Page 1]
+van Kammen                Expires 10 March 2024                 [Page 1]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -73,18 +73,18 @@ Table of Contents
    5.  List of metadata for 3D nodes . . . . . . . . . . . . . . . .   5
    6.  Navigating 3D . . . . . . . . . . . . . . . . . . . . . . . .   5
    7.  Embedding 3D content  . . . . . . . . . . . . . . . . . . . .   6
-   8.  Text in XR (tagging,linking to spatial objects) . . . . . . .   7
-     8.1.  Default Data URI mimetype . . . . . . . . . . . . . . . .  10
-     8.2.  URL and Data URI  . . . . . . . . . . . . . . . . . . . .  11
-     8.3.  Bibs-enabled BibTeX: lowest common denominator for tagging/
-           triples . . . . . . . . . . . . . . . . . . . . . . . . .  12
-     8.4.  XR Text example parser  . . . . . . . . . . . . . . . . .  14
-   9.  HYPER copy/paste  . . . . . . . . . . . . . . . . . . . . . .  16
-   10. XR Fragment queries . . . . . . . . . . . . . . . . . . . . .  17
-     10.1.  including/excluding  . . . . . . . . . . . . . . . . . .  17
-     10.2.  Query Parser . . . . . . . . . . . . . . . . . . . . . .  18
-     10.3.  XR Fragment URI Grammar  . . . . . . . . . . . . . . . .  19
-   11. Security Considerations . . . . . . . . . . . . . . . . . . .  19
+   8.  XR Fragment queries . . . . . . . . . . . . . . . . . . . . .   7
+     8.1.  including/excluding . . . . . . . . . . . . . . . . . . .   8
+     8.2.  Query Parser  . . . . . . . . . . . . . . . . . . . . . .   8
+     8.3.  XR Fragment URI Grammar . . . . . . . . . . . . . . . . .   9
+   9.  Text in XR (tagging,linking to spatial objects) . . . . . . .   9
+     9.1.  Default Data URI mimetype . . . . . . . . . . . . . . . .  12
+     9.2.  URL and Data URI  . . . . . . . . . . . . . . . . . . . .  13
+     9.3.  Bibs & BibTeX: lowest common denominator for linking
+           data  . . . . . . . . . . . . . . . . . . . . . . . . . .  14
+     9.4.  XR Text example parser  . . . . . . . . . . . . . . . . .  16
+   10. HYPER copy/paste  . . . . . . . . . . . . . . . . . . . . . .  18
+   11. Security Considerations . . . . . . . . . . . . . . . . . . .  18
    12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  19
    13. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  19
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-van Kammen                Expires 9 March 2024                  [Page 2]
+van Kammen                Expires 10 March 2024                 [Page 2]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -165,7 +165,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                  [Page 3]
+van Kammen                Expires 10 March 2024                 [Page 3]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -221,7 +221,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                  [Page 4]
+van Kammen                Expires 10 March 2024                 [Page 4]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -277,7 +277,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                  [Page 5]
+van Kammen                Expires 10 March 2024                 [Page 5]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -333,7 +333,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                  [Page 6]
+van Kammen                Expires 10 March 2024                 [Page 6]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -346,7 +346,149 @@ Internet-Draft                XR Fragments                September 2023
    Resizing will be happen accordingly to its placeholder object
    aquariumcube, see chapter Scaling.
 
-8.  Text in XR (tagging,linking to spatial objects)
+8.  XR Fragment queries
+
+   Include, exclude, hide/shows objects using space-separated strings:
+
+   *  #q=cube
+   *  #q=cube -ball_inside_cube
+   *  #q=* -sky
+   *  #q=-.language .english
+   *  #q=cube&rot=0,90,0
+   *  #q=price:>2 price:<5
+
+   It's simple but powerful syntax which allows <b>css</b>-like class/
+   id-selectors with a searchengine prompt-style feeling:
+
+   1.  queries are showing/hiding objects *only* when defined as src
+       value (prevents sharing of scene-tampered URL's).
+   2.  queries are highlighting objects when defined in the top-Level
+       (browser) URL (bar).
+   3.  search words like cube and foo in #q=cube foo are matched against
+       3D object names or custom metadata-key(values)
+   4.  search words like cube and foo in #q=cube foo are matched against
+       tags (BibTeX) inside plaintext src values like @cube{redcube, ...
+       e.g.
+   5.  # equals #q=*
+   6.  words starting with . like .german match class-metadata of 3D
+       objects like "class":"german"
+   7.  words starting with . like .german match class-metadata of
+       (BibTeX) tags in XR Text objects like @german{KarlHeinz, ... e.g.
+
+   |  *For example*: #q=.foo is a shorthand for #q=class:foo, which will
+   |  select objects with custom property class:foo.  Just a simple
+   |  #q=cube will simply select an object named cube.
+
+   *  see an example video here
+      (https://coderofsalvation.github.io/xrfragment.media/queries.mp4)
+
+
+
+
+
+
+
+
+van Kammen                Expires 10 March 2024                 [Page 7]
+
+Internet-Draft                XR Fragments                September 2023
+
+
+8.1.  including/excluding
+
+      +==========+=================================================+
+      | operator | info                                            |
+      +==========+=================================================+
+      | *        | select all objects (only useful in src custom   |
+      |          | property)                                       |
+      +----------+-------------------------------------------------+
+      | -        | removes/hides object(s)                         |
+      +----------+-------------------------------------------------+
+      | :        | indicates an object-embedded custom property    |
+      |          | key/value                                       |
+      +----------+-------------------------------------------------+
+      | .        | alias for "class" :".foo" equals class:foo      |
+      +----------+-------------------------------------------------+
+      | > <      | compare float or int number                     |
+      +----------+-------------------------------------------------+
+      | /        | reference to root-scene.                        |
+      |          | Useful in case of (preventing) showing/hiding   |
+      |          | objects in nested scenes (instanced by src) (*) |
+      +----------+-------------------------------------------------+
+
+                                 Table 4
+
+   |  * = #q=-/cube hides object cube only in the root-scene (not nested
+   |  cube objects)
+   |  #q=-cube hides both object cube in the root-scene <b>AND</b>
+   |  nested skybox objects |
+
+   &#187; example implementation
+   (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
+   three/xrf/q.js) &#187; example 3D asset
+   (https://github.com/coderofsalvation/xrfragment/blob/main/example/
+   assets/query.gltf#L192) &#187; discussion
+   (https://github.com/coderofsalvation/xrfragment/issues/3)
+
+8.2.  Query Parser
+
+   Here's how to write a query parser:
+
+   1.   create an associative array/object to store query-arguments as
+        objects
+   2.   detect object id's & properties foo:1 and foo (reference regex:
+        /^.*:[><=!]?/ )
+   3.   detect excluders like -foo,-foo:1,-.foo,-/foo (reference regex:
+        /^-/ )
+   4.   detect root selectors like /foo (reference regex: /^[-]?\// )
+
+
+
+
+van Kammen                Expires 10 March 2024                 [Page 8]
+
+Internet-Draft                XR Fragments                September 2023
+
+
+   5.   detect class selectors like .foo (reference regex: /^[-]?class$/
+        )
+   6.   detect number values like foo:1 (reference regex: /^[0-9\.]+$/ )
+   7.   expand aliases like .foo into class:foo
+   8.   for every query token split string on :
+   9.   create an empty array rules
+   10.  then strip key-operator: convert "-foo" into "foo"
+   11.  add operator and value to rule-array
+   12.  therefore we we set id to true or false (false=excluder -)
+   13.  and we set root to true or false (true=/ root selector is
+        present)
+   14.  we convert key '/foo' into 'foo'
+   15.  finally we add the key/value to the store like store.foo =
+        {id:false,root:true} e.g.
+
+   |  An example query-parser (which compiles to many languages) can be
+   |  found here
+   |  (https://github.com/coderofsalvation/xrfragment/blob/main/src/
+   |  xrfragment/Query.hx)
+
+8.3.  XR Fragment URI Grammar
+
+   reserved    = gen-delims / sub-delims
+   gen-delims  = "#" / "&"
+   sub-delims  = "," / "="
+
+   |  Example: ://foo.com/my3d.gltf#pos=1,0,0&prio=-5&t=0,100
+
+     +=============================+=================================+
+     | Demo                        | Explanation                     |
+     +=============================+=================================+
+     | pos=1,2,3                   | vector/coordinate argument e.g. |
+     +-----------------------------+---------------------------------+
+     | pos=1,2,3&rot=0,90,0&q=.foo | combinators                     |
+     +-----------------------------+---------------------------------+
+
+                                  Table 5
+
+9.  Text in XR (tagging,linking to spatial objects)
 
    We still think and speak in simple text, not in HTML or RDF.
    The most advanced human will probably not shout <h1>FIRE!</h1> in
@@ -355,6 +497,14 @@ Internet-Draft                XR Fragments                September 2023
    is (not obscuring with markup) is preferred.
    Ideally metadata must come *later with* text, but not *obfuscate* the
    text, or *in another* file.
+
+
+
+
+van Kammen                Expires 10 March 2024                 [Page 9]
+
+Internet-Draft                XR Fragments                September 2023
+
 
    |  Humans first, machines (AI) later (core principle (#core-
    |  principle)
@@ -384,16 +534,6 @@ Internet-Draft                XR Fragments                September 2023
    This allows recursive connections between text itself, as well as 3D
    objects and vice versa, using *BibTags* :
 
-
-
-
-
-
-van Kammen                Expires 9 March 2024                  [Page 7]
-
-Internet-Draft                XR Fragments                September 2023
-
-
   +---------------------------------------------+         +------------------+
   | My Notes                                    |         |        / \       |
   |                                             |         |       /   \      |
@@ -417,35 +557,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-van Kammen                Expires 9 March 2024                  [Page 8]
+van Kammen                Expires 10 March 2024                [Page 10]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -488,7 +600,7 @@ Internet-Draft                XR Fragments                September 2023
    |                                    | node to all nodes)          |
    +------------------------------------+-----------------------------+
 
-                                 Table 4
+                                 Table 6
 
    This empowers the enduser spatial expressiveness (see the core
    principle (#core-principle)): spatial wires can be rendered, words
@@ -501,7 +613,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                  [Page 9]
+van Kammen                Expires 10 March 2024                [Page 11]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -518,7 +630,7 @@ Internet-Draft                XR Fragments                September 2023
    |  multiplexing of id/category is deliberate because of the core
    |  principle (#core-principle).
 
-8.1.  Default Data URI mimetype
+9.1.  Default Data URI mimetype
 
    The src-values work as expected (respecting mime-types), however:
 
@@ -557,7 +669,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                 [Page 10]
+van Kammen                Expires 10 March 2024                [Page 12]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -576,7 +688,7 @@ Internet-Draft                XR Fragments                September 2023
    |  objects using custom properties (but is not interpreted by this
    |  spec).
 
-8.2.  URL and Data URI
+9.2.  URL and Data URI
 
   +--------------------------------------------------------------+  +------------------------+
   |                                                              |  | author.com/article.txt |
@@ -586,7 +698,7 @@ Internet-Draft                XR Fragments                September 2023
   |    │    └ src: ://author.com/article.txt                     |  |                        |
   |    │                                                         |  | @friend{friends        |
   |    └── ◻ note_canvas                                         |  |   ...                  |
-  |           └ src:`data:welcome human @...`                    |  | }                      |
+  |           └ src:`data:welcome human\n@...`                   |  | }                      |
   |                                                              |  +------------------------+
   |                                                              |
   +--------------------------------------------------------------+
@@ -599,7 +711,12 @@ Internet-Draft                XR Fragments                September 2023
    meta(data)-fields after interacting with the object (contextmenu
    e.g.).
 
-   The mapping between 3D objects and text (src-data) is simple:
+   |  additional tagging using bibs
+   |  (https://github.com/coderofsalvation/tagbibs): to tag spatial
+   |  object note_canvas with 'todo', the enduser can type or speak
+   |  @note_canvas@todo
+
+   The mapping between 3D objects and text (src-data) is simple (the :
 
    Example:
 
@@ -608,32 +725,27 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-
-
-
-
-
-van Kammen                Expires 9 March 2024                 [Page 11]
+van Kammen                Expires 10 March 2024                [Page 13]
 
 Internet-Draft                XR Fragments                September 2023
 
 
-  +------------------------------------------------------------------------------------+
-  |                                                                                    |
-  |  index.gltf                                                                        |
-  |    │                                                                               |
-  |    └── ◻ rentalhouse                                                               |
-  |           └ class: house                                                           |
-  |           └ ◻ note                                                                 |
-  |                 └ src:`data: todo: call owner                                      |
-  |                              @house{owner,                                         |
-  |                                url  = {#.house}                                    |
-  |                              }`                                                    |
-  +------------------------------------------------------------------------------------+
+  +------------------------------------------------+
+  |                                                |
+  |  index.gltf                                    |
+  |    │                                           |
+  |    └── ◻ rentalhouse                           |
+  |           └ class: house              <----------------- matches -------+
+  |           └ ◻ note                             |                        |
+  |                 └ src:`data: todo: call owner  |       bib              |
+  |                              @owner@house@todo | ----> expands to     @house{owner,
+  |                                                |          bibtex:     }
+  |                        `                       |                      @contact{
+  +------------------------------------------------+                      }
 
-   3D object names and/or classes map to name of visual-meta glossary-
-   entries.  This allows rich interaction and interlinking between text
-   and 3D objects:
+   Bi-directional mapping between 3D object names and/or classnames and
+   text using bibs,BibTags & XR Fragments, allows for rich interlinking
+   between text and 3D objects:
 
    1.  When the user surfs to https://.../index.gltf#rentalhouse the XR
        Fragments-parser points the enduser to the rentalhouse object,
@@ -642,14 +754,14 @@ Internet-Draft                XR Fragments                September 2023
        queries (see XR Fragment queries), indirectly related metadata
        can be embedded along.
 
-8.3.  Bibs-enabled BibTeX: lowest common denominator for tagging/triples
+9.3.  Bibs & BibTeX: lowest common denominator for linking data
 
    |  "When a car breaks down, the ones *without* turbosupercharger are
    |  easier to fix"
 
    Unlike XML or JSON, the typeless, unnested, everything-is-text nature
    of BibTeX tags is a great advantage for introspection.
-   It's a missing sensemaking precursor to (eventual) extrospective RDF.
+   It's a missing sensemaking precursor to extrospective RDF.
    BibTeX-appendices are already used in the digital AND physical world
    (academic books, visual-meta (https://visual-meta.info)), perhaps due
    to its terseness & simplicity.
@@ -669,7 +781,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                 [Page 12]
+van Kammen                Expires 10 March 2024                [Page 14]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -686,8 +798,8 @@ Internet-Draft                XR Fragments                September 2023
    |everything is   |yes                                  |no             |
    |text (string)   |                                     |               |
    +----------------+-------------------------------------+---------------+
-   |paperfriendly   |bibs                                 |no             |
-   |                |(https://github.com/coderofsalvation/|               |
+   |voice/paper-    |bibs                                 |no             |
+   |friendly        |(https://github.com/coderofsalvation/|               |
    |                |tagbibs)                             |               |
    +----------------+-------------------------------------+---------------+
    |leaves          |yes                                  |no             |
@@ -725,7 +837,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                 [Page 13]
+van Kammen                Expires 10 March 2024                [Page 15]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -750,9 +862,9 @@ Internet-Draft                XR Fragments                September 2023
    |structures      |                                     |               |
    +----------------+-------------------------------------+---------------+
 
-                                  Table 5
+                                  Table 7
 
-8.4.  XR Text example parser
+9.4.  XR Text example parser
 
    1.  The XR Fragments spec does not aim to harden the BiBTeX format
    2.  However, respect multi-line BibTex values because of the core
@@ -781,7 +893,7 @@ xrtext = {
 
 
 
-van Kammen                Expires 9 March 2024                 [Page 14]
+van Kammen                Expires 10 March 2024                [Page 16]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -824,8 +936,8 @@ Internet-Draft                XR Fragments                September 2023
   }
 }
 
-   The above (de)multiplexes text/metadata, expands bibs, (de)serializes
-   bibtex (and all fits more or less on one A4 paper)
+   The above functions (de)multiplexe text/metadata, expands bibs,
+   (de)serialize bibtex (and all fits more or less on one A4 paper)
 
    |  above can be used as a startingpoint for LLVM's to translate/
    |  steelman to a more formal form/language.
@@ -837,7 +949,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                 [Page 15]
+van Kammen                Expires 10 March 2024                [Page 17]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -856,188 +968,32 @@ tags.find( (t) => t.k == 'flap{' ).v.asdf = 1 // edit tag
 tags.push({ k:'bar{', v:{abc:123} })          // add tag
 console.log( xrtext.encode(text,tags) )       // multiplex text & bibtex back together
 
-   @{references-start}
-   @misc{emilyHegland/Edgar&Frod,
-    author = {Emily Hegland},
-    title = {Edgar & Frode Hegland, November 2021},
-    year = {2021},
-    month = {11},
+   This outputs:
+
+   hello world
+
+
+   @greeting{hello,
+   }
+   @{some-section}
+   @flap{
+     asdf = {1}
+   }
+   @bar{
+     abc = {123}
    }
 
-   The above BibTeX-flavor can be imported, however will be rewritten to
-   Dumb BibTeX, to satisfy rule 2 & 5, as well as the core principle
-   (#core-principle)
-
-   @visual-meta{
-    version = {1.1},
-    generator = {Author 7.6.2 (1064)},
-    section = {visual-meta-header}
-   }
-   @misc{emilyHegland/Edgar&Frod,
-    author = {Emily Hegland},
-    title = {Edgar & Frode Hegland, November 2021},
-    year = {2021},
-    month = {11},
-    section = {references}
-   }
-
-9.  HYPER copy/paste
+10.  HYPER copy/paste
 
    The previous example, offers something exciting compared to simple
-   copy/paste of 3D objects or text.  XR Fragment allows HYPER-copy/
-   paste: time, space and text interlinked.  Therefore, the enduser in
-   an XR Fragment-compatible browser can copy/paste/share data in these
-   ways:
+   copy/paste of 3D objects or text.  XR Text according to the XR
+   Fragment spec, allows HYPER-copy/paste: time, space and text
+   interlinked.  Therefore, the enduser in an XR Fragment-compatible
+   browser can copy/paste/share data in these ways:
 
    1.  time/space: 3D object (current animation-loop)
-
-
-
-van Kammen                Expires 9 March 2024                 [Page 16]
-
-Internet-Draft                XR Fragments                September 2023
-
-
    2.  text: TeXt object (including BibTeX/visual-meta if any)
    3.  interlinked: Collected objects by visual-meta tag
-
-10.  XR Fragment queries
-
-   Include, exclude, hide/shows objects using space-separated strings:
-
-   *  #q=cube
-   *  #q=cube -ball_inside_cube
-   *  #q=* -sky
-   *  #q=-.language .english
-   *  #q=cube&rot=0,90,0
-   *  #q=price:>2 price:<5
-
-   It's simple but powerful syntax which allows <b>css</b>-like class/
-   id-selectors with a searchengine prompt-style feeling:
-
-   1.  queries are showing/hiding objects *only* when defined as src
-       value (prevents sharing of scene-tampered URL's).
-   2.  queries are highlighting objects when defined in the top-Level
-       (browser) URL (bar).
-   3.  search words like cube and foo in #q=cube foo are matched against
-       3D object names or custom metadata-key(values)
-   4.  search words like cube and foo in #q=cube foo are matched against
-       tags (BibTeX) inside plaintext src values like @cube{redcube, ...
-       e.g.
-   5.  # equals #q=*
-   6.  words starting with . like .german match class-metadata of 3D
-       objects like "class":"german"
-   7.  words starting with . like .german match class-metadata of
-       (BibTeX) tags in XR Text objects like @german{KarlHeinz, ... e.g.
-
-   |  *For example*: #q=.foo is a shorthand for #q=class:foo, which will
-   |  select objects with custom property class:foo.  Just a simple
-   |  #q=cube will simply select an object named cube.
-
-   *  see an example video here
-      (https://coderofsalvation.github.io/xrfragment.media/queries.mp4)
-
-10.1.  including/excluding
-
-      +==========+=================================================+
-      | operator | info                                            |
-      +==========+=================================================+
-      | *        | select all objects (only useful in src custom   |
-      |          | property)                                       |
-      +----------+-------------------------------------------------+
-      | -        | removes/hides object(s)                         |
-
-
-
-van Kammen                Expires 9 March 2024                 [Page 17]
-
-Internet-Draft                XR Fragments                September 2023
-
-
-      +----------+-------------------------------------------------+
-      | :        | indicates an object-embedded custom property    |
-      |          | key/value                                       |
-      +----------+-------------------------------------------------+
-      | .        | alias for "class" :".foo" equals class:foo      |
-      +----------+-------------------------------------------------+
-      | > <      | compare float or int number                     |
-      +----------+-------------------------------------------------+
-      | /        | reference to root-scene.                        |
-      |          | Useful in case of (preventing) showing/hiding   |
-      |          | objects in nested scenes (instanced by src) (*) |
-      +----------+-------------------------------------------------+
-
-                                 Table 6
-
-   |  * = #q=-/cube hides object cube only in the root-scene (not nested
-   |  cube objects)
-   |  #q=-cube hides both object cube in the root-scene <b>AND</b>
-   |  nested skybox objects |
-
-   &#187; example implementation
-   (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
-   three/xrf/q.js) &#187; example 3D asset
-   (https://github.com/coderofsalvation/xrfragment/blob/main/example/
-   assets/query.gltf#L192) &#187; discussion
-   (https://github.com/coderofsalvation/xrfragment/issues/3)
-
-10.2.  Query Parser
-
-   Here's how to write a query parser:
-
-   1.   create an associative array/object to store query-arguments as
-        objects
-   2.   detect object id's & properties foo:1 and foo (reference regex:
-        /^.*:[><=!]?/ )
-   3.   detect excluders like -foo,-foo:1,-.foo,-/foo (reference regex:
-        /^-/ )
-   4.   detect root selectors like /foo (reference regex: /^[-]?\// )
-   5.   detect class selectors like .foo (reference regex: /^[-]?class$/
-        )
-   6.   detect number values like foo:1 (reference regex: /^[0-9\.]+$/ )
-   7.   expand aliases like .foo into class:foo
-   8.   for every query token split string on :
-   9.   create an empty array rules
-   10.  then strip key-operator: convert "-foo" into "foo"
-   11.  add operator and value to rule-array
-   12.  therefore we we set id to true or false (false=excluder -)
-
-
-
-
-van Kammen                Expires 9 March 2024                 [Page 18]
-
-Internet-Draft                XR Fragments                September 2023
-
-
-   13.  and we set root to true or false (true=/ root selector is
-        present)
-   14.  we convert key '/foo' into 'foo'
-   15.  finally we add the key/value to the store like store.foo =
-        {id:false,root:true} e.g.
-
-   |  An example query-parser (which compiles to many languages) can be
-   |  found here
-   |  (https://github.com/coderofsalvation/xrfragment/blob/main/src/
-   |  xrfragment/Query.hx)
-
-10.3.  XR Fragment URI Grammar
-
-   reserved    = gen-delims / sub-delims
-   gen-delims  = "#" / "&"
-   sub-delims  = "," / "="
-
-   |  Example: ://foo.com/my3d.gltf#pos=1,0,0&prio=-5&t=0,100
-
-     +=============================+=================================+
-     | Demo                        | Explanation                     |
-     +=============================+=================================+
-     | pos=1,2,3                   | vector/coordinate argument e.g. |
-     +-----------------------------+---------------------------------+
-     | pos=1,2,3&rot=0,90,0&q=.foo | combinators                     |
-     +-----------------------------+---------------------------------+
-
-                                  Table 7
 
 11.  Security Considerations
 
@@ -1046,6 +1002,13 @@ Internet-Draft                XR Fragments                September 2023
 
    *  filter out sensitive data when copy/pasting (XR text with
       class:secret e.g.)
+
+
+
+van Kammen                Expires 10 March 2024                [Page 18]
+
+Internet-Draft                XR Fragments                September 2023
+
 
 12.  IANA Considerations
 
@@ -1061,4 +1024,41 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 9 March 2024                 [Page 19]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+van Kammen                Expires 10 March 2024                [Page 19]
