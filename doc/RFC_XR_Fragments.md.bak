@@ -105,11 +105,11 @@ XR Fragments allows us to enrich existing dataformats, by recursive use of exist
 
 How can we add more features to existing text & 3D scenes, without introducing new dataformats?<br>
 Historically, there's many attempts to create the ultimate markuplanguage or 3D fileformat.<br>
-Their lowest common denominator is: (co)authoring using plain text.<br>
+However, thru the lens of authoring, their lowest common denominator is still: plain text.<br>
 XR Fragments allows us to enrich/connect existing dataformats, by recursive use of existing technologies:<br>
 
 1. addressibility and navigation of 3D scenes/objects: [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) + src/href spatial metadata 
-1. hasslefree tagging across text and spatial objects using [bibs](https://github.com/coderofsalvation/tagbibs) / [BibTags](https://en.wikipedia.org/wiki/BibTeX) appendices (see [visual-meta](https://visual-meta.info) e.g.)
+1. hasslefree tagging across text and spatial objects using [BibTags](https://en.wikipedia.org/wiki/BibTeX) as appendix (see [visual-meta](https://visual-meta.info) e.g.)
 
 > NOTE: The chapters in this document are ordered from highlevel to lowlevel (technical) as much as possible
 
@@ -120,16 +120,31 @@ This also means that the repair-ability of machine-matters should be human frien
 
 > "When a car breaks down, the ones **without** turbosupercharger are easier to fix"
 
-Let's always focus on average humans: our fuzzy symbolical mind must be served first, before serving a greater [categorized typesafe RDF hive mind](https://en.wikipedia.org/wiki/Borg)).
+Let's always focus on average humans: the 'fuzzy symbolical mind' must be served first, before serving the greater ['categorized typesafe RDF hive mind'](https://en.wikipedia.org/wiki/Borg)).
 
 > Humans first, machines (AI) later.
 
-Thererfore, XR Fragments does not look at XR (or the web) thru the lens of HTML.<br>
-XR Fragments itself is HTML-agnostic, though pseudo-XR Fragment browsers **can** be implemented on top of HTML/Javascript. 
-
 # Conventions and Definitions
 
-See appendix below in case certain terms are not clear.
+|definition            | explanation                                                                                                                   |
+|----------------------|-------------------------------------------------------------------------------------------------------------------------------|
+|human                 | a sentient being who thinks fuzzy, absorbs, and shares thought (by plain text, not markuplanguage)                            |
+|scene                 | a (local/remote) 3D scene or 3D file (index.gltf e.g.)                                                                        |
+|3D object             | an object inside a scene characterized by vertex-, face- and customproperty data.                                             |
+|metadata              | custom properties of text, 3D Scene or Object(nodes), relevant to machines and a human minority (academics/developers)        |
+|XR fragment           | URI Fragment with spatial hints like `#pos=0,0,0&t=1,100` e.g.                                                                |
+|src                   | (HTML-piggybacked) metadata of a 3D object which instances content                                                            |
+|href                  | (HTML-piggybacked) metadata of a 3D object which links to content                                                             |
+|query                 | an URI Fragment-operator which queries object(s) from a scene like `#q=cube`                                                  |
+|visual-meta           | [visual-meta](https://visual.meta.info) data appended to text/books/papers which is indirectly visible/editable in XR.        |
+|requestless metadata  | opposite of networked metadata (RDF/HTML requests can easily fan out into framerate-dropping, hence not used a lot in games). |
+|FPS                   | frames per second in spatial experiences (games,VR,AR e.g.), should be as high as possible                                    |
+|introspective         | inward sensemaking ("I feel this belongs to that")                                                                            |
+|extrospective         | outward sensemaking ("I'm fairly sure John is a person who lives in oklahoma")                                                |
+|`◻`                   | ascii representation of an 3D object/mesh                                                                                     |
+|(un)obtrusive         | obtrusive: wrapping human text/thought in XML/HTML/JSON obfuscates human text into a salad of machine-symbols and words       |
+|BibTeX                | simple tagging/citing/referencing standard for plaintext                                                                      |
+|BibTag                | a BibTeX tag                                                                                                                  |
 
 # List of URI Fragments
 
@@ -151,7 +166,7 @@ See appendix below in case certain terms are not clear.
 | `href`       | string   | `"href": "b.gltf"` | available through custom property in 3D fileformats    |
 | `src`        | string   | `"src": "#q=cube"` | available through custom property in 3D fileformats    |
 
-Popular compatible 3D fileformats: `.gltf`, `.obj`, `.fbx`, `.usdz`, `.json` (THREE.js), `.dae` and so on.
+Popular compatible 3D fileformats: `.gltf`, `.obj`, `.fbx`, `.usdz`, `.json` (THREEjs), `COLLADA` and so on.
 
 > NOTE: XR Fragments are file-agnostic, which means that the metadata exist in programmatic 3D scene(nodes) too.
 
@@ -291,7 +306,9 @@ sub-delims  = "," / "="
 We still think and speak in simple text, not in HTML or RDF.<br>
 The most advanced human will probably not shout `<h1>FIRE!</h1>` in case of emergency.<br>
 Given the new dawn of (non-keyboard) XR interfaces, keeping text as is (not obscuring with markup) is preferred.<br>
-Ideally metadata must come **with** text, but not **obfuscate** the text, or **in another** file.<br>
+Ideally metadata must come **later with** text, but not **obfuscate** the text, or **in another** file.<br>
+
+> Humans first, machines (AI) later ([core principle](#core-principle)
 
 This way:
 
@@ -317,7 +334,7 @@ This allows recursive connections between text itself, as well as 3D objects and
   +---------------------------------------------+
 ```
 
-> The enduser can add connections by speaking/typing/scanning [hashtagbibs](https://github.com/coderofsalvation/hashtagbibs) which the XR Browser can expand to (hidden) BibTags.
+> The enduser can add connections by speaking/typing/scanning [hashtagbibs](https://github.com/coderofsalvation/hashtagbibs) which the XR Browser can expand to BibTags.
 
 This allows instant realtime tagging of objects at various scopes:
 
@@ -572,8 +589,6 @@ here are some hashtagbibs followed by bibtex:
 }
 ```
 
-> when an XR browser updates the human text, a quick scan for nonmatching tags (`@book{nonmatchingbook` e.g.) should be performed and prompt the enduser for deleting them.
-
 # HYPER copy/paste 
 
 The previous example, offers something exciting compared to simple copy/paste of 3D objects or text.
@@ -596,30 +611,4 @@ This document has no IANA actions.
 
 # Acknowledgments
 
-* [NLNET](https://nlnet.nl)
-* [Future of Text](https://futureoftext.org)
-* [visual-meta.info](https://visual-meta.info)
-
-# Appendix: Definitions 
-
-|definition            | explanation                                                                                                                   |
-|----------------------|-------------------------------------------------------------------------------------------------------------------------------|
-|human                 | a sentient being who thinks fuzzy, absorbs, and shares thought (by plain text, not markuplanguage)                            |
-|scene                 | a (local/remote) 3D scene or 3D file (index.gltf e.g.)                                                                        |
-|3D object             | an object inside a scene characterized by vertex-, face- and customproperty data.                                             |
-|metadata              | custom properties of text, 3D Scene or Object(nodes), relevant to machines and a human minority (academics/developers)        |
-|XR fragment           | URI Fragment with spatial hints like `#pos=0,0,0&t=1,100` e.g.                                                                |
-|src                   | (HTML-piggybacked) metadata of a 3D object which instances content                                                            |
-|href                  | (HTML-piggybacked) metadata of a 3D object which links to content                                                             |
-|query                 | an URI Fragment-operator which queries object(s) from a scene like `#q=cube`                                                  |
-|visual-meta           | [visual-meta](https://visual.meta.info) data appended to text/books/papers which is indirectly visible/editable in XR.        |
-|requestless metadata  | metadata which never spawns new requests (unlike RDF/HTML, which can cause framerate-dropping, hence not used a lot in games) |
-|FPS                   | frames per second in spatial experiences (games,VR,AR e.g.), should be as high as possible                                    |
-|introspective         | inward sensemaking ("I feel this belongs to that")                                                                            |
-|extrospective         | outward sensemaking ("I'm fairly sure John is a person who lives in oklahoma")                                                |
-|`◻`                   | ascii representation of an 3D object/mesh                                                                                     |
-|(un)obtrusive         | obtrusive: wrapping human text/thought in XML/HTML/JSON obfuscates human text into a salad of machine-symbols and words       |
-|BibTeX                | simple tagging/citing/referencing standard for plaintext                                                                      |
-|BibTag                | a BibTeX tag                                                                                                                  |
-|(hashtag)bibs         | an easy to speak/type/scan tagging SDL ([see here](https://github.com/coderofsalvation/hashtagbibs)                           |
-
+TODO acknowledge.
