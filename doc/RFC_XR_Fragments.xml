@@ -167,7 +167,7 @@ In case of <tt>buttonA</tt> the end-user will be teleported to another location 
 </section>
 
 <section anchor="embedding-3d-content"><name>Embedding 3D content</name>
-<t>Here's an ascii representation of a 3D scene-graph with 3D objects <tt>◻</tt> which embeds remote &amp; local 3D objects <tt>◻</tt> (without) using queries:</t>
+<t>Here's an ascii representation of a 3D scene-graph with 3D objects <tt>◻</tt> which embeds remote &amp; local 3D objects <tt>◻</tt> with/out using queries:</t>
 
 <artwork>  +--------------------------------------------------------+  +-------------------------+ 
   |                                                        |  |                         |
@@ -335,28 +335,39 @@ Ideally metadata must come <strong>with</strong> text, but not <strong>obfuscate
 <t>This way:</t>
 
 <ol spacing="compact">
-<li>XR Fragments allows &lt;b id=&quot;tagging-text&quot;&gt;hasslefree XR text tagging&lt;/b&gt;, using BibTeX metadata <strong>at the end of content</strong> (like <eref target="https://visual.meta.info">visual-meta</eref>).</li>
+<li>XR Fragments allows &lt;b id=&quot;tagging-text&quot;&gt;hasslefree spatial tagging&lt;/b&gt;, by detecting BibTeX metadata <strong>at the end of content</strong> of text (see default mimetype &amp; Data URI)</li>
+<li>XR Fragments allows &lt;b id=&quot;tagging-objects&quot;&gt;hasslefree spatial tagging&lt;/b&gt;, by treating 3D object name/class-pairs as BibTeX tags.</li>
 <li>XR Fragments allows hasslefree &lt;a href=&quot;#textual-tag&quot;&gt;textual tagging&lt;/a&gt;, &lt;a href=&quot;#spatial-tag&quot;&gt;spatial tagging&lt;/a&gt;, and &lt;a href=&quot;#supra-tagging&quot;&gt;supra tagging&lt;/a&gt;, by mapping 3D/text object (class)names using BibTeX 'tags'</li>
-<li>Bibs/BibTeX-appendices is first-choice <strong>requestless metadata</strong>-layer for XR text, HTML/RDF/JSON is great (but fits better in the application-layer)</li>
+<li>BibTex &amp; Hashtagbibs are the first-choice <strong>requestless metadata</strong>-layer for XR text, HTML/RDF/JSON is great (but fits better in the application-layer)</li>
 <li>Default font (unless specified otherwise) is a modern monospace font, for maximized tabular expressiveness (see <eref target="#core-principle">the core principle</eref>).</li>
 <li>anti-pattern: hardcoupling a mandatory <strong>obtrusive markuplanguage</strong> or framework with an XR browsers (HTML/VRML/Javascript) (see <eref target="#core-principle">the core principle</eref>)</li>
 <li>anti-pattern: limiting human introspection, by immediately funneling human thought into typesafe, precise, pre-categorized metadata like RDF (see <eref target="#core-principle">the core principle</eref>)</li>
 </ol>
 <t>This allows recursive connections between text itself, as well as 3D objects and vice versa, using <strong>BibTags</strong> :</t>
 
-<artwork>  +---------------------------------------------+         +------------------+
-  | My Notes                                    |         |        / \       |
-  |                                             |         |       /   \      |
-  | The houses here are built in baroque style. |         |      /house\     |
-  |                                             |         |      |_____|     |
-  |                                             |         +---------|--------+ 
-  | @house{houses,                              &gt;----'house'--------|    class/name match?
-  |   url  = {#.house}                          &gt;----'houses'-------`    class/name match? 
-  | }                                           |
-  +---------------------------------------------+
+<artwork>  http://y.io/z.fbx                                                           | (Evaluated) BibTex/ 'wires' / tags |
+  ----------------------------------------------------------------------------+------------------------------------- 
+                                                                              | @house{castle,
+  +-[src: data:.....]----------------------+   +-[3D mesh]-+                  |   url = {https://y.io/z.fbx#castle}
+  | My Notes                               |   |    / \    |                  | }
+  |                                        |   |   /   \   |                  | @baroque{castle,
+  | The houses are built in baroque style. |   |  /     \  |                  |   url = {https://y.io/z.fbx#castle}
+  |                                        |   |  |_____|  |                  | }
+  | @house{baroque,                        |   +-----│-----+                  | @house{baroque,
+  |   description = {classic}              |         ├─ name: castle          |   description = {classic}
+  | }                                      |         └─ class: house baroque  | }
+  +----------------------------------------+                                  | @house{contactowner,
+                                                                              | }  
+  +-[remotestorage.io / localstorage]------+                                  | @todo{contactowner,                            
+  | #contactowner@todo@house               |                                  | }
+  | ...                                    |                                  | 
+  +----------------------------------------+                                  | 
 </artwork>
-<blockquote><t>The enduser can add connections by speaking/typing/scanning <eref target="https://github.com/coderofsalvation/hashtagbibs">hashtagbibs</eref> which the XR Browser can expand to (hidden) BibTags.</t>
-</blockquote><t>This allows instant realtime tagging of objects at various scopes:</t>
+<t>BibTex (generated from 3D objects), can be extended by the enduser with personal BiBTex or <eref target="https://github.com/coderofsalvation/hashtagbibs">hashtagbibs</eref>.</t>
+<blockquote><t><eref target="https://github.com/coderofsalvation/hashtagbibs">hashtagbibs</eref> allows the enduser to add 'postit' connections (compressed BibTex) by speaking/typing/scanning text,  which the XR Browser saves to remotestorage (or localStorage per toplevel URL). As well as, referencing BibTags per URI later on: <tt>https://y.io/z.fbx#@baroque@todo</tt> e.g.</t>
+</blockquote><t>Obviously, expressing the relationships above in XML/JSON instead of BibTeX, would cause instant cognitive overload.<br />
+
+The This allows instant realtime filtering of relationships at various levels:</t>
 <table>
 <thead>
 <tr>
@@ -368,38 +379,38 @@ Ideally metadata must come <strong>with</strong> text, but not <strong>obfuscate
 <tbody>
 <tr>
 <td>&lt;b id=&quot;textual-tagging&quot;&gt;textual&lt;/b&gt;</td>
-<td>text containing 'houses' is now automatically tagged with 'house' (incl. plaintext <tt>src</tt> child nodes)</td>
+<td>text containing 'baroque' is now automatically tagged with 'house' (incl. plaintext <tt>src</tt> child nodes)</td>
 </tr>
 
 <tr>
 <td>&lt;b id=&quot;spatial-tagging&quot;&gt;spatial&lt;/b&gt;</td>
-<td>spatial object(s) with <tt>&quot;class&quot;:&quot;house&quot;</tt> (because of <tt>{#.house}</tt>) are now automatically tagged with 'house' (incl. child nodes)</td>
+<td>spatial object(s) with name <tt>baroque</tt> or <tt>&quot;class&quot;:&quot;house&quot;</tt> are now automatically tagged with 'house' (incl. child nodes)</td>
 </tr>
 
 <tr>
 <td>&lt;b id=&quot;supra-tagging&quot;&gt;supra&lt;/b&gt;</td>
-<td>text- or spatial-object(s) (non-descendant nodes) elsewhere, named 'house', are automatically tagged with 'house' (current node to root node)</td>
+<td>text- or spatial-object(s) (non-descendant nodes) elsewhere, (class)named 'baroque' or 'house', are automatically tagged with 'house' (current node to root nodes)</td>
 </tr>
 
 <tr>
 <td>&lt;b id=&quot;omni-tagging&quot;&gt;omni&lt;/b&gt;</td>
-<td>text- or spatial-object(s) (non-descendant nodes) elsewhere, containing class/name 'house', are automatically tagged with 'house' (too node to all nodes)</td>
+<td>text- or spatial-object(s) (non-descendant nodes) elsewhere, (class)named 'baroque' or 'house', are automatically tagged with 'house' (too node to all nodes)</td>
 </tr>
 
 <tr>
 <td>&lt;b id=&quot;infinite-tagging&quot;&gt;infinite&lt;/b&gt;</td>
-<td>text- or spatial-object(s) (non-descendant nodes) elsewhere, containing class/name 'house' or 'houses', are automatically tagged with 'house' (too node to all nodes)</td>
+<td>text- or spatial-object(s) (non-descendant nodes) elsewhere, (class)named 'baroque' or 'house', are automatically tagged with 'house' (too node to all nodes)</td>
 </tr>
 </tbody>
-</table><t>This empowers the enduser spatial expressiveness (see <eref target="#core-principle">the core principle</eref>): spatial wires can be rendered, words can be highlighted, spatial objects can be highlighted/moved/scaled, links can be manipulated by the user.<br />
-
-The simplicity of appending BibTeX 'tags' (humans first, machines later) is also demonstrated by <eref target="https://visual-meta.info">visual-meta</eref> in greater detail.</t>
-
-<ol spacing="compact">
+</table><t>BibTex allows the enduser to adjust different levels of associations (see <eref target="#core-principle">the core principle</eref>): spatial wires can be rendered, words can be highlighted, spatial objects can be highlighted/moved/scaled, links can be manipulated by the user.<br />
+</t>
+<blockquote><t>NOTE: infinite matches both 'baroque' and 'style'-occurences in text, as well as spatial objects with <tt>&quot;class&quot;:&quot;style&quot;</tt> or name &quot;baroque&quot;. This multiplexing of id/category is deliberate because of <eref target="#core-principle">the core principle</eref>.</t>
+</blockquote>
+<ol spacing="compact" start="8">
 <li>The XR Browser needs to adjust tag-scope based on the endusers needs/focus (infinite tagging only makes sense when environment is scaled down significantly)</li>
 <li>The XR Browser should always allow the human to view/edit the metadata, by clicking 'toggle metadata' on the 'back' (contextmenu e.g.) of any XR text, anywhere anytime.</li>
 </ol>
-<blockquote><t>NOTE: infinite matches both 'house' and 'houses' in text, as well as spatial objects with <tt>&quot;class&quot;:&quot;house&quot;</tt> or name &quot;house&quot;. This multiplexing of id/category is deliberate because of <eref target="#core-principle">the core principle</eref>.</t>
+<blockquote><t>The simplicity of appending BibTeX (and leveling the metadata-playfield between humans and machines) is also demonstrated by <eref target="https://visual-meta.info">visual-meta</eref> in greater detail.</t>
 </blockquote>
 <section anchor="default-data-uri-mimetype"><name>Default Data URI mimetype</name>
 <t>The <tt>src</tt>-values work as expected (respecting mime-types), however:</t>
@@ -446,34 +457,12 @@ The simplicity of appending BibTeX 'tags' (humans first, machines later) is also
   |                                                              |
   +--------------------------------------------------------------+
 </artwork>
-<t>The enduser will only see <tt>welcome human</tt> and <tt>Hello friends</tt> rendered spatially.
-The beauty is that text (AND visual-meta) in Data URI promotes rich copy-paste.
+<t>The enduser will only see <tt>welcome human</tt> and <tt>Hello friends</tt> rendered spatially (see mimetype).
+The beauty is that text in Data URI automatically promotes rich copy-paste (retaining metadata).
 In both cases, the text gets rendered immediately (onto a plane geometry, hence the name '_canvas').
 The XR Fragment-compatible browser can let the enduser access visual-meta(data)-fields after interacting with the object (contextmenu e.g.).</t>
 <blockquote><t>additional tagging using <eref target="https://github.com/coderofsalvation/hashtagbibs">bibs</eref>: to tag spatial object <tt>note_canvas</tt> with 'todo', the enduser can type or speak <tt>@note_canvas@todo</tt></t>
-</blockquote><t>The mapping between 3D objects and text (src-data) is simple (the :</t>
-<t>Example:</t>
-
-<artwork>  +------------------------------------------------+ 
-  |                                                | 
-  |  index.gltf                                    | 
-  |    │                                           | 
-  |    └── ◻ rentalhouse                           | 
-  |           └ class: house              &lt;----------------- matches -------+
-  |           └ ◻ note                             |                        |
-  |                 └ src:`data: todo: call owner  |       hashtagbib       |
-  |                              #owner@house@todo | ----&gt; expands to     @house{owner,
-  |                                                |          bibtex:     }
-  |                        `                       |                      @contact{
-  +------------------------------------------------+                      }
-</artwork>
-<t>Bi-directional mapping between 3D object names and/or classnames and text using bibs,BibTags &amp; XR Fragments, allows for rich interlinking between text and 3D objects:</t>
-
-<ol spacing="compact">
-<li>When the user surfs to https://.../index.gltf#rentalhouse the XR Fragments-parser points the enduser to the rentalhouse object, and can show contextual info about it.</li>
-<li>When (partial) remote content is embedded thru XR Fragment queries (see XR Fragment queries), indirectly related metadata can be embedded along.</li>
-</ol>
-</section>
+</blockquote></section>
 
 <section anchor="bibs-bibtex-lowest-common-denominator-for-linking-data"><name>Bibs &amp; BibTeX: lowest common denominator for linking data</name>
 <blockquote><t>&quot;When a car breaks down, the ones <strong>without</strong> turbosupercharger are easier to fix&quot;</t>
@@ -626,7 +615,7 @@ In that sense, it's one step up from the <tt>.ini</tt> fileformat (which has nev
 </tr>
 </tbody>
 </table><blockquote><t>To keep XR Fragments a lightweight spec, BibTeX is used for rudimentary text/spatial tagging (not JSON, RDF or a scripting language because they're harder to write/speak/repair.).</t>
-</blockquote><t>Applications are also free to attach any JSON(LD / RDF) to spatial objects using custom properties (but is not interpreted by this spec).</t>
+</blockquote><t>Of course, on an application-level JSON(LD / RDF) can still be used at will, by embedding RDF-urls/data as custom properties (but is not interpreted by this spec).</t>
 </section>
 
 <section anchor="xr-text-example-parser"><name>XR Text example parser</name>
@@ -634,7 +623,7 @@ In that sense, it's one step up from the <tt>.ini</tt> fileformat (which has nev
 <ol spacing="compact">
 <li>The XR Fragments spec does not aim to harden the BiBTeX format</li>
 <li>respect multi-line BibTex values because of <eref target="#core-principle">the core principle</eref></li>
-<li>Expand hashtag(bibs) and rulers (like <tt>${visual-meta-start}</tt>) according to the <eref target="https://github.com/coderofsalvation/hashtagbibs">hashtagbibs spec</eref></li>
+<li>Respect hashtag(bibs) and rulers (like <tt>${visual-meta-start}</tt>) according to the <eref target="https://github.com/coderofsalvation/hashtagbibs">hashtagbibs spec</eref></li>
 <li>BibTeX snippets should always start in the beginning of a line (regex: ^@), hence mimetype <tt>text/plain;charset=utf-8;bib=^@</tt></li>
 </ol>
 <t>Here's an XR Text (de)multiplexer in javascript, which ticks all the above boxes:</t>

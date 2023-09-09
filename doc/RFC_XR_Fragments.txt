@@ -3,7 +3,7 @@
 
 
 Internet Engineering Task Force                          L.R. van Kammen
-Internet-Draft                                          8 September 2023
+Internet-Draft                                          9 September 2023
 Intended status: Informational                                          
 
 
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 11 March 2024.
+   This Internet-Draft will expire on 12 March 2024.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-van Kammen                Expires 11 March 2024                 [Page 1]
+van Kammen                Expires 12 March 2024                 [Page 1]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -83,11 +83,11 @@ Table of Contents
      9.3.  Bibs & BibTeX: lowest common denominator for linking
            data  . . . . . . . . . . . . . . . . . . . . . . . . . .  13
      9.4.  XR Text example parser  . . . . . . . . . . . . . . . . .  15
-   10. HYPER copy/paste  . . . . . . . . . . . . . . . . . . . . . .  18
-   11. Security Considerations . . . . . . . . . . . . . . . . . . .  18
-   12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  18
-   13. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  18
-   14. Appendix: Definitions . . . . . . . . . . . . . . . . . . . .  19
+   10. HYPER copy/paste  . . . . . . . . . . . . . . . . . . . . . .  17
+   11. Security Considerations . . . . . . . . . . . . . . . . . . .  17
+   12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  17
+   13. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  17
+   14. Appendix: Definitions . . . . . . . . . . . . . . . . . . . .  18
 
 1.  Introduction
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-van Kammen                Expires 11 March 2024                 [Page 2]
+van Kammen                Expires 12 March 2024                 [Page 2]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -165,7 +165,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 11 March 2024                 [Page 3]
+van Kammen                Expires 12 March 2024                 [Page 3]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -221,7 +221,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 11 March 2024                 [Page 4]
+van Kammen                Expires 12 March 2024                 [Page 4]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -235,8 +235,8 @@ Internet-Draft                XR Fragments                September 2023
 7.  Embedding 3D content
 
    Here's an ascii representation of a 3D scene-graph with 3D objects
-   &#9723; which embeds remote & local 3D objects &#9723; (without)
-   using queries:
+   &#9723; which embeds remote & local 3D objects &#9723; with/out using
+   queries:
 
   +--------------------------------------------------------+  +-------------------------+
   |                                                        |  |                         |
@@ -277,7 +277,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 11 March 2024                 [Page 5]
+van Kammen                Expires 12 March 2024                 [Page 5]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -333,7 +333,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 11 March 2024                 [Page 6]
+van Kammen                Expires 12 March 2024                 [Page 6]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -389,7 +389,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 11 March 2024                 [Page 7]
+van Kammen                Expires 12 March 2024                 [Page 7]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -418,63 +418,74 @@ Internet-Draft                XR Fragments                September 2023
 
    This way:
 
-   1.  XR Fragments allows <b id="tagging-text">hasslefree XR text
-       tagging</b>, using BibTeX metadata *at the end of content* (like
-       visual-meta (https://visual.meta.info)).
-   2.  XR Fragments allows hasslefree <a href="#textual-tag">textual
+   1.  XR Fragments allows <b id="tagging-text">hasslefree spatial
+       tagging</b>, by detecting BibTeX metadata *at the end of content*
+       of text (see default mimetype & Data URI)
+   2.  XR Fragments allows <b id="tagging-objects">hasslefree spatial
+       tagging</b>, by treating 3D object name/class-pairs as BibTeX
+       tags.
+   3.  XR Fragments allows hasslefree <a href="#textual-tag">textual
        tagging</a>, <a href="#spatial-tag">spatial tagging</a>, and <a
        href="#supra-tagging">supra tagging</a>, by mapping 3D/text
        object (class)names using BibTeX 'tags'
-   3.  Bibs/BibTeX-appendices is first-choice *requestless metadata*-
+   4.  BibTex & Hashtagbibs are the first-choice *requestless metadata*-
        layer for XR text, HTML/RDF/JSON is great (but fits better in the
        application-layer)
-   4.  Default font (unless specified otherwise) is a modern monospace
+   5.  Default font (unless specified otherwise) is a modern monospace
        font, for maximized tabular expressiveness (see the core
        principle (#core-principle)).
-   5.  anti-pattern: hardcoupling a mandatory *obtrusive markuplanguage*
+   6.  anti-pattern: hardcoupling a mandatory *obtrusive markuplanguage*
        or framework with an XR browsers (HTML/VRML/Javascript) (see the
        core principle (#core-principle))
-   6.  anti-pattern: limiting human introspection, by immediately
+   7.  anti-pattern: limiting human introspection, by immediately
        funneling human thought into typesafe, precise, pre-categorized
        metadata like RDF (see the core principle (#core-principle))
+
+
+
+
+
+van Kammen                Expires 12 March 2024                 [Page 8]
+
+Internet-Draft                XR Fragments                September 2023
+
 
    This allows recursive connections between text itself, as well as 3D
    objects and vice versa, using *BibTags* :
 
+  http://y.io/z.fbx                                                           | (Evaluated) BibTex/ 'wires' / tags |
+  ----------------------------------------------------------------------------+-------------------------------------
+                                                                              | @house{castle,
+  +-[src: data:.....]----------------------+   +-[3D mesh]-+                  |   url = {https://y.io/z.fbx#castle}
+  | My Notes                               |   |    / \    |                  | }
+  |                                        |   |   /   \   |                  | @baroque{castle,
+  | The houses are built in baroque style. |   |  /     \  |                  |   url = {https://y.io/z.fbx#castle}
+  |                                        |   |  |_____|  |                  | }
+  | @house{baroque,                        |   +-----│-----+                  | @house{baroque,
+  |   description = {classic}              |         ├─ name: castle          |   description = {classic}
+  | }                                      |         └─ class: house baroque  | }
+  +----------------------------------------+                                  | @house{contactowner,
+                                                                              | }
+  +-[remotestorage.io / localstorage]------+                                  | @todo{contactowner,
+  | #contactowner@todo@house               |                                  | }
+  | ...                                    |                                  |
+  +----------------------------------------+                                  |
 
+   BibTex (generated from 3D objects), can be extended by the enduser
+   with personal BiBTex or hashtagbibs
+   (https://github.com/coderofsalvation/hashtagbibs).
 
-
-
-van Kammen                Expires 11 March 2024                 [Page 8]
-
-Internet-Draft                XR Fragments                September 2023
-
-
-  +---------------------------------------------+         +------------------+
-  | My Notes                                    |         |        / \       |
-  |                                             |         |       /   \      |
-  | The houses here are built in baroque style. |         |      /house\     |
-  |                                             |         |      |_____|     |
-  |                                             |         +---------|--------+
-  | @house{houses,                              >----'house'--------|    class/name match?
-  |   url  = {#.house}                          >----'houses'-------`    class/name match?
-  | }                                           |
-  +---------------------------------------------+
-
-   |  The enduser can add connections by speaking/typing/scanning
    |  hashtagbibs (https://github.com/coderofsalvation/hashtagbibs)
-   |  which the XR Browser can expand to (hidden) BibTags.
+   |  allows the enduser to add 'postit' connections (compressed BibTex)
+   |  by speaking/typing/scanning text, which the XR Browser saves to
+   |  remotestorage (or localStorage per toplevel URL).  As well as,
+   |  referencing BibTags per URI later on: https://y.io/
+   |  z.fbx#@baroque@todo e.g.
 
-   This allows instant realtime tagging of objects at various scopes:
-
-
-
-
-
-
-
-
-
+   Obviously, expressing the relationships above in XML/JSON instead of
+   BibTeX, would cause instant cognitive overload.
+   The This allows instant realtime filtering of relationships at
+   various levels:
 
 
 
@@ -490,89 +501,82 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-van Kammen                Expires 11 March 2024                 [Page 9]
+van Kammen                Expires 12 March 2024                 [Page 9]
 
 Internet-Draft                XR Fragments                September 2023
 
 
-   +====================================+=============================+
-   | scope                              | matching algo               |
-   +====================================+=============================+
-   | <b id="textual-                    | text containing 'houses' is |
-   | tagging">textual</b>               | now automatically tagged    |
-   |                                    | with 'house' (incl.         |
-   |                                    | plaintext src child nodes)  |
-   +------------------------------------+-----------------------------+
-   | <b id="spatial-                    | spatial object(s) with      |
-   | tagging">spatial</b>               | "class":"house" (because of |
-   |                                    | {#.house}) are now          |
-   |                                    | automatically tagged with   |
-   |                                    | 'house' (incl. child nodes) |
-   +------------------------------------+-----------------------------+
-   | <b id="supra-tagging">supra</b>    | text- or spatial-object(s)  |
-   |                                    | (non-descendant nodes)      |
-   |                                    | elsewhere, named 'house',   |
-   |                                    | are automatically tagged    |
-   |                                    | with 'house' (current node  |
-   |                                    | to root node)               |
-   +------------------------------------+-----------------------------+
-   | <b id="omni-tagging">omni</b>      | text- or spatial-object(s)  |
-   |                                    | (non-descendant nodes)      |
-   |                                    | elsewhere, containing       |
-   |                                    | class/name 'house', are     |
-   |                                    | automatically tagged with   |
-   |                                    | 'house' (too node to all    |
-   |                                    | nodes)                      |
-   +------------------------------------+-----------------------------+
-   | <b id="infinite-                   | text- or spatial-object(s)  |
-   | tagging">infinite</b>              | (non-descendant nodes)      |
-   |                                    | elsewhere, containing       |
-   |                                    | class/name 'house' or       |
-   |                                    | 'houses', are automatically |
-   |                                    | tagged with 'house' (too    |
-   |                                    | node to all nodes)          |
-   +------------------------------------+-----------------------------+
+    +====================================+============================+
+    | scope                              | matching algo              |
+    +====================================+============================+
+    | <b id="textual-                    | text containing 'baroque'  |
+    | tagging">textual</b>               | is now automatically       |
+    |                                    | tagged with 'house' (incl. |
+    |                                    | plaintext src child nodes) |
+    +------------------------------------+----------------------------+
+    | <b id="spatial-                    | spatial object(s) with     |
+    | tagging">spatial</b>               | name baroque or            |
+    |                                    | "class":"house" are now    |
+    |                                    | automatically tagged with  |
+    |                                    | 'house' (incl. child       |
+    |                                    | nodes)                     |
+    +------------------------------------+----------------------------+
+    | <b id="supra-tagging">supra</b>    | text- or spatial-object(s) |
+    |                                    | (non-descendant nodes)     |
+    |                                    | elsewhere, (class)named    |
+    |                                    | 'baroque' or 'house', are  |
+    |                                    | automatically tagged with  |
+    |                                    | 'house' (current node to   |
+    |                                    | root nodes)                |
+    +------------------------------------+----------------------------+
+    | <b id="omni-tagging">omni</b>      | text- or spatial-object(s) |
+    |                                    | (non-descendant nodes)     |
+    |                                    | elsewhere, (class)named    |
+    |                                    | 'baroque' or 'house', are  |
+    |                                    | automatically tagged with  |
+    |                                    | 'house' (too node to all   |
+    |                                    | nodes)                     |
+    +------------------------------------+----------------------------+
+    | <b id="infinite-                   | text- or spatial-object(s) |
+    | tagging">infinite</b>              | (non-descendant nodes)     |
+    |                                    | elsewhere, (class)named    |
+    |                                    | 'baroque' or 'house', are  |
+    |                                    | automatically tagged with  |
+    |                                    | 'house' (too node to all   |
+    |                                    | nodes)                     |
+    +------------------------------------+----------------------------+
 
-                                 Table 5
+                                  Table 5
 
-   This empowers the enduser spatial expressiveness (see the core
-   principle (#core-principle)): spatial wires can be rendered, words
-   can be highlighted, spatial objects can be highlighted/moved/scaled,
-   links can be manipulated by the user.
-   The simplicity of appending BibTeX 'tags' (humans first, machines
-   later) is also demonstrated by visual-meta (https://visual-meta.info)
-   in greater detail.
-
+   BibTex allows the enduser to adjust different levels of associations
+   (see the core principle (#core-principle)): spatial wires can be
+   rendered, words can be highlighted, spatial objects can be
+   highlighted/moved/scaled, links can be manipulated by the user.
 
 
 
-van Kammen                Expires 11 March 2024                [Page 10]
+
+
+van Kammen                Expires 12 March 2024                [Page 10]
 
 Internet-Draft                XR Fragments                September 2023
 
 
-   1.  The XR Browser needs to adjust tag-scope based on the endusers
+   |  NOTE: infinite matches both 'baroque' and 'style'-occurences in
+   |  text, as well as spatial objects with "class":"style" or name
+   |  "baroque".  This multiplexing of id/category is deliberate because
+   |  of the core principle (#core-principle).
+
+   8.  The XR Browser needs to adjust tag-scope based on the endusers
        needs/focus (infinite tagging only makes sense when environment
        is scaled down significantly)
-   2.  The XR Browser should always allow the human to view/edit the
+   9.  The XR Browser should always allow the human to view/edit the
        metadata, by clicking 'toggle metadata' on the 'back'
        (contextmenu e.g.) of any XR text, anywhere anytime.
 
-   |  NOTE: infinite matches both 'house' and 'houses' in text, as well
-   |  as spatial objects with "class":"house" or name "house".  This
-   |  multiplexing of id/category is deliberate because of the core
-   |  principle (#core-principle).
+   |  The simplicity of appending BibTeX (and leveling the metadata-
+   |  playfield between humans and machines) is also demonstrated by
+   |  visual-meta (https://visual-meta.info) in greater detail.
 
 9.1.  Default Data URI mimetype
 
@@ -606,18 +610,18 @@ Internet-Draft                XR Fragments                September 2023
 
    *  out-of-the-box (de)multiplex human text and metadata in one go
       (see the core principle (#core-principle))
-   *  no network-overhead for metadata (see the core principle (#core-
-      principle))
-   *  ensuring high FPS: HTML/RDF historically is too 'requesty'/'parsy'
-      for game studios
 
 
 
-van Kammen                Expires 11 March 2024                [Page 11]
+van Kammen                Expires 12 March 2024                [Page 11]
 
 Internet-Draft                XR Fragments                September 2023
 
 
+   *  no network-overhead for metadata (see the core principle (#core-
+      principle))
+   *  ensuring high FPS: HTML/RDF historically is too 'requesty'/'parsy'
+      for game studios
    *  rich send/receive/copy-paste everywhere by default, metadata being
       retained (see the core principle (#core-principle))
    *  netto result: less webservices, therefore less servers, and
@@ -647,56 +651,28 @@ Internet-Draft                XR Fragments                September 2023
   +--------------------------------------------------------------+
 
    The enduser will only see welcome human and Hello friends rendered
-   spatially.  The beauty is that text (AND visual-meta) in Data URI
-   promotes rich copy-paste.  In both cases, the text gets rendered
-   immediately (onto a plane geometry, hence the name '_canvas').  The
-   XR Fragment-compatible browser can let the enduser access visual-
-   meta(data)-fields after interacting with the object (contextmenu
-   e.g.).
+   spatially (see mimetype).  The beauty is that text in Data URI
+   automatically promotes rich copy-paste (retaining metadata).  In both
+   cases, the text gets rendered immediately (onto a plane geometry,
+   hence the name '_canvas').  The XR Fragment-compatible browser can
+   let the enduser access visual-meta(data)-fields after interacting
+   with the object (contextmenu e.g.).
 
    |  additional tagging using bibs
    |  (https://github.com/coderofsalvation/hashtagbibs): to tag spatial
    |  object note_canvas with 'todo', the enduser can type or speak
    |  @note_canvas@todo
 
-   The mapping between 3D objects and text (src-data) is simple (the :
-
-   Example:
 
 
 
 
 
 
-
-van Kammen                Expires 11 March 2024                [Page 12]
+van Kammen                Expires 12 March 2024                [Page 12]
 
 Internet-Draft                XR Fragments                September 2023
 
-
-  +------------------------------------------------+
-  |                                                |
-  |  index.gltf                                    |
-  |    │                                           |
-  |    └── ◻ rentalhouse                           |
-  |           └ class: house              <----------------- matches -------+
-  |           └ ◻ note                             |                        |
-  |                 └ src:`data: todo: call owner  |       hashtagbib       |
-  |                              #owner@house@todo | ----> expands to     @house{owner,
-  |                                                |          bibtex:     }
-  |                        `                       |                      @contact{
-  +------------------------------------------------+                      }
-
-   Bi-directional mapping between 3D object names and/or classnames and
-   text using bibs,BibTags & XR Fragments, allows for rich interlinking
-   between text and 3D objects:
-
-   1.  When the user surfs to https://.../index.gltf#rentalhouse the XR
-       Fragments-parser points the enduser to the rentalhouse object,
-       and can show contextual info about it.
-   2.  When (partial) remote content is embedded thru XR Fragment
-       queries (see XR Fragment queries), indirectly related metadata
-       can be embedded along.
 
 9.3.  Bibs & BibTeX: lowest common denominator for linking data
 
@@ -716,19 +692,6 @@ Internet-Draft                XR Fragments                September 2023
        humans) of (unobtrusive) content AND metadata
    2.  an introspective 'sketchpad' for metadata, which can (optionally)
        mature into RDF later
-
-
-
-
-
-
-
-
-
-van Kammen                Expires 11 March 2024                [Page 13]
-
-Internet-Draft                XR Fragments                September 2023
-
 
    +================+=====================================+===============+
    |characteristic  |UTF8 Plain Text (with BibTeX)        |RDF            |
@@ -759,6 +722,14 @@ Internet-Draft                XR Fragments                September 2023
    |content+metadata|                                     |               |
    +----------------+-------------------------------------+---------------+
    |easy to write/  |yes                                  |depends        |
+
+
+
+van Kammen                Expires 12 March 2024                [Page 13]
+
+Internet-Draft                XR Fragments                September 2023
+
+
    |repair for      |                                     |               |
    |layman          |                                     |               |
    +----------------+-------------------------------------+---------------+
@@ -778,14 +749,6 @@ Internet-Draft                XR Fragments                September 2023
    |preserves       |                                     |application    |
    |metadata        |                                     |               |
    +----------------+-------------------------------------+---------------+
-
-
-
-van Kammen                Expires 11 March 2024                [Page 14]
-
-Internet-Draft                XR Fragments                September 2023
-
-
    |emoji           |yes                                  |depends on     |
    |                |                                     |encoding       |
    +----------------+-------------------------------------+---------------+
@@ -812,16 +775,23 @@ Internet-Draft                XR Fragments                September 2023
    |  rudimentary text/spatial tagging (not JSON, RDF or a scripting
    |  language because they're harder to write/speak/repair.).
 
-   Applications are also free to attach any JSON(LD / RDF) to spatial
-   objects using custom properties (but is not interpreted by this
-   spec).
+   Of course, on an application-level JSON(LD / RDF) can still be used
+   at will, by embedding RDF-urls/data as custom properties (but is not
+   interpreted by this spec).
+
+
+
+van Kammen                Expires 12 March 2024                [Page 14]
+
+Internet-Draft                XR Fragments                September 2023
+
 
 9.4.  XR Text example parser
 
    1.  The XR Fragments spec does not aim to harden the BiBTeX format
    2.  respect multi-line BibTex values because of the core principle
        (#core-principle)
-   3.  Expand hashtag(bibs) and rulers (like ${visual-meta-start})
+   3.  Respect hashtag(bibs) and rulers (like ${visual-meta-start})
        according to the hashtagbibs spec
        (https://github.com/coderofsalvation/hashtagbibs)
    4.  BibTeX snippets should always start in the beginning of a line
@@ -829,18 +799,6 @@ Internet-Draft                XR Fragments                September 2023
 
    Here's an XR Text (de)multiplexer in javascript, which ticks all the
    above boxes:
-
-
-
-
-
-
-
-
-van Kammen                Expires 11 March 2024                [Page 15]
-
-Internet-Draft                XR Fragments                September 2023
-
 
 xrtext = {
 
@@ -876,6 +834,14 @@ xrtext = {
            t.split( pat[2] )
            .map( kv => {
              if( !(kv = kv.trim()) || kv == "}" ) return
+
+
+
+van Kammen                Expires 12 March 2024                [Page 15]
+
+Internet-Draft                XR Fragments                September 2023
+
+
              v[ kv.match(/\s?(\S+)\s?=/)[1] ] = kv.substr( kv.indexOf("{")+1 )
            })
            tags.push( { k:tag, v } )
@@ -890,14 +856,6 @@ xrtext = {
       let item = tags[i]
       if( item.ruler ){
           str += `@${item.ruler}\n`
-
-
-
-van Kammen                Expires 11 March 2024                [Page 16]
-
-Internet-Draft                XR Fragments                September 2023
-
-
           continue;
       }
       str += `@${item.k}\n`
@@ -932,27 +890,15 @@ tags.find( (t) => t.k == 'flap{' ).v.asdf = 1 // edit tag
 tags.push({ k:'bar{', v:{abc:123} })          // add tag
 console.log( xrtext.encode(text,tags) )       // multiplex text & bibtex back together
 
-   This expands to the following (hidden by default) BibTex appendix:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-van Kammen                Expires 11 March 2024                [Page 17]
+van Kammen                Expires 12 March 2024                [Page 16]
 
 Internet-Draft                XR Fragments                September 2023
 
+
+   This expands to the following (hidden by default) BibTex appendix:
 
    hello world
    here are some hashtagbibs followed by bibtex:
@@ -1000,16 +946,16 @@ Internet-Draft                XR Fragments                September 2023
 
 13.  Acknowledgments
 
-   *  NLNET (https://nlnet.nl)
-   *  Future of Text (https://futureoftext.org)
 
 
 
-van Kammen                Expires 11 March 2024                [Page 18]
+van Kammen                Expires 12 March 2024                [Page 17]
 
 Internet-Draft                XR Fragments                September 2023
 
 
+   *  NLNET (https://nlnet.nl)
+   *  Future of Text (https://futureoftext.org)
    *  visual-meta.info (https://visual-meta.info)
 
 14.  Appendix: Definitions
@@ -1056,16 +1002,16 @@ Internet-Draft                XR Fragments                September 2023
      |               | possible                                     |
      +---------------+----------------------------------------------+
      | introspective | inward sensemaking ("I feel this belongs to  |
-     |               | that")                                       |
-     +---------------+----------------------------------------------+
 
 
 
-van Kammen                Expires 11 March 2024                [Page 19]
+van Kammen                Expires 12 March 2024                [Page 18]
 
 Internet-Draft                XR Fragments                September 2023
 
 
+     |               | that")                                       |
+     +---------------+----------------------------------------------+
      | extrospective | outward sensemaking ("I'm fairly sure John   |
      |               | is a person who lives in oklahoma")          |
      +---------------+----------------------------------------------+
@@ -1115,6 +1061,4 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-
-
-van Kammen                Expires 11 March 2024                [Page 20]
+van Kammen                Expires 12 March 2024                [Page 19]
