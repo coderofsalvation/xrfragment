@@ -109,7 +109,7 @@ Their lowest common denominator is: (co)authoring using plain text.<br>
 XR Fragments allows us to enrich/connect existing dataformats, by recursive use of existing technologies:<br>
 
 1. addressibility and navigation of 3D scenes/objects: [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) + src/href spatial metadata 
-1. hasslefree tagging across text and spatial objects using [bibs](https://github.com/coderofsalvation/tagbibs) / [BibTags](https://en.wikipedia.org/wiki/BibTeX) appendices (see [visual-meta](https://visual-meta.info) e.g.)
+1. Interlinking text/3D by deriving a Word Graph (XRWG) from the scene (and augmenting text with [bibs](https://github.com/coderofsalvation/tagbibs) / [BibTags](https://en.wikipedia.org/wiki/BibTeX) appendices (see [visual-meta](https://visual-meta.info) e.g.)
 
 > NOTE: The chapters in this document are ordered from highlevel to lowlevel (technical) as much as possible
 
@@ -133,23 +133,23 @@ See appendix below in case certain terms are not clear.
 
 # List of URI Fragments
 
-| fragment     | type     | example           | info                                                              |
-|--------------|----------|-------------------|-------------------------------------------------------------------|
-| `#pos`       | vector3  | `#pos=0.5,0,0`    | positions camera to xyz-coord 0.5,0,0                             |
-| `#rot`       | vector3  | `#rot=0,90,0`     | rotates camera to xyz-coord 0.5,0,0                               |
-| `#t`         | vector2  | `#t=500,1000`     | sets animation-loop range between frame 500 and 1000              |
-| `#......`    | string   | `#.cubes` `#cube` | object(s) of interest (fragment to object name or class mapping)  |
+| fragment     | type     | example           | info                                                                |
+|--------------|----------|-------------------|---------------------------------------------------------------------|
+| `#pos`       | vector3  | `#pos=0.5,0,0`    | positions camera to xyz-coord 0.5,0,0                               |
+| `#rot`       | vector3  | `#rot=0,90,0`     | rotates camera to xyz-coord 0.5,0,0                                 |
+| `#t`         | vector2  | `#t=500,1000`     | sets animation-loop range between frame 500 and 1000                |
+| `#......`    | string   | `#.cubes` `#cube` | object(s) of interest (fragment-to-object-or-classname)             |
 
 > xyz coordinates are similar to ones found in SVG Media Fragments
 
 # List of metadata for 3D nodes 
 
-| key          | type     | example (JSON)     | info                                                   |
-|--------------|----------|--------------------|--------------------------------------------------------|
-| `name`       | string   | `"name": "cube"`   | available in all 3D fileformats & scenes               |
-| `class`      | string   | `"class": "cubes"` | available through custom property in 3D fileformats    |
-| `href`       | string   | `"href": "b.gltf"` | available through custom property in 3D fileformats    |
-| `src`        | string   | `"src": "#q=cube"` | available through custom property in 3D fileformats    |
+| key          | type     | example (JSON)         | info                                                   |
+|--------------|----------|------------------------|--------------------------------------------------------|
+| `name`       | string   | `"name": "cube"`       | available in all 3D fileformats & scenes               |
+| `class`      | string   | `"class": "cubes geo"` | available through custom property in 3D fileformats    |
+| `href`       | string   | `"href": "b.gltf"`     | available through custom property in 3D fileformats    |
+| `src`        | string   | `"src": "#q=cube"`     | available through custom property in 3D fileformats    |
 
 Popular compatible 3D fileformats: `.gltf`, `.obj`, `.fbx`, `.usdz`, `.json` (THREE.js), `.dae` and so on.
 
@@ -210,12 +210,14 @@ Resizing will be happen accordingly to its placeholder object `aquariumcube`, se
 
 Include, exclude, hide/shows objects using space-separated strings:
 
-* `#q=cube`
-* `#q=cube -ball_inside_cube`
-* `#q=* -sky`
-* `#q=-.language .english`
-* `#q=cube&rot=0,90,0`
-* `#q=price:>2 price:<5`
+| example                          | outcome                                                                     |
+|----------------------------------|-----------------------------------------------------------------------------|
+|  `#q=cube`                       | show only object named `cube` (if any)                                      |
+|  `#q=cube -ball_inside_cube`     | show only object named `cube` but not child named `ball_inside_cube`        |
+|  `#q=* -sky`                     | show everything except object named `sky`                                   |
+|  `#q=-.language .english`        | hide everything with class `language`, then show all class `english` objects|
+|  `#q=cube&rot=0,90,0`            | show only object `cube` and rotate the view                                 |
+|  `#q=price:>2 price:<5`          | show only objects with custom property `price` with value between 2 and 5   |
 
 It's simple but powerful syntax which allows <b>css</b>-like class/id-selectors with a searchengine prompt-style feeling:
 
@@ -288,37 +290,32 @@ sub-delims  = "," / "="
 
 # Text in XR (tagging,linking to spatial objects)
 
-We still think and speak in simple text, not in HTML or RDF.<br>
-The most advanced human will probably not shout `<h1>FIRE!</h1>` in case of emergency.<br>
-Given the new dawn of (non-keyboard) XR interfaces, keeping text as is (not obscuring with markup) is preferred.<br>
-Ideally metadata must come **with** text, but not **obfuscate** the text, or **spawning another request** to fetch it.<br>
+How does XR Fragments interlink text with objects?
 
-```
-Spectrum of speak/scan/write/listen/keyboard-friendly 'tagging' notations:
+> The XR Fragments does this by extracting a **Word Graph** (the **XRWG**) from the current scene, facilitated by Bib(s)Tex.
 
-         (just # and @)    (string only)       (obuscated text)     (type-aware text)
-                                 
-       <---- Bibs ---------- BibTeX ---------- XML / HTML --------- JSON / YAML / RDF -------->
+The (`class`)names end up in the Word Graph (XRWG), but what about text (**inside** an article e.g.)? <br>
+Ideally metadata must come **with** that text, but not **obfuscate** the text, or **spawning another request** to fetch it.<br>
+This is done by detecting Bib(s)Tex, without introducing a new language or fileformat<br>
 
-```
+> Why Bib(s)Tex? Because its seems to be the lowest common denominator for a human-curate-able XRWG (extendable by speech/scanner/writing/typing e.g, see [further motivation here](https://github.com/coderofsalvation/hashtagbibs#bibs--bibtex-combo-lowest-common-denominator-for-linking-data))
 
 Hence:
 
-1. XR Fragments promotes the importance of hasslefree plain text and string-based patternmatching
-2. XR Fragments allows <b id="tagging-text">hasslefree spatial tagging</b>, by detecting metadata **at the end of content** of text (see default mimetype & Data URI)
-3. XR Fragments allows <b id="tagging-objects">hasslefree spatial tagging</b>, by treating 3D object name/class-pairs as BibTeX tags.
-4. XR Fragments promotes hasslefree <a href="#textual-tag">textual tagging</a>, <a href="#spatial-tag">spatial tagging</a>, and <a href="#supra-tagging">supra tagging</a>, by mapping 3D/text object (class)names to (tag)text-occurences.
-5. XR Fragments supports **requestless metadata** when found in plain text data (of `src` metadata), for adding/describing relationships spatially.
-6. **requestless metadata** should be string-only and typeless, and should be easy to edit/add by humans (using text).
-7. Therefore, BibTeX and [Bib's](https://github.com/coderofsalvation/hashtagbibs) are first class citizens for XR text (HTML/RDF/JSON is great, but fits better in the application-layer)
-8. Opening tags for metadata (`#`, `@`, `{`, or `<`) should always start at the beginning of the line.
+1. XR Fragments promotes (de)serializing a scene to the XRWG 
+2. XR Fragments primes the XRWG, by collecting words from the `class` and name-property of 3D objects.
+3. XR Fragments primes the XRWG, by collecting words from **optional** metadata **at the end of content** of text (see default mimetype & Data URI)
+4. [Bib's](https://github.com/coderofsalvation/hashtagbibs) and BibTex are first class citizens for priming the XRWG with words (from XR text)
+5. Like Bibs, XR Fragments generalizes the BibTex author/title-semantics (`author{title}`) into **this** points to **that** (`this{that}`)
+6. The XRWG should be recalculated when textvalues (in `src`) change 
+7. HTML/RDF/JSON is still great, but is beyond the XRWG-scope (they fit better in the application-layer)
+8. Applications don't have to be able to access the XRWG programmatically, as they can easily generate one themselves by traversing the scene-nodes.
+9. The XR Fragment focuses on fast and easy-to-generate end-user controllable word graphs (instead of complex implementations that try to defeat word ambiguity)
 
-This allows recursive connections between text itself, as well as 3D objects and vice versa.<br>
-
-Here's an example by expanding polyglot metadata to **BibTeX** associations:
+Example:
 
 ```
-  http://y.io/z.fbx                                                           | Derived BibTex / 'wires' & tags    
+  http://y.io/z.fbx                                                           | Derived XRWG (printed as BibTex)
   ----------------------------------------------------------------------------+--------------------------------------
                                                                               | @house{castle,
   +-[src: data:.....]----------------------+   +-[3D mesh]-+                  |   url = {https://y.io/z.fbx#castle}
@@ -332,58 +329,65 @@ Here's an example by expanding polyglot metadata to **BibTeX** associations:
   |                                        |         └─ class: house baroque  | 
   +----------------------------------------+                                  |
                                                [3D mesh ]                     |
-  +-[remotestorage.io / localstorage]------+   |    O   ├─ name: john         |                           
-  | #contactjohn@todo@house                |   |   /|\  |                     |
-  | ...                                    |   |   / \  |                     |
-  +----------------------------------------+   +--------+                     |
+                                               |    O   ├─ name: john         |                           
+                                               |   /|\  |                     |
+                                               |   / \  |                     |
+                                               +--------+                     |
 ```  
 
-A (somewhat extreme) example of using polyglot (bib)tags:
+> the `#john@baroque`-bib associates both text `John` and objectname `john`, with class `baroque`
 
 ```
-  http://y.io/z.fbx                                                           | Derived BibTex / 'wires' & tags    
+
+Another example:
+
+```
+  http://y.io/z.fbx                                                           | Derived XRWG (printed as BibTex)
   ----------------------------------------------------------------------------+--------------------------------------
-                                                                              | @baroque{john}
+                                                                              | 
   +-[src: data:.....]----------------------+   +-[3D mesh]-+                  | @house{castle,
   | Chapter one                            |   |    / \    |                  |   url = {https://y.io/z.fbx#castle}
   |                                        |   |   /   \   |                  | }
   | John built houses in baroque style.    |   |  /     \  |                  | @baroque{castle,
   |                                        |   |  |_____|  |                  |   url = {https://y.io/z.fbx#castle}
   | #john@baroque                          |   +-----│-----+                  | }
-  | @house{baroque, info = {classic}, }    |         │                        | @house{baroque,
-  | { "tag":"baroque", "match":"john"}     |         ├─ name: castle          |   info = {classic}
-  | <tag name="baroque" match="john"/>     |         └─ class: house baroque  | }
-  +----------------------------------------+                                  | @house{contactjohn}
-                                               [3D mesh ]                     | @todo{contactjohn}
+  | @baroque{john}                         |         │                        | @baroque{john}
+  |                                        |         ├─ name: castle          | 
+  |                                        |         └─ class: house baroque  | 
+  +----------------------------------------+                                  | @house{baroque}
+                                               [3D mesh ]                     | @todo{baroque}
   +-[remotestorage.io / localstorage]------+   |    O   + name: john          | 
-  | #contactjohn@todo@house                |   |   /|\  |                     | 
+  | #baroque@todo@house                    |   |   /|\  |                     | 
   | ...                                    |   |   / \  |                     | 
   +----------------------------------------+   +--------+                     | 
 ```  
 
-As seen above, we can extract tags/associations between text & 3D objects, by converting all scene metadata to (in this case) BibTeX, by expanding [hashtagbibs](https://github.com/coderofsalvation/hashtagbibs) and interpreting its polyglot tag-notation.<br>
-One huge advantage of polyglot tags is authoring and copy-paste **by humans**, which will be discussed later in this spec.<br>
+> both `#john@baroque`-bib and BibTex `@baroque{john}` result in the same XRWG, however on top of that 2 classes (`house` and `todo`) are now associated with text/objectname/class 'baroque'.
 
-> [hashtagbibs](https://github.com/coderofsalvation/hashtagbibs) also allows the enduser to annotate text/objects by **speaking/typing/scanning associations**, which the XR Browser saves to remotestorage (or localStorage per toplevel URL). As well as, referencing BibTags per URI later on: `https://y.io/z.fbx#@baroque@todo` e.g.
+As seen above, the XRWG can expand [bibs](https://github.com/coderofsalvation/hashtagbibs) (and the whole scene) to BibTeX.<br>
+This allows hasslefree authoring and copy-paste of associations **for and by humans**, but also makes these URLs possible:
 
-The Evaluated BiBTeX allows XR Browsers to show/hide relationships in realtime at various levels:
+| URL example                           | Result                                                                    |
+|---------------------------------------|---------------------------------------------------------------------------|
+| `https://my.com/foo.gltf#.baroque`    | highlights mesh `john`, 3D mesh `castle`, text `John built(..)`           |
+| `https://my.com/foo.gltf#john`        | highlights mesh `john`, and the text `John built (..)`                    |
+| `https://my.com/foo.gltf#house`       | highlights mesh `castle`, and other objects with class `house` or `todo`  |
 
-| scope                                 | tag-matching algo                                                                                                                                                          |
-|---------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| <b id="textual-tagging">textual</b>   | text containing 'baroque' is now automatically tagged with 'house' (incl. plaintext `src` child nodes)                                                                 |
-| <b id="spatial-tagging">spatial</b>   | spatial object(s) with name `baroque` or `"class":"house"` are now automatically tagged with 'house' (incl. child nodes)                                               |
-| <b id="supra-tagging">supra</b>       | text- or spatial-object(s) (non-descendant nodes) elsewhere, (class)named 'baroque' or 'house', are automatically tagged with 'house' (current node to root nodes)     |
-| <b id="omni-tagging">omni</b>         | text- or spatial-object(s) (non-descendant nodes) elsewhere, (class)named 'baroque' or 'house', are automatically tagged with 'house' (root node to all nodes)         |
-| <b id="infinite-tagging">infinite</b> | text- or spatial-object(s) (non-descendant nodes) elsewhere, (class)named 'baroque' or 'house', are automatically tagged with 'house' (root node to all nodes )         |
+> [hashtagbibs](https://github.com/coderofsalvation/hashtagbibs) potentially allow the enduser to annotate text/objects by **speaking/typing/scanning associations**, which the XR Browser saves to remotestorage (or localStorage per toplevel URL). As well as, referencing BibTags per URI later on: `https://y.io/z.fbx#@baroque@todo` e.g.
 
-This allows the enduser to adjust different levels of associations (see [the core principle](#core-principle)): spatial wires can be rendered, words/objects can be highlighted/scaled etc.<br>
+The XRWG allows XR Browsers to show/hide relationships in realtime at various levels:
 
-> NOTE: infinite matches both 'baroque' and 'house'-occurences in text, as well as spatial objects with `"class":"house"` or name "baroque". This multiplexing of id/category is deliberate, in order to support [the core principle](#core-principle).
+* wordmatch **inside** `src` text 
+* wordmatch **inside** `href` text
+* wordmatch object-names 
+* wordmatch object-classnames 
+
+Spatial wires can be rendered, words/objects can be highlighted/scaled etc.<br>
+Some pointers for good UX (but not necessary to be XR Fragment compatible):
 
 9. The XR Browser needs to adjust tag-scope based on the endusers needs/focus (infinite tagging only makes sense when environment is scaled down significantly)
 10. The XR Browser should always allow the human to view/edit the metadata, by clicking 'toggle metadata' on the 'back' (contextmenu e.g.) of any XR text, anywhere anytime.
-11. When moving/copying/pasting metadata, always prefer converting to string-only microformats (BibTex/Bibs)
-12. respect multi-line metadata because of [the core principle](#core-principle)
+12. respect multi-line BiBTeX metadata in text because of [the core principle](#core-principle)
 13. Default font (unless specified otherwise) is a modern monospace font, for maximized tabular expressiveness (see [the core principle](#core-principle)).
 14. anti-pattern: hardcoupling an XR Browser with a mandatory **markup/scripting-language** which departs from onubtrusive plain text (HTML/VRML/Javascript) (see [the core principle](#core-principle))
 15. anti-pattern: limiting human introspection, by abandoning plain text as first class citizen.
@@ -405,8 +409,8 @@ to a hashtagbib(tex)-friendly one:
 This indicates that:
 
 * utf-8 is supported by default
-* lines beginning with `@` will not be rendered verbatim by default (=Bibs/BibTex)
-* bibs occurring in text (`#contactjohn@todo@important` e.g.) should expand to BibTeX
+* lines beginning with `@` will not be rendered verbatim by default ([read more](https://github.com/coderofsalvation/hashtagbibs#hashtagbib-mimetypes))
+* the XRWG should expand bibs to BibTex occurring in text (`#contactjohn@todo@important` e.g.) 
 
 By doing so, the XR Browser (applications-layer) can interpret microformats ([visual-meta](https://visual-meta.info) 
 to connect text further with its environment ( setup links between textual/spatial objects automatically e.g.).
@@ -435,20 +439,20 @@ For all other purposes, regular mimetypes can be used (but are not required by t
   |    │                                                         |  |                        |
   |    ├── ◻ article_canvas                                      |  | Hello friends.         |
   |    │    └ src: ://author.com/article.txt                     |  |                        |
-  |    │                                                         |  | {                      |
+  |    │                                                         |  | @book{greatgatsby      |
   |    └── ◻ note_canvas                                         |  |   ...                  |
-  |           └ src:`data:welcome human\n{...`                   |  | }                      | 
+  |           └ src:`data:welcome human\n@book{sunday...}`       |  | }                      | 
   |                                                              |  +------------------------+
   |                                                              |
   +--------------------------------------------------------------+
 ```
 
-The enduser will only see `welcome human` and `Hello friends` rendered spatially (see mimetype).
+The enduser will only see `welcome human` and `Hello friends` rendered verbatim (see mimetype).
 The beauty is that text in Data URI automatically promotes rich copy-paste (retaining metadata).
 In both cases, the text gets rendered immediately (onto a plane geometry, hence the name '_canvas').
 The XR Fragment-compatible browser can let the enduser access visual-meta(data)-fields after interacting with the object (contextmenu e.g.).
 
-> additional tagging using [bibs](https://github.com/coderofsalvation/hashtagbibs): to tag spatial object `note_canvas` with 'todo', the enduser can type or speak `@note_canvas@todo`
+> additional tagging using [bibs](https://github.com/coderofsalvation/hashtagbibs): to tag spatial object `note_canvas` with 'todo', the enduser can type or speak `#note_canvas@todo`
 
 ## XR Text example parser
 
