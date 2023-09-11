@@ -332,32 +332,32 @@ Here's an example by expanding polyglot metadata to **BibTeX** associations:
   |                                        |         └─ class: house baroque  | 
   +----------------------------------------+                                  |
                                                [3D mesh ]                     |
-  +-[remotestorage.io / localstorage]------+   |    O   + name: john          |                           
+  +-[remotestorage.io / localstorage]------+   |    O   ├─ name: john         |                           
   | #contactjohn@todo@house                |   |   /|\  |                     |
   | ...                                    |   |   / \  |                     |
   +----------------------------------------+   +--------+                     |
 ```  
 
-A (rare) example of polyglot tags:
+A (somewhat extreme) example of using polyglot (bib)tags:
 
 ```
   http://y.io/z.fbx                                                           | Derived BibTex / 'wires' & tags    
   ----------------------------------------------------------------------------+--------------------------------------
-                                                                              | @house{castle,
-  +-[src: data:.....]----------------------+   +-[3D mesh]-+                  |   url = {https://y.io/z.fbx#castle}
-  | Chapter one                            |   |    / \    |                  | }
-  |                                        |   |   /   \   |                  | @baroque{castle,
-  | John built houses in baroque style.    |   |  /     \  |                  |   url = {https://y.io/z.fbx#castle}
-  |                                        |   |  |_____|  |                  | }
-  | #john@baroque                          |   +-----│-----+                  | @baroque{john}
+                                                                              | @baroque{john}
+  +-[src: data:.....]----------------------+   +-[3D mesh]-+                  | @house{castle,
+  | Chapter one                            |   |    / \    |                  |   url = {https://y.io/z.fbx#castle}
+  |                                        |   |   /   \   |                  | }
+  | John built houses in baroque style.    |   |  /     \  |                  | @baroque{castle,
+  |                                        |   |  |_____|  |                  |   url = {https://y.io/z.fbx#castle}
+  | #john@baroque                          |   +-----│-----+                  | }
   | @house{baroque, info = {classic}, }    |         │                        | @house{baroque,
-  | { "tag":"john", "match":"john"}        |         ├─ name: castle          |   info = {classic}
-  | <tag name="john" match="john"/>        |         └─ class: house baroque  | }
+  | { "tag":"baroque", "match":"john"}     |         ├─ name: castle          |   info = {classic}
+  | <tag name="baroque" match="john"/>     |         └─ class: house baroque  | }
   +----------------------------------------+                                  | @house{contactjohn}
-                                               [3D mesh ]                     |   
-  +-[remotestorage.io / localstorage]------+   |    O   + name: john          | @todo{contactjohn}
+                                               [3D mesh ]                     | @todo{contactjohn}
+  +-[remotestorage.io / localstorage]------+   |    O   + name: john          | 
   | #contactjohn@todo@house                |   |   /|\  |                     | 
-  | ...                                    |   |   / \  |                     | john{john}
+  | ...                                    |   |   / \  |                     | 
   +----------------------------------------+   +--------+                     | 
 ```  
 
@@ -380,13 +380,13 @@ This allows the enduser to adjust different levels of associations (see [the cor
 
 > NOTE: infinite matches both 'baroque' and 'house'-occurences in text, as well as spatial objects with `"class":"house"` or name "baroque". This multiplexing of id/category is deliberate, in order to support [the core principle](#core-principle).
 
-9. When moving/copying/pasting metadata, always prefer converting to string-only microformats (BibTex/Bibs)
-10. respect multi-line metadata because of [the core principle](#core-principle)
-11. Default font (unless specified otherwise) is a modern monospace font, for maximized tabular expressiveness (see [the core principle](#core-principle)).
-12. anti-pattern: hardcoupling a mandatory **obtrusive markup/scripting-language** or with an XR browser (HTML/VRML/Javascript) (see [the core principle](#core-principle))
-13. anti-pattern: limiting human introspection, by abandoning plain text as first class citizen.
-14. The XR Browser needs to adjust tag-scope based on the endusers needs/focus (infinite tagging only makes sense when environment is scaled down significantly)
-15. The XR Browser should always allow the human to view/edit the metadata, by clicking 'toggle metadata' on the 'back' (contextmenu e.g.) of any XR text, anywhere anytime.
+9. The XR Browser needs to adjust tag-scope based on the endusers needs/focus (infinite tagging only makes sense when environment is scaled down significantly)
+10. The XR Browser should always allow the human to view/edit the metadata, by clicking 'toggle metadata' on the 'back' (contextmenu e.g.) of any XR text, anywhere anytime.
+11. When moving/copying/pasting metadata, always prefer converting to string-only microformats (BibTex/Bibs)
+12. respect multi-line metadata because of [the core principle](#core-principle)
+13. Default font (unless specified otherwise) is a modern monospace font, for maximized tabular expressiveness (see [the core principle](#core-principle)).
+14. anti-pattern: hardcoupling an XR Browser with a mandatory **markup/scripting-language** which departs from onubtrusive plain text (HTML/VRML/Javascript) (see [the core principle](#core-principle))
+15. anti-pattern: limiting human introspection, by abandoning plain text as first class citizen.
 
 > The simplicity of appending metadata (and leveling the metadata-playfield between humans and machines) is also demonstrated by [visual-meta](https://visual-meta.info) in greater detail.
 
