@@ -588,24 +588,24 @@ This document has no IANA actions.
 
 # Appendix: Definitions 
 
-|definition            | explanation                                                                                                                   |
-|----------------------|-------------------------------------------------------------------------------------------------------------------------------|
-|human                 | a sentient being who thinks fuzzy, absorbs, and shares thought (by plain text, not markuplanguage)                            |
-|scene                 | a (local/remote) 3D scene or 3D file (index.gltf e.g.)                                                                        |
-|3D object             | an object inside a scene characterized by vertex-, face- and customproperty data.                                             |
-|metadata              | custom properties of text, 3D Scene or Object(nodes), relevant to machines and a human minority (academics/developers)        |
-|XR fragment           | URI Fragment with spatial hints like `#pos=0,0,0&t=1,100` e.g.                                                                |
-|src                   | (HTML-piggybacked) metadata of a 3D object which instances content                                                            |
-|href                  | (HTML-piggybacked) metadata of a 3D object which links to content                                                             |
-|query                 | an URI Fragment-operator which queries object(s) from a scene like `#q=cube`                                                  |
-|visual-meta           | [visual-meta](https://visual.meta.info) data appended to text/books/papers which is indirectly visible/editable in XR.        |
-|requestless metadata  | metadata which never spawns new requests (unlike RDF/HTML, which can cause framerate-dropping, hence not used a lot in games) |
-|FPS                   | frames per second in spatial experiences (games,VR,AR e.g.), should be as high as possible                                    |
-|introspective         | inward sensemaking ("I feel this belongs to that")                                                                            |
-|extrospective         | outward sensemaking ("I'm fairly sure John is a person who lives in oklahoma")                                                |
-|`◻`                   | ascii representation of an 3D object/mesh                                                                                     |
-|(un)obtrusive         | obtrusive: wrapping human text/thought in XML/HTML/JSON obfuscates human text into a salad of machine-symbols and words       |
-|BibTeX                | simple tagging/citing/referencing standard for plaintext                                                                      |
-|BibTag                | a BibTeX tag                                                                                                                  |
-|(hashtag)bibs         | an easy to speak/type/scan tagging SDL ([see here](https://github.com/coderofsalvation/hashtagbibs)                           |
+|definition            | explanation                                                                                                                          |
+|----------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+|human                 | a sentient being who thinks fuzzy, absorbs, and shares thought (by plain text, not markuplanguage)                                   |
+|scene                 | a (local/remote) 3D scene or 3D file (index.gltf e.g.)                                                                               |
+|3D object             | an object inside a scene characterized by vertex-, face- and customproperty data.                                                    |
+|metadata              | custom properties of text, 3D Scene or Object(nodes), relevant to machines and a human minority (academics/developers)               |
+|XR fragment           | URI Fragment with spatial hints like `#pos=0,0,0&t=1,100` e.g.                                                                       |
+|src                   | (HTML-piggybacked) metadata of a 3D object which instances content                                                                   |
+|href                  | (HTML-piggybacked) metadata of a 3D object which links to content                                                                    |
+|query                 | an URI Fragment-operator which queries object(s) from a scene like `#q=cube`                                                         |
+|visual-meta           | [visual-meta](https://visual.meta.info) data appended to text/books/papers which is indirectly visible/editable in XR.               |
+|requestless metadata  | metadata which never spawns new requests (unlike RDF/HTML, which can cause framerate-dropping, hence not used a lot in games)        |
+|FPS                   | frames per second in spatial experiences (games,VR,AR e.g.), should be as high as possible                                           |
+|introspective         | inward sensemaking ("I feel this belongs to that")                                                                                   |
+|extrospective         | outward sensemaking ("I'm fairly sure John is a person who lives in oklahoma")                                                       |
+|`◻`                   | ascii representation of an 3D object/mesh                                                                                            |
+|(un)obtrusive         | obtrusive: wrapping human text/thought in XML/HTML/JSON obfuscates human text into a salad of machine-symbols and words              |
+|BibTeX                | simple tagging/citing/referencing standard for plaintext                                                                             |
+|BibTag                | a BibTeX tag                                                                                                                         |
+|(hashtag)bibs         | an easy to speak/type/scan tagging SDL ([see here](https://github.com/coderofsalvation/hashtagbibs) which expands to BibTex/JSON/XML |
 
