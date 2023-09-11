@@ -307,11 +307,12 @@ Hence:
 1. XR Fragments promotes the importance of hasslefree plain text and string-based patternmatching
 2. XR Fragments allows <b id="tagging-text">hasslefree spatial tagging</b>, by detecting metadata **at the end of content** of text (see default mimetype & Data URI)
 3. XR Fragments allows <b id="tagging-objects">hasslefree spatial tagging</b>, by treating 3D object name/class-pairs as BibTeX tags.
-4. XR Fragments allows hasslefree <a href="#textual-tag">textual tagging</a>, <a href="#spatial-tag">spatial tagging</a>, and <a href="#supra-tagging">supra tagging</a>, by mapping 3D/text object (class)names using BibTeX 'tags'
-5. Appending plain text with **requestless metadata** (microformats) is the first class citizen for XR text (HTML/RDF/JSON is great, but fits better in the application-layer)
-6. string-only, typeless (polyglot) microformats are first-class citizen metadata, since they are easy to edit/add by humans 
-7. BibTex and [hashtagbibs](https://github.com/coderofsalvation/hashtagbibs) are first-class citizens for adding/describing relationships spatially.
+4. XR Fragments promotes hasslefree <a href="#textual-tag">textual tagging</a>, <a href="#spatial-tag">spatial tagging</a>, and <a href="#supra-tagging">supra tagging</a>, by mapping 3D/text object (class)names to (tag)text-occurences.
+5. XR Fragments supports **requestless metadata** when found in plain text data (of `src` metadata), for adding/describing relationships spatially.
+6. **requestless metadata** should be string-only and typeless, and should be easy to edit/add by humans (using text).
+7. Therefore, BibTeX and [Bib's](https://github.com/coderofsalvation/hashtagbibs) are first class citizens for XR text (HTML/RDF/JSON is great, but fits better in the application-layer)
 8. Opening tags for metadata (`#`, `@`, `{`, or `<`) should always start at the beginning of the line.
+
 This allows recursive connections between text itself, as well as 3D objects and vice versa.<br>
 
 Here's an example by expanding polyglot metadata to **BibTeX** associations:
@@ -399,12 +400,13 @@ The XR Fragment specification bumps the traditional default browser-mimetype
 
 to a hashtagbib(tex)-friendly one:
 
-`text/plain;charset=utf-8;meta=<#@{`
+`text/plain;charset=utf-8;bib=^@`
 
 This indicates that:
 
 * utf-8 is supported by default
-* lines beginning with `<`, `#`, `@` or `{` (regex: `^(<|#|@|{)`) will not be rendered verbatim by default (=Bibs/BibTex/JSON/XML)
+* lines beginning with `@` will not be rendered verbatim by default (=Bibs/BibTex)
+* bibs occurring in text (`#contactjohn@todo@important` e.g.) should expand to BibTeX
 
 By doing so, the XR Browser (applications-layer) can interpret microformats ([visual-meta](https://visual-meta.info) 
 to connect text further with its environment ( setup links between textual/spatial objects automatically e.g.).
