@@ -96,9 +96,10 @@ xrf.frag.href = function(v, opts){
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
       const flags = v.string[0] == '#' ? xrf.XRF.PV_OVERRIDE : undefined
-      //const flags = v.string[0] == '#' && v.string.match(/(\||#q)/) ? xrf.XRF.PV_OVERRIDE : undefined
-      if( !v.string.match(/pos=/) ) v.string += `${v.string[0] == '#' ? '&' : '#'}${lastPos}` // always commit last position 
-      console.log(v.string)
+      // always keep a trail of last positions before we navigate
+      if( !v.string.match(/pos=/) ) v.string += `${v.string[0] == '#' ? '&' : '#'}${lastPos}` 
+      if( !document.location.hash.match(/pos=/) ) xrf.navigator.to(`#${lastPos}`,flags)
+
       xrf.navigator.to(v.string,flags)    // let's surf to HREF!
     }) 
   }

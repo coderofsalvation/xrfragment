@@ -10,27 +10,29 @@ xrf.frag.src = function(v, opts){
   let frag = xrfragment.URI.parse(v.string)
 
   const localSRC = () => {
-    
-    setTimeout( () => {
-      // scale URI XR Fragments inside src-value 
+    let obj
+
+    // cherrypicking of object(s)
+    if( !frag.q ){
       for( var i in frag ){
+        if( scene.getObjectByName(i) ) src.add( obj = scene.getObjectByName(i).clone() )
         xrf.eval.fragment(i, Object.assign(opts,{frag, model,scene}))
       }
-      if( frag.q.query ){  
-        let srcScene = frag.q.scene // three/xrf/q.js initializes .scene
-        if( !srcScene || !srcScene.visible ) return 
-        console.log("       └ inserting "+i+" (srcScene)")
-        srcScene.position.set(0,0,0)
-        srcScene.rotation.set(0,0,0)
-        srcScene.traverse( (m) => {
-          m.isSRC = true
-          if( m.userData && (m.userData.src || m.userData.href) ) return ;//delete m.userData.src // prevent infinite recursion 
-          xrf.eval.mesh(m,{scene,recursive:true}) 
-        })
-        if( srcScene.visible ) src.add( srcScene )
-      }
-      xrf.frag.src.scale( src, opts )
-    },10)
+      if( src.children.length == 1 ) obj.position.set(0,0,0);
+    }
+
+    // filtering of objects using query
+    if( frag.q ){
+      src = scene.clone();
+      src.isSRC = true;
+      xrf.frag.q.filter(src,frag)
+    }
+    src.traverse( (m) => {
+      m.isSRC = true
+      if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 
+      xrf.eval.mesh(m,{scene,recursive:true})                          // cool idea: recursion-depth based distance between face & src
+    })
+    xrf.frag.src.scale( src, opts )
   }
 
   const externalSRC = () => {
@@ -46,8 +48,8 @@ xrf.frag.src = function(v, opts){
     .catch( console.error )
   }
 
-  if( v.string[0] == "#" ) localSRC() // current file 
-  else externalSRC()                  // external file
+  if( v.string[0] == "#" ) setTimeout( localSRC, 10 ) // current file 
+  else externalSRC()                                  // external file
 }
 
 // scale embedded XR fragments https://xrfragment.org/#scaling%20of%20instanced%20objects

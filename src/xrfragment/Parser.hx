@@ -85,9 +85,10 @@ class Parser {
         }
         store.set(key, v );                                                //  1. if valid, add to store
         if( debug ) trace("✔ "+key+": "+v.string);
-      }else{                                                               //  1. prefix non-offical fragment key's with underscore (and add to store)
+      }else{                                                               //  1. expose (but mark) non-offical fragments too 
         if( Std.isOfType(value, String) ) v.guessType(v,value);
-        store.set("_"+key,v);
+        v.noXRF = true;
+        store.set(key,v);
       }
 
       return true;

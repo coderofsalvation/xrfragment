@@ -8,6 +8,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
 
     if( !file || xrf.model.file == file ){ // we're already loaded
       xrf.eval( url, xrf.model, flags )    // and eval local URI XR fragments 
+      xrf.navigator.updateHash(hash)
       return resolve(xrf.model) 
     }
 
@@ -33,8 +34,10 @@ xrf.navigator.to = (url,flags,loader,data) => {
       // spec: 2. execute predefined view(s) from URL (https://xrfragment.org/#predefined_view)
       xrf.eval( url, model )                                                 // and eval URI XR fragments 
       xrf.add( model.scene )
-      if( !hash.match(/pos=/) ) 
+      if( !hash.match(/pos=/) ){
         xrf.eval( '#pos=0,0,0' ) // set default position if not specified
+      }
+      xrf.navigator.updateHash(hash)
       resolve(model)
     }
 

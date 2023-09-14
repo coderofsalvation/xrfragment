@@ -45,7 +45,7 @@ xrf.frag.updatePredefinedView = (opts) => {
           let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
           if( frag[k].is( xrf.XRF.PV_EXECUTE ) && scene.XRF_PV_ORIGIN != k ){  // cyclic detection
             traverseScene(frag[k],scene)                                       // recurse predefined views
-          }else xrf.eval.fragment(k,opts) 
+          }
         }
       })
     }
@@ -63,27 +63,28 @@ xrf.frag.updatePredefinedView = (opts) => {
     })
   }
 
-  let pviews = []
-  for ( let i in frag  ) {
-    let v = frag[i]
-    if( v.is( xrf.XRF.PV_EXECUTE ) ){
-      scene.XRF_PV_ORIGIN = v.string
-      if( v.args ) v = v.args[ xrf.roundrobin(v,xrf.model) ]
-      // wait for nested instances to arrive at the scene ?
-      traverseScene(v,scene)
-      if( v.string ) pviews.push(v.string)
-    }else if( v.is( xrf.XRF.NAVIGATOR ) ) pviews.push(`${i}=${v.string}`)
+  // if this query was triggered by an src-value, lets filter it
+  const isSRC = opts.embedded && opts.embedded.fragment == 'src'
+  if( isSRC ){                             // spec : https://xrfragment.org/#src
+    console.log("filtering predefined view of src")
+    console.dir(frag)
+  }else{
+    for ( let i in frag  ) {
+      let v = frag[i]
+      if( v.is( xrf.XRF.PV_EXECUTE ) ){
+        scene.XRF_PV_ORIGIN = v.string
+        // wait for nested instances to arrive at the scene ?
+        traverseScene(v,scene)
+      }
+    }
   }
-  if( pviews.length ) xrf.navigator.updateHash( pviews.join("&") )
 }
 
 // react to url changes 
-//xrf.addEventListener('updateHash', (opts) => {
-//  console.log("update hash");
-//  console.dir(opts)
-//  let frag = xrf.URI.parse( opts.hash, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-//  xrf.frag.updatePredefinedView({frag,scene:xrf.scene})
-//}) 
+xrf.addEventListener('updateHash', (opts) => {
+  let frag = xrf.URI.parse( opts.hash, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
+  xrf.frag.updatePredefinedView({frag,scene:xrf.scene})
+}) 
 
 // clicking href url with predefined view 
 xrf.addEventListener('href', (opts) => {

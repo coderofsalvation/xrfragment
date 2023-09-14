@@ -56,6 +56,7 @@ class XRF {
   public var float:Float;                                                  //  |float |      | [-]x[.xxxx] (ieee)| #prio=-20             |
   public var args:Array<XRF>;                                              //  |array | mixed| \|-separated      | #pos=0,0,0\|90,0,0    |
   public var query:Query;
+  public var noXRF:Bool;
                                                                            //
   public function new(_fragment:String,_flags:Int){
     fragment = _fragment;
