@@ -266,7 +266,8 @@ xrfragment_Parser.parse = function(key,value,store) {
 		if(typeof(value) == "string") {
 			v.guessType(v,value);
 		}
-		store["_" + key] = v;
+		v.noXRF = true;
+		store[key] = v;
 	}
 	return true;
 };
@@ -756,9 +757,11 @@ xrf.parseModel = function(model,url){
 xrf.getLastModel = ()           => xrf.model.last 
 
 xrf.eval = function( url, model, flags ){  // evaluate fragments in url
+  if( !url ) return 
+  if( !url.match(/#/) ) url = `#${url}`
   model = model || xrf.model
   let { THREE, camera } = xrf
-  let frag = xrf.URI.parse( url, flags || xrf.XRF.NAVIGATOR )
+  let frag = xrf.URI.parse( url, flags != undefined ? flags : xrf.XRF.NAVIGATOR )
   let opts = {frag, mesh:xrf.camera, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
   xrf.emit('eval',opts)
   .then( () => {
@@ -766,6 +769,7 @@ xrf.eval = function( url, model, flags ){  // evaluate fragments in url
       xrf.eval.fragment(k,opts) 
     }
   })
+  return frag
 }
 
 xrf.eval.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) inside mesh of model 
@@ -968,6 +972,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
 
     if( !file || xrf.model.file == file ){ // we're already loaded
       xrf.eval( url, xrf.model, flags )    // and eval local URI XR fragments 
+      xrf.navigator.updateHash(hash)
       return resolve(xrf.model) 
     }
 
@@ -993,8 +998,10 @@ xrf.navigator.to = (url,flags,loader,data) => {
       // spec: 2. execute predefined view(s) from URL (https://xrfragment.org/#predefined_view)
       xrf.eval( url, model )                                                 // and eval URI XR fragments 
       xrf.add( model.scene )
-      if( !hash.match(/pos=/) ) 
+      if( !hash.match(/pos=/) ){
         xrf.eval( '#pos=0,0,0' ) // set default position if not specified
+      }
+      xrf.navigator.updateHash(hash)
       resolve(model)
     }
 
@@ -1026,13 +1033,181 @@ xrf.navigator.pushState = (file,hash) => {
   console.log("pushstate")
   window.history.pushState({},`${file}#${hash}`, document.location.pathname + `?${file}#${hash}` )
 }
-xrf.frag.bg = function(v, opts){
+xrf.addEventListener('eval', (opts) => {
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+  if( frag.bg ){
+    console.log("└ bg "+v.x+","+v.y+","+v.z);
+    if( scene.background ) delete scene.background
+    scene.background = new THREE.Color( v.x, v.y, v.z )
+  }
+})
+xrf.addEventListener('eval', (opts) => {
+  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+  if( frag.env && !scene.environment ){
+    let env = mesh.getObjectByName(frag.env.string)
+    if( !env ) return console.warn("xrf.env "+v.string+" not found")
+    env.material.map.mapping = THREE.EquirectangularReflectionMapping;
+    scene.environment = env.material.map
+    //scene.texture = env.material.map    
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 2;
+    console.log(`   └ applied image '${frag.env.string}' as environment map`)
+  }
+})
+xrf.addEventListener('eval', (opts) => {
+  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+  if( frag.fog ){
+    let v = frag.fog
+    console.log("└ fog "+v.x+","+v.y);
+    if( v.x == 0 && v.y == 0 ){  
+      if( scene.fog ) delete scene.fog
+      scene.fog = null;
+    }else scene.fog = new THREE.Fog( scene.background, v.x, v.y );
+  }
+})
+xrf.macros = {}
 
-  console.log("└ bg "+v.x+","+v.y+","+v.z);
-  if( scene.background ) delete scene.background
-  scene.background = new THREE.Color( v.x, v.y, v.z )
-}
+xrf.addEventListener('eval', (opts) => {
+  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+  for( let k in frag ){
+    let id = mesh.name+"_"+k
+    let fragment = frag[k]
+
+    if( k.match(/^!/) ){
+      if( mesh.material) mesh.material = mesh.material.clone()
+      if( mesh.isSRC || scene.isSRC ) return; // dont allow recursion for now
+
+      if( xrf.macros[k] ) return // already initialized  
+
+      console.log("└ initing xrmacro: "+k)
+      xrf.macros[k] = fragment
+      fragment.args = fragment.string.split("|")
+
+      fragment.trigger = (e) => {
+        xrf
+        .emit('macro',{click:true,mesh,xrf:frag}) // let all listeners agree
+        .then( () => {
+              rrFrag = fragment.args[ xrf.roundrobin( fragment,model) ]
+              console.log("└ xrmacro: "+rrFrag)
+              if( xrf.macros[ rrFrag ] ){
+                xrf.macros[ rrFrag ].trigger()
+              } else {
+                if( rrFrag[0] == '#' ) xrf.navigator.updateHash(rrFrag)
+                else xrf.eval(rrFrag,null,0)
+              }
+        }) 
+      }
+
+      let selected = (state) => () => {
+        if( mesh.selected == state ) return // nothing changed 
+        if( mesh.material ){
+          if( mesh.material.uniforms ) mesh.material.uniforms.selected.value = state 
+          else mesh.material.color.r = mesh.material.color.g = mesh.material.color.b = state ? 2.0 : 1.0
+        }
+        // update mouse cursor
+        if( !renderer.domElement.lastCursor )
+          renderer.domElement.lastCursor = renderer.domElement.style.cursor
+        renderer.domElement.style.cursor = state ? 'pointer' : renderer.domElement.lastCursor 
+        xrf
+        .emit('macro',{selected:state,mesh,xrf:frag}) // let all listeners agree
+        .then( () => mesh.selected = state )
+      }
+
+      mesh.addEventListener('click', fragment.trigger )
+      mesh.addEventListener('mousemove', selected(true) )
+      mesh.addEventListener('nocollide', selected(false) )
+
+      // lazy add mesh to interactive group (because we're inside a recursive traverse)
+      setTimeout( (mesh) => {
+        const world = { 
+          pos: new THREE.Vector3(), 
+          scale: new THREE.Vector3(),
+          quat: new THREE.Quaternion()
+        }
+        mesh.getWorldPosition(world.pos)
+        mesh.getWorldScale(world.scale)
+        mesh.getWorldQuaternion(world.quat);
+        mesh.position.copy(world.pos)
+        mesh.scale.copy(world.scale)
+        mesh.setRotationFromQuaternion(world.quat);
+        xrf.interactive.add(mesh)
+      }, 10, mesh )
+    }
+  }
+})
+xrf.addEventListener('eval', (opts) => {
+  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+  if( frag.mov && frag.q ){
+
+    // let wait for the queried objects (as we're inside promise which traverses the graph)
+    setTimeout( (v) => {
+      frag.q.getObjects().map( (o) => {
+        o.position.add( new THREE.Vector3( v.x, v.y, v.z ) )
+      })
+    },10, frag.mov )
+  }
+})
+xrf.addEventListener('eval', (opts) => {
+  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+  if( frag.pos && frag.q ){
+    // apply roundrobin (if any)
+    if( v.args ) v = v.args[ xrf.roundrobin(v,model) ]
+
+    frag.q.getObjects().map( (o) => {
+      // if object has no parent (name == 'Scene') use absolute positioning, otherwise relative to parent
+      o.position.x = o.parent.name == 'Scene' ? v.x : o.positionOriginal.x + v.x
+      o.position.y = o.parent.name == 'Scene' ? v.z : o.positionOriginal.y + v.z
+      o.position.z = o.parent.name == 'Scene' ? v.y : o.positionOriginal.z + v.y
+    })
+  }
+})
+xrf.addEventListener('eval', (opts) => {
+  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+  if( frag.rot && frag.q ){
+    // apply roundrobin (if any)
+    if( v.args ) v = v.args[ xrf.roundrobin(v,model) ]
+
+    if( frag.q ){ // only operate on queried object(s)
+      frag.q.getObjects().map( (o) => {
+        o.rotation.set( 
+          v.x * Math.PI / 180,
+          v.y * Math.PI / 180,
+          v.z * Math.PI / 180
+        )
+      })
+    }
+  }
+})
+xrf.addEventListener('eval', (opts) => {
+  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+  if( frag.scale && frag.q ){
+    // apply roundrobin (if any)
+    if( v.args ) v = v.args[ xrf.roundrobin(v,model) ]
+
+    frag.q.getObjects().map( (o) => {
+      o.scale.x = v.x
+      o.scale.y = v.y
+      o.scale.z = v.z
+    })
+  }
+})
+xrf.addEventListener('eval', (opts) => {
+  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+  if( frag.show && frag.q ){
+    let show = frag.show
+
+    // apply roundrobin (if any)
+    if( show.args ) v = show.args[ xrf.roundrobin(show,model) ]
+    else v = show.int
+
+    // let wait for the queried objects (as we're inside promise which traverses the graph)
+    setTimeout( (v) => {
+      frag.q.getObjects().map( (o) => {
+        o.visible = v.int == 1;
+      })
+    }, 20, v)
+  }
+})
 xrf.frag.clip = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
 
@@ -1042,26 +1217,6 @@ xrf.frag.clip = function(v, opts){
   camera.near = v.x
   camera.far  = v.y
   camera.updateProjectionMatrix();
-}
-xrf.frag.env = function(v, opts){
-  let { mesh, model, camera, scene, renderer, THREE} = opts
-  let env = mesh.getObjectByName(v.string)
-  if( !env ) return console.warn("xrf.env "+v.string+" not found")
-  env.material.map.mapping = THREE.EquirectangularReflectionMapping;
-  scene.environment = env.material.map
-  //scene.texture = env.material.map    
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 2;
-  console.log(`   └ applied image '${v.string}' as environment map`)
-}
-xrf.frag.fog = function(v, opts){
-  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-
-  console.log("└ fog "+v.x+","+v.y);
-  if( v.x == 0 && v.y == 0 ){  
-    if( scene.fog ) delete scene.fog
-    scene.fog = null;
-  }else scene.fog = new THREE.Fog( scene.background, v.x, v.y );
 }
 xrf.frag.fov = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
@@ -1168,9 +1323,10 @@ xrf.frag.href = function(v, opts){
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
       const flags = v.string[0] == '#' ? xrf.XRF.PV_OVERRIDE : undefined
-      //const flags = v.string[0] == '#' && v.string.match(/(\||#q)/) ? xrf.XRF.PV_OVERRIDE : undefined
-      if( !v.string.match(/pos=/) ) v.string += `${v.string[0] == '#' ? '&' : '#'}${lastPos}` // always commit last position 
-      console.log(v.string)
+      // always keep a trail of last positions before we navigate
+      if( !v.string.match(/pos=/) ) v.string += `${v.string[0] == '#' ? '&' : '#'}${lastPos}` 
+      if( !document.location.hash.match(/pos=/) ) xrf.navigator.to(`#${lastPos}`,flags)
+
       xrf.navigator.to(v.string,flags)    // let's surf to HREF!
     }) 
   }
@@ -1217,36 +1373,11 @@ xrf.frag.href = function(v, opts){
  * 
  * > capture of <a href="./example/aframe/sandbox" target="_blank">aframe/sandbox</a>
  */
-xrf.frag.mov = function(v, opts){
-  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-
-  if( frag.q ){ // only operate on queried object(s)
-    frag.q.getObjects().map( (o) => {
-      o.position.add( new THREE.Vector3( v.x, v.y, v.z ) )
-    })
-  }
-
-}
 xrf.frag.pos = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-  
-  if( frag.q ){ // only operate on queried object(s)
-
-    // apply roundrobin (if any)
-    if( v.args ) v = v.args[ xrf.roundrobin(v,model) ]
-
-    frag.q.getObjects().map( (o) => {
-      // if object has no parent (name == 'Scene') use absolute positioning, otherwise relative to parent
-      o.position.x = o.parent.name == 'Scene' ? v.x : o.positionOriginal.x + v.x
-      o.position.y = o.parent.name == 'Scene' ? v.z : o.positionOriginal.y + v.z
-      o.position.z = o.parent.name == 'Scene' ? v.y : o.positionOriginal.z + v.y
-    })
-  }else{
-    camera.position.x = v.x
-    camera.position.y = v.y
-    camera.position.z = v.z
-  }
-
+  camera.position.x = v.x
+  camera.position.y = v.y
+  camera.position.z = v.z
 }
 xrf.frag.defaultPredefinedView = (opts) => {
   let {scene,model} = opts;
@@ -1295,7 +1426,7 @@ xrf.frag.updatePredefinedView = (opts) => {
           let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
           if( frag[k].is( xrf.XRF.PV_EXECUTE ) && scene.XRF_PV_ORIGIN != k ){  // cyclic detection
             traverseScene(frag[k],scene)                                       // recurse predefined views
-          }else xrf.eval.fragment(k,opts) 
+          }
         }
       })
     }
@@ -1313,27 +1444,28 @@ xrf.frag.updatePredefinedView = (opts) => {
     })
   }
 
-  let pviews = []
-  for ( let i in frag  ) {
-    let v = frag[i]
-    if( v.is( xrf.XRF.PV_EXECUTE ) ){
-      scene.XRF_PV_ORIGIN = v.string
-      if( v.args ) v = v.args[ xrf.roundrobin(v,xrf.model) ]
-      // wait for nested instances to arrive at the scene ?
-      traverseScene(v,scene)
-      if( v.string ) pviews.push(v.string)
-    }else if( v.is( xrf.XRF.NAVIGATOR ) ) pviews.push(`${i}=${v.string}`)
+  // if this query was triggered by an src-value, lets filter it
+  const isSRC = opts.embedded && opts.embedded.fragment == 'src'
+  if( isSRC ){                             // spec : https://xrfragment.org/#src
+    console.log("filtering predefined view of src")
+    console.dir(frag)
+  }else{
+    for ( let i in frag  ) {
+      let v = frag[i]
+      if( v.is( xrf.XRF.PV_EXECUTE ) ){
+        scene.XRF_PV_ORIGIN = v.string
+        // wait for nested instances to arrive at the scene ?
+        traverseScene(v,scene)
+      }
+    }
   }
-  if( pviews.length ) xrf.navigator.updateHash( pviews.join("&") )
 }
 
 // react to url changes 
-//xrf.addEventListener('updateHash', (opts) => {
-//  console.log("update hash");
-//  console.dir(opts)
-//  let frag = xrf.URI.parse( opts.hash, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-//  xrf.frag.updatePredefinedView({frag,scene:xrf.scene})
-//}) 
+xrf.addEventListener('updateHash', (opts) => {
+  let frag = xrf.URI.parse( opts.hash, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
+  xrf.frag.updatePredefinedView({frag,scene:xrf.scene})
+}) 
 
 // clicking href url with predefined view 
 xrf.addEventListener('href', (opts) => {
@@ -1371,111 +1503,33 @@ xrf.frag.q = function(v, opts){
                  return o
                })
   }
+  xrf.frag.q.filter(scene,frag) // spec : https://xrfragment.org/#queries
+}
 
-  // spec: https://xrfragment.org/#src
-  const instanceScene = () => {
-    v.scene = new THREE.Group()
-    for ( let i in v.query  ) {
-      let target = v.query[i]
-      if( !scene.getObjectByName(i) && i != '*' ) return console.log(`     └ mesh not found: ${i}`)
-      if( i == '*' ){
-        let cloneScene = scene.clone()
-        // add interactive elements (href's e.g.) *TODO* this is called by both internal/external src's
-        v.scene.add( xrf.interactive.clone() )
-        cloneScene.children.forEach( (child) => v.scene.getObjectByName(child.name) ? null : v.scene.add(child) ) 
-        target.mesh = v.scene
-      }else{
-        if( !v.scene.getObjectByName(i) && target.id === true ){ 
-          console.log(`     └ query-ing mesh: ${i}`)
-          v.scene.add( target.mesh = scene.getObjectByName(i).clone() )
-        }
-      }
-      if( target.id != undefined && target.mesh  ){  
-          target.mesh.position.set(0,0,0)
-          target.mesh.rotation.set(0,0,0)
-      }
-    }
-    // hide negative selectors
-    let negative = []
-    v.scene.traverse( (mesh) => {
-      for ( let i in v.query  ) {
-        if( mesh.name == i && v.query[i].id === false ) negative.push(mesh)
-      }
-    })
-    negative.map( (mesh) => mesh.visible = false )
-  }
-
+xrf.frag.q.filter = function(scene,frag){
   // spec: https://xrfragment.org/#queries
-  const showHide = () => {
-    let q = frag.q.query 
-    scene.traverse( (mesh) => {
-      for ( let i in q ) {
-        let isMeshId       = q[i].id    != undefined 
-        let isMeshClass    = q[i].class != undefined 
-        let isMeshProperty = q[i].rules != undefined && q[i].rules.length && !isMeshId && !isMeshClass 
-        if( q[i].root && mesh.isSRC ) continue;  // ignore nested object for root-items (queryseletor '/foo' e.g.)
-        if( isMeshId       && i == mesh.name           ) mesh.visible = q[i].id 
-        if( isMeshClass    && i == mesh.userData.class ) mesh.visible = q[i].class
-        if( isMeshProperty && mesh.userData[i]         ) mesh.visible = (new xrf.Query(frag.q.string)).testProperty(i,mesh.userData[i])
-      }
-    })
-  }
-
-  const doLocalInstancing = opts.embedded && opts.embedded.fragment == 'src' && opts.embedded.string[0] == '#'
-  if( doLocalInstancing ) instanceScene()  // spec : https://xrfragment.org/#src
-  else showHide()                          // spec : https://xrfragment.org/#queries
+  let q = frag.q.query 
+  scene.traverse( (mesh) => {
+    for ( let i in q ) {
+      let isMeshId       = q[i].id    != undefined 
+      let isMeshClass    = q[i].class != undefined 
+      let isMeshProperty = q[i].rules != undefined && q[i].rules.length && !isMeshId && !isMeshClass 
+      if( q[i].root && mesh.isSRC ) continue;  // ignore nested object for root-items (queryseletor '/foo' e.g.)
+      if( isMeshId       && i == mesh.name           ) mesh.visible = q[i].id 
+      if( isMeshClass    && i == mesh.userData.class ) mesh.visible = q[i].class
+      if( isMeshProperty && mesh.userData[i]         ) mesh.visible = (new xrf.Query(frag.q.string)).testProperty(i,mesh.userData[i])
+    }
+  })
 }
 xrf.frag.rot = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-  
-  // apply roundrobin (if any)
-  if( v.args ) v = v.args[ xrf.roundrobin(v,model) ]
-
-  if( frag.q ){ // only operate on queried object(s)
-    frag.q.getObjects().map( (o) => {
-      o.rotation.set( 
-        v.x * Math.PI / 180,
-        v.y * Math.PI / 180,
-        v.z * Math.PI / 180
-      )
-    })
-  }else{
-    console.log("   └ setting camera rotation to "+v.string)
-    camera.rotation.set( 
-      v.x * Math.PI / 180,
-      v.y * Math.PI / 180,
-      v.z * Math.PI / 180
-    )
-    camera.updateMatrixWorld()
-  }
-}
-xrf.frag.scale = function(v, opts){
-  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-  
-  // apply roundrobin (if any)
-  if( v.args ) v = v.args[ xrf.roundrobin(v,model) ]
-
-  if( frag.q ){ // only operate on queried object(s)
-    frag.q.getObjects().map( (o) => {
-      o.scale.x = v.x
-      o.scale.y = v.y
-      o.scale.z = v.z
-    })
-  }
-
-}
-xrf.frag.show = function(v, opts){
-  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-
-  // apply roundrobin (if any)
-  if( v.args ) v = v.args[ xrf.roundrobin(v,model) ]
-
-  if( frag.q ){ // only operate on queried object(s)
-    frag.q.getObjects().map( (o) => {
-      o.visible = v.int == 1;
-    })
-  }
-
+  console.log("   └ setting camera rotation to "+v.string)
+  camera.rotation.set( 
+    v.x * Math.PI / 180,
+    v.y * Math.PI / 180,
+    v.z * Math.PI / 180
+  )
+  camera.updateMatrixWorld()
 }
 // *TODO* use webgl instancing
 
@@ -1489,27 +1543,29 @@ xrf.frag.src = function(v, opts){
   let frag = xrfragment.URI.parse(v.string)
 
   const localSRC = () => {
-    
-    setTimeout( () => {
-      // scale URI XR Fragments inside src-value 
+    let obj
+
+    // cherrypicking of object(s)
+    if( !frag.q ){
       for( var i in frag ){
+        if( scene.getObjectByName(i) ) src.add( obj = scene.getObjectByName(i).clone() )
         xrf.eval.fragment(i, Object.assign(opts,{frag, model,scene}))
       }
-      if( frag.q.query ){  
-        let srcScene = frag.q.scene // three/xrf/q.js initializes .scene
-        if( !srcScene || !srcScene.visible ) return 
-        console.log("       └ inserting "+i+" (srcScene)")
-        srcScene.position.set(0,0,0)
-        srcScene.rotation.set(0,0,0)
-        srcScene.traverse( (m) => {
-          m.isSRC = true
-          if( m.userData && (m.userData.src || m.userData.href) ) return ;//delete m.userData.src // prevent infinite recursion 
-          xrf.eval.mesh(m,{scene,recursive:true}) 
-        })
-        if( srcScene.visible ) src.add( srcScene )
-      }
-      xrf.frag.src.scale( src, opts )
-    },10)
+      if( src.children.length == 1 ) obj.position.set(0,0,0);
+    }
+
+    // filtering of objects using query
+    if( frag.q ){
+      src = scene.clone();
+      src.isSRC = true;
+      xrf.frag.q.filter(src,frag)
+    }
+    src.traverse( (m) => {
+      m.isSRC = true
+      if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 
+      xrf.eval.mesh(m,{scene,recursive:true})                          // cool idea: recursion-depth based distance between face & src
+    })
+    xrf.frag.src.scale( src, opts )
   }
 
   const externalSRC = () => {
@@ -1525,8 +1581,8 @@ xrf.frag.src = function(v, opts){
     .catch( console.error )
   }
 
-  if( v.string[0] == "#" ) localSRC() // current file 
-  else externalSRC()                  // external file
+  if( v.string[0] == "#" ) setTimeout( localSRC, 10 ) // current file 
+  else externalSRC()                                  // external file
 }
 
 // scale embedded XR fragments https://xrfragment.org/#scaling%20of%20instanced%20objects

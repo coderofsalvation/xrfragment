@@ -94,7 +94,7 @@ value:     draft-XRFRAGMENTS-leonvankammen-00
 .# Abstract
 
 This draft offers a specification for 4D URLs & navigation, to link 3D scenes and text together with- or without a network-connection.<br>
-The specification promotes spatial addressibility, sharing, navigation, query-ing and tagging interactive (text)objects across for (XR) Browsers.<br>
+The specification promotes spatial addressibility, sharing, navigation, query-ing and annotating interactive (text)objects across for (XR) Browsers.<br>
 XR Fragments allows us to enrich existing dataformats, by recursive use of existing proven technologies like [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) and BibTags notation.<br>
 
 > Almost every idea in this document is demonstrated at [https://xrfragment.org](https://xrfragment.org)
@@ -109,7 +109,7 @@ Their lowest common denominator is: (co)authoring using plain text.<br>
 XR Fragments allows us to enrich/connect existing dataformats, by recursive use of existing technologies:<br>
 
 1. addressibility and navigation of 3D scenes/objects: [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) + src/href spatial metadata 
-1. Interlinking text/3D by deriving a Word Graph (XRWG) from the scene (and augmenting text with [bibs](https://github.com/coderofsalvation/tagbibs) / [BibTags](https://en.wikipedia.org/wiki/BibTeX) appendices (see [visual-meta](https://visual-meta.info) e.g.)
+1. Interlinking text/& 3D by collapsing space into a Word Graph (XRWG) (and augmenting text with [bibs](https://github.com/coderofsalvation/tagbibs) / [BibTags](https://en.wikipedia.org/wiki/BibTeX) appendices (see [visual-meta](https://visual-meta.info) e.g.)
 
 > NOTE: The chapters in this document are ordered from highlevel to lowlevel (technical) as much as possible
 
@@ -131,6 +131,23 @@ XR Fragments itself is HTML-agnostic, though pseudo-XR Fragment browsers **can**
 
 See appendix below in case certain terms are not clear.
 
+## XR Fragment URI Grammar 
+
+```
+reserved    = gen-delims / sub-delims
+gen-delims  = "#" / "&"
+sub-delims  = "," / "="
+```
+
+> Example: `://foo.com/my3d.gltf#pos=1,0,0&prio=-5&t=0,100`
+
+| Demo                          | Explanation                     |
+|-------------------------------|---------------------------------|
+| `pos=1,2,3`                   | vector/coordinate argument e.g. |
+| `pos=1,2,3&rot=0,90,0&q=.foo` | combinators                     |
+
+
+
 # List of URI Fragments
 
 | fragment     | type     | example           | info                                                                |
@@ -149,7 +166,7 @@ See appendix below in case certain terms are not clear.
 | `name`       | string   | `"name": "cube"`       | available in all 3D fileformats & scenes               |
 | `class`      | string   | `"class": "cubes geo"` | available through custom property in 3D fileformats    |
 | `href`       | string   | `"href": "b.gltf"`     | available through custom property in 3D fileformats    |
-| `src`        | string   | `"src": "#q=cube"`     | available through custom property in 3D fileformats    |
+| `src`        | string   | `"src": "#cube"`       | available through custom property in 3D fileformats    |
 
 Popular compatible 3D fileformats: `.gltf`, `.obj`, `.fbx`, `.usdz`, `.json` (THREE.js), `.dae` and so on.
 
@@ -191,13 +208,13 @@ Here's an ascii representation of a 3D scene-graph with 3D objects `◻` which e
   |    │      └ src: painting.png                          |  |         ├─ ◻ bass       |
   |    │                                                   |  |         └─ ◻ tuna       |
   |    ├── ◻ aquariumcube                                  |  |                         |       
-  |    │      └ src: ://rescue.com/fish.gltf#q=bass%20tuna |  +-------------------------+
+  |    │      └ src: ://rescue.com/fish.gltf#bass%20tuna   |  +-------------------------+
   |    │                                                   |    
   |    ├── ◻ bedroom                                       |   
-  |    │      └ src: #q=canvas                             |
+  |    │      └ src: #canvas                               |
   |    │                                                   |   
   |    └── ◻ livingroom                                    |      
-  |           └ src: #q=canvas                             |
+  |           └ src: #canvas                               |
   |                                                        |
   +--------------------------------------------------------+
 ```
@@ -206,26 +223,21 @@ An XR Fragment-compatible browser viewing this scene, lazy-loads and projects `p
 Also, after lazy-loading `ocean.com/aquarium.gltf`, only the queried objects `bass` and `tuna` will be instanced inside `aquariumcube`.<br>
 Resizing will be happen accordingly to its placeholder object `aquariumcube`, see chapter Scaling.<br>
 
+> Instead of cherrypicking objects with `#bass&tuna` thru `src`, queries can be used to import the whole scene (and filter out certain objects). See next chapter below.
+
 # XR Fragment queries
 
 Include, exclude, hide/shows objects using space-separated strings:
 
-| example                          | outcome                                                                     |
-|----------------------------------|-----------------------------------------------------------------------------|
-|  `#q=cube`                       | show only object named `cube` (if any)                                      |
-|  `#q=cube -ball_inside_cube`     | show only object named `cube` but not child named `ball_inside_cube`        |
-|  `#q=* -sky`                     | show everything except object named `sky`                                   |
-|  `#q=-.language .english`        | hide everything with class `language`, then show all class `english` objects|
-|  `#q=cube&rot=0,90,0`            | show only object `cube` and rotate the view                                 |
-|  `#q=price:>2 price:<5`          | show only objects with custom property `price` with value between 2 and 5   |
+| example                          | outcome                                                                            |
+|----------------------------------|------------------------------------------------------------------------------------|
+|  `#q=-sky`                       | show everything except object named `sky`                                          |
+|  `#q=-.language .english`        | hide everything with class `language`, but show all class `english` objects        |
+|  `#q=price:>2 price:<5`          | of all objects with property `price`, show only objects with value between 2 and 5 |
 
 It's simple but powerful syntax which allows <b>css</b>-like class/id-selectors with a searchengine prompt-style feeling:
 
-1. queries are showing/hiding objects **only** when defined as `src` value (prevents sharing of scene-tampered URL's).
-1. queries are highlighting objects when defined in the top-Level (browser) URL (bar).
-1. search words like `cube` and `foo` in `#q=cube foo` are matched against 3D object names or custom metadata-key(values)
-1. search words like `cube` and `foo` in `#q=cube foo` are matched against tags (BibTeX) inside plaintext `src` values like `@cube{redcube, ...` e.g.
-1. `#` equals `#q=*`
+1. queries are a way to traverse a scene, and filter objects based on their class- or property-values.
 1. words starting with `.` like `.german` match class-metadata of 3D objects like `"class":"german"`
 1. words starting with `.` like `.german` match class-metadata of (BibTeX) tags in XR Text objects like `@german{KarlHeinz, ...` e.g. 
 
@@ -237,7 +249,6 @@ It's simple but powerful syntax which allows <b>css</b>-like class/id-selectors 
 
 | operator | info                                                                                                                          |
 |----------|-------------------------------------------------------------------------------------------------------------------------------|
-| `*`      | select all objects (only useful in `src` custom property)                                                                     |
 | `-`      | removes/hides object(s)                                                                                                       |
 | `:`      | indicates an object-embedded custom property key/value                                                                        |
 | `.`      | alias for `"class" :".foo"` equals `class:foo`                                                                                 |
@@ -272,33 +283,44 @@ Here's how to write a query parser:
 
 > An example query-parser (which compiles to many languages) can be [found here](https://github.com/coderofsalvation/xrfragment/blob/main/src/xrfragment/Query.hx)
 
-## XR Fragment URI Grammar 
+# Embedding local/remote content (instancing)
 
-```
-reserved    = gen-delims / sub-delims
-gen-delims  = "#" / "&"
-sub-delims  = "," / "="
-```
+`src` is the 3D version of the <a target="_blank" href="https://www.w3.org/html/wiki/Elements/iframe">iframe</a>.<br>
+It instances content (in objects) in the current scene/asset.
 
-> Example: `://foo.com/my3d.gltf#pos=1,0,0&prio=-5&t=0,100`
+| fragment | type | example value |
+|----------|------|---------------|
+|`src`| string (uri or [[predefined view|predefined_view]] or [[query|queries]]) | `#cube`<br>`#q=-ball_inside_cube`<br>`#q=-/sky -rain`<br>`#q=-.language .english`<br>`#q=price:>2 price:<5`<br>`https://linux.org/penguin.png`<br>`https://linux.world/distrowatch.gltf#t=1,100`<br>`linuxapp://conference/nixworkshop/apply.gltf#q=flyer`<br>`androidapp://page1?tutorial#pos=0,0,1&t1,100`|
 
-| Demo                          | Explanation                     |
-|-------------------------------|---------------------------------|
-| `pos=1,2,3`                   | vector/coordinate argument e.g. |
-| `pos=1,2,3&rot=0,90,0&q=.foo` | combinators                     |
+
+1. local/remote content is instanced by the `src` (query) value (and attaches it to the placeholder mesh containing the `src` property) 
+1. <b>local</b> `src` values (URL **starting** with `#`, like `#cube&foo`) means **only** the mentioned objectnames will be copied to the instanced scene (from the current scene) while preserving their names (to support recursive selectors). [[(example code)|https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/src.js]] 
+1. <b>local</b> `src` values indicating a query (`#q=`), means that all included objects (from the current scene) will be copied to the instanced scene (before applying the query) while preserving their names (to support recursive selectors). [[(example code)|https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/src.js]] 
+1. the instanced scene (from a `src` value) should be <b>scaled accordingly</b> to its placeholder object or <b>scaled relatively</b> based on the scale-property (of a geometry-less placeholder, an 'empty'-object in blender e.g.). For more info see Chapter Scaling.
+1. <b>external</b> `src` (file) values should be served with appropriate mimetype (so the XR Fragment-compatible browser will now how to render it). The bare minimum supported mimetypes are:
+1. when only one object was cherrypicked (`#cube` e.g.), set its position to `0,0,0`
+
+* `model/gltf+json`
+* `image/png`
+* `image/jpg`
+* `text/plain;charset=utf-8;bib=^@`
+
+## Scaling instanced content
+
 
 
 # Text in XR (tagging,linking to spatial objects)
 
 How does XR Fragments interlink text with objects?
 
-> The XR Fragments does this by extracting a **Word Graph** (the **XRWG**) from the current scene, facilitated by Bib(s)Tex.
+> The XR Fragments does this by collapsing space into a **Word Graph** (the **XRWG**), augmented by Bib(s)Tex.
 
-The (`class`)names end up in the Word Graph (XRWG), but what about text (**inside** an article e.g.)? <br>
-Ideally metadata must come **with** that text, but not **obfuscate** the text, or **spawning another request** to fetch it.<br>
-This is done by detecting Bib(s)Tex, without introducing a new language or fileformat<br>
+Instead of just throwing together all kinds media types into one experience (games), what about the intrinsic connections between them?<br>
+Why is HTML adopted less in games outside the browser?
+Through the lens of game-making, ideally metadata must come **with** that text, but not **obfuscate** the text, or **spawning another request** to fetch it.<br>
+XR Fragments does this by detecting Bib(s)Tex, without introducing a new language or fileformat<br>
 
-> Why Bib(s)Tex? Because its seems to be the lowest common denominator for a human-curate-able XRWG (extendable by speech/scanner/writing/typing e.g, see [further motivation here](https://github.com/coderofsalvation/hashtagbibs#bibs--bibtex-combo-lowest-common-denominator-for-linking-data))
+> Why Bib(s)Tex? Because its seems to be the lowest common denominator for an human-curated XRWG (extendable by speech/scanner/writing/typing e.g, see [further motivation here](https://github.com/coderofsalvation/hashtagbibs#bibs--bibtex-combo-lowest-common-denominator-for-linking-data))
 
 Hence:
 
@@ -394,6 +416,26 @@ Some pointers for good UX (but not necessary to be XR Fragment compatible):
 
 > The simplicity of appending metadata (and leveling the metadata-playfield between humans and machines) is also demonstrated by [visual-meta](https://visual-meta.info) in greater detail.
 
+Fictional chat:
+
+```
+<John> Hey what about this: https://my.com/station.gltf#pos=0,0,1&rot=90,2,0&t=500,1000
+<Sarah> I'm checking it right now 
+<Sarah> I don't see everything..where's our text from yesterday?
+<John> Ah wait, that's tagged with class 'draft' (and hidden)..hold on, try this:
+<John> https://my.com/station.gltf#.draft&pos=0,0,1&rot=90,2,0&t=500,1000
+<Sarah> how about we link the draft to the upcoming YELLO-event?
+<John> ok I'm adding #draft@YELLO 
+<Sarah> Yesterday I also came up with other usefull assocations between other texts in the scene:
+#event#YELLO
+#2025@YELLO
+<John> thanks, added.
+<Sarah> Btw. I stumbled upon this spatial book which references station.gltf in some chapters:
+<Sarah> https://thecommunity.org/forum/foo/mytrainstory.txt
+<John> interesting, I'm importing mytrainstory.txt into station.gltf 
+<John> ah yes, chapter three points to trainterminal_2A, cool
+```
+
 ## Default Data URI mimetype 
 
 The `src`-values work as expected (respecting mime-types), however:
@@ -454,9 +496,9 @@ The XR Fragment-compatible browser can let the enduser access visual-meta(data)-
 
 > additional tagging using [bibs](https://github.com/coderofsalvation/hashtagbibs): to tag spatial object `note_canvas` with 'todo', the enduser can type or speak `#note_canvas@todo`
 
-## XR Text example parser
+## XR Text example parser 
 
-Here's an example XR Text (de)multiplexer in javascript, which supports inline bibs & bibtex:
+To prime the XRWG with text from plain text `src`-values, here's an example XR Text (de)multiplexer in javascript (which supports inline bibs & bibtex):
 
 ```
 xrtext = {
@@ -519,7 +561,7 @@ xrtext = {
 }
 ```
 
-The above functions (de)multiplexe text/metadata, expands bibs, (de)serialize bibtex (and all fits more or less on one A4 paper)
+The above functions (de)multiplexe text/metadata, expands bibs, (de)serialize bibtex and vice versa
 
 > above can be used as a startingpoint for LLVM's to translate/steelman to a more formal form/language.
 
@@ -563,16 +605,6 @@ here are some hashtagbibs followed by bibtex:
 ```
 
 > when an XR browser updates the human text, a quick scan for nonmatching tags (`@book{nonmatchingbook` e.g.) should be performed and prompt the enduser for deleting them.
-
-# HYPER copy/paste 
-
-The previous example, offers something exciting compared to simple copy/paste of 3D objects or text.
-XR Text according to the XR Fragment spec, allows HYPER-copy/paste: time, space and text interlinked.
-Therefore, the enduser in an XR Fragment-compatible browser can copy/paste/share data in these ways:
-
-1. time/space: 3D object (current animation-loop)
-1. text: TeXt object (including BibTeX/visual-meta if any)
-1. interlinked: Collected objects by visual-meta tag
 
 # Security Considerations
 

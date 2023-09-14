@@ -380,7 +380,8 @@ xrfragment_Parser.parse = function(key,value,store) {
 		if(typeof(value) == "string") {
 			v.guessType(v,value);
 		}
-		store["_" + key] = v;
+		v.noXRF = true;
+		store[key] = v;
 	}
 	return true;
 };

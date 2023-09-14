@@ -109,13 +109,6 @@
           xrf(v,opts)
         }
 
-        // optional: react/extend/hook into custom fragment (for non-standard custom framework logic e.g.)
-        XRF.foobar = (xrf,v,opts) => {
-          let { mesh, model, camera, scene, renderer, THREE} = opts
-          console.log("hello custom property 'foobar'")
-        }
-
-
         // *TODO* lowhanging fruit: during XR fragments-query milestone, target objects using XR fragment queries
         //                          to provide jquery-ish interface for three.js)
         //

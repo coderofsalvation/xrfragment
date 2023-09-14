@@ -1456,8 +1456,8 @@ class xrfragment_Parser:
         else:
             if Std.isOfType(value,str):
                 v.guessType(v,value)
-            key1 = ("_" + ("null" if key is None else key))
-            setattr(store,(("_hx_" + key1) if ((key1 in python_Boot.keywords)) else (("_hx_" + key1) if (((((len(key1) > 2) and ((ord(key1[0]) == 95))) and ((ord(key1[1]) == 95))) and ((ord(key1[(len(key1) - 1)]) != 95)))) else key1)),v)
+            v.noXRF = True
+            setattr(store,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),v)
         return True
 
 
@@ -1611,8 +1611,8 @@ class xrfragment_Query:
         fails = 0
         qualify = 0
         def _hx_local_2(expr):
-            nonlocal conds
             nonlocal fails
+            nonlocal conds
             conds = (conds + 1)
             fails = (fails + (0 if expr else 1))
             return expr
@@ -1701,12 +1701,13 @@ class xrfragment_URI:
 
 class xrfragment_XRF:
     _hx_class_name = "xrfragment.XRF"
-    __slots__ = ("fragment", "flags", "x", "y", "z", "color", "string", "int", "float", "args", "query")
-    _hx_fields = ["fragment", "flags", "x", "y", "z", "color", "string", "int", "float", "args", "query"]
+    __slots__ = ("fragment", "flags", "x", "y", "z", "color", "string", "int", "float", "args", "query", "noXRF")
+    _hx_fields = ["fragment", "flags", "x", "y", "z", "color", "string", "int", "float", "args", "query", "noXRF"]
     _hx_methods = ["is", "validate", "guessType"]
     _hx_statics = ["ASSET", "PROP_BIND", "QUERY_OPERATOR", "PROMPT", "ROUNDROBIN", "NAVIGATOR", "METADATA", "PV_OVERRIDE", "PV_EXECUTE", "T_COLOR", "T_INT", "T_FLOAT", "T_VECTOR2", "T_VECTOR3", "T_URL", "T_PREDEFINED_VIEW", "T_STRING", "T_STRING_OBJ", "T_STRING_OBJ_PROP", "isColor", "isInt", "isFloat", "isVector", "isUrl", "isUrlOrPretypedView", "isString", "set", "unset"]
 
     def __init__(self,_fragment,_flags):
+        self.noXRF = None
         self.query = None
         self.args = None
         self.float = None

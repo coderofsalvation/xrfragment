@@ -108,7 +108,7 @@ Their lowest common denominator is: (co)authoring using plain text.<br>
 Therefore, XR Macros allows us to enrich/connect existing dataformats, by offering a polyglot notation based on existing notations:<br>
 
 1. getting/setting common used 3D properties using querystring- or JSON-notation 
-1. querying 3D properties using the lightweight searchengine notation used in [XR Fragments](https://xrfragment.org)
+1. targeting 3D properties using the lightweight query notation present in [XR Fragments](https://xrfragment.org)
 
 > NOTE: The chapters in this document are ordered from highlevel to lowlevel (technical) as much as possible
 
@@ -148,14 +148,14 @@ Macros also act as events, so more serious scripting languages can react to them
 
 | custom property | value                    | trigger when           |
 |-----------------|--------------------------|------------------------|
-| !clickme        | day&#124;noon&#124;night | object clicked         |
+| !cycleme        | day&#124;noon&#124;night | object clicked         |
 | day             | bg=1,1,1                 | roundrobin             |
 | noon            | bg=0.5,0.5,0.5           | roundrobin             |
 | night           | bg=0,0,0&foo=2           | roundrobin             |
 
 > when a user clicks an object with the custom properties above, it should trigger either `day` `noon` or `night` in roundrobin fashion.
 
-## Usecase: click object, URI fragment and scene load
+## Usecase: click object or URI fragment, and scene load trigger
 
 | custom property | value                    | trigger when           |
 |-----------------|--------------------------|------------------------|
@@ -170,12 +170,47 @@ Macros also act as events, so more serious scripting languages can react to them
 
 | custom property | value                    | trigger when           |
 |-----------------|--------------------------|------------------------|
-| !random         | day|noon|night           | clicked in contextmenu |
+| !random         | !day|!noon|!night        | clicked in contextmenu |
 | !day            | bg=1,1,1                 | clicked in contextmenu |
 | !noon           | bg=0.5,0.5,0.5           | clicked in contextmenu |
 | !night          | bg=0,0,0&foo=2           | clicked in contextmenu |
 
-> The XR Browser should offer a contextmenu with these options when more than one `!`-macro is present on an object.
+> When interacting with an object with more than one `!`-macro, the XR Browser should offer a contextmenu to execute a macro.
+
+In a similar way, when **any** `!`-macro is present on the sceneroot, the XR Browser should offer a context-menu to execute those macro's.
+
+## Event Bubble-flow
+
+click object with (`!clickme`:`AR` or `!clickme`: `!reset` e.g.)
+```
+  ◻
+  │  
+  └── does current object contain this property-key (`AR` or `!reset` e.g.)?
+         └── no: is there any (root)object containing property `AR`
+           └── yes: evaluate its (roundrobin) XR macro-value(s) (and exit)
+           └── no: trigger URL: #AR 
+```
+
+click object with (`!clickme`:`#AR|#VR` e.g.)
+```
+  ◻
+  │  
+  └── apply the roundrobin (rotate the options, value `#AR` becomes `#VR` upon next click)
+      └── is there any object with property-key (`#AR` e.g.)?
+         └── no: just update the URL to `#AR`
+           └── yes: apply its value to the scene, and update the URL to `#AR`
+
+click object with (`!clickme`:`!foo|!bar|!flop` e.g.)
+```
+  ◻
+  │  
+  └── apply the roundrobin (rotate the options, value `!foo` becomes `!bar` upon next click)
+      └── is there any object with property-key (`!foo` e.g.)?
+         └── no: do nothing 
+           └── yes: apply its value to the scene
+```
+
+> Note that only macro's can trigger roundrobin values or contextmenu's, as well as roundrobin values never ending up in the toplevel URL.
 
 # Security Considerations
 

@@ -1633,7 +1633,8 @@ __xrfragment_Parser.parse = function(key,value,store)
     if (__lua_Boot.__instanceof(value, String)) then 
       v:guessType(v, value);
     end;
-    store[Std.string("_") .. Std.string(key)] = v;
+    v.noXRF = true;
+    store[key] = v;
   end;
   do return true end;
 end
