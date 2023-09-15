@@ -52,7 +52,7 @@
       if( document.location.search.length > 2 ) 
         $('#home').setAttribute('xrf', document.location.search.substr(1)+document.location.hash )
 
-      $('a-scene').addEventListener('loaded', () => {
+      $('a-scene').addEventListener('XRF', () => {
 
         let XRF = window.AFRAME.XRF
         setupConsole( $('textarea') )

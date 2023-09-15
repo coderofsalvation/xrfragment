@@ -1088,31 +1088,6 @@ end
 StringTools.trim = function(s) 
   do return StringTools.ltrim(StringTools.rtrim(s)) end;
 end
-StringTools.replace = function(s,sub,by) 
-  local idx = 1;
-  local ret = _hx_tab_array({}, 0);
-  while (idx ~= nil) do 
-    local newidx = 0;
-    if (__lua_lib_luautf8_Utf8.len(sub) > 0) then 
-      newidx = __lua_lib_luautf8_Utf8.find(s, sub, idx, true);
-    else
-      if (idx >= __lua_lib_luautf8_Utf8.len(s)) then 
-        newidx = nil;
-      else
-        newidx = idx + 1;
-      end;
-    end;
-    if (newidx ~= nil) then 
-      local match = __lua_lib_luautf8_Utf8.sub(s, idx, newidx - 1);
-      ret:push(match);
-      idx = newidx + __lua_lib_luautf8_Utf8.len(sub);
-    else
-      ret:push(__lua_lib_luautf8_Utf8.sub(s, idx, __lua_lib_luautf8_Utf8.len(s)));
-      idx = nil;
-    end;
-  end;
-  do return ret:join(by) end;
-end
 
 __haxe_IMap.new = {}
 __haxe_IMap.__name__ = true
@@ -1434,9 +1409,9 @@ __xrfragment_Parser.parse = function(key,value,store)
   end;
   local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
   if (value1 == nil) then 
-    Frag_h.class = __haxe_ds_StringMap.tnull;
+    Frag_h.tag = __haxe_ds_StringMap.tnull;
   else
-    Frag_h.class = value1;
+    Frag_h.tag = value1;
   end;
   local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.PV_OVERRIDE,__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.T_STRING_OBJ),__xrfragment_XRF.METADATA),__xrfragment_XRF.NAVIGATOR);
   if (value1 == nil) then 
@@ -1646,7 +1621,6 @@ __xrfragment_Query.new = function(str)
 end
 __xrfragment_Query.super = function(self,str) 
   self.isNumber = EReg.new("^[0-9\\.]+$", "");
-  self.isClass = EReg.new("^[-]?class$", "");
   self.isRoot = EReg.new("^[-]?/", "");
   self.isExclude = EReg.new("^-", "");
   self.isProp = EReg.new("^.*:[><=!]?", "");
@@ -1661,14 +1635,6 @@ __xrfragment_Query.__name__ = true
 __xrfragment_Query.prototype = _hx_e();
 __xrfragment_Query.prototype.toObject = function(self) 
   do return self.q end
-end
-__xrfragment_Query.prototype.expandAliases = function(self,token) 
-  local classAlias = EReg.new("^(-)?\\.", "");
-  if (classAlias:match(token)) then 
-    do return StringTools.replace(token, ".", "class:") end;
-  else
-    do return token end;
-  end;
 end
 __xrfragment_Query.prototype.get = function(self) 
   do return self.q end
@@ -1883,21 +1849,15 @@ __xrfragment_Query.prototype.parse = function(self,str)
       if (__lua_lib_luautf8_Utf8.len(oper) == 0) then 
         oper = "=";
       end;
-      if (_gthis.isClass:match(k)) then 
-        local value = oper ~= "!=";
-        filter[Std.string(prefix) .. Std.string(k)] = value;
-        q[v] = filter;
+      local rule = _hx_e();
+      if (_gthis.isNumber:match(v)) then 
+        local value = Std.parseFloat(v);
+        rule[oper] = value;
       else
-        local rule = _hx_e();
-        if (_gthis.isNumber:match(v)) then 
-          local value = Std.parseFloat(v);
-          rule[oper] = value;
-        else
-          rule[oper] = v;
-        end;
-        Reflect.field(filter, "rules"):push(rule);
-        q[k] = filter;
+        rule[oper] = v;
       end;
+      Reflect.field(filter, "rules"):push(rule);
+      q[k] = filter;
       do return end;
     else
       local value = (function() 
@@ -1954,7 +1914,7 @@ __xrfragment_Query.prototype.parse = function(self,str)
   while (_g < _g1) do 
     _g = _g + 1;
     local i = _g - 1;
-    process(self:expandAliases(token[i]));
+    process(token[i]);
   end;
   self.q = q do return self.q end
 end

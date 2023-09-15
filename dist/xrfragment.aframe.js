@@ -130,9 +130,6 @@ StringTools.rtrim = function(s) {
 StringTools.trim = function(s) {
 	return StringTools.ltrim(StringTools.rtrim(s));
 };
-StringTools.replace = function(s,sub,by) {
-	return s.split(sub).join(by);
-};
 var haxe_iterators_ArrayIterator = function(array) {
 	this.current = 0;
 	this.array = array;
@@ -220,7 +217,7 @@ xrfragment_Parser.parse = function(key,value,store) {
 	Frag_h["prio"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_INT;
 	Frag_h["src"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL;
 	Frag_h["href"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.T_PREDEFINED_VIEW;
-	Frag_h["class"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
+	Frag_h["tag"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING_OBJ | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
 	Frag_h["q"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.METADATA;
 	Frag_h["scale"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
@@ -273,7 +270,6 @@ xrfragment_Parser.parse = function(key,value,store) {
 };
 var xrfragment_Query = $hx_exports["xrfragment"]["Query"] = function(str) {
 	this.isNumber = new EReg("^[0-9\\.]+$","");
-	this.isClass = new EReg("^[-]?class$","");
 	this.isRoot = new EReg("^[-]?/","");
 	this.isExclude = new EReg("^-","");
 	this.isProp = new EReg("^.*:[><=!]?","");
@@ -287,14 +283,6 @@ xrfragment_Query.__name__ = true;
 xrfragment_Query.prototype = {
 	toObject: function() {
 		return this.q;
-	}
-	,expandAliases: function(token) {
-		var classAlias = new EReg("^(-)?\\.","");
-		if(classAlias.match(token)) {
-			return StringTools.replace(token,".","class:");
-		} else {
-			return token;
-		}
 	}
 	,get: function() {
 		return this.q;
@@ -341,19 +329,14 @@ xrfragment_Query.prototype = {
 				if(oper.length == 0) {
 					oper = "=";
 				}
-				if(_gthis.isClass.match(k)) {
-					filter[prefix + k] = oper != "!=";
-					q[v] = filter;
+				var rule = { };
+				if(_gthis.isNumber.match(v)) {
+					rule[oper] = parseFloat(v);
 				} else {
-					var rule = { };
-					if(_gthis.isNumber.match(v)) {
-						rule[oper] = parseFloat(v);
-					} else {
-						rule[oper] = v;
-					}
-					filter["rules"].push(rule);
-					q[k] = filter;
+					rule[oper] = v;
 				}
+				filter["rules"].push(rule);
+				q[k] = filter;
 				return;
 			} else {
 				filter["id"] = _gthis.isExclude.match(str) ? false : true;
@@ -371,7 +354,7 @@ xrfragment_Query.prototype = {
 		var _g1 = token.length;
 		while(_g < _g1) {
 			var i = _g++;
-			process(this.expandAliases(token[i]));
+			process(token[i]);
 		}
 		return this.q = q;
 	}
@@ -639,6 +622,7 @@ xrf.roundrobin = (frag, store) => {
   return store.rr[label].index = 0
 }
 
+xrf.hasTag = (tag,tags) => String(tags).match( new RegExp(`(^| )${tag}( |$)`,`g`) )
 
 // map library functions to xrf
 for ( let i in xrfragment ) xrf[i] = xrfragment[i] 
@@ -691,14 +675,130 @@ xrf.emit.promise = function(e, opts){
       return { resolve, reject }
     }
     xrf.emit.normal(e, opts)     
+    delete opts.XRF
     if( !opts.promise.halted ) resolve()
+    delete opts.promise
   })
 }
 /*! rasterizeHTML.js - v1.3.1 - 2023-07-06
 * http://www.github.com/cburgmer/rasterizeHTML.js
 * Copyright (c) 2023 Christoph Burgmer; Licensed MIT */
 
-!function(o,i){void 0===o&&void 0!==window&&(o=window),"function"==typeof define&&define.amd?define(["url","xmlserializer","sane-domparser-error","inlineresources"],function(e,t,n,r){return o.rasterizeHTML=i(e,t,n,r)}):"object"==typeof module&&module.exports?module.exports=i(require("url"),require("xmlserializer"),require("sane-domparser-error"),require("inlineresources")):o.rasterizeHTML=i(o.url,o.xmlserializer,o.sanedomparsererror,o.inlineresources)}(this,function(e,t,n,r){var o=function(n){"use strict";var o={},t=[];o.joinUrl=function(e,t){return e?n.resolve(e,t):t},o.getConstantUniqueIdFor=function(e){return t.indexOf(e)<0&&t.push(e),t.indexOf(e)},o.clone=function(e){var t,n={};for(t in e)e.hasOwnProperty(t)&&(n[t]=e[t]);return n};return o.parseOptionalParameters=function(e){var t,n,r={canvas:null,options:{}};return null==e[0]||(t=e[0],"object"==typeof(n=t)&&null!==n&&Object.prototype.toString.apply(t).match(/\[object (Canvas|HTMLCanvasElement)\]/i))?(r.canvas=e[0]||null,r.options=o.clone(e[1])):r.options=o.clone(e[0]),r},o}(e),i=function(i){"use strict";function u(e,t,n){var r=e[t];return e[t]=function(){var e=Array.prototype.slice.call(arguments);return n.apply(this,[e,r])},r}var e={};return e.baseUrlRespectingXhr=function(t,o){return function(){var e=new t;return u(e,"open",function(e,t){var n=e.shift(),r=e.shift(),r=i.joinUrl(o,r);return t.apply(this,[n,r].concat(e))}),e}},e.finishNotifyingXhr=function(t){function e(){var e=new t;return u(e,"send",function(e,t){return r+=1,t.apply(this,arguments)}),e.addEventListener("load",function(){o+=1,n()}),e}var n,r=0,o=0,i=!1,c=new Promise(function(e){n=function(){r-o<=0&&i&&e({totalCount:r})}});return e.waitForRequestsToFinish=function(){return i=!0,n(),c},e},e}(o),e=function(i){"use strict";function r(e){return Array.prototype.slice.call(e)}var e={},c={active:!0,hover:!0,focus:!1,target:!1};return e.fakeUserAction=function(e,t,n){var r=e.querySelector(t),o=":"+n,t="rasterizehtml"+n;r&&(c[n]?i.addClassNameRecursively(r,t):i.addClassName(r,t),i.rewriteCssSelectorWith(e,o,"."+t))},e.persistInputValues=function(e){function t(e){return"checkbox"===e.type||"radio"===e.type}var n=e.querySelectorAll("input"),e=e.querySelectorAll("textarea");r(n).filter(t).forEach(function(e){e.checked?e.setAttribute("checked",""):e.removeAttribute("checked")}),r(n).filter(function(e){return!t(e)}).forEach(function(e){e.setAttribute("value",e.value)}),r(e).forEach(function(e){e.textContent=e.value})},e.rewriteTagNameSelectorsToLowerCase=function(e){i.lowercaseCssTypeSelectors(e,i.findHtmlOnlyNodeNames(e))},e}(function(){"use strict";function c(e){return Array.prototype.slice.call(e)}var n={};n.addClassName=function(e,t){e.className+=" "+t},n.addClassNameRecursively=function(e,t){n.addClassName(e,t),e.parentNode!==e.ownerDocument&&n.addClassNameRecursively(e.parentNode,t)};function r(e,t,o){var i="((?:^|[^.#:\\w])|(?=\\W))("+t.join("|")+")(?=\\W|$)";c(e.querySelectorAll("style")).forEach(function(e){var t,n;void 0===e.sheet&&(t=e,n=document.implementation.createHTMLDocument(""),(r=document.createElement("style")).textContent=t.textContent,n.body.appendChild(r),t.sheet=r.sheet);var r=c(e.sheet.cssRules).filter(function(e){return e.selectorText&&new RegExp(i,"i").test(e.selectorText)});r.length&&(r.forEach(function(e){var t,n=e.selectorText.replace(new RegExp(i,"gi"),function(e,t,n){return t+o(n)});n!==e.selectorText&&(t=n,e=(n=e).cssText.replace(/^[^\{]+/,""),u(n,t+" "+e))}),e.textContent=a(e.sheet.cssRules))})}var u=function(e,t){var n=e.parentStyleSheet,e=c(n.cssRules).indexOf(e);n.insertRule(t,e+1),n.deleteRule(e)},a=function(e){return c(e).reduce(function(e,t){return e+t.cssText},"")};return n.rewriteCssSelectorWith=function(e,t,n){r(e,[t],function(){return n})},n.lowercaseCssTypeSelectors=function(e,t){r(e,t,function(e){return e.toLowerCase()})},n.findHtmlOnlyNodeNames=function(e){for(var t,n=e.ownerDocument.createTreeWalker(e,NodeFilter.SHOW_ELEMENT),r={},o={};t=n.currentNode.tagName.toLowerCase(),"http://www.w3.org/1999/xhtml"===n.currentNode.namespaceURI?r[t]=!0:o[t]=!0,n.nextNode(););return Object.keys(r).filter(function(e){return!o[e]})},n}()),i=function(a,f,t,m){"use strict";var e={};e.executeJavascript=function(s,l){return new Promise(function(t){function n(){m.document.getElementsByTagName("body")[0].removeChild(r)}function e(){var e=r.contentDocument;t({document:e,errors:i,cleanUp:n})}var r=function(e,t,n,r){t=e.createElement(t);return t.style.visibility="hidden",t.style.width=n+"px",t.style.height=r+"px",t.style.position="absolute",t.style.top=-1e4-r+"px",t.style.left=-1e4-n+"px",e.getElementsByTagName("body")[0].appendChild(t),t}(m.document,"iframe",l.width,l.height),o=s.outerHTML,i=[],c=l.executeJsTimeout||0,u=r.contentWindow.XMLHttpRequest,a=f.finishNotifyingXhr(u),u=f.baseUrlRespectingXhr(a,l.baseUrl);r.onload=function(){var t;(0<(t=c)?new Promise(function(e){setTimeout(e,t)}):Promise.resolve()).then(a.waitForRequestsToFinish).then(e)},r.contentDocument.open(),r.contentWindow.XMLHttpRequest=u,r.contentWindow.onerror=function(e){i.push({resourceType:"scriptExecution",msg:e})},r.contentDocument.write("<!DOCTYPE html>"),r.contentDocument.write(o),r.contentDocument.close()})};function s(e,t,n,r,o){var i,c,u,a=Math.max(e.scrollWidth,e.clientWidth),s=Math.max(e.scrollHeight,e.clientHeight),l=t?(i=(l=function(e,t){var n=e.querySelector(t);if(n)return n;if(e.ownerDocument.querySelector(t)===e)return e;throw{message:"Clipping selector not found"}}(e,t).getBoundingClientRect()).top,c=l.left,u=l.width,l.height):(c=i=0,u=a,s);return l={width:u,height:l},r=r,o=o,r={width:Math.max(l.width*o,n),height:Math.max(l.height*o,r)},e=m.getComputedStyle(e.ownerDocument.documentElement).fontSize,{left:c,top:i,width:r.width,height:r.height,viewportWidth:a,viewportHeight:s,rootFontSize:e}}e.calculateDocumentContentSize=function(c,u){return new Promise(function(n,r){var e,t,o=u.zoom||1,i=function(e,t,n){e=Math.floor(e/n),n=Math.floor(t/n);return function(e,t,n){e=e.createElement("iframe");return e.style.width=t+"px",e.style.height=n+"px",e.style.visibility="hidden",e.style.position="absolute",e.style.top=-1e4-n+"px",e.style.left=-1e4-t+"px",e.style.borderWidth=0,e.sandbox="allow-same-origin",e.scrolling="no",e}(m.document,e,n)}(u.width,u.height,o);m.document.getElementsByTagName("body")[0].appendChild(i),i.onload=function(){var e,t=i.contentDocument;try{e=s(function(e,t){e=e.tagName;return t.querySelector(e)}(c,t),u.clip,u.width,u.height,o),n(e)}catch(e){r(e)}finally{m.document.getElementsByTagName("body")[0].removeChild(i)}},i.contentDocument.open(),i.contentDocument.write("<!DOCTYPE html>"),i.contentDocument.write("html"===(t=(e=c).tagName.toLowerCase())||"body"===t?e.outerHTML:'<body style="margin: 0;">'+e.outerHTML+"</body>"),i.contentDocument.close()})},e.parseHtmlFragment=function(e){var t=m.document.implementation.createHTMLDocument("");t.documentElement.innerHTML=e;t=t.querySelector("body").firstChild;if(!t)throw"Invalid source";return t};e.parseHTML=function(e){var t=m.document.implementation.createHTMLDocument("");return t.documentElement.innerHTML=e,function(e,t){var n,r,o,i=/<html((?:\s+[^>]*)?)>/im.exec(t),t=m.document.implementation.createHTMLDocument("");if(i)for(i="<div"+i[1]+"></div>",t.documentElement.innerHTML=i,r=t.querySelector("div"),n=0;n<r.attributes.length;n++)o=r.attributes[n],e.documentElement.setAttribute(o.name,o.value)}(t,e),t};function n(e){try{return t.failOnParseError(e)}catch(e){throw{message:"Invalid source",originalError:e}}}e.validateXHTML=function(e){e=(new DOMParser).parseFromString(e,"application/xml");n(e)};function r(c,u){return new Promise(function(e,t){function n(e){t({message:"Unable to load page",originalError:e})}var r=new window.XMLHttpRequest,o=a.joinUrl(u.baseUrl,c),i=(i=o,"none"===(o=u.cache)||"repeated"===o?i+"?_="+(l=null===l||"repeated"!==o?Date.now():l):i);r.addEventListener("load",function(){200===r.status||0===r.status?e(r.responseXML):n(r.statusText)},!1),r.addEventListener("error",function(e){n(e)},!1);try{r.open("GET",i,!0),r.responseType="document",r.send(null)}catch(e){n(e)}})}var l=null;return e.loadDocument=function(e,t){return r(e,t).then(n)},e}(o,i,n,window),n=function(r){"use strict";function o(e,t){return t?URL.createObjectURL(new Blob([e],{type:"image/svg+xml"})):"data:image/svg+xml;charset=utf-8,"+encodeURIComponent(e)}function c(e){e instanceof Blob&&URL.revokeObjectURL(e)}function i(o){return new Promise(function(t,e){var n=document.createElement("canvas"),r=new Image;r.onload=function(){var e=n.getContext("2d");try{e.drawImage(r,0,0),n.toDataURL("image/png"),t(!0)}catch(e){t(!1)}},r.onerror=e,r.src=o})}function u(t){return(e=void 0===e?n():e).then(function(e){return o(t,e)})}var e,t={},a='<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"><foreignObject></foreignObject></svg>',n=function(){return new Promise(function(t,e){var n;(function(){if(r.Blob)try{return new Blob(["<b></b>"],{type:"text/xml"}),!0}catch(e){}return!1})()&&r.URL?(n=o(a,!0),i(n).then(function(e){return c(n),!e&&i(o(a,!1)).then(function(e){return e})},function(){return!1}).then(function(e){t(!e)},function(){e()})):t(!1)})};return t.renderSvg=function(i){return new Promise(function(e,t){function n(){r&&c(r)}var r,o=new Image;o.onload=function(){o.onload=null,o.onerror=null,n(),e(o)},o.onerror=function(){n(),t()},u(i).then(function(e){r=e,o.src=r},t)})},t}(window);return function(o,i,c){"use strict";var u={};u.drawDocument=function(){var e=arguments[0],t=Array.prototype.slice.call(arguments,1),n=o.parseOptionalParameters(t),r=e.documentElement||e;return c.rasterize(r,n.canvas,(e=(t=n).canvas,r=t.options,n=e?e.width:300,e=e?e.height:200,e={width:void 0!==r.width?r.width:n,height:void 0!==r.height?r.height:e},(t=o.clone(t.options)).width=e.width,t.height=e.height,t))};u.drawHTML=function(){var e=arguments[0],t=Array.prototype.slice.call(arguments,1),t=o.parseOptionalParameters(t);return function(e,t,n){e=i.parseHTML(e);return u.drawDocument(e,t,n)}(e,t.canvas,t.options)};function n(t,n,r){return i.loadDocument(t,r).then(function(e){e=function(e,t,n){var r=document.implementation.createHTMLDocument("");r.replaceChild(e.documentElement,r.documentElement);e=n?o.clone(n):{};return n.baseUrl||(e.baseUrl=t),{document:r,options:e}}(e,t,r);return u.drawDocument(e.document,n,e.options)})}return u.drawURL=function(){var e=arguments[0],t=Array.prototype.slice.call(arguments,1),t=o.parseOptionalParameters(t);return n(e,t.canvas,t.options)},u}(o,i,function(o,i,c,r,e,u){"use strict";function a(t){return e.renderSvg(t).then(function(e){return{image:e,svg:t}},function(e){throw l(e)})}function s(e,t,n){return r.drawDocumentAsSvg(e,n).then(a).then(function(e){return t&&function(e,t){try{t.getContext("2d").drawImage(e,0,0)}catch(e){throw l(e)}}(e.image,t),e})}var t={},l=function(e){return{message:"Error rendering page",originalError:e}};return t.rasterize=function(e,n,r){var t=o.clone(r);return t.inlineScripts=!0===r.executeJs,u.inlineReferences(e,t).then(function(t){return r.executeJs?i.executeJavascript(e,r).then(function(e){var t=e.document;return c.persistInputValues(t),{document:t,errors:e.errors,cleanUp:e.cleanUp}}).then(function(e){return{element:e.document.documentElement,errors:t.concat(e.errors),cleanUp:e.cleanUp}}):{element:e,errors:t,cleanUp:function(){}}}).then(function(t){return s(t.element,n,r).then(function(e){return t.cleanUp(),{image:e.image,svg:e.svg,errors:t.errors}})})},t}(o,i,e,function(c,r,u){"use strict";function a(t){var e=Object.keys(t);return e.length?" "+e.map(function(e){return e+'="'+t[e]+'"'}).join(" "):""}function o(e,t,n){var r,o,i=u.serializeToString(e);return c.validateXHTML(i),(e=(r=t,o=Math.round(r.viewportWidth),e=Math.round(r.viewportHeight),{x:-r.left,y:-r.top,width:o,height:e})).style=(e.style||"")+"float: left;",e.externalResourcesRequired=!0,'<svg xmlns="http://www.w3.org/2000/svg"'+a(function(e,t){t=t||1,e={width:e.width,height:e.height,"font-size":e.rootFontSize};return 1!==t&&(e.style="transform:scale("+t+"); transform-origin: 0 0;"),e}(t,n))+'><style scoped="">html::-webkit-scrollbar { display: none; }</style><foreignObject'+a(e)+">"+i+"</foreignObject></svg>"}var i={};return i.getSvgForDocument=function(e,t,n){return r.rewriteTagNameSelectorsToLowerCase(e),o(e,t,n)},i.drawDocumentAsSvg=function(t,n){return["hover","active","focus","target"].forEach(function(e){n[e]&&r.fakeUserAction(t,n[e],e)}),c.calculateDocumentContentSize(t,n).then(function(e){return i.getSvgForDocument(t,e,n.zoom)})},i}(i,e,t),n,r))});xrf.frag   = {}
+!function(o,i){void 0===o&&void 0!==window&&(o=window),"function"==typeof define&&define.amd?define(["url","xmlserializer","sane-domparser-error","inlineresources"],function(e,t,n,r){return o.rasterizeHTML=i(e,t,n,r)}):"object"==typeof module&&module.exports?module.exports=i(require("url"),require("xmlserializer"),require("sane-domparser-error"),require("inlineresources")):o.rasterizeHTML=i(o.url,o.xmlserializer,o.sanedomparsererror,o.inlineresources)}(this,function(e,t,n,r){var o=function(n){"use strict";var o={},t=[];o.joinUrl=function(e,t){return e?n.resolve(e,t):t},o.getConstantUniqueIdFor=function(e){return t.indexOf(e)<0&&t.push(e),t.indexOf(e)},o.clone=function(e){var t,n={};for(t in e)e.hasOwnProperty(t)&&(n[t]=e[t]);return n};return o.parseOptionalParameters=function(e){var t,n,r={canvas:null,options:{}};return null==e[0]||(t=e[0],"object"==typeof(n=t)&&null!==n&&Object.prototype.toString.apply(t).match(/\[object (Canvas|HTMLCanvasElement)\]/i))?(r.canvas=e[0]||null,r.options=o.clone(e[1])):r.options=o.clone(e[0]),r},o}(e),i=function(i){"use strict";function u(e,t,n){var r=e[t];return e[t]=function(){var e=Array.prototype.slice.call(arguments);return n.apply(this,[e,r])},r}var e={};return e.baseUrlRespectingXhr=function(t,o){return function(){var e=new t;return u(e,"open",function(e,t){var n=e.shift(),r=e.shift(),r=i.joinUrl(o,r);return t.apply(this,[n,r].concat(e))}),e}},e.finishNotifyingXhr=function(t){function e(){var e=new t;return u(e,"send",function(e,t){return r+=1,t.apply(this,arguments)}),e.addEventListener("load",function(){o+=1,n()}),e}var n,r=0,o=0,i=!1,c=new Promise(function(e){n=function(){r-o<=0&&i&&e({totalCount:r})}});return e.waitForRequestsToFinish=function(){return i=!0,n(),c},e},e}(o),e=function(i){"use strict";function r(e){return Array.prototype.slice.call(e)}var e={},c={active:!0,hover:!0,focus:!1,target:!1};return e.fakeUserAction=function(e,t,n){var r=e.querySelector(t),o=":"+n,t="rasterizehtml"+n;r&&(c[n]?i.addClassNameRecursively(r,t):i.addClassName(r,t),i.rewriteCssSelectorWith(e,o,"."+t))},e.persistInputValues=function(e){function t(e){return"checkbox"===e.type||"radio"===e.type}var n=e.querySelectorAll("input"),e=e.querySelectorAll("textarea");r(n).filter(t).forEach(function(e){e.checked?e.setAttribute("checked",""):e.removeAttribute("checked")}),r(n).filter(function(e){return!t(e)}).forEach(function(e){e.setAttribute("value",e.value)}),r(e).forEach(function(e){e.textContent=e.value})},e.rewriteTagNameSelectorsToLowerCase=function(e){i.lowercaseCssTypeSelectors(e,i.findHtmlOnlyNodeNames(e))},e}(function(){"use strict";function c(e){return Array.prototype.slice.call(e)}var n={};n.addClassName=function(e,t){e.className+=" "+t},n.addClassNameRecursively=function(e,t){n.addClassName(e,t),e.parentNode!==e.ownerDocument&&n.addClassNameRecursively(e.parentNode,t)};function r(e,t,o){var i="((?:^|[^.#:\\w])|(?=\\W))("+t.join("|")+")(?=\\W|$)";c(e.querySelectorAll("style")).forEach(function(e){var t,n;void 0===e.sheet&&(t=e,n=document.implementation.createHTMLDocument(""),(r=document.createElement("style")).textContent=t.textContent,n.body.appendChild(r),t.sheet=r.sheet);var r=c(e.sheet.cssRules).filter(function(e){return e.selectorText&&new RegExp(i,"i").test(e.selectorText)});r.length&&(r.forEach(function(e){var t,n=e.selectorText.replace(new RegExp(i,"gi"),function(e,t,n){return t+o(n)});n!==e.selectorText&&(t=n,e=(n=e).cssText.replace(/^[^\{]+/,""),u(n,t+" "+e))}),e.textContent=a(e.sheet.cssRules))})}var u=function(e,t){var n=e.parentStyleSheet,e=c(n.cssRules).indexOf(e);n.insertRule(t,e+1),n.deleteRule(e)},a=function(e){return c(e).reduce(function(e,t){return e+t.cssText},"")};return n.rewriteCssSelectorWith=function(e,t,n){r(e,[t],function(){return n})},n.lowercaseCssTypeSelectors=function(e,t){r(e,t,function(e){return e.toLowerCase()})},n.findHtmlOnlyNodeNames=function(e){for(var t,n=e.ownerDocument.createTreeWalker(e,NodeFilter.SHOW_ELEMENT),r={},o={};t=n.currentNode.tagName.toLowerCase(),"http://www.w3.org/1999/xhtml"===n.currentNode.namespaceURI?r[t]=!0:o[t]=!0,n.nextNode(););return Object.keys(r).filter(function(e){return!o[e]})},n}()),i=function(a,f,t,m){"use strict";var e={};e.executeJavascript=function(s,l){return new Promise(function(t){function n(){m.document.getElementsByTagName("body")[0].removeChild(r)}function e(){var e=r.contentDocument;t({document:e,errors:i,cleanUp:n})}var r=function(e,t,n,r){t=e.createElement(t);return t.style.visibility="hidden",t.style.width=n+"px",t.style.height=r+"px",t.style.position="absolute",t.style.top=-1e4-r+"px",t.style.left=-1e4-n+"px",e.getElementsByTagName("body")[0].appendChild(t),t}(m.document,"iframe",l.width,l.height),o=s.outerHTML,i=[],c=l.executeJsTimeout||0,u=r.contentWindow.XMLHttpRequest,a=f.finishNotifyingXhr(u),u=f.baseUrlRespectingXhr(a,l.baseUrl);r.onload=function(){var t;(0<(t=c)?new Promise(function(e){setTimeout(e,t)}):Promise.resolve()).then(a.waitForRequestsToFinish).then(e)},r.contentDocument.open(),r.contentWindow.XMLHttpRequest=u,r.contentWindow.onerror=function(e){i.push({resourceType:"scriptExecution",msg:e})},r.contentDocument.write("<!DOCTYPE html>"),r.contentDocument.write(o),r.contentDocument.close()})};function s(e,t,n,r,o){var i,c,u,a=Math.max(e.scrollWidth,e.clientWidth),s=Math.max(e.scrollHeight,e.clientHeight),l=t?(i=(l=function(e,t){var n=e.querySelector(t);if(n)return n;if(e.ownerDocument.querySelector(t)===e)return e;throw{message:"Clipping selector not found"}}(e,t).getBoundingClientRect()).top,c=l.left,u=l.width,l.height):(c=i=0,u=a,s);return l={width:u,height:l},r=r,o=o,r={width:Math.max(l.width*o,n),height:Math.max(l.height*o,r)},e=m.getComputedStyle(e.ownerDocument.documentElement).fontSize,{left:c,top:i,width:r.width,height:r.height,viewportWidth:a,viewportHeight:s,rootFontSize:e}}e.calculateDocumentContentSize=function(c,u){return new Promise(function(n,r){var e,t,o=u.zoom||1,i=function(e,t,n){e=Math.floor(e/n),n=Math.floor(t/n);return function(e,t,n){e=e.createElement("iframe");return e.style.width=t+"px",e.style.height=n+"px",e.style.visibility="hidden",e.style.position="absolute",e.style.top=-1e4-n+"px",e.style.left=-1e4-t+"px",e.style.borderWidth=0,e.sandbox="allow-same-origin",e.scrolling="no",e}(m.document,e,n)}(u.width,u.height,o);m.document.getElementsByTagName("body")[0].appendChild(i),i.onload=function(){var e,t=i.contentDocument;try{e=s(function(e,t){e=e.tagName;return t.querySelector(e)}(c,t),u.clip,u.width,u.height,o),n(e)}catch(e){r(e)}finally{m.document.getElementsByTagName("body")[0].removeChild(i)}},i.contentDocument.open(),i.contentDocument.write("<!DOCTYPE html>"),i.contentDocument.write("html"===(t=(e=c).tagName.toLowerCase())||"body"===t?e.outerHTML:'<body style="margin: 0;">'+e.outerHTML+"</body>"),i.contentDocument.close()})},e.parseHtmlFragment=function(e){var t=m.document.implementation.createHTMLDocument("");t.documentElement.innerHTML=e;t=t.querySelector("body").firstChild;if(!t)throw"Invalid source";return t};e.parseHTML=function(e){var t=m.document.implementation.createHTMLDocument("");return t.documentElement.innerHTML=e,function(e,t){var n,r,o,i=/<html((?:\s+[^>]*)?)>/im.exec(t),t=m.document.implementation.createHTMLDocument("");if(i)for(i="<div"+i[1]+"></div>",t.documentElement.innerHTML=i,r=t.querySelector("div"),n=0;n<r.attributes.length;n++)o=r.attributes[n],e.documentElement.setAttribute(o.name,o.value)}(t,e),t};function n(e){try{return t.failOnParseError(e)}catch(e){throw{message:"Invalid source",originalError:e}}}e.validateXHTML=function(e){e=(new DOMParser).parseFromString(e,"application/xml");n(e)};function r(c,u){return new Promise(function(e,t){function n(e){t({message:"Unable to load page",originalError:e})}var r=new window.XMLHttpRequest,o=a.joinUrl(u.baseUrl,c),i=(i=o,"none"===(o=u.cache)||"repeated"===o?i+"?_="+(l=null===l||"repeated"!==o?Date.now():l):i);r.addEventListener("load",function(){200===r.status||0===r.status?e(r.responseXML):n(r.statusText)},!1),r.addEventListener("error",function(e){n(e)},!1);try{r.open("GET",i,!0),r.responseType="document",r.send(null)}catch(e){n(e)}})}var l=null;return e.loadDocument=function(e,t){return r(e,t).then(n)},e}(o,i,n,window),n=function(r){"use strict";function o(e,t){return t?URL.createObjectURL(new Blob([e],{type:"image/svg+xml"})):"data:image/svg+xml;charset=utf-8,"+encodeURIComponent(e)}function c(e){e instanceof Blob&&URL.revokeObjectURL(e)}function i(o){return new Promise(function(t,e){var n=document.createElement("canvas"),r=new Image;r.onload=function(){var e=n.getContext("2d");try{e.drawImage(r,0,0),n.toDataURL("image/png"),t(!0)}catch(e){t(!1)}},r.onerror=e,r.src=o})}function u(t){return(e=void 0===e?n():e).then(function(e){return o(t,e)})}var e,t={},a='<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"><foreignObject></foreignObject></svg>',n=function(){return new Promise(function(t,e){var n;(function(){if(r.Blob)try{return new Blob(["<b></b>"],{type:"text/xml"}),!0}catch(e){}return!1})()&&r.URL?(n=o(a,!0),i(n).then(function(e){return c(n),!e&&i(o(a,!1)).then(function(e){return e})},function(){return!1}).then(function(e){t(!e)},function(){e()})):t(!1)})};return t.renderSvg=function(i){return new Promise(function(e,t){function n(){r&&c(r)}var r,o=new Image;o.onload=function(){o.onload=null,o.onerror=null,n(),e(o)},o.onerror=function(){n(),t()},u(i).then(function(e){r=e,o.src=r},t)})},t}(window);return function(o,i,c){"use strict";var u={};u.drawDocument=function(){var e=arguments[0],t=Array.prototype.slice.call(arguments,1),n=o.parseOptionalParameters(t),r=e.documentElement||e;return c.rasterize(r,n.canvas,(e=(t=n).canvas,r=t.options,n=e?e.width:300,e=e?e.height:200,e={width:void 0!==r.width?r.width:n,height:void 0!==r.height?r.height:e},(t=o.clone(t.options)).width=e.width,t.height=e.height,t))};u.drawHTML=function(){var e=arguments[0],t=Array.prototype.slice.call(arguments,1),t=o.parseOptionalParameters(t);return function(e,t,n){e=i.parseHTML(e);return u.drawDocument(e,t,n)}(e,t.canvas,t.options)};function n(t,n,r){return i.loadDocument(t,r).then(function(e){e=function(e,t,n){var r=document.implementation.createHTMLDocument("");r.replaceChild(e.documentElement,r.documentElement);e=n?o.clone(n):{};return n.baseUrl||(e.baseUrl=t),{document:r,options:e}}(e,t,r);return u.drawDocument(e.document,n,e.options)})}return u.drawURL=function(){var e=arguments[0],t=Array.prototype.slice.call(arguments,1),t=o.parseOptionalParameters(t);return n(e,t.canvas,t.options)},u}(o,i,function(o,i,c,r,e,u){"use strict";function a(t){return e.renderSvg(t).then(function(e){return{image:e,svg:t}},function(e){throw l(e)})}function s(e,t,n){return r.drawDocumentAsSvg(e,n).then(a).then(function(e){return t&&function(e,t){try{t.getContext("2d").drawImage(e,0,0)}catch(e){throw l(e)}}(e.image,t),e})}var t={},l=function(e){return{message:"Error rendering page",originalError:e}};return t.rasterize=function(e,n,r){var t=o.clone(r);return t.inlineScripts=!0===r.executeJs,u.inlineReferences(e,t).then(function(t){return r.executeJs?i.executeJavascript(e,r).then(function(e){var t=e.document;return c.persistInputValues(t),{document:t,errors:e.errors,cleanUp:e.cleanUp}}).then(function(e){return{element:e.document.documentElement,errors:t.concat(e.errors),cleanUp:e.cleanUp}}):{element:e,errors:t,cleanUp:function(){}}}).then(function(t){return s(t.element,n,r).then(function(e){return t.cleanUp(),{image:e.image,svg:e.svg,errors:t.errors}})})},t}(o,i,e,function(c,r,u){"use strict";function a(t){var e=Object.keys(t);return e.length?" "+e.map(function(e){return e+'="'+t[e]+'"'}).join(" "):""}function o(e,t,n){var r,o,i=u.serializeToString(e);return c.validateXHTML(i),(e=(r=t,o=Math.round(r.viewportWidth),e=Math.round(r.viewportHeight),{x:-r.left,y:-r.top,width:o,height:e})).style=(e.style||"")+"float: left;",e.externalResourcesRequired=!0,'<svg xmlns="http://www.w3.org/2000/svg"'+a(function(e,t){t=t||1,e={width:e.width,height:e.height,"font-size":e.rootFontSize};return 1!==t&&(e.style="transform:scale("+t+"); transform-origin: 0 0;"),e}(t,n))+'><style scoped="">html::-webkit-scrollbar { display: none; }</style><foreignObject'+a(e)+">"+i+"</foreignObject></svg>"}var i={};return i.getSvgForDocument=function(e,t,n){return r.rewriteTagNameSelectorsToLowerCase(e),o(e,t,n)},i.drawDocumentAsSvg=function(t,n){return["hover","active","focus","target"].forEach(function(e){n[e]&&r.fakeUserAction(t,n[e],e)}),c.calculateDocumentContentSize(t,n).then(function(e){return i.getSvgForDocument(t,e,n.zoom)})},i}(i,e,t),n,r))});// the XRWG (XR WordGraph)is mentioned in the spec 
+//
+// it collects metadata-keys ('foo' e.g.), names and tags across 3D scene-nodes (.userData.foo e.g.) 
+
+let XRWG = xrf.XRWG = []
+
+XRWG.word = (key) => XRWG.find( (w) => w.word == word )
+
+XRWG.cleankey = (word) => String(word).replace(/[^0-9\.a-zA-Z_]/g,'')
+                                      .toLowerCase()
+                                      .replace(/.*:\/\//,'')
+XRWG.get = (v,k) => XRWG.find( (x) => x[ k || 'word'] == v )
+
+XRWG.match = (str,types,level) => {
+  level = level || 1000
+  types = types || []
+  let res = XRWG.filter( (n) => {
+    types.map( (type) => n[type] ? n = false : false )
+    return n
+  })
+  str = str.toLowerCase()
+  if( level <10 ) res = res.filter( (n) => n.key    == str )
+  if( level <20 ) res = res.filter( (n) => n.word   == str   || n.key == str )
+  if( level <30 ) res = res.filter( (n) => n.word.match(str) || n.key == str )
+  if( level <40 ) res = res.filter( (n) => n.word.match(str) || n.key == str || String(n.value||'').match(str) )
+  if( level <1001 ) res = res.filter( (n) => n.word.match(str) != null || n.key.match(str) != null || String(n.value||'').match(str) != null)
+  return res
+}
+
+XRWG.generate = (opts) => {
+  let {scene,model} = opts
+  XRWG.slice(0,0) // empty  
+    
+  // collect words from 3d nodes
+
+  let add = (key, spatialNode, type) => {
+    if( !key || key.match(/(^#$|name)/) ) return
+    let node = XRWG.get( XRWG.cleankey(key) )
+    if( node ){
+      node.nodes.push(spatialNode)
+    }else{
+      node = { word: XRWG.cleankey(key), key: key.toLowerCase(), nodes:[spatialNode] }
+      if( spatialNode.userData[key] ) node.value = spatialNode.userData[key]
+      node[type] = true
+      xrf.emit('XRWG',node)
+      XRWG.push( node )
+    }
+  }
+
+  scene.traverse( (o) => {
+    add( `#${o.name}`, o, 'name')
+    for( let k in o.userData ){
+      if( k == 'tag' ){
+        let tagArr = o.userData.tag.split(" ")
+                      .map(    (t) => t.trim() )
+                      .filter( (t) => t )
+                      .map(    (w) => add( w, o, 'tag') )
+      }else if( k.match(/^(href|src)$/) ) add( o.userData[k], o, k)
+      else if( k[0] == '#' ) add( k, o , 'pv')
+      else add( k, o , 'query')
+    }
+  }) 
+
+  // sort by n
+  XRWG.sort( (a,b) => a.nodes.length - b.nodes.length )
+  XRWG = XRWG.reverse() // the cleankey/get functions e.g. will persist
+  console.dir(XRWG)
+}
+// the hashbus (QueryString eventBus) is mentioned in the spec 
+//
+// it allows metadata-keys ('foo' e.g.) of 3D scene-nodes (.userData.foo e.g.) to 
+// react by executing code 
+
+let pub = function( url, model, flags ){  // evaluate fragments in url
+  if( !url ) return 
+  if( !url.match(/#/) ) url = `#${url}`
+  model = model || xrf.model
+  let { THREE, camera } = xrf
+  let frag = xrf.URI.parse( url, flags != undefined ? flags : xrf.XRF.NAVIGATOR )
+  let opts = {frag, mesh:xrf.camera, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE, hashbus: xrf.hashbus }
+  xrf.emit('hashbus',opts)
+  .then( () => {
+    for ( let k in frag ){
+      pub.fragment(k,opts) 
+    }
+  })
+  return frag
+}
+
+pub.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) inside mesh of model 
+  if( mesh.userData ){
+    let frag = {}
+    for( let k in mesh.userData ) xrf.Parser.parse( k, mesh.userData[k], frag )
+    for( let k in frag ){
+      let opts = {frag, mesh, model, camera: xrf.camera, scene: model.scene, renderer: xrf.renderer, THREE: xrf.THREE, hashbus: xrf.hashbus }
+      mesh.userData.XRF = frag // allow fragment impl to access XRF obj already
+      xrf.emit('mesh',opts)
+      .then( () => pub.fragment(k,opts) )
+    }
+  }
+}
+
+pub.fragment = (k, opts ) => { // evaluate one fragment
+  let frag = opts.frag[k];
+  // call native function (xrf/env.js e.g.), or pass it to user decorator
+  xrf.emit(k,opts)
+  .then( () => {
+    let func = xrf.frag[k] || function(){} 
+    if(  xrf[k] ) xrf[k]( func, frag, opts)
+    else                  func( frag, opts)
+  })
+}
+
+xrf.hashbus = { pub }
+xrf.frag   = {}
 xrf.model  = {}
 
 xrf.init = ((init) => function(opts){
@@ -743,55 +843,25 @@ xrf.parseModel = function(model,url){
   let file               = xrf.getFile(url)
   model.file             = file
   // eval embedded XR fragments
-  model.scene.traverse( (mesh) => xrf.eval.mesh(mesh,model) )
+  model.scene.traverse( (mesh) => xrf.hashbus.pub.mesh(mesh,model) )
   // add animations
   model.clock            = new xrf.THREE.Clock();
   model.mixer            = new xrf.THREE.AnimationMixer(model.scene)
   model.animations.map( (anim) => model.mixer.clipAction( anim ).play() )
+
+  let tmp = new xrf.THREE.Vector3()
   model.render           = function(){
     model.mixer.update( model.clock.getDelta() )
-    xrf.navigator.material.selection.color.r = (1.0 + Math.sin( model.clock.getElapsedTime() * 10 ))/2
+
+    // update focusline 
+    xrf.focusLine.material.color.r = (1.0 + Math.sin( model.clock.getElapsedTime()  ))/2
+    xrf.focusLine.material.dashSize = 0.2 + 0.02*Math.sin( model.clock.getElapsedTime()  )
+    xrf.focusLine.material.gapSize  = 0.1 + 0.02*Math.sin( model.clock.getElapsedTime() *3  )
+    xrf.focusLine.material.opacity  = 0.25 + 0.15*Math.sin( model.clock.getElapsedTime() * 3 )
   }
 }
 
 xrf.getLastModel = ()           => xrf.model.last 
-
-xrf.eval = function( url, model, flags ){  // evaluate fragments in url
-  if( !url ) return 
-  if( !url.match(/#/) ) url = `#${url}`
-  model = model || xrf.model
-  let { THREE, camera } = xrf
-  let frag = xrf.URI.parse( url, flags != undefined ? flags : xrf.XRF.NAVIGATOR )
-  let opts = {frag, mesh:xrf.camera, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
-  xrf.emit('eval',opts)
-  .then( () => {
-    for ( let k in frag ){
-      xrf.eval.fragment(k,opts) 
-    }
-  })
-  return frag
-}
-
-xrf.eval.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) inside mesh of model 
-  if( mesh.userData ){
-    let frag = {}
-    for( let k in mesh.userData ) xrf.Parser.parse( k, mesh.userData[k], frag )
-    for( let k in frag ){
-      let opts = {frag, mesh, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
-      mesh.userData.XRF = frag // allow fragment impl to access XRF obj already
-      xrf.emit('eval',opts)
-      .then( () => xrf.eval.fragment(k,opts) )
-    }
-  }
-}
-
-xrf.eval.fragment = (k, opts ) => { // evaluate one fragment
-  let frag = opts.frag[k];
-  // call native function (xrf/env.js e.g.), or pass it to user decorator
-  let func = xrf.frag[k] || function(){} 
-  if(  xrf[k] ) xrf[k]( func, frag, opts)
-  else                  func( frag, opts)
-}
 
 xrf.reset = () => {
   const disposeObject = (obj) => {
@@ -967,11 +1037,13 @@ xrf.navigator = {}
 xrf.navigator.to = (url,flags,loader,data) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
 
+  let hashbus = xrf.hashbus
+
   return new Promise( (resolve,reject) => {
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
 
     if( !file || xrf.model.file == file ){ // we're already loaded
-      xrf.eval( url, xrf.model, flags )    // and eval local URI XR fragments 
+      hashbus.pub( url, xrf.model, flags )    // and eval local URI XR fragments 
       xrf.navigator.updateHash(hash)
       return resolve(xrf.model) 
     }
@@ -993,14 +1065,13 @@ xrf.navigator.to = (url,flags,loader,data) => {
       // only change url when loading *another* file
       if( xrf.model ) xrf.navigator.pushState( `${dir}${file}`, hash )
       xrf.model = model 
+      // spec: 1. generate the XRWG
+      xrf.XRWG.generate({model,scene:model.scene})
       // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
       xrf.frag.defaultPredefinedView({model,scene:model.scene})
       // spec: 2. execute predefined view(s) from URL (https://xrfragment.org/#predefined_view)
-      xrf.eval( url, model )                                                 // and eval URI XR fragments 
+      hashbus.pub( url, model )                                                 // and eval URI XR fragments 
       xrf.add( model.scene )
-      if( !hash.match(/pos=/) ){
-        xrf.eval( '#pos=0,0,0' ) // set default position if not specified
-      }
       xrf.navigator.updateHash(hash)
       resolve(model)
     }
@@ -1015,37 +1086,43 @@ xrf.navigator.init = () => {
   window.addEventListener('popstate', function (event){
     xrf.navigator.to( document.location.search.substr(1) + document.location.hash )
   })
-  xrf.navigator.material = {
-    selection: new xrf.THREE.LineBasicMaterial({color:0xFF00FF,linewidth:2})
-  }
+
+  // this allows selectionlines to be updated according to the camera (renderloop)
+  xrf.focusLine = new xrf.THREE.Group()
+  xrf.focusLine.material = new xrf.THREE.LineDashedMaterial({color:0xFF00FF,linewidth:3, scale: 1, dashSize: 0.2, gapSize: 0.1,opacity:0.3, transparent:true})
+  xrf.focusLine.isXRF = true
+  xrf.focusLine.position.set(0,0,-0.5);
+  xrf.focusLine.points = []
+  xrf.focusLine.lines  = []
+  xrf.camera.add(xrf.focusLine)
+
   xrf.navigator.init.inited = true
 }
 
-xrf.navigator.updateHash = (hash) => {
-  if( hash == document.location.hash || hash.match(/\|/) ) return  // skip unnecesary pushState triggers
+xrf.navigator.updateHash = (hash,opts) => {
+  if( hash.replace(/^#/,'') == document.location.hash.substr(1) || hash.match(/\|/) ) return  // skip unnecesary pushState triggers
   console.log(`URL: ${document.location.search.substr(1)}#${hash}`)
   document.location.hash = hash
-  xrf.emit('updateHash', {hash} )
+  xrf.emit('hash', {...opts, hash: `#${hash}` })
 }
 
 xrf.navigator.pushState = (file,hash) => {
   if( file == document.location.search.substr(1) ) return // page is in its default state
-  console.log("pushstate")
   window.history.pushState({},`${file}#${hash}`, document.location.pathname + `?${file}#${hash}` )
+  xrf.emit('pushState', {file, hash} )
 }
-xrf.addEventListener('eval', (opts) => {
+xrf.addEventListener('bg', (opts) => {
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-  if( frag.bg ){
-    console.log("└ bg "+v.x+","+v.y+","+v.z);
-    if( scene.background ) delete scene.background
-    scene.background = new THREE.Color( v.x, v.y, v.z )
-  }
+  console.log("└ bg "+v.x+","+v.y+","+v.z);
+  if( scene.background ) delete scene.background
+  scene.background = new THREE.Color( v.x, v.y, v.z )
 })
-xrf.addEventListener('eval', (opts) => {
+xrf.addEventListener('env', (opts) => {
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   if( frag.env && !scene.environment ){
-    let env = mesh.getObjectByName(frag.env.string)
-    if( !env ) return console.warn("xrf.env "+v.string+" not found")
+    let env = scene.getObjectByName(frag.env.string)
+    if( !env ) env = xrf.scene.getObjectByName(frag.env.string) // repurpose from parent scene
+    if( !env ) return console.warn("xrf.env "+frag.env.string+" not found")
     env.material.map.mapping = THREE.EquirectangularReflectionMapping;
     scene.environment = env.material.map
     //scene.texture = env.material.map    
@@ -1053,22 +1130,22 @@ xrf.addEventListener('eval', (opts) => {
     renderer.toneMappingExposure = 2;
     console.log(`   └ applied image '${frag.env.string}' as environment map`)
   }
+
 })
-xrf.addEventListener('eval', (opts) => {
+xrf.addEventListener('fog', (opts) => {
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-  if( frag.fog ){
-    let v = frag.fog
-    console.log("└ fog "+v.x+","+v.y);
-    if( v.x == 0 && v.y == 0 ){  
-      if( scene.fog ) delete scene.fog
-      scene.fog = null;
-    }else scene.fog = new THREE.Fog( scene.background, v.x, v.y );
-  }
+  let v = frag.fog
+  console.log("└ fog "+v.x+","+v.y);
+  if( v.x == 0 && v.y == 0 ){  
+    if( scene.fog ) delete scene.fog
+    scene.fog = null;
+  }else scene.fog = new THREE.Fog( scene.background, v.x, v.y );
 })
 xrf.macros = {}
 
-xrf.addEventListener('eval', (opts) => {
-  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+xrf.addEventListener('mesh', (opts) => {
+  let { frag, mesh, model, camera, scene, renderer, THREE, hashbus} = opts
+
   for( let k in frag ){
     let id = mesh.name+"_"+k
     let fragment = frag[k]
@@ -1092,8 +1169,7 @@ xrf.addEventListener('eval', (opts) => {
               if( xrf.macros[ rrFrag ] ){
                 xrf.macros[ rrFrag ].trigger()
               } else {
-                if( rrFrag[0] == '#' ) xrf.navigator.updateHash(rrFrag)
-                else xrf.eval(rrFrag,null,0)
+                xrf.navigator.to( rrFrag,null,0)
               }
         }) 
       }
@@ -1135,7 +1211,7 @@ xrf.addEventListener('eval', (opts) => {
     }
   }
 })
-xrf.addEventListener('eval', (opts) => {
+xrf.addEventListener('mov', (opts) => {
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   if( frag.mov && frag.q ){
 
@@ -1147,7 +1223,7 @@ xrf.addEventListener('eval', (opts) => {
     },10, frag.mov )
   }
 })
-xrf.addEventListener('eval', (opts) => {
+xrf.addEventListener('pos', (opts) => {
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   if( frag.pos && frag.q ){
     // apply roundrobin (if any)
@@ -1161,7 +1237,7 @@ xrf.addEventListener('eval', (opts) => {
     })
   }
 })
-xrf.addEventListener('eval', (opts) => {
+xrf.addEventListener('rot', (opts) => {
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   if( frag.rot && frag.q ){
     // apply roundrobin (if any)
@@ -1178,7 +1254,7 @@ xrf.addEventListener('eval', (opts) => {
     }
   }
 })
-xrf.addEventListener('eval', (opts) => {
+xrf.addEventListener('scale', (opts) => {
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   if( frag.scale && frag.q ){
     // apply roundrobin (if any)
@@ -1191,7 +1267,7 @@ xrf.addEventListener('eval', (opts) => {
     })
   }
 })
-xrf.addEventListener('eval', (opts) => {
+xrf.addEventListener('show', (opts) => {
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   if( frag.show && frag.q ){
     let show = frag.show
@@ -1318,7 +1394,7 @@ xrf.frag.href = function(v, opts){
 
   let click = mesh.userData.XRF.href.exec = (e) => {
     let isLocal = v.string[0] == '#'
-    let lastPos = `pos=${camera.position.x.toFixed(1)},${camera.position.y.toFixed(1)},${camera.position.z.toFixed(1)}`
+    let lastPos = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
     xrf
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
@@ -1327,7 +1403,7 @@ xrf.frag.href = function(v, opts){
       if( !v.string.match(/pos=/) ) v.string += `${v.string[0] == '#' ? '&' : '#'}${lastPos}` 
       if( !document.location.hash.match(/pos=/) ) xrf.navigator.to(`#${lastPos}`,flags)
 
-      xrf.navigator.to(v.string,flags)    // let's surf to HREF!
+      xrf.navigator.to(v.string)    // let's surf to HREF!
     }) 
   }
 
@@ -1394,53 +1470,78 @@ xrf.frag.updatePredefinedView = (opts) => {
     let id = frag.string
     let oldSelection
     if(!id) return id // important: ignore empty strings 
-    if( mesh.selection ) oldSelection = mesh.selection 
     // Selection of Interest if predefined_view matches object name
-    if( mesh.visible && (id == mesh.name || id.substr(1) == mesh.userData.class) ){
-      xrf.emit('selection',{...opts,frag})
+    if( mesh.visible ){
+      xrf.emit('focus',{...opts,frag})
       .then( () => {
-        const margin = 1.2
-        mesh.scale.multiplyScalar( margin )
-        mesh.selection = new xrf.THREE.BoxHelper(mesh,0xff00ff)
-        mesh.scale.divideScalar( margin )
-        mesh.selection.material.dispose()
-        mesh.selection.material = xrf.navigator.material.selection
-        mesh.selection.isXRF = true
-        scene.add(mesh.selection)
-      })
-    }
-    return oldSelection
-  }
+        const color    = new THREE.Color();
+        const colors   = []
+        let from       = new THREE.Vector3()
 
-  // spec: https://xrfragment.org/#predefined_view
-  const predefinedView = (frag,scene,mesh) => {
-    let id   = frag.string || frag.fragment
-    id       = `#${id}`
-    if( id == '##' ) id = '#'; // default predefined view
-    if( !id ) return           // prevent empty matches
-    if( mesh.userData[id] ){   // get alias
-      frag = xrf.URI.parse( mesh.userData[id], xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-      xrf.emit('predefinedView',{...opts,frag})
-      .then( () => {
-        for ( let k in frag ){
-          let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
-          if( frag[k].is( xrf.XRF.PV_EXECUTE ) && scene.XRF_PV_ORIGIN != k ){  // cyclic detection
-            traverseScene(frag[k],scene)                                       // recurse predefined views
-          }
-        }
+        let getCenterPoint = (mesh) => {
+            var geometry = mesh.geometry;
+            geometry.computeBoundingBox();
+            var center = new THREE.Vector3();
+            geometry.boundingBox.getCenter( center );
+            mesh.localToWorld( center );
+            return center;
+        }         
+
+        xrf.camera.updateMatrixWorld(true); // always keeps me diving into the docs :]
+        xrf.camera.getWorldPosition(from)
+        from.y -= 0.5 // originate from the heart chakra! :p
+        const points = [from, getCenterPoint(mesh) ]
+        const geometry = new THREE.BufferGeometry().setFromPoints( points );
+        let line = new THREE.Line( geometry, xrf.focusLine.material );
+        line.isXRF = true
+        line.computeLineDistances();
+        xrf.focusLine.lines.push(line)
+        xrf.focusLine.points.push(from)
+        scene.add(line)
       })
     }
   }
 
-  const traverseScene = (v,scene) => {
-    let remove = []
+  //// spec: https://xrfragment.org/#predefined_view
+  //const predefinedView = (frag,scene,mesh) => {
+  //  let id   = frag.string || frag.fragment
+  //  id       = `#${id}`
+  //  if( id == '##' ) id = '#'; // default predefined view
+  //  if( !id ) return           // prevent empty matches
+  //  if( mesh.userData[id] ){   // get alias
+  //    frag = xrf.URI.parse( mesh.userData[id], xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
+  //    xrf.emit('predefinedView',{...opts,frag})
+  //    .then( () => {
+  //      for ( let k in frag ){
+  //        let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
+  //        if( frag[k].is( xrf.XRF.PV_EXECUTE ) && scene.XRF_PV_ORIGIN != k ){  // cyclic detection
+  //          highlightInScene(frag[k],scene)                                    // recurse predefined views
+  //        }
+  //      }
+  //    })
+  //  }
+  //}
+
+  const highlightInScene = (v,scene) => {
     if( !scene ) return 
-    scene.traverse( (mesh) => {
-      remove.push( selectionOfInterest( v, scene, mesh ) )
-      predefinedView( v , scene, mesh )
-    })
-    remove.filter( (e) => e ).map( (selection) => {
-      scene.remove(selection)
+    let remove = []
+    let id = v.string || v.fragment
+    if( id == '#' ) return
+    let match = xrf.XRWG.match(id)
+    console.dir({id,match,XRWG:xrf.XRWG})
+    // erase previous lines
+    xrf.focusLine.lines.map( (line) => scene.remove(line) )
+    xrf.focusLine.points = []
+    xrf.focusLine.lines  = []
+
+    scene.traverse( (n) => n.selection ? remove.push(n) : false )
+    remove.map(     (n) => scene.remove(n.selection) )
+    // create new selections
+    match.map( (w) => {
+      w.nodes.map( (mesh) => {
+        if( mesh.material )
+          selectionOfInterest( v, scene, mesh )
+      })
     })
   }
 
@@ -1455,15 +1556,16 @@ xrf.frag.updatePredefinedView = (opts) => {
       if( v.is( xrf.XRF.PV_EXECUTE ) ){
         scene.XRF_PV_ORIGIN = v.string
         // wait for nested instances to arrive at the scene ?
-        traverseScene(v,scene)
+        highlightInScene(v,scene)
       }
     }
   }
 }
 
-// react to url changes 
-xrf.addEventListener('updateHash', (opts) => {
+// react to enduser typing url
+xrf.addEventListener('hash', (opts) => {
   let frag = xrf.URI.parse( opts.hash, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
+  console.dir({opts,frag})
   xrf.frag.updatePredefinedView({frag,scene:xrf.scene})
 }) 
 
@@ -1473,13 +1575,6 @@ xrf.addEventListener('href', (opts) => {
   let frag = xrf.URI.parse( opts.xrf.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
   xrf.frag.updatePredefinedView({frag,scene:xrf.scene,href:opts.xrf})
 }) 
-
-//let updateUrl = (opts) => {
-//  console.dir(opts)
-//}
-//
-//xrf.addEventListener('predefinedView', updateUrl )
-//xrf.addEventListener('selection', updateUrl )
 // spec: https://xrfragment.org/#queries
 
 xrf.frag.q = function(v, opts){
@@ -1493,7 +1588,7 @@ xrf.frag.q = function(v, opts){
     scene.traverse( (o) => {
       for ( let name in v.query ) {
         let qobj = v.query[name];
-        if( qobj.class && o.userData.class && o.userData.class == name ) objs.push(o)
+        if( qobj.tag && o.userData.tag && xrf.hasTag(name,o.userData.tag) ) objs.push(o)
         else if( qobj.id && o.name == name ) objs.push(o)
       }
     })
@@ -1508,16 +1603,15 @@ xrf.frag.q = function(v, opts){
 
 xrf.frag.q.filter = function(scene,frag){
   // spec: https://xrfragment.org/#queries
-  let q = frag.q.query 
+  let q        = frag.q.query 
   scene.traverse( (mesh) => {
     for ( let i in q ) {
       let isMeshId       = q[i].id    != undefined 
-      let isMeshClass    = q[i].class != undefined 
-      let isMeshProperty = q[i].rules != undefined && q[i].rules.length && !isMeshId && !isMeshClass 
+      let isMeshProperty = q[i].rules != undefined && q[i].rules.length && !isMeshId
       if( q[i].root && mesh.isSRC ) continue;  // ignore nested object for root-items (queryseletor '/foo' e.g.)
-      if( isMeshId       && i == mesh.name           ) mesh.visible = q[i].id 
-      if( isMeshClass    && i == mesh.userData.class ) mesh.visible = q[i].class
-      if( isMeshProperty && mesh.userData[i]         ) mesh.visible = (new xrf.Query(frag.q.string)).testProperty(i,mesh.userData[i])
+      if( isMeshId       && 
+          (i == mesh.name || xrf.hasTag(i,mesh.userData.tag))) mesh.visible = q[i].id 
+      if( isMeshProperty && mesh.userData[i]                 ) mesh.visible = (new xrf.Query(frag.q.string)).testProperty(i,mesh.userData[i])
     }
   })
 }
@@ -1536,7 +1630,7 @@ xrf.frag.rot = function(v, opts){
 xrf.frag.src = function(v, opts){
 
   opts.embedded = v // indicate embedded XR fragment
-  let { mesh, model, camera, scene, renderer, THREE} = opts
+  let { mesh, model, camera, scene, renderer, THREE, hashbus} = opts
 
   console.log("   └ instancing src")
   let src = new THREE.Group()
@@ -1548,24 +1642,26 @@ xrf.frag.src = function(v, opts){
     // cherrypicking of object(s)
     if( !frag.q ){
       for( var i in frag ){
-        if( scene.getObjectByName(i) ) src.add( obj = scene.getObjectByName(i).clone() )
-        xrf.eval.fragment(i, Object.assign(opts,{frag, model,scene}))
+        if( scene.getObjectByName(i) ) src.add( obj = scene.getObjectByName(i).clone(true) )
+        hashbus.pub.fragment(i, Object.assign(opts,{frag, model,scene}))
       }
       if( src.children.length == 1 ) obj.position.set(0,0,0);
     }
 
     // filtering of objects using query
     if( frag.q ){
-      src = scene.clone();
-      src.isSRC = true;
+      src = scene.clone(true);
+      src.isSRC = src.isXRF = true;
       xrf.frag.q.filter(src,frag)
     }
     src.traverse( (m) => {
-      m.isSRC = true
+      src.isSRC = src.isXRF = true;
       if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 
-      xrf.eval.mesh(m,{scene,recursive:true})                          // cool idea: recursion-depth based distance between face & src
+      hashbus.pub.mesh(m,{scene,recursive:true})                          // cool idea: recursion-depth based distance between face & src
     })
     xrf.frag.src.scale( src, opts )
+    xrf.frag.src.eval( src, opts )
+    mesh.add( src )
   }
 
   const externalSRC = () => {
@@ -1585,24 +1681,23 @@ xrf.frag.src = function(v, opts){
   else externalSRC()                                  // external file
 }
 
+xrf.frag.src.eval = function(scene, opts, url){
+    let { mesh, model, camera, renderer, THREE, hashbus} = opts
+    if( url ){
+      let frag = xrfragment.URI.parse(url)
+      // scale URI XR Fragments (queries) inside src-value 
+      for( var i in frag ){
+        hashbus.pub.fragment(i, Object.assign(opts,{frag, model:{scene},scene}))
+      }
+      hashbus.pub( '#', {scene} )     // execute the default projection '#' (if exist)
+      hashbus.pub( url, {scene} )     // and eval URI XR fragments 
+    }
+}
+
 // scale embedded XR fragments https://xrfragment.org/#scaling%20of%20instanced%20objects
 xrf.frag.src.scale = function(scene, opts, url){
     let { mesh, model, camera, renderer, THREE} = opts
     let restrictToBoundingBox = mesh.geometry
-    if( url ){
-      let frag = xrfragment.URI.parse(url)
-      console.log("parse url:"+url)
-      console.log("children:"+scene.children.length)
-      // scale URI XR Fragments (queries) inside src-value 
-      for( var i in frag ){
-        xrf.eval.fragment(i, Object.assign(opts,{frag, model:{scene},scene}))
-      }
-      //if( frag.q ) scene = frag.q.scene 
-      //xrf.add( model.scene )
-      xrf.eval( '#', {scene} )     // execute the default projection '#' (if exist)
-      xrf.eval( url, {scene} )     // and eval URI XR fragments 
-      //if( !hash.match(/pos=/) )  //  xrf.eval( '#pos=0,0,0' ) // set default position if not specified
-    }
     if( restrictToBoundingBox ){ 
       // spec 3 of https://xrfragment.org/#src
       // spec 1 of https://xrfragment.org/#scaling%20of%20instanced%20objects  
@@ -1619,7 +1714,6 @@ xrf.frag.src.scale = function(scene, opts, url){
       scene.scale.multiply( mesh.scale ) 
     }
     scene.isXRF = model.scene.isSRC = true
-    mesh.add( scene )
     if( !opts.recursive && mesh.material ) mesh.material.visible = false // lets hide the preview object because deleting disables animations+nested objs
 }
 
@@ -1645,6 +1739,7 @@ xrf.frag.src.type['unknown'] = function( url, opts ){
 
 xrf.frag.src.type['model/gltf+json'] = function( url, opts ){
   return new Promise( (resolve,reject) => {
+    let {mesh} = opts
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
     let loader
 
@@ -1657,6 +1752,8 @@ xrf.frag.src.type['model/gltf+json'] = function( url, opts ){
 
     const onLoad = (model) => {
       xrf.frag.src.scale( model.scene, {...opts, model, scene: model.scene}, url )
+      xrf.frag.src.eval( model.scene, {...opts, model, scene: model.scene}, url )
+      mesh.add( model.scene )
       resolve(model)
     }
 
@@ -1710,83 +1807,88 @@ window.AFRAME.registerComponent('xrf', {
   schema: {
   },
   init: function () {
-    if( !AFRAME.XRF ) this.initXRFragments()
+    if( !AFRAME.XRF ){
+      document.querySelector('a-scene').addEventListener('loaded', () => {
+
+        //window.addEventListener('popstate', clear )
+        //window.addEventListener('pushstate', clear )
+
+        // enable XR fragments
+        let aScene = document.querySelector('a-scene')
+        let XRF = AFRAME.XRF = xrf.init({
+          THREE,
+          camera:   aScene.camera,
+          scene:    aScene.object3D,
+          renderer: aScene.renderer,
+          debug: true,
+          loaders: { 
+            gltf: THREE.GLTFLoader, // which 3D assets (exts) to check for XR fragments?
+            glb: THREE.GLTFLoader
+          }
+        })
+        if( !XRF.camera ) throw 'xrfragment: no camera detected, please declare <a-entity camera..> ABOVE entities with xrf-attributes'
+
+        // override the camera-related XR Fragments so the camera-rig is affected
+        let camOverride = (xrf,v,opts) => {
+          opts.camera = document.querySelector('[camera]').object3D.parent
+          xrf(v,opts)
+        }
+
+        xrf.pos  = camOverride
+
+        // in order to set the rotation programmatically
+        // we need to disable look-controls
+        xrf.rot  = (xrf,v,opts) => {
+          let {frag,renderer} = opts;
+          if( frag.q ) return // camera was not targeted for rotation 
+          let look = document.querySelector('[look-controls]')
+          if( look ) look.removeAttribute("look-controls")
+ //         camOverride(xrf,v,opts)
+          // *TODO* make look-controls compatible, because simply
+          // adding the look-controls will revert to the old rotation (cached somehow?)
+          //setTimeout( () => look.setAttribute("look-controls",""), 100 )
+        }
+
+        // convert portal to a-entity so AFRAME
+        // raycaster can find & execute it
+        xrf.href = (xrf,v,opts) => {
+          camOverride(xrf,v,opts)
+          let {mesh,camera} = opts;
+          let el = document.createElement("a-entity")
+          el.setAttribute("xrf-get",mesh.name )
+          el.setAttribute("class","ray")
+          el.addEventListener("click", mesh.userData.XRF.href.exec )
+          $('a-scene').appendChild(el)
+        }
+
+        // cleanup xrf-get objects when resetting scene
+        xrf.reset = ((reset) => () => {
+          reset()
+          console.log("aframe reset")
+          let els = [...document.querySelectorAll('[xrf-get]')]
+          els.map( (el) => document.querySelector('a-scene').removeChild(el) )
+        })(XRF.reset)
+
+        // undo lookup-control shenanigans (which blocks updating camerarig position in VR)
+        aScene.addEventListener('enter-vr', () => document.querySelector('[camera]').object3D.parent.matrixAutoUpdate = true )
+
+        AFRAME.XRF.navigator.to(this.data)
+                           .then( (model) => {
+                             let gets = [ ...document.querySelectorAll('[xrf-get]') ]
+                             gets.map( (g) => g.emit('update') )
+                           })
+
+        aScene.emit('XRF',{})
+      })
+    }
+
     if( typeof this.data == "string" ){
       if( document.location.search || document.location.hash.length > 1 ){ // override url
         this.data = `${document.location.search.substr(1)}${document.location.hash}`
       }
-      AFRAME.XRF.navigator.to(this.data)
-                         .then( (model) => {
-                           let gets = [ ...document.querySelectorAll('[xrf-get]') ]
-                           gets.map( (g) => g.emit('update') )
-                         })
     }
   },
 
-  initXRFragments: function(){
-
-    //window.addEventListener('popstate', clear )
-    //window.addEventListener('pushstate', clear )
-
-    // enable XR fragments
-    let aScene = document.querySelector('a-scene')
-    let XRF = AFRAME.XRF = xrf.init({
-      THREE,
-      camera:   aScene.camera,
-      scene:    aScene.object3D,
-      renderer: aScene.renderer,
-      debug: true,
-      loaders: { 
-        gltf: THREE.GLTFLoader, // which 3D assets (exts) to check for XR fragments?
-        glb: THREE.GLTFLoader
-      }
-    })
-    if( !XRF.camera ) throw 'xrfragment: no camera detected, please declare <a-entity camera..> ABOVE entities with xrf-attributes'
-
-    // override the camera-related XR Fragments so the camera-rig is affected
-    let camOverride = (xrf,v,opts) => {
-      opts.camera = document.querySelector('[camera]').object3D.parent
-      xrf(v,opts)
-    }
-
-    xrf.pos  = camOverride
-
-    // in order to set the rotation programmatically
-    // we need to disable look-controls
-    xrf.rot  = (xrf,v,opts) => {
-      let {frag,renderer} = opts;
-      if( frag.q ) return // camera was not targeted for rotation 
-      let look = document.querySelector('[look-controls]')
-      if( look ) look.removeAttribute("look-controls")
-      camOverride(xrf,v,opts)
-      // *TODO* make look-controls compatible, because simply
-      // adding the look-controls will revert to the old rotation (cached somehow?)
-      //setTimeout( () => look.setAttribute("look-controls",""), 100 )
-    }
-
-    // convert portal to a-entity so AFRAME
-    // raycaster can find & execute it
-    xrf.href = (xrf,v,opts) => {
-      camOverride(xrf,v,opts)
-      let {mesh,camera} = opts;
-      let el = document.createElement("a-entity")
-      el.setAttribute("xrf-get",mesh.name )
-      el.setAttribute("class","ray")
-      el.addEventListener("click", mesh.userData.XRF.href.exec )
-      $('a-scene').appendChild(el)
-    }
-
-    // cleanup xrf-get objects when resetting scene
-    xrf.reset = ((reset) => () => {
-      reset()
-      console.log("aframe reset")
-      let els = [...document.querySelectorAll('[xrf-get]')]
-      els.map( (el) => document.querySelector('a-scene').removeChild(el) )
-    })(XRF.reset)
-
-    // undo lookup-control shenanigans (which blocks updating camerarig position in VR)
-    aScene.addEventListener('enter-vr', () => document.querySelector('[camera]').object3D.parent.matrixAutoUpdate = true )
-  },
 })
 window.AFRAME.registerComponent('xrf-button', {
     schema: {

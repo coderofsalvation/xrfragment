@@ -59,7 +59,6 @@ export function setupUrlBar(el,XRF){
   if( isIframe || document.location.href.match(/localhost/) ){
     // show internal URL bar to test XR fragments interactively 
     el.style.display = 'block'
-    let nav = XRF.navigator
 
     XRF.addEventListener('updateHash', () => reflectUrl() )
 

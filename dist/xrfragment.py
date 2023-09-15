@@ -339,7 +339,7 @@ class Dynamic: pass
 class StringTools:
     _hx_class_name = "StringTools"
     __slots__ = ()
-    _hx_statics = ["isSpace", "ltrim", "rtrim", "trim", "replace"]
+    _hx_statics = ["isSpace", "ltrim", "rtrim", "trim"]
 
     @staticmethod
     def isSpace(s,pos):
@@ -376,11 +376,6 @@ class StringTools:
     @staticmethod
     def trim(s):
         return StringTools.ltrim(StringTools.rtrim(s))
-
-    @staticmethod
-    def replace(s,sub,by):
-        _this = (list(s) if ((sub == "")) else s.split(sub))
-        return by.join([python_Boot.toString1(x1,'') for x1 in _this])
 
 
 class haxe_IMap:
@@ -1297,7 +1292,7 @@ class xrfragment_Parser:
         Frag.h["prio"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_INT)
         Frag.h["src"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_URL)
         Frag.h["href"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.T_URL) | xrfragment_XRF.T_PREDEFINED_VIEW)
-        Frag.h["class"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
+        Frag.h["tag"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
         Frag.h["pos"] = (((((xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.T_STRING_OBJ) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
         Frag.h["q"] = ((xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING) | xrfragment_XRF.METADATA)
         Frag.h["scale"] = ((((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA)
@@ -1346,13 +1341,12 @@ class xrfragment_Parser:
 
 class xrfragment_Query:
     _hx_class_name = "xrfragment.Query"
-    __slots__ = ("str", "q", "isProp", "isExclude", "isRoot", "isClass", "isNumber")
-    _hx_fields = ["str", "q", "isProp", "isExclude", "isRoot", "isClass", "isNumber"]
-    _hx_methods = ["toObject", "expandAliases", "get", "parse", "test", "testProperty"]
+    __slots__ = ("str", "q", "isProp", "isExclude", "isRoot", "isNumber")
+    _hx_fields = ["str", "q", "isProp", "isExclude", "isRoot", "isNumber"]
+    _hx_methods = ["toObject", "get", "parse", "test", "testProperty"]
 
     def __init__(self,_hx_str):
         self.isNumber = EReg("^[0-9\\.]+$","")
-        self.isClass = EReg("^[-]?class$","")
         self.isRoot = EReg("^[-]?/","")
         self.isExclude = EReg("^-","")
         self.isProp = EReg("^.*:[><=!]?","")
@@ -1363,14 +1357,6 @@ class xrfragment_Query:
 
     def toObject(self):
         return self.q
-
-    def expandAliases(self,token):
-        classAlias = EReg("^(-)?\\.","")
-        classAlias.matchObj = python_lib_Re.search(classAlias.pattern,token)
-        if (classAlias.matchObj is not None):
-            return StringTools.replace(token,".","class:")
-        else:
-            return token
 
     def get(self):
         return self.q
@@ -1418,24 +1404,16 @@ class xrfragment_Query:
                     v = HxString.substr(v,len(oper),None)
                 if (len(oper) == 0):
                     oper = "="
-                _this = _gthis.isClass
-                _this.matchObj = python_lib_Re.search(_this.pattern,k)
+                rule = _hx_AnonObject({})
+                _this = _gthis.isNumber
+                _this.matchObj = python_lib_Re.search(_this.pattern,v)
                 if (_this.matchObj is not None):
-                    key = (("null" if prefix is None else prefix) + ("null" if k is None else k))
-                    value = (oper != "!=")
-                    setattr(_hx_filter,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),value)
-                    setattr(q,(("_hx_" + v) if ((v in python_Boot.keywords)) else (("_hx_" + v) if (((((len(v) > 2) and ((ord(v[0]) == 95))) and ((ord(v[1]) == 95))) and ((ord(v[(len(v) - 1)]) != 95)))) else v)),_hx_filter)
+                    value = Std.parseFloat(v)
+                    setattr(rule,(("_hx_" + oper) if ((oper in python_Boot.keywords)) else (("_hx_" + oper) if (((((len(oper) > 2) and ((ord(oper[0]) == 95))) and ((ord(oper[1]) == 95))) and ((ord(oper[(len(oper) - 1)]) != 95)))) else oper)),value)
                 else:
-                    rule = _hx_AnonObject({})
-                    _this = _gthis.isNumber
-                    _this.matchObj = python_lib_Re.search(_this.pattern,v)
-                    if (_this.matchObj is not None):
-                        value = Std.parseFloat(v)
-                        setattr(rule,(("_hx_" + oper) if ((oper in python_Boot.keywords)) else (("_hx_" + oper) if (((((len(oper) > 2) and ((ord(oper[0]) == 95))) and ((ord(oper[1]) == 95))) and ((ord(oper[(len(oper) - 1)]) != 95)))) else oper)),value)
-                    else:
-                        setattr(rule,(("_hx_" + oper) if ((oper in python_Boot.keywords)) else (("_hx_" + oper) if (((((len(oper) > 2) and ((ord(oper[0]) == 95))) and ((ord(oper[1]) == 95))) and ((ord(oper[(len(oper) - 1)]) != 95)))) else oper)),v)
-                    Reflect.field(Reflect.field(_hx_filter,"rules"),"push")(rule)
-                    setattr(q,(("_hx_" + k) if ((k in python_Boot.keywords)) else (("_hx_" + k) if (((((len(k) > 2) and ((ord(k[0]) == 95))) and ((ord(k[1]) == 95))) and ((ord(k[(len(k) - 1)]) != 95)))) else k)),_hx_filter)
+                    setattr(rule,(("_hx_" + oper) if ((oper in python_Boot.keywords)) else (("_hx_" + oper) if (((((len(oper) > 2) and ((ord(oper[0]) == 95))) and ((ord(oper[1]) == 95))) and ((ord(oper[(len(oper) - 1)]) != 95)))) else oper)),v)
+                Reflect.field(Reflect.field(_hx_filter,"rules"),"push")(rule)
+                setattr(q,(("_hx_" + k) if ((k in python_Boot.keywords)) else (("_hx_" + k) if (((((len(k) > 2) and ((ord(k[0]) == 95))) and ((ord(k[1]) == 95))) and ((ord(k[(len(k) - 1)]) != 95)))) else k)),_hx_filter)
                 return
             else:
                 _this = _gthis.isExclude
@@ -1461,7 +1439,7 @@ class xrfragment_Query:
         while (_g < _g1):
             i = _g
             _g = (_g + 1)
-            process(self.expandAliases((token[i] if i >= 0 and i < len(token) else None)))
+            process((token[i] if i >= 0 and i < len(token) else None))
         def _hx_local_2():
             def _hx_local_1():
                 self.q = q

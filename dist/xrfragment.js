@@ -130,9 +130,6 @@ StringTools.rtrim = function(s) {
 StringTools.trim = function(s) {
 	return StringTools.ltrim(StringTools.rtrim(s));
 };
-StringTools.replace = function(s,sub,by) {
-	return s.split(sub).join(by);
-};
 var haxe_iterators_ArrayIterator = function(array) {
 	this.current = 0;
 	this.array = array;
@@ -220,7 +217,7 @@ xrfragment_Parser.parse = function(key,value,store) {
 	Frag_h["prio"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_INT;
 	Frag_h["src"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL;
 	Frag_h["href"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.T_PREDEFINED_VIEW;
-	Frag_h["class"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
+	Frag_h["tag"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING_OBJ | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
 	Frag_h["q"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.METADATA;
 	Frag_h["scale"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
@@ -273,7 +270,6 @@ xrfragment_Parser.parse = function(key,value,store) {
 };
 var xrfragment_Query = $hx_exports["xrfragment"]["Query"] = function(str) {
 	this.isNumber = new EReg("^[0-9\\.]+$","");
-	this.isClass = new EReg("^[-]?class$","");
 	this.isRoot = new EReg("^[-]?/","");
 	this.isExclude = new EReg("^-","");
 	this.isProp = new EReg("^.*:[><=!]?","");
@@ -287,14 +283,6 @@ xrfragment_Query.__name__ = true;
 xrfragment_Query.prototype = {
 	toObject: function() {
 		return this.q;
-	}
-	,expandAliases: function(token) {
-		var classAlias = new EReg("^(-)?\\.","");
-		if(classAlias.match(token)) {
-			return StringTools.replace(token,".","class:");
-		} else {
-			return token;
-		}
 	}
 	,get: function() {
 		return this.q;
@@ -341,19 +329,14 @@ xrfragment_Query.prototype = {
 				if(oper.length == 0) {
 					oper = "=";
 				}
-				if(_gthis.isClass.match(k)) {
-					filter[prefix + k] = oper != "!=";
-					q[v] = filter;
+				var rule = { };
+				if(_gthis.isNumber.match(v)) {
+					rule[oper] = parseFloat(v);
 				} else {
-					var rule = { };
-					if(_gthis.isNumber.match(v)) {
-						rule[oper] = parseFloat(v);
-					} else {
-						rule[oper] = v;
-					}
-					filter["rules"].push(rule);
-					q[k] = filter;
+					rule[oper] = v;
 				}
+				filter["rules"].push(rule);
+				q[k] = filter;
 				return;
 			} else {
 				filter["id"] = _gthis.isExclude.match(str) ? false : true;
@@ -371,7 +354,7 @@ xrfragment_Query.prototype = {
 		var _g1 = token.length;
 		while(_g < _g1) {
 			var i = _g++;
-			process(this.expandAliases(token[i]));
+			process(token[i]);
 		}
 		return this.q = q;
 	}
