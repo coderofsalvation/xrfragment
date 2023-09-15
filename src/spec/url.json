@@ -13,5 +13,5 @@
   {"fn":"url","data":"http://foo.com?foo=1#mypredefinedview&another", "expect":{ "fn":"testPredefinedView", "input":"mypredefinedview","out":true},"label":"test predefined view executed (multiple)"},
   {"fn":"url","data":"#cube.position.x=music.position.x", "expect":{ "fn":"testPropertyAssign", "input":"cube.position.x","out":true},"label":"test data assign"},
   {"fn":"url","data":"#cube.position.x=@music.position.x", "expect":{ "fn":"testPropertyAssign", "input":"cube.position.x","out":true},"label":"test one-way data bind"},
-  {"fn":"url","data":"http://foo.com?foo=1#mycustom=foo", "expect":{ "fn":"testParsed", "input":"_mycustom","out":true},"label":"test custom property"}
+  {"fn":"url","data":"http://foo.com?foo=1#mycustom=foo", "expect":{ "fn":"testParsed", "input":"mycustom","out":true},"label":"test custom property"}
 ]

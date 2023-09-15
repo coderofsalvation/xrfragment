@@ -3,11 +3,13 @@ xrf.navigator = {}
 xrf.navigator.to = (url,flags,loader,data) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
 
+  let hashbus = xrf.hashbus
+
   return new Promise( (resolve,reject) => {
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
 
     if( !file || xrf.model.file == file ){ // we're already loaded
-      xrf.eval( url, xrf.model, flags )    // and eval local URI XR fragments 
+      hashbus.pub( url, xrf.model, flags )    // and eval local URI XR fragments 
       xrf.navigator.updateHash(hash)
       return resolve(xrf.model) 
     }
@@ -29,14 +31,13 @@ xrf.navigator.to = (url,flags,loader,data) => {
       // only change url when loading *another* file
       if( xrf.model ) xrf.navigator.pushState( `${dir}${file}`, hash )
       xrf.model = model 
+      // spec: 1. generate the XRWG
+      xrf.XRWG.generate({model,scene:model.scene})
       // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
       xrf.frag.defaultPredefinedView({model,scene:model.scene})
       // spec: 2. execute predefined view(s) from URL (https://xrfragment.org/#predefined_view)
-      xrf.eval( url, model )                                                 // and eval URI XR fragments 
+      hashbus.pub( url, model )                                                 // and eval URI XR fragments 
       xrf.add( model.scene )
-      if( !hash.match(/pos=/) ){
-        xrf.eval( '#pos=0,0,0' ) // set default position if not specified
-      }
       xrf.navigator.updateHash(hash)
       resolve(model)
     }
@@ -51,21 +52,28 @@ xrf.navigator.init = () => {
   window.addEventListener('popstate', function (event){
     xrf.navigator.to( document.location.search.substr(1) + document.location.hash )
   })
-  xrf.navigator.material = {
-    selection: new xrf.THREE.LineBasicMaterial({color:0xFF00FF,linewidth:2})
-  }
+
+  // this allows selectionlines to be updated according to the camera (renderloop)
+  xrf.focusLine = new xrf.THREE.Group()
+  xrf.focusLine.material = new xrf.THREE.LineDashedMaterial({color:0xFF00FF,linewidth:3, scale: 1, dashSize: 0.2, gapSize: 0.1,opacity:0.3, transparent:true})
+  xrf.focusLine.isXRF = true
+  xrf.focusLine.position.set(0,0,-0.5);
+  xrf.focusLine.points = []
+  xrf.focusLine.lines  = []
+  xrf.camera.add(xrf.focusLine)
+
   xrf.navigator.init.inited = true
 }
 
-xrf.navigator.updateHash = (hash) => {
-  if( hash == document.location.hash || hash.match(/\|/) ) return  // skip unnecesary pushState triggers
+xrf.navigator.updateHash = (hash,opts) => {
+  if( hash.replace(/^#/,'') == document.location.hash.substr(1) || hash.match(/\|/) ) return  // skip unnecesary pushState triggers
   console.log(`URL: ${document.location.search.substr(1)}#${hash}`)
   document.location.hash = hash
-  xrf.emit('updateHash', {hash} )
+  xrf.emit('hash', {...opts, hash: `#${hash}` })
 }
 
 xrf.navigator.pushState = (file,hash) => {
   if( file == document.location.search.substr(1) ) return // page is in its default state
-  console.log("pushstate")
   window.history.pushState({},`${file}#${hash}`, document.location.pathname + `?${file}#${hash}` )
+  xrf.emit('pushState', {file, hash} )
 }

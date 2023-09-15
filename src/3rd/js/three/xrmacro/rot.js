@@ -1,4 +1,4 @@
-xrf.addEventListener('eval', (opts) => {
+xrf.addEventListener('rot', (opts) => {
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   if( frag.rot && frag.q ){
     // apply roundrobin (if any)

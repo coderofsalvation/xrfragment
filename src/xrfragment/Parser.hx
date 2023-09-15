@@ -21,7 +21,7 @@ class Parser {
 
       // category: href navigation / portals / teleporting
       Frag.set("href",          XRF.ASSET | XRF.T_URL | XRF.T_PREDEFINED_VIEW                  );
-      Frag.set("class",         XRF.ASSET | XRF.T_STRING          );
+      Frag.set("tag",           XRF.ASSET | XRF.T_STRING          );
 
       // category: query selector / object manipulation
       Frag.set("pos",           XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.T_STRING_OBJ | XRF.METADATA | XRF.NAVIGATOR );

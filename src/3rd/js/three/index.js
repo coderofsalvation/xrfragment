@@ -43,55 +43,25 @@ xrf.parseModel = function(model,url){
   let file               = xrf.getFile(url)
   model.file             = file
   // eval embedded XR fragments
-  model.scene.traverse( (mesh) => xrf.eval.mesh(mesh,model) )
+  model.scene.traverse( (mesh) => xrf.hashbus.pub.mesh(mesh,model) )
   // add animations
   model.clock            = new xrf.THREE.Clock();
   model.mixer            = new xrf.THREE.AnimationMixer(model.scene)
   model.animations.map( (anim) => model.mixer.clipAction( anim ).play() )
+
+  let tmp = new xrf.THREE.Vector3()
   model.render           = function(){
     model.mixer.update( model.clock.getDelta() )
-    xrf.navigator.material.selection.color.r = (1.0 + Math.sin( model.clock.getElapsedTime() * 10 ))/2
+
+    // update focusline 
+    xrf.focusLine.material.color.r = (1.0 + Math.sin( model.clock.getElapsedTime()  ))/2
+    xrf.focusLine.material.dashSize = 0.2 + 0.02*Math.sin( model.clock.getElapsedTime()  )
+    xrf.focusLine.material.gapSize  = 0.1 + 0.02*Math.sin( model.clock.getElapsedTime() *3  )
+    xrf.focusLine.material.opacity  = 0.25 + 0.15*Math.sin( model.clock.getElapsedTime() * 3 )
   }
 }
 
 xrf.getLastModel = ()           => xrf.model.last 
-
-xrf.eval = function( url, model, flags ){  // evaluate fragments in url
-  if( !url ) return 
-  if( !url.match(/#/) ) url = `#${url}`
-  model = model || xrf.model
-  let { THREE, camera } = xrf
-  let frag = xrf.URI.parse( url, flags != undefined ? flags : xrf.XRF.NAVIGATOR )
-  let opts = {frag, mesh:xrf.camera, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
-  xrf.emit('eval',opts)
-  .then( () => {
-    for ( let k in frag ){
-      xrf.eval.fragment(k,opts) 
-    }
-  })
-  return frag
-}
-
-xrf.eval.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) inside mesh of model 
-  if( mesh.userData ){
-    let frag = {}
-    for( let k in mesh.userData ) xrf.Parser.parse( k, mesh.userData[k], frag )
-    for( let k in frag ){
-      let opts = {frag, mesh, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
-      mesh.userData.XRF = frag // allow fragment impl to access XRF obj already
-      xrf.emit('eval',opts)
-      .then( () => xrf.eval.fragment(k,opts) )
-    }
-  }
-}
-
-xrf.eval.fragment = (k, opts ) => { // evaluate one fragment
-  let frag = opts.frag[k];
-  // call native function (xrf/env.js e.g.), or pass it to user decorator
-  let func = xrf.frag[k] || function(){} 
-  if(  xrf[k] ) xrf[k]( func, frag, opts)
-  else                  func( frag, opts)
-}
 
 xrf.reset = () => {
   const disposeObject = (obj) => {

@@ -1,8 +1,9 @@
-xrf.addEventListener('eval', (opts) => {
+xrf.addEventListener('env', (opts) => {
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   if( frag.env && !scene.environment ){
-    let env = mesh.getObjectByName(frag.env.string)
-    if( !env ) return console.warn("xrf.env "+v.string+" not found")
+    let env = scene.getObjectByName(frag.env.string)
+    if( !env ) env = xrf.scene.getObjectByName(frag.env.string) // repurpose from parent scene
+    if( !env ) return console.warn("xrf.env "+frag.env.string+" not found")
     env.material.map.mapping = THREE.EquirectangularReflectionMapping;
     scene.environment = env.material.map
     //scene.texture = env.material.map    
@@ -10,4 +11,5 @@ xrf.addEventListener('eval', (opts) => {
     renderer.toneMappingExposure = 2;
     console.log(`   └ applied image '${frag.env.string}' as environment map`)
   }
+
 })

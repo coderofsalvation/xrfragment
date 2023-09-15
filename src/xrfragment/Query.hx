@@ -51,11 +51,10 @@ class Query {
   //  1. requirement: receive arguments: query (string)
 
   private var str:String = "";
-  private var q:haxe.DynamicAccess<Dynamic> = {};                      //  1. create an associative array/object to store query-arguments as objects
+  private var q:haxe.DynamicAccess<Dynamic> = {};       //  1. create an associative array/object to store query-arguments as objects
   private var isProp:EReg        = ~/^.*:[><=!]?/;      //  1. detect object id's & properties `foo:1` and `foo` (reference regex: `/^.*:[><=!]?/`  )
   private var isExclude:EReg     = ~/^-/;               //  1. detect excluders like `-foo`,`-foo:1`,`-.foo`,`-/foo` (reference regex: `/^-/` )
   private var isRoot:EReg        = ~/^[-]?\//;          //  1. detect root selectors like `/foo` (reference regex: `/^[-]?\//` )
-  private var isClass:EReg       = ~/^[-]?class$/;      //  1. detect class selectors like `.foo` (reference regex: `/^[-]?class$/` )
   private var isNumber:EReg      = ~/^[0-9\.]+$/;       //  1. detect number values like `foo:1` (reference regex: `/^[0-9\.]+$/` )
 
   public function new(str:String){
@@ -64,12 +63,6 @@ class Query {
 
   public function toObject() : Dynamic {
     return this.q;
-  }
-
-  public function expandAliases(token:String) : String {
-    // expand '.foo' to 'class:foo'
-    var classAlias = ~/^(-)?\./;
-    return classAlias.match(token) ? StringTools.replace(token,".","class:") : token;  //  1. expand aliases like `.foo` into `class:foo`
   }
 
   public function get() : Dynamic {
@@ -102,16 +95,11 @@ class Query {
           k = k.substr(1);      //  1. then strip key-operator: convert "-foo" into "foo" 
         }else v = v.substr(oper.length); // 1. then strip value operator: change value ">=foo" into "foo" 
         if( oper.length == 0 ) oper = "=";
-        if( isClass.match(k) ){
-          filter[ prefix+ k ] = oper != "!=";
-          q.set(v,filter);
-        }else{
-          var rule:haxe.DynamicAccess<Dynamic> = {};
-          if( isNumber.match(v) ) rule[ oper ] = Std.parseFloat(v);
-          else rule[oper] = v;
-          filter['rules'].push( rule );                    //  1. add operator and value to rule-array
-          q.set( k, filter );
-        }
+        var rule:haxe.DynamicAccess<Dynamic> = {};
+        if( isNumber.match(v) ) rule[ oper ] = Std.parseFloat(v);
+        else rule[oper] = v;
+        filter['rules'].push( rule );                    //  1. add operator and value to rule-array
+        q.set( k, filter );
         return;
       }else{ // 1. <b>ELSE </b> we are dealing with an object
         filter[ "id"   ] = isExclude.match(str) ? false: true;  //  1. therefore we we set `id` to `true` or `false` (false=excluder `-`)
@@ -121,7 +109,7 @@ class Query {
         q.set( str ,filter );                           //  1. finally we add the key/value to the store (`store.foo = {id:false,root:true}` e.g.)
       }
     }
-    for( i in 0...token.length ) process( expandAliases(token[i]) );
+    for( i in 0...token.length ) process( token[i] );
     return this.q = q;
   }
 

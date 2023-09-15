@@ -29,6 +29,7 @@ xrf.roundrobin = (frag, store) => {
   return store.rr[label].index = 0
 }
 
+xrf.hasTag = (tag,tags) => String(tags).match( new RegExp(`(^| )${tag}( |$)`,`g`) )
 
 // map library functions to xrf
 for ( let i in xrfragment ) xrf[i] = xrfragment[i] 

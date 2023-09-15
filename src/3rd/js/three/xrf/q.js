@@ -11,7 +11,7 @@ xrf.frag.q = function(v, opts){
     scene.traverse( (o) => {
       for ( let name in v.query ) {
         let qobj = v.query[name];
-        if( qobj.class && o.userData.class && o.userData.class == name ) objs.push(o)
+        if( qobj.tag && o.userData.tag && xrf.hasTag(name,o.userData.tag) ) objs.push(o)
         else if( qobj.id && o.name == name ) objs.push(o)
       }
     })
@@ -26,16 +26,15 @@ xrf.frag.q = function(v, opts){
 
 xrf.frag.q.filter = function(scene,frag){
   // spec: https://xrfragment.org/#queries
-  let q = frag.q.query 
+  let q        = frag.q.query 
   scene.traverse( (mesh) => {
     for ( let i in q ) {
       let isMeshId       = q[i].id    != undefined 
-      let isMeshClass    = q[i].class != undefined 
-      let isMeshProperty = q[i].rules != undefined && q[i].rules.length && !isMeshId && !isMeshClass 
+      let isMeshProperty = q[i].rules != undefined && q[i].rules.length && !isMeshId
       if( q[i].root && mesh.isSRC ) continue;  // ignore nested object for root-items (queryseletor '/foo' e.g.)
-      if( isMeshId       && i == mesh.name           ) mesh.visible = q[i].id 
-      if( isMeshClass    && i == mesh.userData.class ) mesh.visible = q[i].class
-      if( isMeshProperty && mesh.userData[i]         ) mesh.visible = (new xrf.Query(frag.q.string)).testProperty(i,mesh.userData[i])
+      if( isMeshId       && 
+          (i == mesh.name || xrf.hasTag(i,mesh.userData.tag))) mesh.visible = q[i].id 
+      if( isMeshProperty && mesh.userData[i]                 ) mesh.visible = (new xrf.Query(frag.q.string)).testProperty(i,mesh.userData[i])
     }
   })
 }

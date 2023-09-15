@@ -1,7 +1,8 @@
 xrf.macros = {}
 
-xrf.addEventListener('eval', (opts) => {
-  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+xrf.addEventListener('mesh', (opts) => {
+  let { frag, mesh, model, camera, scene, renderer, THREE, hashbus} = opts
+
   for( let k in frag ){
     let id = mesh.name+"_"+k
     let fragment = frag[k]
@@ -25,8 +26,7 @@ xrf.addEventListener('eval', (opts) => {
               if( xrf.macros[ rrFrag ] ){
                 xrf.macros[ rrFrag ].trigger()
               } else {
-                if( rrFrag[0] == '#' ) xrf.navigator.updateHash(rrFrag)
-                else xrf.eval(rrFrag,null,0)
+                xrf.navigator.to( rrFrag,null,0)
               }
         }) 
       }

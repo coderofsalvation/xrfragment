@@ -47,6 +47,8 @@ xrf.emit.promise = function(e, opts){
       return { resolve, reject }
     }
     xrf.emit.normal(e, opts)     
+    delete opts.XRF
     if( !opts.promise.halted ) resolve()
+    delete opts.promise
   })
 }

@@ -91,7 +91,7 @@ xrf.frag.href = function(v, opts){
 
   let click = mesh.userData.XRF.href.exec = (e) => {
     let isLocal = v.string[0] == '#'
-    let lastPos = `pos=${camera.position.x.toFixed(1)},${camera.position.y.toFixed(1)},${camera.position.z.toFixed(1)}`
+    let lastPos = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
     xrf
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
@@ -100,7 +100,7 @@ xrf.frag.href = function(v, opts){
       if( !v.string.match(/pos=/) ) v.string += `${v.string[0] == '#' ? '&' : '#'}${lastPos}` 
       if( !document.location.hash.match(/pos=/) ) xrf.navigator.to(`#${lastPos}`,flags)
 
-      xrf.navigator.to(v.string,flags)    // let's surf to HREF!
+      xrf.navigator.to(v.string)    // let's surf to HREF!
     }) 
   }
 

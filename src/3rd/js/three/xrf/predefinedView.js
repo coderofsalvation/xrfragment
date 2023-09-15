@@ -13,53 +13,78 @@ xrf.frag.updatePredefinedView = (opts) => {
     let id = frag.string
     let oldSelection
     if(!id) return id // important: ignore empty strings 
-    if( mesh.selection ) oldSelection = mesh.selection 
     // Selection of Interest if predefined_view matches object name
-    if( mesh.visible && (id == mesh.name || id.substr(1) == mesh.userData.class) ){
-      xrf.emit('selection',{...opts,frag})
+    if( mesh.visible ){
+      xrf.emit('focus',{...opts,frag})
       .then( () => {
-        const margin = 1.2
-        mesh.scale.multiplyScalar( margin )
-        mesh.selection = new xrf.THREE.BoxHelper(mesh,0xff00ff)
-        mesh.scale.divideScalar( margin )
-        mesh.selection.material.dispose()
-        mesh.selection.material = xrf.navigator.material.selection
-        mesh.selection.isXRF = true
-        scene.add(mesh.selection)
-      })
-    }
-    return oldSelection
-  }
+        const color    = new THREE.Color();
+        const colors   = []
+        let from       = new THREE.Vector3()
 
-  // spec: https://xrfragment.org/#predefined_view
-  const predefinedView = (frag,scene,mesh) => {
-    let id   = frag.string || frag.fragment
-    id       = `#${id}`
-    if( id == '##' ) id = '#'; // default predefined view
-    if( !id ) return           // prevent empty matches
-    if( mesh.userData[id] ){   // get alias
-      frag = xrf.URI.parse( mesh.userData[id], xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-      xrf.emit('predefinedView',{...opts,frag})
-      .then( () => {
-        for ( let k in frag ){
-          let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
-          if( frag[k].is( xrf.XRF.PV_EXECUTE ) && scene.XRF_PV_ORIGIN != k ){  // cyclic detection
-            traverseScene(frag[k],scene)                                       // recurse predefined views
-          }
-        }
+        let getCenterPoint = (mesh) => {
+            var geometry = mesh.geometry;
+            geometry.computeBoundingBox();
+            var center = new THREE.Vector3();
+            geometry.boundingBox.getCenter( center );
+            mesh.localToWorld( center );
+            return center;
+        }         
+
+        xrf.camera.updateMatrixWorld(true); // always keeps me diving into the docs :]
+        xrf.camera.getWorldPosition(from)
+        from.y -= 0.5 // originate from the heart chakra! :p
+        const points = [from, getCenterPoint(mesh) ]
+        const geometry = new THREE.BufferGeometry().setFromPoints( points );
+        let line = new THREE.Line( geometry, xrf.focusLine.material );
+        line.isXRF = true
+        line.computeLineDistances();
+        xrf.focusLine.lines.push(line)
+        xrf.focusLine.points.push(from)
+        scene.add(line)
       })
     }
   }
 
-  const traverseScene = (v,scene) => {
-    let remove = []
+  //// spec: https://xrfragment.org/#predefined_view
+  //const predefinedView = (frag,scene,mesh) => {
+  //  let id   = frag.string || frag.fragment
+  //  id       = `#${id}`
+  //  if( id == '##' ) id = '#'; // default predefined view
+  //  if( !id ) return           // prevent empty matches
+  //  if( mesh.userData[id] ){   // get alias
+  //    frag = xrf.URI.parse( mesh.userData[id], xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
+  //    xrf.emit('predefinedView',{...opts,frag})
+  //    .then( () => {
+  //      for ( let k in frag ){
+  //        let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
+  //        if( frag[k].is( xrf.XRF.PV_EXECUTE ) && scene.XRF_PV_ORIGIN != k ){  // cyclic detection
+  //          highlightInScene(frag[k],scene)                                    // recurse predefined views
+  //        }
+  //      }
+  //    })
+  //  }
+  //}
+
+  const highlightInScene = (v,scene) => {
     if( !scene ) return 
-    scene.traverse( (mesh) => {
-      remove.push( selectionOfInterest( v, scene, mesh ) )
-      predefinedView( v , scene, mesh )
-    })
-    remove.filter( (e) => e ).map( (selection) => {
-      scene.remove(selection)
+    let remove = []
+    let id = v.string || v.fragment
+    if( id == '#' ) return
+    let match = xrf.XRWG.match(id)
+    console.dir({id,match,XRWG:xrf.XRWG})
+    // erase previous lines
+    xrf.focusLine.lines.map( (line) => scene.remove(line) )
+    xrf.focusLine.points = []
+    xrf.focusLine.lines  = []
+
+    scene.traverse( (n) => n.selection ? remove.push(n) : false )
+    remove.map(     (n) => scene.remove(n.selection) )
+    // create new selections
+    match.map( (w) => {
+      w.nodes.map( (mesh) => {
+        if( mesh.material )
+          selectionOfInterest( v, scene, mesh )
+      })
     })
   }
 
@@ -74,15 +99,16 @@ xrf.frag.updatePredefinedView = (opts) => {
       if( v.is( xrf.XRF.PV_EXECUTE ) ){
         scene.XRF_PV_ORIGIN = v.string
         // wait for nested instances to arrive at the scene ?
-        traverseScene(v,scene)
+        highlightInScene(v,scene)
       }
     }
   }
 }
 
-// react to url changes 
-xrf.addEventListener('updateHash', (opts) => {
+// react to enduser typing url
+xrf.addEventListener('hash', (opts) => {
   let frag = xrf.URI.parse( opts.hash, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
+  console.dir({opts,frag})
   xrf.frag.updatePredefinedView({frag,scene:xrf.scene})
 }) 
 
@@ -92,10 +118,3 @@ xrf.addEventListener('href', (opts) => {
   let frag = xrf.URI.parse( opts.xrf.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
   xrf.frag.updatePredefinedView({frag,scene:xrf.scene,href:opts.xrf})
 }) 
-
-//let updateUrl = (opts) => {
-//  console.dir(opts)
-//}
-//
-//xrf.addEventListener('predefinedView', updateUrl )
-//xrf.addEventListener('selection', updateUrl )

@@ -1,4 +1,4 @@
-xrf.addEventListener('eval', (opts) => {
+xrf.addEventListener('show', (opts) => {
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   if( frag.show && frag.q ){
     let show = frag.show

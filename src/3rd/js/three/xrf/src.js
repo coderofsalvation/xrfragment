@@ -3,7 +3,7 @@
 xrf.frag.src = function(v, opts){
 
   opts.embedded = v // indicate embedded XR fragment
-  let { mesh, model, camera, scene, renderer, THREE} = opts
+  let { mesh, model, camera, scene, renderer, THREE, hashbus} = opts
 
   console.log("   └ instancing src")
   let src = new THREE.Group()
@@ -15,24 +15,26 @@ xrf.frag.src = function(v, opts){
     // cherrypicking of object(s)
     if( !frag.q ){
       for( var i in frag ){
-        if( scene.getObjectByName(i) ) src.add( obj = scene.getObjectByName(i).clone() )
-        xrf.eval.fragment(i, Object.assign(opts,{frag, model,scene}))
+        if( scene.getObjectByName(i) ) src.add( obj = scene.getObjectByName(i).clone(true) )
+        hashbus.pub.fragment(i, Object.assign(opts,{frag, model,scene}))
       }
       if( src.children.length == 1 ) obj.position.set(0,0,0);
     }
 
     // filtering of objects using query
     if( frag.q ){
-      src = scene.clone();
-      src.isSRC = true;
+      src = scene.clone(true);
+      src.isSRC = src.isXRF = true;
       xrf.frag.q.filter(src,frag)
     }
     src.traverse( (m) => {
-      m.isSRC = true
+      src.isSRC = src.isXRF = true;
       if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 
-      xrf.eval.mesh(m,{scene,recursive:true})                          // cool idea: recursion-depth based distance between face & src
+      hashbus.pub.mesh(m,{scene,recursive:true})                          // cool idea: recursion-depth based distance between face & src
     })
     xrf.frag.src.scale( src, opts )
+    xrf.frag.src.eval( src, opts )
+    mesh.add( src )
   }
 
   const externalSRC = () => {
@@ -52,24 +54,23 @@ xrf.frag.src = function(v, opts){
   else externalSRC()                                  // external file
 }
 
+xrf.frag.src.eval = function(scene, opts, url){
+    let { mesh, model, camera, renderer, THREE, hashbus} = opts
+    if( url ){
+      let frag = xrfragment.URI.parse(url)
+      // scale URI XR Fragments (queries) inside src-value 
+      for( var i in frag ){
+        hashbus.pub.fragment(i, Object.assign(opts,{frag, model:{scene},scene}))
+      }
+      hashbus.pub( '#', {scene} )     // execute the default projection '#' (if exist)
+      hashbus.pub( url, {scene} )     // and eval URI XR fragments 
+    }
+}
+
 // scale embedded XR fragments https://xrfragment.org/#scaling%20of%20instanced%20objects
 xrf.frag.src.scale = function(scene, opts, url){
     let { mesh, model, camera, renderer, THREE} = opts
     let restrictToBoundingBox = mesh.geometry
-    if( url ){
-      let frag = xrfragment.URI.parse(url)
-      console.log("parse url:"+url)
-      console.log("children:"+scene.children.length)
-      // scale URI XR Fragments (queries) inside src-value 
-      for( var i in frag ){
-        xrf.eval.fragment(i, Object.assign(opts,{frag, model:{scene},scene}))
-      }
-      //if( frag.q ) scene = frag.q.scene 
-      //xrf.add( model.scene )
-      xrf.eval( '#', {scene} )     // execute the default projection '#' (if exist)
-      xrf.eval( url, {scene} )     // and eval URI XR fragments 
-      //if( !hash.match(/pos=/) )  //  xrf.eval( '#pos=0,0,0' ) // set default position if not specified
-    }
     if( restrictToBoundingBox ){ 
       // spec 3 of https://xrfragment.org/#src
       // spec 1 of https://xrfragment.org/#scaling%20of%20instanced%20objects  
@@ -86,7 +87,6 @@ xrf.frag.src.scale = function(scene, opts, url){
       scene.scale.multiply( mesh.scale ) 
     }
     scene.isXRF = model.scene.isSRC = true
-    mesh.add( scene )
     if( !opts.recursive && mesh.material ) mesh.material.visible = false // lets hide the preview object because deleting disables animations+nested objs
 }
 
@@ -112,6 +112,7 @@ xrf.frag.src.type['unknown'] = function( url, opts ){
 
 xrf.frag.src.type['model/gltf+json'] = function( url, opts ){
   return new Promise( (resolve,reject) => {
+    let {mesh} = opts
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
     let loader
 
@@ -124,6 +125,8 @@ xrf.frag.src.type['model/gltf+json'] = function( url, opts ){
 
     const onLoad = (model) => {
       xrf.frag.src.scale( model.scene, {...opts, model, scene: model.scene}, url )
+      xrf.frag.src.eval( model.scene, {...opts, model, scene: model.scene}, url )
+      mesh.add( model.scene )
       resolve(model)
     }
 
