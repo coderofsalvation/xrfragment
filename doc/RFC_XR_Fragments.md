@@ -30,7 +30,7 @@ fullname="L.R. van Kammen"
     padding: 0% 20%;
     line-height: 30px;
     color:#555;
-    background:#F0F0F3
+    background:#F7F7F7;
   }
   h1 { margin-top:40px; }
   pre{ line-height:18px; }
@@ -181,10 +181,10 @@ sub-delims  = "," / "="
 
 | fragment     | type     | example           | info                                                                |
 |--------------|----------|-------------------|---------------------------------------------------------------------|
-| `#pos`       | vector3  | `#pos=0.5,0,0`    | positions camera to xyz-coord 0.5,0,0                               |
+| `#pos`       | vector3  | `#pos=0.5,0,0`    | positions camera (or XR floor) to xyz-coord 0.5,0,0,                |
 | `#rot`       | vector3  | `#rot=0,90,0`     | rotates camera to xyz-coord 0.5,0,0                                 |
 | `#t`         | vector2  | `#t=500,1000`     | sets animation-loop range between frame 500 and 1000                |
-| `#......`    | string   | `#.cubes` `#cube` | object(s) of interest (fragment-to-object-or-tagname)             |
+| `#......`    | string   | `#.cubes` `#cube` | predefined views, XRWG fragments and ID fragments                   |
 
 > xyz coordinates are similar to ones found in SVG Media Fragments
 
@@ -312,7 +312,7 @@ Here's how to write a query parser:
 
 > An example query-parser (which compiles to many languages) can be [found here](https://github.com/coderofsalvation/xrfragment/blob/main/src/xrfragment/Query.hx)
 
-# Embedding local/remote content (instancing)
+# Embedding content (src-instancing)
 
 `src` is the 3D version of the <a target="_blank" href="https://www.w3.org/html/wiki/Elements/iframe">iframe</a>.<br>
 It instances content (in objects) in the current scene/asset.
@@ -321,12 +321,12 @@ It instances content (in objects) in the current scene/asset.
 |----------|------|---------------|
 |`src`| string (uri or [[predefined view|predefined_view]] or [[query|queries]]) | `#cube`<br>`#q=-ball_inside_cube`<br>`#q=-/sky -rain`<br>`#q=-.language .english`<br>`#q=price:>2 price:<5`<br>`https://linux.org/penguin.png`<br>`https://linux.world/distrowatch.gltf#t=1,100`<br>`linuxapp://conference/nixworkshop/apply.gltf#q=flyer`<br>`androidapp://page1?tutorial#pos=0,0,1&t1,100`|
 
-
 1. local/remote content is instanced by the `src` (query) value (and attaches it to the placeholder mesh containing the `src` property) 
-1. <b>local</b> `src` values (URL **starting** with `#`, like `#cube&foo`) means **only** the mentioned objectnames will be copied to the instanced scene (from the current scene) while preserving their names (to support recursive selectors). [[(example code)|https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/src.js]] 
-1. <b>local</b> `src` values indicating a query (`#q=`), means that all included objects (from the current scene) will be copied to the instanced scene (before applying the query) while preserving their names (to support recursive selectors). [[(example code)|https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/src.js]] 
+1. <b>local</b> `src` values (URL **starting** with `#`, like `#cube&foo`) means **only** the mentioned objectnames will be copied to the instanced scene (from the current scene) while preserving their names (to support recursive selectors). [(example code)](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/src.js)
+1. <b>local</b> `src` values indicating a query (`#q=`), means that all included objects (from the current scene) will be copied to the instanced scene (before applying the query) while preserving their names (to support recursive selectors). [(example code)](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/src.js)
 1. the instanced scene (from a `src` value) should be <b>scaled accordingly</b> to its placeholder object or <b>scaled relatively</b> based on the scale-property (of a geometry-less placeholder, an 'empty'-object in blender e.g.). For more info see Chapter Scaling.
 1. <b>external</b> `src` (file) values should be served with appropriate mimetype (so the XR Fragment-compatible browser will now how to render it). The bare minimum supported mimetypes are:
+1. when the placeholder object is a 2D plane, but the mimetype is 3D, then render the spatial content on that plane via a stencil buffer. 
 1. when only one object was cherrypicked (`#cube` e.g.), set its position to `0,0,0`
 
 * `model/gltf+json`
@@ -334,8 +334,56 @@ It instances content (in objects) in the current scene/asset.
 * `image/jpg`
 * `text/plain;charset=utf-8;bib=^@`
 
+[» example implementation](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/src.js)<br>
+[» example 3D asset](https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/src.gltf#L192)<br>
+[» discussion](https://github.com/coderofsalvation/xrfragment/issues/4)<br>
+
+## Referencing content (href portals)
+
+navigation, portals & mutations
+
+| fragment |                            type | example value                                                                                                             |
+|----------|---------------------------------|---------------------------------------------------------------------------------------------------------------------------|
+|`href`    | string (uri or predefined view) | `#pos=1,1,0`<br>`#pos=1,1,0&rot=90,0,0`<br>`://somefile.gltf#pos=1,1,0`<br> |
+
+1. clicking an ''external''- or ''file URI'' fully replaces the current scene and assumes `pos=0,0,0&rot=0,0,0` by default (unless specified)
+
+2. relocation/reorientation should happen locally for local URI's (`#pos=....`) 
+
+3. navigation should not happen ''immediately'' when user is more than 2 meter away from the portal/object containing the href (to prevent accidental navigation e.g.)
+
+4. URL navigation should always be reflected in the client (in case of javascript: see [[here](https://github.com/coderofsalvation/xrfragment/blob/dev/src/3rd/js/three/navigator.js) for an example navigator).
+
+5. In XR mode, the navigator back/forward-buttons should be always visible (using a wearable e.g., see [[here](https://github.com/coderofsalvation/xrfragment/blob/dev/example/aframe/sandbox/index.html#L26-L29) for an example wearable)
+
+6. in case of navigating to a new [[pos)ition, ''first'' navigate to the ''current position'' so that the ''back-button'' of the ''browser-history'' always refers to the previous position (see [[here](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/href.js#L97))
+
+7. portal-rendering: a 2:1 ratio texture-material indicates an equirectangular projection
+
+[» example implementation](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/href.js)<br>
+[» example 3D asset](https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/href.gltf#L192)<br>
+[» discussion](https://github.com/coderofsalvation/xrfragment/issues/1)<br>
+
 ## Scaling instanced content
 
+Sometimes embedded properties (like [[href|href]] or [[src|src]]) instance new objects.<br>
+But what about their scale?<br>
+How does the scale of the object (with the embedded properties) impact the scale of the referenced content?<br>
+
+> Rule of thumb: visible placeholder objects act as a '3D canvas' for the referenced scene (a plane acts like a 2D canvas for images e, a cube as a 3D canvas e.g.).
+
+1. <b>IF</b> an embedded property (`src` e.g.) is set on an non-empty placeholder object (geometry of >2 vertices):
+
+* calculate the <b>bounding box</b> of the ''placeholder'' object (maxsize=1.4 e.g.)
+* hide the ''placeholder'' object (material e.g.)
+* instance the `src` scene as a child of the existing object
+* calculate the <b>bounding box</b> of the instanced scene, and scale it accordingly (to 1.4 e.g.)
+
+> REASON: non-empty placeholder object can act as a protective bounding-box (for remote content of which might grow over time e.g.)
+
+2. ELSE multiply the scale-vector of the instanced scene with the scale-vector of the <b>placeholder</b> object. 
+
+> TODO: needs intermediate visuals to make things more obvious
 
 
 # Text in XR (tagging,linking to spatial objects)
@@ -388,7 +436,6 @@ Example:
 
 > the `#john@baroque`-bib associates both text `John` and objectname `john`, with tag `baroque`
 
-```
 
 Another example:
 
@@ -663,6 +710,7 @@ This document has no IANA actions.
 |the XRWG              | wordgraph (collapses 3D scene to tags)       |
 |the hashbus           | hashtags map to camera/scene-projections     |
 |spacetime hashtags    | positions camera, triggers scene-preset/time |
+|placeholder object    | a 3D object which with src-metadata (which will be replaced by the src-data.) |  
 |src                   | (HTML-piggybacked) metadata of a 3D object which instances content                                                                   |
 |href                  | (HTML-piggybacked) metadata of a 3D object which links to content                                                                    |
 |query                 | an URI Fragment-operator which queries object(s) from a scene like `#q=cube`                                                         |
