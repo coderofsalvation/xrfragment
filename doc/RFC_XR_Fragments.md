@@ -280,11 +280,11 @@ In case of `buttonA` the end-user will be teleported to another location and tim
 
 The URL-processing-flow for hypermedia browsers goes like this:
 
-1.IF a `#cube` matches a custom property-key (of an object) in the 3D file/scene (`#cube`: `#......`) <b>THEN</b> execute that predefined_view.
-2.IF scene operators (`pos`) and/or animation operator (`t`) are present in the URL then (re)position the camera and/or animation-range accordingly.
-3.IF no camera-position has been set in <b>step 1 or 2</b> update the top-level URL with `#pos=0,0,0` ([example](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/navigator.js#L31]]))
-4.IF a `#cube` matches the name (of an object) in the 3D file/scene then draw a line from the enduser('s heart) to that object (to highlight it).
-5.IF a `#cube` matches anything else in the XR Word Graph (XRWG) draw wires to them (text or related objects).
+1. IF a `#cube` matches a custom property-key (of an object) in the 3D file/scene (`#cube`: `#......`) <b>THEN</b> execute that predefined_view.
+2. IF scene operators (`pos`) and/or animation operator (`t`) are present in the URL then (re)position the camera and/or animation-range accordingly.
+3. IF no camera-position has been set in <b>step 1 or 2</b> update the top-level URL with `#pos=0,0,0` ([example](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/navigator.js#L31]]))
+4. IF a `#cube` matches the name (of an object) in the 3D file/scene then draw a line from the enduser('s heart) to that object (to highlight it).
+5. IF a `#cube` matches anything else in the XR Word Graph (XRWG) draw wires to them (text or related objects).
 
 
 # Embedding XR content (src-instancing)
@@ -456,20 +456,24 @@ Here's how to write a query parser:
 
 # Visible links
 
-When predefined views, XRWG fragments and ID fragments (`#cube` or `#mytag` e.g.) are triggered by the enduser (via `href` of toplevel URL):
+When predefined views, XRWG fragments and ID fragments (`#cube` or `#mytag` e.g.) are triggered by the enduser (via toplevel URL or clicking `href`):
 
 1. draw a wire from the enduser (preferabbly a bit below the camera, heartposition) to object(s) matching that ID (objectname)
-1. draw a wire from the enduser (preferabbly a bit below the camera, heartposition) to object(s) matching that `tag` value
-1. draw a wire from the enduser (preferabbly a bit below the camera, heartposition) to object(s) containing that in their `src` or `href` value 
+2. draw a wire from the enduser (preferabbly a bit below the camera, heartposition) to object(s) matching that `tag` value
+3. draw a wire from the enduser (preferabbly a bit below the camera, heartposition) to object(s) containing that in their `src` or `href` value 
 
-The obvious approach is to consult the XRWG, which basically has all these things already collected/organized for you.
+The obvious approach for this, is to consult the XRWG ([example](https://github.com/coderofsalvation/xrfragment/blob/feat/macros/src/3rd/js/XRWG.js)), which basically has all these things already collected/organized for you during scene-load.
 
+**UX**
+
+4. do not update the wires when the enduser moves, leave them as is 
+5. offer a control near the back/forward button which allows the user to (turn off) control the correlation-intensity of the XRWG
 
 # Text in XR (tagging,linking to spatial objects)
 
 How does XR Fragments interlink text with objects?
 
-> The XR Fragments does this by collapsing space into a **Word Graph** (the **XRWG**), augmented by Bib(s)Tex.
+> The XR Fragments does this by collapsing space into a **Word Graph** (the **XRWG** [example](https://github.com/coderofsalvation/xrfragment/blob/feat/macros/src/3rd/js/XRWG.js)), augmented by Bib(s)Tex.
 
 Instead of just throwing together all kinds media types into one experience (games), what about their tagged/semantical relationships?<br>
 Perhaps the following question is related: why is HTML adopted less in games outside the browser?
@@ -480,7 +484,7 @@ XR Fragments does this by detecting Bib(s)Tex, without introducing a new languag
 
 Hence:
 
-1. XR Fragments promotes (de)serializing a scene to the XRWG 
+1. XR Fragments promotes (de)serializing a scene to the XRWG ([example](https://github.com/coderofsalvation/xrfragment/blob/feat/macros/src/3rd/js/XRWG.js))
 2. XR Fragments primes the XRWG, by collecting words from the `tag` and name-property of 3D objects.
 3. XR Fragments primes the XRWG, by collecting words from **optional** metadata **at the end of content** of text (see default mimetype & Data URI)
 4. [Bib's](https://github.com/coderofsalvation/hashtagbibs) and BibTex are first tag citizens for priming the XRWG with words (from XR text)
