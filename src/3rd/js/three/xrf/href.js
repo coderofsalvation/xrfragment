@@ -30,7 +30,7 @@
 
 xrf.frag.href = function(v, opts){
   opts.embedded = v // indicate embedded XR fragment
-  let { mesh, model, camera, scene, renderer, THREE} = opts
+  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
 
   if( mesh.userData.XRF.href.exec ) return // mesh already initialized
 
@@ -73,7 +73,7 @@ xrf.frag.href = function(v, opts){
         varying float vDistance;
         varying vec3 vWorldPosition;
         void main() {
-          vec3 direction = normalize(vWorldPosition - cameraPosition);
+          vec3 direction = normalize(vWorldPosition - cameraPosition );
           vec2 sampleUV;
           sampleUV.y = -clamp(direction.y * 0.5  + 0.5, 0.0, 1.0);
           sampleUV.x = atan(direction.z, -direction.x) * -RECIPROCAL_PI2;
@@ -81,7 +81,7 @@ xrf.frag.href = function(v, opts){
           vec4 color = texture2D(pano, sampleUV);
           // Convert color to grayscale (lazy lite approach to not having to match tonemapping/shaderstacking of THREE.js)
           float luminance = 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
-          vec4 grayscale_color = selected ? color : vec4(vec3(luminance) + vec3(0.33), color.a);
+          vec4 grayscale_color = color; //selected ? color : vec4(vec3(luminance) + vec3(0.33), color.a);
           gl_FragColor = grayscale_color;
         }
       `,
@@ -92,14 +92,15 @@ xrf.frag.href = function(v, opts){
   let click = mesh.userData.XRF.href.exec = (e) => {
     let isLocal = v.string[0] == '#'
     let lastPos = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
+
     xrf
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
       const flags = v.string[0] == '#' ? xrf.XRF.PV_OVERRIDE : undefined
+      let toFrag = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
       // always keep a trail of last positions before we navigate
       if( !v.string.match(/pos=/) ) v.string += `${v.string[0] == '#' ? '&' : '#'}${lastPos}` 
       if( !document.location.hash.match(/pos=/) ) xrf.navigator.to(`#${lastPos}`,flags)
-
       xrf.navigator.to(v.string)    // let's surf to HREF!
     }) 
   }

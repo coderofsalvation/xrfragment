@@ -96,7 +96,7 @@ Therefore, XR Macros allows us to enrich/connect existing dataformats, by offeri
 
 <ol>
 <li>getting/setting common used 3D properties using querystring- or JSON-notation</li>
-<li>querying 3D properties using the lightweight searchengine notation used in <a href="https://xrfragment.org">XR Fragments</a></li>
+<li>targeting 3D properties using the lightweight query notation present in <a href="https://xrfragment.org">XR Fragments</a></li>
 </ol>
 
 <blockquote>
@@ -107,9 +107,16 @@ Therefore, XR Macros allows us to enrich/connect existing dataformats, by offeri
 
 <ol>
 <li>XR Macros use querystrings, but are HTML-agnostic (though pseudo-XR Fragment browsers <strong>can</strong> be implemented on top of HTML/Javascript).</li>
-<li>XR Macros represents setting/getting common used properties found in all popular 3D frameworks/(game)editors/internet browsers.</li>
-<li>XR Macros acts as simple eventhandlers for URI Fragments</li>
+<li>An XR Macro is 3D metadata which starts with &lsquo;!&rsquo; (<code>!clickme: fog=0,10</code> e.g.)</li>
+<li>Metadata-values can contain the <code>|</code> symbol to 🎲 roundrobin variable values (<code>!toggleme: fog=0,10|fog=0,1000</code> e.g.)</li>
+<li>XR Macros acts as simple eventhandlers for URI Fragments: they are automatically published on the (<a href="https://xrfragment.org">XR Fragments</a>) hashbus, to act as events (so more serious scripting languages can react to them as well).</li>
+<li>XR Macros can assign object metadata (<code>!setlocal: foo=1</code> writes <code>foo:1</code> metadata to the object containing the <code>!setlocal</code> metadata)</li>
+<li>XR Macros can assign global metadata  (<code>!setfoo: #foo=1</code> writes <code>foo:1</code> metadata to the root scene-node)</li>
 </ol>
+
+<blockquote>
+<p>These very simple principles allow for rich interactions and dynamic querying</p>
+</blockquote>
 
 <h1 id="conventions-and-definitions">Conventions and Definitions</h1>
 
@@ -185,7 +192,7 @@ Macros also act as events, so more serious scripting languages can react to them
 
 <tbody>
 <tr>
-<td>!clickme</td>
+<td>!cycleme</td>
 <td>day|noon|night</td>
 <td>object clicked</td>
 </tr>
@@ -214,7 +221,7 @@ Macros also act as events, so more serious scripting languages can react to them
 <p>when a user clicks an object with the custom properties above, it should trigger either <code>day</code> <code>noon</code> or <code>night</code> in roundrobin fashion.</p>
 </blockquote>
 
-<h2 id="usecase-click-object-uri-fragment-and-scene-load">Usecase: click object, URI fragment and scene load</h2>
+<h2 id="usecase-click-object-or-uri-fragment-and-scene-load-trigger">Usecase: click object or URI fragment, and scene load trigger</h2>
 
 <table>
 <thead>
@@ -278,8 +285,8 @@ Macros also act as events, so more serious scripting languages can react to them
 <tbody>
 <tr>
 <td>!random</td>
-<td>day</td>
-<td>noon</td>
+<td>!day</td>
+<td>!noon</td>
 </tr>
 
 <tr>
@@ -303,7 +310,45 @@ Macros also act as events, so more serious scripting languages can react to them
 </table>
 
 <blockquote>
-<p>The XR Browser should offer a contextmenu with these options when more than one <code>!</code>-macro is present on an object.</p>
+<p>When interacting with an object with more than one <code>!</code>-macro, the XR Browser should offer a contextmenu to execute a macro.</p>
+</blockquote>
+
+<p>In a similar way, when <strong>any</strong> <code>!</code>-macro is present on the sceneroot, the XR Browser should offer a context-menu to execute those macro&rsquo;s.</p>
+
+<h2 id="event-bubble-flow">Event Bubble-flow</h2>
+
+<p>click object with (<code>!clickme</code>:<code>AR</code> or <code>!clickme</code>: <code>!reset</code> e.g.)</p>
+
+<pre><code>  ◻
+  │  
+  └── does current object contain this property-key (`AR` or `!reset` e.g.)?
+         └── no: is there any (root)object containing property `AR`
+           └── yes: evaluate its (roundrobin) XR macro-value(s) (and exit)
+           └── no: trigger URL: #AR 
+</code></pre>
+
+<p>click object with (<code>!clickme</code>:<code>#AR|#VR</code> e.g.)</p>
+
+<pre><code>  ◻
+  │  
+  └── apply the roundrobin (rotate the options, value `#AR` becomes `#VR` upon next click)
+      └── is there any object with property-key (`#AR` e.g.)?
+         └── no: just update the URL to `#AR`
+           └── yes: apply its value to the scene, and update the URL to `#AR`
+
+click object with (`!clickme`:`!foo|!bar|!flop` e.g.)
+</code></pre>
+
+<p>◻
+  │<br>
+  └── apply the roundrobin (rotate the options, value <code>!foo</code> becomes <code>!bar</code> upon next click)
+      └── is there any object with property-key (<code>!foo</code> e.g.)?
+         └── no: do nothing
+           └── yes: apply its value to the scene
+&ldquo;`</p>
+
+<blockquote>
+<p>Note that only macro&rsquo;s can trigger roundrobin values or contextmenu&rsquo;s, as well as roundrobin values never ending up in the toplevel URL.</p>
 </blockquote>
 
 <h1 id="security-considerations">Security Considerations</h1>

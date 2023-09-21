@@ -3,7 +3,7 @@
 
 
 Internet Engineering Task Force                          L.R. van Kammen
-Internet-Draft                                          7 September 2023
+Internet-Draft                                         21 September 2023
 Intended status: Informational                                          
 
 
@@ -38,7 +38,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 10 March 2024.
+   This Internet-Draft will expire on 24 March 2024.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-van Kammen                Expires 10 March 2024                 [Page 1]
+van Kammen                Expires 24 March 2024                 [Page 1]
 
 Internet-Draft                  XR Macros                 September 2023
 
@@ -71,12 +71,14 @@ Table of Contents
      4.1.  Usecase: click object . . . . . . . . . . . . . . . . . .   3
      4.2.  Usecase: conditional click object . . . . . . . . . . . .   3
      4.3.  Usecase: click object (roundrobin)  . . . . . . . . . . .   4
-     4.4.  Usecase: click object, URI fragment and scene load  . . .   4
-     4.5.  Usecase: present context menu with options  . . . . . . .   4
-   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   5
-   6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   5
-   7.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .   5
-   8.  Appendix: Definitions . . . . . . . . . . . . . . . . . . . .   5
+     4.4.  Usecase: click object or URI fragment, and scene load
+           trigger . . . . . . . . . . . . . . . . . . . . . . . . .   4
+     4.5.  Usecase: present context menu with options  . . . . . . .   5
+     4.6.  Event Bubble-flow . . . . . . . . . . . . . . . . . . . .   5
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   6
+   6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   6
+   7.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .   6
+   8.  Appendix: Definitions . . . . . . . . . . . . . . . . . . . .   6
 
 1.  Introduction
 
@@ -91,8 +93,8 @@ Table of Contents
 
    1.  getting/setting common used 3D properties using querystring- or
        JSON-notation
-   2.  querying 3D properties using the lightweight searchengine
-       notation used in XR Fragments (https://xrfragment.org)
+   2.  targeting 3D properties using the lightweight query notation
+       present in XR Fragments (https://xrfragment.org)
 
    |  NOTE: The chapters in this document are ordered from highlevel to
    |  lowlevel (technical) as much as possible
@@ -102,17 +104,29 @@ Table of Contents
    1.  XR Macros use querystrings, but are HTML-agnostic (though pseudo-
        XR Fragment browsers *can* be implemented on top of HTML/
        Javascript).
-   2.  XR Macros represents setting/getting common used properties found
-       in all popular 3D frameworks/(game)editors/internet browsers.
-   3.  XR Macros acts as simple eventhandlers for URI Fragments
+   2.  An XR Macro is 3D metadata which starts with '!' (!clickme:
+       fog=0,10 e.g.)
 
 
 
-
-van Kammen                Expires 10 March 2024                 [Page 2]
+van Kammen                Expires 24 March 2024                 [Page 2]
 
 Internet-Draft                  XR Macros                 September 2023
 
+
+   3.  Metadata-values can contain the | symbol to &#127922; roundrobin
+       variable values (!toggleme: fog=0,10|fog=0,1000 e.g.)
+   4.  XR Macros acts as simple eventhandlers for URI Fragments: they
+       are automatically published on the (XR Fragments
+       (https://xrfragment.org)) hashbus, to act as events (so more
+       serious scripting languages can react to them as well).
+   5.  XR Macros can assign object metadata (!setlocal: foo=1 writes
+       foo:1 metadata to the object containing the !setlocal metadata)
+   6.  XR Macros can assign global metadata (!setfoo: #foo=1 writes
+       foo:1 metadata to the root scene-node)
+
+   |  These very simple principles allow for rich interactions and
+   |  dynamic querying
 
 3.  Conventions and Definitions
 
@@ -148,6 +162,14 @@ Internet-Draft                  XR Macros                 September 2023
     | #               | foo=1            | scene                      |
     +-----------------+------------------+----------------------------+
     | !clickme        | q=foo>2&bg=1,1,1 | object clicked and foo > 2 |
+
+
+
+van Kammen                Expires 24 March 2024                 [Page 3]
+
+Internet-Draft                  XR Macros                 September 2023
+
+
     +-----------------+------------------+----------------------------+
 
                                   Table 2
@@ -156,26 +178,12 @@ Internet-Draft                  XR Macros                 September 2023
    |  should set the backgroundcolor to 1,1,1 when foo is greater than 2
    |  (see previous example)
 
-
-
-
-
-
-
-
-
-
-van Kammen                Expires 10 March 2024                 [Page 3]
-
-Internet-Draft                  XR Macros                 September 2023
-
-
 4.3.  Usecase: click object (roundrobin)
 
            +=================+================+================+
            | custom property | value          | trigger when   |
            +=================+================+================+
-           | !clickme        | day|noon|night | object clicked |
+           | !cycleme        | day|noon|night | object clicked |
            +-----------------+----------------+----------------+
            | day             | bg=1,1,1       | roundrobin     |
            +-----------------+----------------+----------------+
@@ -189,7 +197,7 @@ Internet-Draft                  XR Macros                 September 2023
    |  when a user clicks an object with the custom properties above, it
    |  should trigger either day noon or night in roundrobin fashion.
 
-4.4.  Usecase: click object, URI fragment and scene load
+4.4.  Usecase: click object or URI fragment, and scene load trigger
 
         +=================+================+======================+
         | custom property | value          | trigger when         |
@@ -209,23 +217,24 @@ Internet-Draft                  XR Macros                 September 2023
 
                                   Table 4
 
+
+
+
+
+van Kammen                Expires 24 March 2024                 [Page 4]
+
+Internet-Draft                  XR Macros                 September 2023
+
+
 4.5.  Usecase: present context menu with options
 
        +=================+================+========================+
        | custom property | value          | trigger when           |
        +=================+================+========================+
-       | !random         | day            | noon                   |
+       | !random         | !day           | !noon                  |
        +-----------------+----------------+------------------------+
        | !day            | bg=1,1,1       | clicked in contextmenu |
        +-----------------+----------------+------------------------+
-
-
-
-van Kammen                Expires 10 March 2024                 [Page 4]
-
-Internet-Draft                  XR Macros                 September 2023
-
-
        | !noon           | bg=0.5,0.5,0.5 | clicked in contextmenu |
        +-----------------+----------------+------------------------+
        | !night          | bg=0,0,0&foo=2 | clicked in contextmenu |
@@ -233,8 +242,49 @@ Internet-Draft                  XR Macros                 September 2023
 
                                   Table 5
 
-   |  The XR Browser should offer a contextmenu with these options when
-   |  more than one !-macro is present on an object.
+   |  When interacting with an object with more than one !-macro, the XR
+   |  Browser should offer a contextmenu to execute a macro.
+
+   In a similar way, when *any* !-macro is present on the sceneroot, the
+   XR Browser should offer a context-menu to execute those macro's.
+
+4.6.  Event Bubble-flow
+
+   click object with (!clickme:AR or !clickme: !reset e.g.)
+
+  ◻
+  │
+  └── does current object contain this property-key (`AR` or `!reset` e.g.)?
+         └── no: is there any (root)object containing property `AR`
+           └── yes: evaluate its (roundrobin) XR macro-value(s) (and exit)
+           └── no: trigger URL: #AR
+
+   click object with (!clickme:#AR|#VR e.g.)
+
+  ◻
+  │
+  └── apply the roundrobin (rotate the options, value `#AR` becomes `#VR` upon next click)
+      └── is there any object with property-key (`#AR` e.g.)?
+         └── no: just update the URL to `#AR`
+           └── yes: apply its value to the scene, and update the URL to `#AR`
+
+click object with (`!clickme`:`!foo|!bar|!flop` e.g.)
+
+   ◻ │
+   └── apply the roundrobin (rotate the options, value !foo becomes !bar
+   upon next click) └── is there any object with property-key (!foo
+   e.g.)?  └── no: do nothing └── yes: apply its value to the scene ```
+
+
+
+van Kammen                Expires 24 March 2024                 [Page 5]
+
+Internet-Draft                  XR Macros                 September 2023
+
+
+   |  Note that only macro's can trigger roundrobin values or
+   |  contextmenu's, as well as roundrobin values never ending up in the
+   |  toplevel URL.
 
 5.  Security Considerations
 
@@ -274,14 +324,6 @@ Internet-Draft                  XR Macros                 September 2023
    | (un)obtrusive | obtrusive: wrapping human text/thought in         |
    |               | XML/HTML/JSON obfuscates human text into          |
    |               | a salad of machine-symbols and words              |
-
-
-
-van Kammen                Expires 10 March 2024                 [Page 5]
-
-Internet-Draft                  XR Macros                 September 2023
-
-
    +---------------+---------------------------------------------------+
 
                                   Table 6
@@ -291,46 +333,4 @@ Internet-Draft                  XR Macros                 September 2023
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-van Kammen                Expires 10 March 2024                 [Page 6]
+van Kammen                Expires 24 March 2024                 [Page 6]

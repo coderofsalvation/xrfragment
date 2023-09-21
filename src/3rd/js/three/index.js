@@ -2,6 +2,9 @@ xrf.frag   = {}
 xrf.model  = {}
 
 xrf.init = ((init) => function(opts){
+  let scene = new opts.THREE.Group()
+  opts.scene.add(scene)
+  opts.scene = scene
   init(opts)
   if( opts.loaders ) Object.values(opts.loaders).map( xrf.patchLoader )
 
@@ -54,7 +57,7 @@ xrf.parseModel = function(model,url){
     model.mixer.update( model.clock.getDelta() )
 
     // update focusline 
-    xrf.focusLine.material.color.r = (1.0 + Math.sin( model.clock.getElapsedTime()  ))/2
+    xrf.focusLine.material.color.r  = (1.0 + Math.sin( model.clock.getElapsedTime()*10  ))/2
     xrf.focusLine.material.dashSize = 0.2 + 0.02*Math.sin( model.clock.getElapsedTime()  )
     xrf.focusLine.material.gapSize  = 0.1 + 0.02*Math.sin( model.clock.getElapsedTime() *3  )
     xrf.focusLine.material.opacity  = 0.25 + 0.15*Math.sin( model.clock.getElapsedTime() * 3 )
@@ -79,7 +82,8 @@ xrf.reset = () => {
   xrf.scene.traverse( (child) => child.isXRF ? nodes.push(child) : false )
   nodes.map( disposeObject ) // leave non-XRF objects intact
   xrf.interactive = xrf.InteractiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
-  xrf.add( xrf.interactive)
+  xrf.add( xrf.interactive )
+  xrf.layers = 0
 }
 
 xrf.parseUrl = (url) => {

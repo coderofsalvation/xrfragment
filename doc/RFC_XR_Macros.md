@@ -115,8 +115,13 @@ Therefore, XR Macros allows us to enrich/connect existing dataformats, by offeri
 # Core principle
 
 1. XR Macros use querystrings, but are HTML-agnostic (though pseudo-XR Fragment browsers **can** be implemented on top of HTML/Javascript). 
-1. XR Macros represents setting/getting common used properties found in all popular 3D frameworks/(game)editors/internet browsers.
-1. XR Macros acts as simple eventhandlers for URI Fragments
+1. An XR Macro is 3D metadata which starts with '!' (`!clickme: fog=0,10` e.g.)
+1. Metadata-values can contain the `|` symbol to 🎲 roundrobin variable values (`!toggleme: fog=0,10|fog=0,1000` e.g.)
+1. XR Macros acts as simple eventhandlers for URI Fragments: they are automatically published on the ([XR Fragments](https://xrfragment.org)) hashbus, to act as events (so more serious scripting languages can react to them as well).
+1. XR Macros can assign object metadata (`!setlocal: foo=1` writes `foo:1` metadata to the object containing the `!setlocal` metadata)
+1. XR Macros can assign global metadata  (`!setfoo: #foo=1` writes `foo:1` metadata to the root scene-node)
+
+> These very simple principles allow for rich interactions and dynamic querying
 
 # Conventions and Definitions
 

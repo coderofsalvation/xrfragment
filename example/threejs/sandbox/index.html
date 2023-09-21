@@ -11,7 +11,7 @@
     <div id="overlay" x-data="{ urls: ['#pos=0,1.6,15','#pos=0,1.6,15&rot=0,360,0'] }">
       <img src="./../../assets/logo.png" class="logo"/>
 			<input type="submit" value="load 3D asset"></input>
-			<input type="text" id="uri" value="" onchange="AFRAME.XRF.navigator.to( $('#uri').value )"/>
+			<input type="text" id="uri" value="" onchange="XRF.navigator.to( $('#uri').value )"/>
     </div>
     <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment-helloworld">➕ clone project</a> 
     <a class="btn-foot" id="embed" target="_blank" onclick="embed()">📺 embed</a> 
@@ -63,7 +63,7 @@
 			};
 
 			init();
-      alert("for now, back-button (navigation) is only implemented in the AFRAME demo-implementation")
+      notify("NOTE: only AFRAME demo has immersive back-button (for now)")
 
 			function init() {
 
@@ -118,7 +118,7 @@
 
         window.XRF = XRF // expose to form
 
-				let file = document.location.search.length > 2 ? document.location.search.substr(1) + document.location.hash : 'example.gltf#pos=1,0,4&rot=0,-30,0'
+				let file = document.location.search.length > 2 ? document.location.search.substr(1) + document.location.hash : 'example.gltf#pos=0,1,20'
 
         // optional decoration of href event        
         XRF.addEventListener('href',(e) => {

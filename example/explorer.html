@@ -50,33 +50,25 @@
 		 							<label for="fragment">Property in 3D file</label>
 		 							<br><br>
 		 							<select id="fragment" class="w-100">
-		 								<optgroup label="asset loading / linking">
-		 									<option x="1">prio</option>
+                    <optgroup label="default / predefined view">
 		 									<option x="pos=0,0,1&fov=2">#</option>
-		 									<option x="foo">class</option>
+		 									<option x="">#mypredefinedview</option>
+                    </optgroup>
+                    <optgroup label="tagging / lazyloading content">
+		 									<option x="foo">tag</option>
 		 									<option x="./2.gtlf">src</option>
 		 								</optgroup>
 		 								<optgroup label="href navigation / portals / teleporting">
 		 									<option x="1,2,0">pos</option>
-		 									<option x="3.gltf#q=.kitchen">href</option>
-		 								</optgroup>
-		 								<optgroup label="query selector / object manipulation">
-		 									<option x=".summer -.winter cube" selected="selected" default>q</option>
-		 									<option x="2" >scale</option>
 		 									<option x="1,2,3">rot</option>
-		 									<option x="1,1,1">translate</option>
-		 									<option x="1">visible</option>
+		 									<option x="3.gltf#q=.kitchen">href</option>
 		 								</optgroup>
 		 								<optgroup label="animation">
 		 									<option x="1,200">t</option>
-		 									<option x="0,-9.8,0">gravity</option>
-		 									<option x="0.2,1">physics</option>
-		 									<option x=#scroll=1,0|2s">scroll</option>
 		 								</optgroup>
 		 								<optgroup label="device / viewport settings">
-		 									<option x="90">fov</option>
 		 									<option x="1,100">clip</option>
-		 									<option x="5m|FFAACC">fog</option>
+		 									<option x="45">fov</option>
 		 								</optgroup>
 		 								<optgroup label="author / metadata">
 		 									<option x="XXX">namespace</option>
