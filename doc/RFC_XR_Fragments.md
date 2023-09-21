@@ -127,12 +127,12 @@ Instead of combining them (in a game-editor e.g.), XR Fragments is opting for a 
 | the hashbus          | hashtags map to camera/scene-projections        | hashtags map to document positions    |
 | spacetime hashtags   | positions camera, triggers scene-preset/time    | jumps/scrolls to chapter              |
 | src metadata         | renders content and offers sourceportation      | renders content                       |
-| href metadata        | teleports to other position or XR document      | jumps to other chapter or HTML document|
+| href metadata        | teleports to other XR document                  | jumps to other HTML document          |
+| href metadata        | repositions camera or animation-range           | jumps to camera                       |
 | href metadata        | draws visible connection(s) for XRWG 'tag'      |                                       |
 | href metadata        | triggers predefined view                        | Media fragments                       |
-| href metadata        | repositions camera or animation-range           |                                       |
 
-> XR Fragments does not look at XR (or the web) thru the lens of HTML.<br>But approaches things from a higherlevel browser- and feedbackloop perspective:
+> XR Fragments does not look at XR (or the web) thru the lens of HTML.<br>But approaches things from a higherlevel feedbackloop/hypermedia browser-perspective:
 
 ```
  +──────────────────────────────────────────────────────────────────────────────────────────────+
@@ -157,11 +157,11 @@ Instead of combining them (in a game-editor e.g.), XR Fragments is opting for a 
  
 Traditional webbrowsers can become 4D document-ready by:
 
-* loading 3D assets (gltf/fbx e.g.) natively (not thru HTML).
+* loading 3D assets (gltf/fbx e.g.) natively (with or without using HTML).
 * allowing assets to publish hashtags to themselves (the scene) using the hashbus (like hashtags controlling the scrollbar).
 * collapsing the 3D scene to an wordgraph (for essential navigation purposes) controllable thru a hash(tag)bus
 
-XR Fragments itself is HTML-agnostic, though pseudo-XR Fragment browsers **can** be implemented on top of HTML/Javascript. 
+XR Fragments itself are HTML-agnostic, though pseudo-XR Fragment browsers **can** be implemented on top of HTML/Javascript. 
 
 # Conventions and Definitions
 

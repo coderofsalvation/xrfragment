@@ -170,40 +170,40 @@ van Kammen                Expires 24 March 2024                 [Page 3]
 Internet-Draft                XR Fragments                September 2023
 
 
-   +===========+=============================+========================+
-   | principle | XR 4D URL                   | HTML 2D URL            |
-   +===========+=============================+========================+
-   | the XRWG  | wordgraph (collapses 3D     | Ctrl-F (find)          |
-   |           | scene to tags)              |                        |
-   +-----------+-----------------------------+------------------------+
-   | the       | hashtags map to camera/     | hashtags map to        |
-   | hashbus   | scene-projections           | document positions     |
-   +-----------+-----------------------------+------------------------+
-   | spacetime | positions camera, triggers  | jumps/scrolls to       |
-   | hashtags  | scene-preset/time           | chapter                |
-   +-----------+-----------------------------+------------------------+
-   | src       | renders content and offers  | renders content        |
-   | metadata  | sourceportation             |                        |
-   +-----------+-----------------------------+------------------------+
-   | href      | teleports to other position | jumps to other chapter |
-   | metadata  | or XR document              | or HTML document       |
-   +-----------+-----------------------------+------------------------+
-   | href      | draws visible connection(s) |                        |
-   | metadata  | for XRWG 'tag'              |                        |
-   +-----------+-----------------------------+------------------------+
-   | href      | triggers predefined view    | Media fragments        |
-   | metadata  |                             |                        |
-   +-----------+-----------------------------+------------------------+
-   | href      | repositions camera or       |                        |
-   | metadata  | animation-range             |                        |
-   +-----------+-----------------------------+------------------------+
+     +===========+=============================+====================+
+     | principle | XR 4D URL                   | HTML 2D URL        |
+     +===========+=============================+====================+
+     | the XRWG  | wordgraph (collapses 3D     | Ctrl-F (find)      |
+     |           | scene to tags)              |                    |
+     +-----------+-----------------------------+--------------------+
+     | the       | hashtags map to camera/     | hashtags map to    |
+     | hashbus   | scene-projections           | document positions |
+     +-----------+-----------------------------+--------------------+
+     | spacetime | positions camera, triggers  | jumps/scrolls to   |
+     | hashtags  | scene-preset/time           | chapter            |
+     +-----------+-----------------------------+--------------------+
+     | src       | renders content and offers  | renders content    |
+     | metadata  | sourceportation             |                    |
+     +-----------+-----------------------------+--------------------+
+     | href      | teleports to other XR       | jumps to other     |
+     | metadata  | document                    | HTML document      |
+     +-----------+-----------------------------+--------------------+
+     | href      | repositions camera or       | jumps to camera    |
+     | metadata  | animation-range             |                    |
+     +-----------+-----------------------------+--------------------+
+     | href      | draws visible connection(s) |                    |
+     | metadata  | for XRWG 'tag'              |                    |
+     +-----------+-----------------------------+--------------------+
+     | href      | triggers predefined view    | Media fragments    |
+     | metadata  |                             |                    |
+     +-----------+-----------------------------+--------------------+
 
                                  Table 1
 
    |  XR Fragments does not look at XR (or the web) thru the lens of
    |  HTML.
-   |  But approaches things from a higherlevel browser- and feedbackloop
-   |  perspective:
+   |  But approaches things from a higherlevel feedbackloop/hypermedia
+   |  browser-perspective:
 
 
 
@@ -246,13 +246,14 @@ Internet-Draft                XR Fragments                September 2023
 
    Traditional webbrowsers can become 4D document-ready by:
 
-   *  loading 3D assets (gltf/fbx e.g.) natively (not thru HTML).
+   *  loading 3D assets (gltf/fbx e.g.) natively (with or without using
+      HTML).
    *  allowing assets to publish hashtags to themselves (the scene)
       using the hashbus (like hashtags controlling the scrollbar).
    *  collapsing the 3D scene to an wordgraph (for essential navigation
       purposes) controllable thru a hash(tag)bus
 
-   XR Fragments itself is HTML-agnostic, though pseudo-XR Fragment
+   XR Fragments itself are HTML-agnostic, though pseudo-XR Fragment
    browsers *can* be implemented on top of HTML/Javascript.
 
 3.  Conventions and Definitions
@@ -266,7 +267,6 @@ Internet-Draft                XR Fragments                September 2023
    sub-delims  = "," / "="
 
    |  Example: ://foo.com/my3d.gltf#pos=1,0,0&prio=-5&t=0,100
-
 
 
 
