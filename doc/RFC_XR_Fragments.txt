@@ -3,7 +3,7 @@
 
 
 Internet Engineering Task Force                          L.R. van Kammen
-Internet-Draft                                         21 September 2023
+Internet-Draft                                         22 September 2023
 Intended status: Informational                                          
 
 
@@ -41,7 +41,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 24 March 2024.
+   This Internet-Draft will expire on 25 March 2024.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-van Kammen                Expires 24 March 2024                 [Page 1]
+van Kammen                Expires 25 March 2024                 [Page 1]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -83,18 +83,19 @@ Table of Contents
      10.1.  UX spec  . . . . . . . . . . . . . . . . . . . . . . . .  13
      10.2.  Scaling instanced content  . . . . . . . . . . . . . . .  13
    11. XR Fragment queries . . . . . . . . . . . . . . . . . . . . .  14
-     11.1.  including/excluding  . . . . . . . . . . . . . . . . . .  14
+     11.1.  including/excluding  . . . . . . . . . . . . . . . . . .  15
      11.2.  Query Parser . . . . . . . . . . . . . . . . . . . . . .  15
    12. Visible links . . . . . . . . . . . . . . . . . . . . . . . .  16
    13. Text in XR (tagging,linking to spatial objects) . . . . . . .  16
      13.1.  Default Data URI mimetype  . . . . . . . . . . . . . . .  20
      13.2.  URL and Data URI . . . . . . . . . . . . . . . . . . . .  21
      13.3.  XR Text example parser . . . . . . . . . . . . . . . . .  22
-   14. Security Considerations . . . . . . . . . . . . . . . . . . .  24
-   15. FAQ . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  25
-   16. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  25
-   17. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  25
-   18. Appendix: Definitions . . . . . . . . . . . . . . . . . . . .  25
+   14. Broken links  . . . . . . . . . . . . . . . . . . . . . . . .  24
+   15. Security Considerations . . . . . . . . . . . . . . . . . . .  25
+   16. FAQ . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  25
+   17. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  26
+   18. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  26
+   19. Appendix: Definitions . . . . . . . . . . . . . . . . . . . .  26
 
 1.  Introduction
 
@@ -108,8 +109,7 @@ Table of Contents
 
 
 
-
-van Kammen                Expires 24 March 2024                 [Page 2]
+van Kammen                Expires 25 March 2024                 [Page 2]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -165,7 +165,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 24 March 2024                 [Page 3]
+van Kammen                Expires 25 March 2024                 [Page 3]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -221,7 +221,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 24 March 2024                 [Page 4]
+van Kammen                Expires 25 March 2024                 [Page 4]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -277,7 +277,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 24 March 2024                 [Page 5]
+van Kammen                Expires 25 March 2024                 [Page 5]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -333,7 +333,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 24 March 2024                 [Page 6]
+van Kammen                Expires 25 March 2024                 [Page 6]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -389,7 +389,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 24 March 2024                 [Page 7]
+van Kammen                Expires 25 March 2024                 [Page 7]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -445,7 +445,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 24 March 2024                 [Page 8]
+van Kammen                Expires 25 March 2024                 [Page 8]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -501,7 +501,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 24 March 2024                 [Page 9]
+van Kammen                Expires 25 March 2024                 [Page 9]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -557,7 +557,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 24 March 2024                [Page 10]
+van Kammen                Expires 25 March 2024                [Page 10]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -568,56 +568,60 @@ Internet-Draft                XR Fragments                September 2023
 
    *Specification*:
 
-   1.  local/remote content is instanced by the src (query) value (and
-       attaches it to the placeholder mesh containing the src property)
-   2.  <b>local</b> src values (URL *starting* with #, like #cube&foo)
-       means *only* the mentioned objectnames will be copied to the
-       instanced scene (from the current scene) while preserving their
-       names (to support recursive selectors). (example code) (https://g
-       ithub.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/
-       xrf/src.js)
-   3.  <b>local</b> src values indicating a query (#q=), means that all
-       included objects (from the current scene) will be copied to the
-       instanced scene (before applying the query) while preserving
-       their names (to support recursive selectors). (example code) (htt
-       ps://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
-       three/xrf/src.js)
-   4.  the instanced scene (from a src value) should be <b>scaled
-       accordingly</b> to its placeholder object or <b>scaled
-       relatively</b> based on the scale-property (of a geometry-less
-       placeholder, an 'empty'-object in blender e.g.).  For more info
-       see Chapter Scaling.
-   5.  <b>external</b> src (file) values should be served with
-       appropriate mimetype (so the XR Fragment-compatible browser will
-       now how to render it).  The bare minimum supported mimetypes are:
-   6.  when the placeholder object is a 2D plane, but the mimetype is
-       3D, then render the spatial content on that plane via a stencil
-       buffer.
-   7.  src-values are non-recursive: when linking to an external object
-       (src: foo.fbx#bar), then src-metadata on object bar should be
-       ignored.
-   8.  clicking on external src-values always allow sourceportation:
-       teleporting to the origin URI to which the object belongs.
-   9.  when only one object was cherrypicked (#cube e.g.), set its
-       position to 0,0,0
+   1.   local/remote content is instanced by the src (query) value (and
+        attaches it to the placeholder mesh containing the src property)
+   2.   <b>local</b> src values (URL *starting* with #, like #cube&foo)
+        means *only* the mentioned objectnames will be copied to the
+        instanced scene (from the current scene) while preserving their
+        names (to support recursive selectors). (example code) (https://
+        github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
+        three/xrf/src.js)
+   3.   <b>local</b> src values indicating a query (#q=), means that all
+        included objects (from the current scene) will be copied to the
+        instanced scene (before applying the query) while preserving
+        their names (to support recursive selectors). (example code) (ht
+        tps://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/j
+        s/three/xrf/src.js)
+   4.   the instanced scene (from a src value) should be <b>scaled
+        accordingly</b> to its placeholder object or <b>scaled
+        relatively</b> based on the scale-property (of a geometry-less
+        placeholder, an 'empty'-object in blender e.g.).  For more info
+        see Chapter Scaling.
+   5.   <b>external</b> src values should be served with appropriate
+        mimetype (so the XR Fragment-compatible browser will now how to
+        render it).  The bare minimum supported mimetypes are:
+   6.   src values should make its placeholder object invisible, and
+        only flush its children when the resolved content can
+        succesfully be retrieved (see broken links (#links))
+   7.   <b>external</b> src values should respect the fallback link
+        mechanism (see broken links (#broken-links)
+   8.   when the placeholder object is a 2D plane, but the mimetype is
+        3D, then render the spatial content on that plane via a stencil
+        buffer.
+   9.   src-values are non-recursive: when linking to an external object
+        (src: foo.fbx#bar), then src-metadata on object bar should be
+        ignored.
+   10.  clicking on external src-values always allow sourceportation:
+        teleporting to the origin URI to which the object belongs.
+   11.  when only one object was cherrypicked (#cube e.g.), set its
+        position to 0,0,0
 
    *  model/gltf+json
    *  image/png
    *  image/jpg
    *  text/plain;charset=utf-8;bib=^@
 
-   &#187; example implementation
-   (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
-   three/xrf/src.js)
-   &#187; example 3D asset
 
 
-
-van Kammen                Expires 24 March 2024                [Page 11]
+van Kammen                Expires 25 March 2024                [Page 11]
 
 Internet-Draft                XR Fragments                September 2023
 
 
+   &#187; example implementation
+   (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
+   three/xrf/src.js)
+   &#187; example 3D asset
    (https://github.com/coderofsalvation/xrfragment/blob/main/example/
    assets/src.gltf#L192)
    &#187; discussion (https://github.com/coderofsalvation/xrfragment/
@@ -658,6 +662,18 @@ Internet-Draft                XR Fragments                September 2023
        (https://github.com/coderofsalvation/xrfragment/blob/dev/example/
        aframe/sandbox/index.html#L26-L29) for an example wearable)
 
+
+
+
+
+
+
+
+van Kammen                Expires 25 March 2024                [Page 12]
+
+Internet-Draft                XR Fragments                September 2023
+
+
    6.  in case of navigating to a new [[pos)ition, ''first'' navigate to
        the ''current position'' so that the ''back-button'' of the
        ''browser-history'' always refers to the previous position (see
@@ -666,13 +682,6 @@ Internet-Draft                XR Fragments                September 2023
 
    7.  portal-rendering: a 2:1 ratio texture-material indicates an
        equirectangular projection
-
-
-
-van Kammen                Expires 24 March 2024                [Page 12]
-
-Internet-Draft                XR Fragments                September 2023
-
 
    &#187; example implementation
    (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
@@ -714,6 +723,13 @@ Internet-Draft                XR Fragments                September 2023
    *  calculate the <b>bounding box</b> of the instanced scene, and
       scale it accordingly (to 1.4 e.g.)
 
+
+
+van Kammen                Expires 25 March 2024                [Page 13]
+
+Internet-Draft                XR Fragments                September 2023
+
+
    |  REASON: non-empty placeholder object can act as a protective
    |  bounding-box (for remote content of which might grow over time
    |  e.g.)
@@ -721,14 +737,6 @@ Internet-Draft                XR Fragments                September 2023
    2.  ELSE multiply the scale-vector of the instanced scene with the
        scale-vector (a common property of a 3D node) of the
        <b>placeholder</b> object.
-
-
-
-
-van Kammen                Expires 24 March 2024                [Page 13]
-
-Internet-Draft                XR Fragments                September 2023
-
 
    |  TODO: needs intermediate visuals to make things more obvious
 
@@ -763,6 +771,21 @@ Internet-Draft                XR Fragments                September 2023
    *  see an (outdated) example video here
       (https://coderofsalvation.github.io/xrfragment.media/queries.mp4)
 
+
+
+
+
+
+
+
+
+
+
+van Kammen                Expires 25 March 2024                [Page 14]
+
+Internet-Draft                XR Fragments                September 2023
+
+
 11.1.  including/excluding
 
       +==========+=================================================+
@@ -778,14 +801,6 @@ Internet-Draft                XR Fragments                September 2023
       | /        | reference to root-scene.                        |
       |          | Useful in case of (preventing) showing/hiding   |
       |          | objects in nested scenes (instanced by src) (*) |
-
-
-
-van Kammen                Expires 24 March 2024                [Page 14]
-
-Internet-Draft                XR Fragments                September 2023
-
-
       +----------+-------------------------------------------------+
 
                                  Table 9
@@ -819,6 +834,14 @@ Internet-Draft                XR Fragments                September 2023
    8.   then strip key-operator: convert "-foo" into "foo"
    9.   add operator and value to rule-array
    10.  therefore we we set id to true or false (false=excluder -)
+
+
+
+van Kammen                Expires 25 March 2024                [Page 15]
+
+Internet-Draft                XR Fragments                September 2023
+
+
    11.  and we set root to true or false (true=/ root selector is
         present)
    12.  we convert key '/foo' into 'foo'
@@ -829,18 +852,6 @@ Internet-Draft                XR Fragments                September 2023
    |  found here
    |  (https://github.com/coderofsalvation/xrfragment/blob/main/src/
    |  xrfragment/Query.hx)
-
-
-
-
-
-
-
-
-van Kammen                Expires 24 March 2024                [Page 15]
-
-Internet-Draft                XR Fragments                September 2023
-
 
 12.  Visible links
 
@@ -879,6 +890,14 @@ Internet-Draft                XR Fragments                September 2023
    Instead of just throwing together all kinds media types into one
    experience (games), what about their tagged/semantical relationships?
    Perhaps the following question is related: why is HTML adopted less
+
+
+
+van Kammen                Expires 25 March 2024                [Page 16]
+
+Internet-Draft                XR Fragments                September 2023
+
+
    in games outside the browser?  Through the lens of constructive lazy
    game-developers, ideally metadata must come *with* text, but not
    *obfuscate* the text, or *spawning another request* to fetch it.
@@ -890,13 +909,6 @@ Internet-Draft                XR Fragments                September 2023
    |  speech/scanner/writing/typing e.g, see further motivation here
    |  (https://github.com/coderofsalvation/hashtagbibs#bibs--bibtex-
    |  combo-lowest-common-denominator-for-linking-data))
-
-
-
-van Kammen                Expires 24 March 2024                [Page 16]
-
-Internet-Draft                XR Fragments                September 2023
-
 
    Hence:
 
@@ -937,19 +949,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-van Kammen                Expires 24 March 2024                [Page 17]
+van Kammen                Expires 25 March 2024                [Page 17]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -1005,7 +1005,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 24 March 2024                [Page 18]
+van Kammen                Expires 25 March 2024                [Page 18]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -1061,7 +1061,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 24 March 2024                [Page 19]
+van Kammen                Expires 25 March 2024                [Page 19]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -1117,7 +1117,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 24 March 2024                [Page 20]
+van Kammen                Expires 25 March 2024                [Page 20]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -1173,7 +1173,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 24 March 2024                [Page 21]
+van Kammen                Expires 25 March 2024                [Page 21]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -1229,7 +1229,7 @@ xrtext = {
 
 
 
-van Kammen                Expires 24 March 2024                [Page 22]
+van Kammen                Expires 25 March 2024                [Page 22]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -1285,7 +1285,7 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 24 March 2024                [Page 23]
+van Kammen                Expires 25 March 2024                [Page 23]
 
 Internet-Draft                XR Fragments                September 2023
 
@@ -1330,7 +1330,50 @@ console.log( xrtext.encode(text,tags) )       // multiplex text & bibtex back to
    |  nonmatching tags (@book{nonmatchingbook e.g.) should be performed
    |  and prompt the enduser for deleting them.
 
-14.  Security Considerations
+14.  Broken links
+
+   There's a soft-mechanism to harden links & prevent broken links in
+   various ways:
+
+   1.  defining a different transport protocol (https vs ipfs or DAT) in
+       src or href values can make a difference
+
+
+
+
+van Kammen                Expires 25 March 2024                [Page 24]
+
+Internet-Draft                XR Fragments                September 2023
+
+
+   2.  mirroring files on another protocol using errorcodes in src or
+       href properties
+   3.  in case of src: nesting a copy of the embedded object in the
+       placeholder object (embeddedObject) will not be replaced when the
+       request fails
+
+   For example:
+
+  +────────────────────────────────────────────────────────+
+  │                                                        │
+  │  index.gltf                                            │
+  │    │                                                   │
+  │    │ #: #q=-offlinetext                                │
+  │    │                                                   │
+  │    ├── ◻ buttonA                                       │
+  │    │      └ href:     http://foo.io/campagne.fbx       │
+  │    │      └ href!404: ipfs://foo.io/campagne.fbx       │
+  │    │      └ href!400: #q=clienterrortext               │
+  │    │      └ ◻ offlinetext                              │
+  │    │                                                   │
+  │    └── ◻ embeddedObject                          <--------- the meshdata inside embeddedObject will (not)
+  │           └ src: https://foo.io/bar.gltf               │    be flushed when the request (does not) succeed.
+  │           └ src!404: http://foo.io/bar.gltf            │    So worstcase the 3D data (of the time of publishing index.gltf)
+  │           └ src!400: https://archive.org/l2kj43.gltf   │    will be displayed.
+  │                                                        │
+  +────────────────────────────────────────────────────────+
+
+15.  Security Considerations
 
    Since XR Text contains metadata too, the user should be able to set
    up tagging-rules, so the copy-paste feature can :
@@ -1338,15 +1381,7 @@ console.log( xrtext.encode(text,tags) )       // multiplex text & bibtex back to
    *  filter out sensitive data when copy/pasting (XR text with
       tag:secret e.g.)
 
-
-
-
-van Kammen                Expires 24 March 2024                [Page 24]
-
-Internet-Draft                XR Fragments                September 2023
-
-
-15.  FAQ
+16.  FAQ
 
    *Q:* Why is everything HTTP GET-based, what about POST/PUT/DELETE
    HATEOS
@@ -1359,6 +1394,14 @@ Internet-Draft                XR Fragments                September 2023
    and up to the XR hypermedia browser.  Javascript seems to been able
    to turn webpages from hypermedia documents into its opposite
    (hyperscripted nonhypermedia documents).  In order to prevent this
+
+
+
+van Kammen                Expires 25 March 2024                [Page 25]
+
+Internet-Draft                XR Fragments                September 2023
+
+
    backward-movement (hypermedia tends to liberate people from finnicky
    scripting) XR Fragments should never unhyperify itself by
    hardcoupling to a particular markup or scripting language.  XR
@@ -1368,17 +1411,17 @@ Internet-Draft                XR Fragments                September 2023
    turing-complete scripting language (and suffer the security
    consequences later).
 
-16.  IANA Considerations
+17.  IANA Considerations
 
    This document has no IANA actions.
 
-17.  Acknowledgments
+18.  Acknowledgments
 
    *  NLNET (https://nlnet.nl)
    *  Future of Text (https://futureoftext.org)
    *  visual-meta.info (https://visual-meta.info)
 
-18.  Appendix: Definitions
+19.  Appendix: Definitions
 
     +=================+===============================================+
     | definition      | explanation                                   |
@@ -1394,14 +1437,6 @@ Internet-Draft                XR Fragments                September 2023
     |                 | vertex-, face- and customproperty data.       |
     +-----------------+-----------------------------------------------+
     | metadata        | custom properties of text, 3D Scene or        |
-
-
-
-van Kammen                Expires 24 March 2024                [Page 25]
-
-Internet-Draft                XR Fragments                September 2023
-
-
     |                 | Object(nodes), relevant to machines and a     |
     |                 | human minority (academics/developers)         |
     +-----------------+-----------------------------------------------+
@@ -1415,6 +1450,14 @@ Internet-Draft                XR Fragments                September 2023
     | spacetime       | positions camera, triggers scene-preset/time  |
     | hashtags        |                                               |
     +-----------------+-----------------------------------------------+
+
+
+
+van Kammen                Expires 25 March 2024                [Page 26]
+
+Internet-Draft                XR Fragments                September 2023
+
+
     | teleportation   | repositioning the enduser to a different      |
     |                 | position (or 3D scene/file)                   |
     +-----------------+-----------------------------------------------+
@@ -1450,14 +1493,6 @@ Internet-Draft                XR Fragments                September 2023
     +-----------------+-----------------------------------------------+
     | extrospective   | outward sensemaking ("I'm fairly sure John is |
     |                 | a person who lives in oklahoma")              |
-
-
-
-van Kammen                Expires 24 March 2024                [Page 26]
-
-Internet-Draft                XR Fragments                September 2023
-
-
     +-----------------+-----------------------------------------------+
     | &#9723;         | ascii representation of an 3D object/mesh     |
     +-----------------+-----------------------------------------------+
@@ -1471,6 +1506,14 @@ Internet-Draft                XR Fragments                September 2023
     | BibTag          | a BibTeX tag                                  |
     +-----------------+-----------------------------------------------+
     | (hashtag)bibs   | an easy to speak/type/scan tagging SDL (see   |
+
+
+
+van Kammen                Expires 25 March 2024                [Page 27]
+
+Internet-Draft                XR Fragments                September 2023
+
+
     |                 | here (https://github.com/coderofsalvation/    |
     |                 | hashtagbibs) which expands to BibTex/JSON/XML |
     +-----------------+-----------------------------------------------+
@@ -1509,4 +1552,17 @@ Internet-Draft                XR Fragments                September 2023
 
 
 
-van Kammen                Expires 24 March 2024                [Page 27]
+
+
+
+
+
+
+
+
+
+
+
+
+
+van Kammen                Expires 25 March 2024                [Page 28]

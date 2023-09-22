@@ -330,7 +330,9 @@ Resizing will be happen accordingly to its placeholder object `aquariumcube`, se
 1. <b>local</b> `src` values (URL **starting** with `#`, like `#cube&foo`) means **only** the mentioned objectnames will be copied to the instanced scene (from the current scene) while preserving their names (to support recursive selectors). [(example code)](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/src.js)
 1. <b>local</b> `src` values indicating a query (`#q=`), means that all included objects (from the current scene) will be copied to the instanced scene (before applying the query) while preserving their names (to support recursive selectors). [(example code)](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/src.js)
 1. the instanced scene (from a `src` value) should be <b>scaled accordingly</b> to its placeholder object or <b>scaled relatively</b> based on the scale-property (of a geometry-less placeholder, an 'empty'-object in blender e.g.). For more info see Chapter Scaling.
-1. <b>external</b> `src` (file) values should be served with appropriate mimetype (so the XR Fragment-compatible browser will now how to render it). The bare minimum supported mimetypes are:
+1. <b>external</b> `src` values should be served with appropriate mimetype (so the XR Fragment-compatible browser will now how to render it). The bare minimum supported mimetypes are:
+1. `src` values should make its placeholder object invisible, and only flush its children when the resolved content can succesfully be retrieved (see [broken links](#links))
+1. <b>external</b> `src` values should respect the fallback link mechanism (see [broken links](#broken-links)
 1. when the placeholder object is a 2D plane, but the mimetype is 3D, then render the spatial content on that plane via a stencil buffer. 
 1. src-values are non-recursive: when linking to an external object (`src: foo.fbx#bar`), then `src`-metadata on object `bar` should be ignored. 
 1. clicking on external `src`-values always allow sourceportation: teleporting to the origin URI to which the object belongs.
@@ -765,6 +767,38 @@ here are some hashtagbibs followed by bibtex:
 ```
 
 > when an XR browser updates the human text, a quick scan for nonmatching tags (`@book{nonmatchingbook` e.g.) should be performed and prompt the enduser for deleting them.
+
+# Broken links
+
+There's a soft-mechanism to harden links & prevent broken links in various ways:
+
+1. defining a different transport protocol (https vs ipfs or DAT) in `src` or `href` values can make a difference
+2. mirroring files on another protocol using errorcodes in `src` or `href` properties
+3. in case of `src`: nesting a copy of the embedded object in the placeholder object (`embeddedObject`) will not be replaced when the request fails
+
+For example:
+
+```
+  +────────────────────────────────────────────────────────+ 
+  │                                                        │
+  │  index.gltf                                            │
+  │    │                                                   │
+  │    │ #: #q=-offlinetext                                │
+  │    │                                                   │
+  │    ├── ◻ buttonA                                       │
+  │    │      └ href:     http://foo.io/campagne.fbx       │
+  │    │      └ href!404: ipfs://foo.io/campagne.fbx       │
+  │    │      └ href!400: #q=clienterrortext               │
+  │    │      └ ◻ offlinetext                              │
+  │    │                                                   │
+  │    └── ◻ embeddedObject                          <--------- the meshdata inside embeddedObject will (not)
+  │           └ src: https://foo.io/bar.gltf               │    be flushed when the request (does not) succeed.
+  │           └ src!404: http://foo.io/bar.gltf            │    So worstcase the 3D data (of the time of publishing index.gltf)
+  │           └ src!400: https://archive.org/l2kj43.gltf   │    will be displayed.
+  │                                                        │
+  +────────────────────────────────────────────────────────+
+
+```
 
 # Security Considerations
 
