@@ -186,12 +186,12 @@ sub-delims  = "," / "="
 
 # List of URI Fragments
 
-| fragment     | type     | example           | info                                                                |
-|--------------|----------|-------------------|---------------------------------------------------------------------|
-| `#pos`       | vector3  | `#pos=0.5,0,0`    | positions camera (or XR floor) to xyz-coord 0.5,0,0,                |
-| `#rot`       | vector3  | `#rot=0,90,0`     | rotates camera to xyz-coord 0.5,0,0                                 |
-| `#t`         | vector2  | `#t=500,1000`     | sets animation-loop range between frame 500 and 1000                |
-| `#......`    | string   | `#.cubes` `#cube` | predefined views, XRWG fragments and ID fragments                   |
+| fragment     | type     | example           | info                                                                 |
+|--------------|----------|-------------------|----------------------------------------------------------------------|
+| `#pos`       | vector3  | `#pos=0.5,0,0`    | positions camera (or XR floor) to xyz-coord 0.5,0,0,                 |
+| `#rot`       | vector3  | `#rot=0,90,0`     | rotates camera to xyz-coord 0.5,0,0                                  |
+| `#t`         | vector3  | `#t=1,500,1000`   | play animation-loop range between frame 500 and 1000, at normal speed|
+| `#......`    | string   | `#.cubes` `#cube` | predefined views, XRWG fragments and ID fragments                    |
 
 > xyz coordinates are similar to ones found in SVG Media Fragments
 
@@ -242,7 +242,7 @@ For example, to render a portal with a preview-version of the scene, create an 3
 | fragment | type | functionality |
 |----------|--------|------------------------------|
 | <b>#pos</b>=0,0,0 | vector3 | (re)position camera    |
-| <b>#t</b>=0,100 | vector2 | (re)position looprange of scene-animation or `src`-mediacontent  |
+| <b>#t</b>=0,100 | vector3 | set playback speed, and (re)position looprange of scene-animation or `src`-mediacontent  |
 | <b>#rot</b>=0,90,0 | vector3 | rotate camera    |
 
 [» example implementation](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/pos.js)<br>
@@ -251,7 +251,7 @@ For example, to render a portal with a preview-version of the scene, create an 3
 1. the Y-coordinate of `pos` identifies the floorposition. This means that desktop-projections usually need to add 1.5m (average person height) on top (which is done automatically by VR/AR headsets).
 1. set the position of the camera accordingly to the vector3 values of `#pos`
 1. `rot` sets the rotation of the camera (only for non-VR/AR headsets)
-1. `t` sets the animation-range of the current scene animation(s) or `src`-mediacontent (video/audioframes e.g., use `t=7,7` to 'STOP' at certain frame) 
+1. `t` sets the playbackspeed and animation-range of the current scene animation(s) or `src`-mediacontent (video/audioframes e.g., use `t=0,7,7` to 'STOP' at frame 7 e.g.) 
 1. in case an `href` does not mention any `pos`-coordinate, `pos=0,0,0` will be assumed
 
 Here's an ascii representation of a 3D scene-graph which contains 3D objects `◻` and their metadata:
