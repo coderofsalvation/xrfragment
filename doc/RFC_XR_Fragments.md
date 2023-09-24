@@ -768,9 +768,9 @@ here are some hashtagbibs followed by bibtex:
 
 > when an XR browser updates the human text, a quick scan for nonmatching tags (`@book{nonmatchingbook` e.g.) should be performed and prompt the enduser for deleting them.
 
-# Broken links
+# Transclusion (broken link) resolution
 
-There's a soft-mechanism to harden links & prevent broken links in various ways:
+In spirit of Ted Nelson's 'transclusion resolution', there's a soft-mechanism to harden links & prevent broken links in various ways:
 
 1. defining a different transport protocol (https vs ipfs or DAT) in `src` or `href` values can make a difference
 2. mirroring files on another protocol using errorcodes in `src` or `href` properties
