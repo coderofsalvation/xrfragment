@@ -200,9 +200,9 @@ sub-delims  = "," / "="
 | key          | type     | example (JSON)         | function            | existing compatibility                 |
 |--------------|----------|------------------------|---------------------|----------------------------------------|
 | `name`       | string   | `"name": "cube"`       | identify/tag        | object supported in all 3D fileformats & scenes               |
-| `tag`        | string   | `"tag": "cubes geo"`   | tag object          | custom property in 3D fileformats    |
-| `href`       | string   | `"href": "b.gltf"`     | XR teleport         | custom property in 3D fileformats    |
-| `src`        | string   | `"src": "#cube"`       | XR embed / teleport |custom property in 3D fileformats    |
+| `tag`        | string   | `"tag": "cubes geo"`   | tag object          | custom property in 3D fileformats      |
+| `href`       | string   | `"href": "b.gltf"`     | XR teleport         | custom property in 3D fileformats      |
+| `src`        | string   | `"src": "#cube"`       | XR embed / teleport |custom property in 3D fileformats       |
 
 Supported popular compatible 3D fileformats: `.gltf`, `.obj`, `.fbx`, `.usdz`, `.json` (THREE.js), `.dae` and so on.
 
@@ -770,11 +770,13 @@ here are some hashtagbibs followed by bibtex:
 
 # Transclusion (broken link) resolution
 
-In spirit of Ted Nelson's 'transclusion resolution', there's a soft-mechanism to harden links & prevent broken links in various ways:
+In spirit of Ted Nelson's 'transclusion resolution', there's a soft-mechanism to harden links & minimize broken links in various ways:
 
 1. defining a different transport protocol (https vs ipfs or DAT) in `src` or `href` values can make a difference
-2. mirroring files on another protocol using errorcodes in `src` or `href` properties
+2. mirroring files on another protocol using (HTTP) errorcode tags in `src` or `href` properties
 3. in case of `src`: nesting a copy of the embedded object in the placeholder object (`embeddedObject`) will not be replaced when the request fails
+
+> due to the popularity, maturity and extensiveness of HTTP codes for client/server communication, non-HTTP protocols easily map to HTTP codes (ipfs ERR_NOT_FOUND maps to 404 e.g.)
 
 For example:
 
@@ -787,18 +789,38 @@ For example:
   │    │                                                   │
   │    ├── ◻ buttonA                                       │
   │    │      └ href:     http://foo.io/campagne.fbx       │
-  │    │      └ href!404: ipfs://foo.io/campagne.fbx       │
-  │    │      └ href!400: #q=clienterrortext               │
+  │    │      └ href@404: ipfs://foo.io/campagne.fbx       │
+  │    │      └ href@400: #q=clienterrortext               │
   │    │      └ ◻ offlinetext                              │
   │    │                                                   │
   │    └── ◻ embeddedObject                          <--------- the meshdata inside embeddedObject will (not)
   │           └ src: https://foo.io/bar.gltf               │    be flushed when the request (does not) succeed.
-  │           └ src!404: http://foo.io/bar.gltf            │    So worstcase the 3D data (of the time of publishing index.gltf)
-  │           └ src!400: https://archive.org/l2kj43.gltf   │    will be displayed.
+  │           └ src@404: http://foo.io/bar.gltf            │    So worstcase the 3D data (of the time of publishing index.gltf)
+  │           └ src@400: https://archive.org/l2kj43.gltf   │    will be displayed.
   │                                                        │
   +────────────────────────────────────────────────────────+
 
 ```
+
+# Topic-based index-less Webrings 
+
+As hashtags in URLs map to the XWRG, `href`-values can be used to promote topic-based index-less webrings.<br>
+Consider 3D scenes linking to eachother using these `href` values:
+
+* `href: schoolA.edu/projects.gltf#math`
+* `href: schoolB.edu/projects.gltf#math`
+* `href: university.edu/projects.gltf#math`
+
+These links would all show visible links to math-tagged objects in the scene.<br>
+To filter out non-related objects one could take it a step further using queries:
+
+* `href: schoolA.edu/projects.gltf#math&q=-topics math`
+* `href: schoolB.edu/projects.gltf#math&q=-courses math`
+* `href: university.edu/projects.gltf#math&q=-theme math`
+
+> This would hide all object tagged with `topic`, `courses` or `theme` (including math) so that later only objects tagged with `math` will be visible 
+
+This makes spatial content multi-purpose, without the need to separate content into separate files, or show/hide things using a complex logiclayer like javascript.
 
 # Security Considerations
 
@@ -813,8 +835,11 @@ Since XR Text contains metadata too, the user should be able to set up tagging-r
 
 ---
 
-**Q:** Why isn't there support for scripting
-**A:** This is out of scope, and up to the XR hypermedia browser. Javascript seems to been able to turn webpages from hypermedia documents into its opposite (hyperscripted nonhypermedia documents). In order to prevent this backward-movement (hypermedia tends to liberate people from finnicky scripting) XR Fragments should never unhyperify itself by hardcoupling to a particular markup or scripting language. [XR Macro's](https://xrfragment.org/doc/RFC_XR_Macros.html) are an example of something which is probably smarter and safer for hypermedia browsers to implement, instead of going full-in with a turing-complete scripting language (and suffer the security consequences later).
+**Q:** Why isn't there support for scripting, while we have things like WASM
+**A:** This is out of scope as it unhyperifies hypermedia, and this is up to XR hypermedia browser-extensions.<br> Historically scripting/Javascript seems to been able to turn webpages from hypermedia documents into its opposite (hyperscripted nonhypermedia documents).<br>In order to prevent this backward-movement (hypermedia tends to liberate people from finnicky scripting) XR Fragments should never unhyperify itself by hardcoupling to a particular markup or scripting language. [XR Macro's](https://xrfragment.org/doc/RFC_XR_Macros.html) are an example of something which is probably smarter and safer for hypermedia browsers to implement, instead of going full-in with a turing-complete scripting language (and suffer the security consequences later).<br>
+XR Fragments supports filtering objects in a scene only, because in the history of the javascript-powered web, showing/hiding document-entities seems to be one of the most popular basic usecases.<br>
+Doing advanced scripting & networkrequests under the hood are obviously interesting endavours, but this is something which should not be hardcoupled with hypermedia.<br>This belongs to browser extensions.<br>
+Non-HTML Hypermedia browsers should make browser extensions the right place, to 'extend' experiences, in contrast to code/javascript inside hypermedia documents (this turned out as a hypermedia antipattern).
 
 # IANA Considerations
 
