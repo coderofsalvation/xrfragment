@@ -16,6 +16,7 @@ xrf.frag.src = function(v, opts){
     xrf.frag.src.scale( src, opts, url )
     xrf.frag.src.eval( src, opts, url )
     mesh.add(src)
+    mesh.traverse( (n) => n.isSRC = n.isXRF = true )
     if( mesh.material ) mesh.material.visible = false
   }
 
@@ -45,7 +46,6 @@ xrf.frag.src.eval = function(scene, opts, url){
     let { mesh, model, camera, renderer, THREE, hashbus} = opts
     if( url ){
       console.log(mesh.name+" url="+url)
-      console.dir(mesh)
       //let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
       //let frag = xrfragment.URI.parse(url)
       //// scale URI XR Fragments (queries) inside src-value 
@@ -97,7 +97,6 @@ xrf.frag.src.scale = function(scene, opts, url){
 xrf.frag.src.filterScene = (scene,opts) => {
   let { mesh, model, camera, renderer, THREE, hashbus, frag} = opts
   let obj, src
-    console.dir(frag)
   // cherrypicking of object(s)
   if( !frag.q ){
     src = new THREE.Group()
@@ -109,18 +108,15 @@ xrf.frag.src.filterScene = (scene,opts) => {
         hashbus.pub.fragment(i, Object.assign(opts,{frag, model,scene}))
       }
     }else src = scene.clone(true)
-    console.dir({name: mesh.name, scene, frag})
     if( src.children.length == 1 ) obj.position.set(0,0,0);
   }
 
   // filtering of objects using query
   if( frag.q ){
     src = scene.clone(true);
-    src.isSRC = src.isXRF = true;
     xrf.frag.q.filter(src,frag)
   }
   src.traverse( (m) => {
-    src.isSRC = src.isXRF = true;
     if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 
     hashbus.pub.mesh(m,{scene,recursive:true})                       // cool idea: recursion-depth based distance between face & src
   })

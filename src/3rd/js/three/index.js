@@ -57,13 +57,16 @@ xrf.parseModel = function(model,url){
 
   let tmp = new xrf.THREE.Vector3()
   model.render           = function(){
-    model.mixer.update( model.clock.getDelta() )
+    let time = model.clock.getDelta()
+    model.mixer.update( time )
 
     // update focusline 
     xrf.focusLine.material.color.r  = (1.0 + Math.sin( model.clock.getElapsedTime()*10  ))/2
     xrf.focusLine.material.dashSize = 0.2 + 0.02*Math.sin( model.clock.getElapsedTime()  )
     xrf.focusLine.material.gapSize  = 0.1 + 0.02*Math.sin( model.clock.getElapsedTime() *3  )
-    xrf.focusLine.material.opacity  = 0.25 + 0.15*Math.sin( model.clock.getElapsedTime() * 3 )
+    xrf.focusLine.material.opacity  = (0.25 + 0.15*Math.sin( model.clock.getElapsedTime() * 3 )) * xrf.focusLine.opacity;
+    if( xrf.focusLine.opacity > 0.0 ) xrf.focusLine.opacity -= time*0.3
+    if( xrf.focusLine.opacity < 0.0 ) xrf.focusLine.opacity = 0
   }
 }
 

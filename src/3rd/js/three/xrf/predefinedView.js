@@ -40,6 +40,7 @@ xrf.frag.updatePredefinedView = (opts) => {
         line.computeLineDistances();
         xrf.focusLine.lines.push(line)
         xrf.focusLine.points.push(from)
+        xrf.focusLine.opacity = 1
         scene.add(line)
       })
     }
@@ -81,6 +82,10 @@ xrf.frag.updatePredefinedView = (opts) => {
     remove.map(     (n) => scene.remove(n.selection) )
     // create new selections
     match.map( (w) => {
+      if( w.key == `#${id}` && w.value && w.value[0] == '#' ){
+        // if value is alias, execute fragment value 
+        xrf.hashbus.pub( w.value, xrf.model, xrf.XRF.METADATA | xrf.XRF.PV_OVERRIDE | xrf.XRF.NAVIGATOR )
+      }
       w.nodes.map( (mesh) => {
         if( mesh.material )
           selectionOfInterest( v, scene, mesh )

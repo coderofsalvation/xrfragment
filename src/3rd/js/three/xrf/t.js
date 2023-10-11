@@ -29,9 +29,7 @@ xrf.frag.t = function(v, opts){
 
   if( v.y > 0 || v.z > 0 ) updateTime( mixer.loop.timeStart )
 
-  console.dir(mixer)
-
-  // update loop jump
+  // update loop when needed 
   if( !mixer.update.patched ){
     let update = mixer.update
     mixer.update = function(time){

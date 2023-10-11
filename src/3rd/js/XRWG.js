@@ -39,7 +39,7 @@ XRWG.generate = (opts) => {
     if( node ){
       node.nodes.push(spatialNode)
     }else{
-      node = { word: XRWG.cleankey(key), key: key.toLowerCase(), nodes:[spatialNode] }
+      node = { word: XRWG.cleankey(key), key, nodes:[spatialNode] }
       if( spatialNode.userData[key] ) node.value = spatialNode.userData[key]
       node[type] = true
       xrf.emit('XRWG',node)

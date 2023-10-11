@@ -27,8 +27,10 @@ xrf.frag.q = function(v, opts){
 xrf.frag.q.filter = function(scene,frag){
   // spec: https://xrfragment.org/#queries
   let q        = frag.q.query 
+  console.dir(q)
   scene.traverse( (mesh) => {
     for ( let i in q ) {
+      if( i == '' ) continue
       let isMeshId       = q[i].id    != undefined 
       let isMeshProperty = q[i].rules != undefined && q[i].rules.length && !isMeshId
       if( q[i].root && mesh.isSRC ) continue;  // ignore nested object for root-items (queryseletor '/foo' e.g.)

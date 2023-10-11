@@ -100,11 +100,8 @@ xrf.frag.href = function(v, opts){
     .then( () => {
       const flags = v.string[0] == '#' ? xrf.XRF.PV_OVERRIDE : undefined
       let toFrag = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-      let url = v.string
       // always keep a trail of last positions before we navigate
-      if( v.string.match(/pos=/) == null ) {
-        url += `${v.string[0] == '#' ? '&' : '#'}${lastPos}` 
-      }
+      if( !document.location.hash.match(lastPos) ) xrf.navigator.to(`#${lastPos}`)
       xrf.navigator.to(v.string)    // let's surf to HREF!
     }) 
     .catch( console.error )

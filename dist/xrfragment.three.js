@@ -725,7 +725,7 @@ XRWG.generate = (opts) => {
     if( node ){
       node.nodes.push(spatialNode)
     }else{
-      node = { word: XRWG.cleankey(key), key: key.toLowerCase(), nodes:[spatialNode] }
+      node = { word: XRWG.cleankey(key), key, nodes:[spatialNode] }
       if( spatialNode.userData[key] ) node.value = spatialNode.userData[key]
       node[type] = true
       xrf.emit('XRWG',node)
@@ -857,13 +857,16 @@ xrf.parseModel = function(model,url){
 
   let tmp = new xrf.THREE.Vector3()
   model.render           = function(){
-    model.mixer.update( model.clock.getDelta() )
+    let time = model.clock.getDelta()
+    model.mixer.update( time )
 
     // update focusline 
     xrf.focusLine.material.color.r  = (1.0 + Math.sin( model.clock.getElapsedTime()*10  ))/2
     xrf.focusLine.material.dashSize = 0.2 + 0.02*Math.sin( model.clock.getElapsedTime()  )
     xrf.focusLine.material.gapSize  = 0.1 + 0.02*Math.sin( model.clock.getElapsedTime() *3  )
-    xrf.focusLine.material.opacity  = 0.25 + 0.15*Math.sin( model.clock.getElapsedTime() * 3 )
+    xrf.focusLine.material.opacity  = (0.25 + 0.15*Math.sin( model.clock.getElapsedTime() * 3 )) * xrf.focusLine.opacity;
+    if( xrf.focusLine.opacity > 0.0 ) xrf.focusLine.opacity -= time*0.3
+    if( xrf.focusLine.opacity < 0.0 ) xrf.focusLine.opacity = 0
   }
 }
 
@@ -1407,6 +1410,7 @@ xrf.frag.href = function(v, opts){
 
     let isLocal = v.string[0] == '#'
     let lastPos = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
+    console.dir(lastPos)
 
     xrf
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
@@ -1414,8 +1418,7 @@ xrf.frag.href = function(v, opts){
       const flags = v.string[0] == '#' ? xrf.XRF.PV_OVERRIDE : undefined
       let toFrag = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
       // always keep a trail of last positions before we navigate
-      if( !v.string.match(/pos=/) ) v.string += `${v.string[0] == '#' ? '&' : '#'}${lastPos}` 
-      if( !document.location.hash.match(/pos=/) ) xrf.navigator.to(`#${lastPos}`,flags)
+      if( !document.location.hash.match(lastPos) ) xrf.navigator.to(`#${lastPos}`)
       xrf.navigator.to(v.string)    // let's surf to HREF!
     }) 
     .catch( console.error )
@@ -1512,6 +1515,7 @@ xrf.frag.updatePredefinedView = (opts) => {
         line.computeLineDistances();
         xrf.focusLine.lines.push(line)
         xrf.focusLine.points.push(from)
+        xrf.focusLine.opacity = 1
         scene.add(line)
       })
     }
@@ -1553,6 +1557,10 @@ xrf.frag.updatePredefinedView = (opts) => {
     remove.map(     (n) => scene.remove(n.selection) )
     // create new selections
     match.map( (w) => {
+      if( w.key == `#${id}` && w.value && w.value[0] == '#' ){
+        // if value is alias, execute fragment value 
+        xrf.hashbus.pub( w.value, xrf.model, xrf.XRF.METADATA | xrf.XRF.PV_OVERRIDE | xrf.XRF.NAVIGATOR )
+      }
       w.nodes.map( (mesh) => {
         if( mesh.material )
           selectionOfInterest( v, scene, mesh )
@@ -1619,8 +1627,10 @@ xrf.frag.q = function(v, opts){
 xrf.frag.q.filter = function(scene,frag){
   // spec: https://xrfragment.org/#queries
   let q        = frag.q.query 
+  console.dir(q)
   scene.traverse( (mesh) => {
     for ( let i in q ) {
+      if( i == '' ) continue
       let isMeshId       = q[i].id    != undefined 
       let isMeshProperty = q[i].rules != undefined && q[i].rules.length && !isMeshId
       if( q[i].root && mesh.isSRC ) continue;  // ignore nested object for root-items (queryseletor '/foo' e.g.)
@@ -1658,6 +1668,7 @@ xrf.frag.src = function(v, opts){
     xrf.frag.src.scale( src, opts, url )
     xrf.frag.src.eval( src, opts, url )
     mesh.add(src)
+    mesh.traverse( (n) => n.isSRC = n.isXRF = true )
     if( mesh.material ) mesh.material.visible = false
   }
 
@@ -1687,7 +1698,6 @@ xrf.frag.src.eval = function(scene, opts, url){
     let { mesh, model, camera, renderer, THREE, hashbus} = opts
     if( url ){
       console.log(mesh.name+" url="+url)
-      console.dir(mesh)
       //let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
       //let frag = xrfragment.URI.parse(url)
       //// scale URI XR Fragments (queries) inside src-value 
@@ -1739,7 +1749,6 @@ xrf.frag.src.scale = function(scene, opts, url){
 xrf.frag.src.filterScene = (scene,opts) => {
   let { mesh, model, camera, renderer, THREE, hashbus, frag} = opts
   let obj, src
-    console.dir(frag)
   // cherrypicking of object(s)
   if( !frag.q ){
     src = new THREE.Group()
@@ -1751,18 +1760,15 @@ xrf.frag.src.filterScene = (scene,opts) => {
         hashbus.pub.fragment(i, Object.assign(opts,{frag, model,scene}))
       }
     }else src = scene.clone(true)
-    console.dir({name: mesh.name, scene, frag})
     if( src.children.length == 1 ) obj.position.set(0,0,0);
   }
 
   // filtering of objects using query
   if( frag.q ){
     src = scene.clone(true);
-    src.isSRC = src.isXRF = true;
     xrf.frag.q.filter(src,frag)
   }
   src.traverse( (m) => {
-    src.isSRC = src.isXRF = true;
     if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 
     hashbus.pub.mesh(m,{scene,recursive:true})                       // cool idea: recursion-depth based distance between face & src
   })
@@ -1881,9 +1887,7 @@ xrf.frag.t = function(v, opts){
 
   if( v.y > 0 || v.z > 0 ) updateTime( mixer.loop.timeStart )
 
-  console.dir(mixer)
-
-  // update loop jump
+  // update loop when needed 
   if( !mixer.update.patched ){
     let update = mixer.update
     mixer.update = function(time){

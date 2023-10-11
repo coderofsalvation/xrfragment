@@ -38,7 +38,7 @@ window.AFRAME.registerComponent('xrf-button', {
         el.setAttribute('material', {
             color: this.color, 
             transparent:true,
-            opacity:0.5
+            opacity:0.7
         });
         el.setAttribute('pressable', '');
         labelEl.setAttribute('position', '0 0 0.01');

@@ -15,7 +15,7 @@
     </div>
     <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment-helloworld">➕ clone project</a> 
     <a class="btn-foot" id="embed" target="_blank" onclick="embed()">📺 embed</a> 
-    <a class="btn-foot" id="model" target="_blank" href="example.gltf">⬇️ model</a> 
+    <a class="btn-foot" id="model" target="_blank" href="index.gltf">⬇️ model</a> 
 		<textarea style="display:none"></textarea>
 		
 		<script async src="./../../assets/js/alpine.min.js"></script>
@@ -118,7 +118,7 @@
 
         window.XRF = XRF // expose to form
 
-				let file = document.location.search.length > 2 ? document.location.search.substr(1) + document.location.hash : 'example.gltf#pos=0,1,20'
+				let file = document.location.search.length > 2 ? document.location.search.substr(1) + document.location.hash : 'index.gltf#pos=0,1,20'
 
         // optional decoration of href event        
         XRF.addEventListener('href',(e) => {

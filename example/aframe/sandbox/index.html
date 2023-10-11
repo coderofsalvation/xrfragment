@@ -35,8 +35,8 @@
         <a-entity camera="fov:90" position="0 1.6 0" id="camera"></a-entity>
       </a-entity>
 
-      <a-entity id="home"  xrf="example.gltf#pos=0,0,0"></a-entity>
-      <a-entity id="floor" xrf-get="floor"></a-entity>
+      <a-entity id="home"  xrf="index.gltf#pos=0,0,0"></a-entity>
+      <a-plane  id="floor" position="0 0 0" rotation="-90 0 0" width="100" height="100" material="visible:false"></a-plane>
     </a-scene>
 
     <script type="module">
