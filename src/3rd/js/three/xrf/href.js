@@ -93,15 +93,18 @@ xrf.frag.href = function(v, opts){
 
     let isLocal = v.string[0] == '#'
     let lastPos = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
+    console.dir(lastPos)
 
     xrf
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
       const flags = v.string[0] == '#' ? xrf.XRF.PV_OVERRIDE : undefined
       let toFrag = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
+      let url = v.string
       // always keep a trail of last positions before we navigate
-      if( !v.string.match(/pos=/) ) v.string += `${v.string[0] == '#' ? '&' : '#'}${lastPos}` 
-      if( !document.location.hash.match(/pos=/) ) xrf.navigator.to(`#${lastPos}`,flags)
+      if( v.string.match(/pos=/) == null ) {
+        url += `${v.string[0] == '#' ? '&' : '#'}${lastPos}` 
+      }
       xrf.navigator.to(v.string)    // let's surf to HREF!
     }) 
     .catch( console.error )
