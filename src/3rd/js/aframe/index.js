@@ -30,6 +30,7 @@ window.AFRAME.registerComponent('xrf', {
         }
 
         xrf.pos  = camOverride
+        xrf.href = camOverride 
 
         // in order to set the rotation programmatically
         // we need to disable look-controls
@@ -44,17 +45,27 @@ window.AFRAME.registerComponent('xrf', {
           //setTimeout( () => look.setAttribute("look-controls",""), 100 )
         }
 
-        // convert portal to a-entity so AFRAME
+        // convert href's to a-entity's so AFRAME
         // raycaster can find & execute it
-        xrf.href = (xrf,v,opts) => {
-          camOverride(xrf,v,opts)
-          let {mesh,camera} = opts;
+        AFRAME.XRF.clickableMeshToEntity = (opts) => {
+          let {mesh,clickHandler} = opts;
           let el = document.createElement("a-entity")
-          el.setAttribute("xrf-get",mesh.name )
-          el.setAttribute("class","ray")
-          el.addEventListener("click", mesh.userData.XRF.href.exec )
+          el.setAttribute("xrf-get",mesh.name )  // turn into AFRAME entity
+          el.setAttribute("class","ray")         // expose to raycaster 
+          el.setAttribute("pressable", '')       // detect hand-controller click
+          // add click
+          el.addEventListener("click",          clickHandler )
+          el.addEventListener("pressedstarted", clickHandler )
+  //      this.el.addEventListener("buttondown",    console.dir )
+  //      this.el.addEventListener("touchstart",    console.dir )
+  //      this.el.addEventListener("triggerdown",   console.dir )
+  //      this.el.addEventListener("gripdown",      console.dir )
+  //      this.el.addEventListener("abuttondown",   console.dir )
+  //      this.el.addEventListener("pinchended",    console.dir )
+
           $('a-scene').appendChild(el)
         }
+        xrf.addEventListener('interactionReady', AFRAME.XRF.clickableMeshToEntity )
 
         // cleanup xrf-get objects when resetting scene
         xrf.reset = ((reset) => () => {

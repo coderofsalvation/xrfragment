@@ -93,7 +93,7 @@ value:     draft-XRFRAGMENTS-leonvankammen-00
 
 .# Abstract
 
-This draft is a specification for 4D URLs & navigation, which links together space, time & text together, for hypermedia browsers with- or without a network-connection.<br> 
+This draft is a specification for 4D URLs & [hypermediatic](https://github.com/coderofsalvation/hypermediatic) navigation, which links together space, time & text together, for hypermedia browsers with- or without a network-connection.<br> 
 The specification promotes spatial addressibility, sharing, navigation, query-ing and annotating interactive (text)objects across for (XR) Browsers.<br>
 XR Fragments allows us to enrich existing dataformats, by recursive use of existing proven technologies like [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) and BibTags notation.<br>
 
@@ -105,10 +105,10 @@ XR Fragments allows us to enrich existing dataformats, by recursive use of exist
 
 How can we add more features to existing text & 3D scenes, without introducing new dataformats?<br>
 Historically, there's many attempts to create the ultimate markuplanguage or 3D fileformat.<br>
-Their lowest common denominator is: (co)authoring using plain text.<br>
+The lowest common denominator is: describing/tagging/naming nodes using **plain text**.<br>
 XR Fragments allows us to enrich/connect existing dataformats, by introducing existing technologies/ideas:<br>
 
-1. addressibility and navigation of 3D scenes/objects: [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) + src/href spatial metadata 
+1. addressibility and [hypermediatic](https://github.com/coderofsalvation/hypermediatic) navigation of 3D scenes/objects: [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) + src/href spatial metadata 
 1. Interlinking text/& 3D by collapsing space into a Word Graph (XRWG) to show [visible links](#visible-links) (and augmenting text with [bibs](https://github.com/coderofsalvation/tagbibs) / [BibTags](https://en.wikipedia.org/wiki/BibTeX) appendices (see [visual-meta](https://visual-meta.info) e.g.)
 1. unlocking spatial potential of the (originally 2D) hashtag (which jumps to a chapter) for navigating XR documents
 
@@ -157,11 +157,11 @@ Instead of combining them (in a game-editor e.g.), XR Fragments is opting for a 
  
 Traditional webbrowsers can become 4D document-ready by:
 
-* loading 3D assets (gltf/fbx e.g.) natively (with or without using HTML).
+* [hypermediatic](https://github.com/coderofsalvation/hypermediatic) loading 3D assets (gltf/fbx e.g.) natively (with or without using HTML).
 * allowing assets to publish hashtags to themselves (the scene) using the hashbus (like hashtags controlling the scrollbar).
 * collapsing the 3D scene to an wordgraph (for essential navigation purposes) controllable thru a hash(tag)bus
 
-XR Fragments itself are HTML-agnostic, though pseudo-XR Fragment browsers **can** be implemented on top of HTML/Javascript. 
+XR Fragments itself are [hypermediatic](https://github.com/coderofsalvation/hypermediatic) and HTML-agnostic, though pseudo-XR Fragment browsers **can** be implemented on top of HTML/Javascript. 
 
 # Conventions and Definitions
 
@@ -235,7 +235,7 @@ For example, to render a portal with a preview-version of the scene, create an 3
 * href: `https://scene.fbx`
 * src: `https://otherworld.gltf#mainobject`
 
-> It also allows **sourceportation**, which basically means the enduser can teleport to the original XR Document of an `src` embedded object, and see a visible connection to the particular embedded object.
+> It also allows **sourceportation**, which basically means the enduser can teleport to the original XR Document of an `src` embedded object, and see a visible connection to the particular embedded object. Basically an embedded link becoming an outbound link by activating it.
 
 # Navigating 3D
 
@@ -347,7 +347,7 @@ Resizing will be happen accordingly to its placeholder object `aquariumcube`, se
 [» example 3D asset](https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/src.gltf#L192)<br>
 [» discussion](https://github.com/coderofsalvation/xrfragment/issues/4)<br>
 
-# Navigating content (href portals)
+# Navigating content (internal/outbound href portals)
 
 navigation, portals & mutations
 
@@ -355,7 +355,7 @@ navigation, portals & mutations
 |----------|---------------------------------|---------------------------------------------------------------------------------------------------------------------------|
 |`href`    | string (uri or predefined view) | `#pos=1,1,0`<br>`#pos=1,1,0&rot=90,0,0`<br>`://somefile.gltf#pos=1,1,0`<br> |
 
-1. clicking an ''external''- or ''file URI'' fully replaces the current scene and assumes `pos=0,0,0&rot=0,0,0` by default (unless specified)
+1. clicking an outbound ''external''- or ''file URI'' fully replaces the current scene and assumes `pos=0,0,0&rot=0,0,0` by default (unless specified)
 
 2. relocation/reorientation should happen locally for local URI's (`#pos=....`) 
 

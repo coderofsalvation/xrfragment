@@ -850,7 +850,10 @@ xrf.parseModel = function(model,url){
   // add animations
   model.clock            = new xrf.THREE.Clock();
   model.mixer            = new xrf.THREE.AnimationMixer(model.scene)
-  model.animations.map( (anim) => model.mixer.clipAction( anim ).play() )
+  model.animations.map( (anim) => { 
+    anim.action = model.mixer.clipAction( anim )
+    anim.action.play() 
+  })
 
   let tmp = new xrf.THREE.Vector3()
   model.render           = function(){
@@ -926,6 +929,7 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
       camera.traverse( (n) =>  String(n.type).match(/Camera/) ? camera = n : null )
 
       const scope = this;
+      scope.objects = []
 
       const raycaster = new Raycaster();
       const tempMatrix = new Matrix4();
@@ -952,7 +956,7 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
 
         raycaster.setFromCamera( _pointer, camera );
 
-        const intersects = raycaster.intersectObjects( scope.children, false );
+        const intersects = raycaster.intersectObjects( scope.objects, false );
 
         if ( intersects.length > 0 ) {
 
@@ -997,7 +1001,7 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
         raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
         raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
 
-        const intersections = raycaster.intersectObjects( scope.children, false );
+        const intersections = raycaster.intersectObjects( scope.objects, false );
 
         if ( intersections.length > 0 ) {
 
@@ -1008,9 +1012,6 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
 
           _event.type = events[ event.type ];
           _event.data.set( uv.x, 1 - uv.y );
-          if( _event.type != "mousemove" ){
-            console.log(event.type+" => "+_event.type)
-          }
 
           object.dispatchEvent( _event );
 
@@ -1030,6 +1031,11 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
       controller2.addEventListener( 'selectstart', onXRControllerEvent );
       controller2.addEventListener( 'selectend', onXRControllerEvent );
 
+    }
+
+    add(obj){
+      Group.prototype.add.call( this, obj )
+      this.objects = ([]).concat( this.children )
     }
 
   }
@@ -1211,6 +1217,7 @@ xrf.addEventListener('mesh', (opts) => {
         mesh.scale.copy(world.scale)
         mesh.setRotationFromQuaternion(world.quat);
         xrf.interactive.add(mesh)
+        xrf.emit('interactionReady', {mesh,xrf:fragment, clickHandler: fragment.trigger})
       }, 10, mesh )
     }
   }
@@ -1397,6 +1404,7 @@ xrf.frag.href = function(v, opts){
   }else if( mesh.material){ mesh.material = mesh.material.clone() }
 
   let click = mesh.userData.XRF.href.exec = (e) => {
+
     let isLocal = v.string[0] == '#'
     let lastPos = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
 
@@ -1410,6 +1418,7 @@ xrf.frag.href = function(v, opts){
       if( !document.location.hash.match(/pos=/) ) xrf.navigator.to(`#${lastPos}`,flags)
       xrf.navigator.to(v.string)    // let's surf to HREF!
     }) 
+    .catch( console.error )
   }
 
   let selected = (state) => () => {
@@ -1440,7 +1449,8 @@ xrf.frag.href = function(v, opts){
     mesh.scale.copy(world.scale)
     mesh.setRotationFromQuaternion(world.quat);
     xrf.interactive.add(mesh)
-  }, 10, mesh )
+    xrf.emit('interactionReady', {mesh,xrf:v,clickHandler: mesh.userData.XRF.href.exec })
+  }, 0, mesh )
 }
 
 /**
@@ -1840,6 +1850,54 @@ xrf.frag.src.type['image/png'] = function(url,opts){
 xrf.frag.src.type['image/gif'] = xrf.frag.src.type['image/png']
 xrf.frag.src.type['image/jpg'] = xrf.frag.src.type['image/png']
 
+xrf.frag.t = function(v, opts){
+  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+  console.log(`   └ setting animation loop to ${v.x} ${v.y} ${v.z}` )
+  if( !model.animations || model.animations[0] == undefined ) return console.warn('no animation in scene')
+
+  model.mixer.t = v
+  let duration  = model.animations[0].duration
+  let frames    = model.animations[0].tracks[0].times.length
+  let mixer     = model.mixer
+  mixer.loop    = mixer.loop || {frameStart:0,frameStop:99999999,speed: 1}
+  let fps       = frames / duration 
+
+  mixer.loop.speed    = v.x 
+  mixer.loop.speedAbs = Math.abs(v.x)
+  mixer.loop.frameStart = v.y || mixer.loop.frameStart
+  mixer.loop.frameStop  = v.z || mixer.loop.frameStop
+  // always recalculate time using frameStart/Stop 
+  mixer.loop.timeStart = mixer.loop.frameStart / (fps * mixer.loop.speedAbs)
+  mixer.loop.timeStop  = mixer.loop.frameStop  / (fps * mixer.loop.speedAbs)
+  
+  // update speed
+  mixer.timeScale = mixer.loop.speed
+
+  let updateTime = (time) => {
+    mixer.setTime(time)
+    mixer.time = Math.abs(mixer.time)
+    mixer.update(0)      // (forgetting) this little buddy costed me lots of time :]
+  }
+
+  if( v.y > 0 || v.z > 0 ) updateTime( mixer.loop.timeStart )
+
+  console.dir(mixer)
+
+  // update loop jump
+  if( !mixer.update.patched ){
+    let update = mixer.update
+    mixer.update = function(time){
+      mixer.time = Math.abs(mixer.time)
+      if( time == 0 ) return update.call(mixer,time)
+
+      if( mixer.loop.speed > 0.0 && mixer.time > mixer.loop.timeStop * mixer.loop.speedAbs ){ 
+        setTimeout( (time) => updateTime(time),0,mixer.loop.timeStart) // prevent recursion
+      }
+      return update.call( mixer, time )
+    }
+    mixer.update.patched = true
+  }
+}
 window.AFRAME.registerComponent('xrf', {
   schema: {
   },
@@ -1872,6 +1930,7 @@ window.AFRAME.registerComponent('xrf', {
         }
 
         xrf.pos  = camOverride
+        xrf.href = camOverride 
 
         // in order to set the rotation programmatically
         // we need to disable look-controls
@@ -1886,17 +1945,27 @@ window.AFRAME.registerComponent('xrf', {
           //setTimeout( () => look.setAttribute("look-controls",""), 100 )
         }
 
-        // convert portal to a-entity so AFRAME
+        // convert href's to a-entity's so AFRAME
         // raycaster can find & execute it
-        xrf.href = (xrf,v,opts) => {
-          camOverride(xrf,v,opts)
-          let {mesh,camera} = opts;
+        AFRAME.XRF.clickableMeshToEntity = (opts) => {
+          let {mesh,clickHandler} = opts;
           let el = document.createElement("a-entity")
-          el.setAttribute("xrf-get",mesh.name )
-          el.setAttribute("class","ray")
-          el.addEventListener("click", mesh.userData.XRF.href.exec )
+          el.setAttribute("xrf-get",mesh.name )  // turn into AFRAME entity
+          el.setAttribute("class","ray")         // expose to raycaster 
+          el.setAttribute("pressable", '')       // detect hand-controller click
+          // add click
+          el.addEventListener("click",          clickHandler )
+          el.addEventListener("pressedstarted", clickHandler )
+  //      this.el.addEventListener("buttondown",    console.dir )
+  //      this.el.addEventListener("touchstart",    console.dir )
+  //      this.el.addEventListener("triggerdown",   console.dir )
+  //      this.el.addEventListener("gripdown",      console.dir )
+  //      this.el.addEventListener("abuttondown",   console.dir )
+  //      this.el.addEventListener("pinchended",    console.dir )
+
           $('a-scene').appendChild(el)
         }
+        xrf.addEventListener('interactionReady', AFRAME.XRF.clickableMeshToEntity )
 
         // cleanup xrf-get objects when resetting scene
         xrf.reset = ((reset) => () => {
@@ -2048,24 +2117,32 @@ window.AFRAME.registerComponent('xrf-get', {
 
     this.el.addEventListener('update', (evt) => {
 
-      let scene = AFRAME.XRF.scene 
-      let mesh = scene.getObjectByName(meshname);
-      if (!mesh){
-        console.error("mesh with name '"+meshname+"' not found in model")
-        return;
-      }
-      // convert to worldcoordinates
-      mesh.getWorldPosition(mesh.position)
-      mesh.getWorldScale(mesh.scale)
-      mesh.getWorldQuaternion(mesh.quaternion)
-      if( !this.data.clone              ) mesh.parent.remove(mesh)
-      mesh.isXRF = true // mark for deletion by xrf
-      this.el.setObject3D('mesh', mesh );
-      if( !this.el.id ) this.el.setAttribute("id",`xrf-${mesh.name}`)
+      setTimeout( () => {
+
+        if( !this.mesh && this.el.className == "ray" ){
+          let scene = AFRAME.XRF.scene 
+          let mesh = this.mesh = scene.getObjectByName(meshname);
+          if (!mesh){
+            console.error("mesh with name '"+meshname+"' not found in model")
+            return;
+          }
+          // convert to worldcoordinates
+          mesh.getWorldPosition(mesh.position)
+          mesh.getWorldScale(mesh.scale)
+          mesh.getWorldQuaternion(mesh.quaternion)
+          mesh.isXRF = true    // mark for deletion by xrf
+          this.el.setObject3D('mesh',mesh)
+          // normalize position
+          //this.el.object3D.position.copy( mesh.position )
+          //mesh.position.fromArray([0,0,0])
+          if( !this.el.id ) this.el.setAttribute("id",`xrf-${mesh.name}`)
+
+        }
+      },500)
 
     })
 
-    if( this.el.className == "ray" ) this.el.emit("update")
+    this.el.emit("update")
 
   }
 

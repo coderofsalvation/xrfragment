@@ -24,6 +24,7 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
       camera.traverse( (n) =>  String(n.type).match(/Camera/) ? camera = n : null )
 
       const scope = this;
+      scope.objects = []
 
       const raycaster = new Raycaster();
       const tempMatrix = new Matrix4();
@@ -50,7 +51,7 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
 
         raycaster.setFromCamera( _pointer, camera );
 
-        const intersects = raycaster.intersectObjects( scope.children, false );
+        const intersects = raycaster.intersectObjects( scope.objects, false );
 
         if ( intersects.length > 0 ) {
 
@@ -95,7 +96,7 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
         raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
         raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
 
-        const intersections = raycaster.intersectObjects( scope.children, false );
+        const intersections = raycaster.intersectObjects( scope.objects, false );
 
         if ( intersections.length > 0 ) {
 
@@ -106,9 +107,6 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
 
           _event.type = events[ event.type ];
           _event.data.set( uv.x, 1 - uv.y );
-          if( _event.type != "mousemove" ){
-            console.log(event.type+" => "+_event.type)
-          }
 
           object.dispatchEvent( _event );
 
@@ -128,6 +126,11 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
       controller2.addEventListener( 'selectstart', onXRControllerEvent );
       controller2.addEventListener( 'selectend', onXRControllerEvent );
 
+    }
+
+    add(obj){
+      Group.prototype.add.call( this, obj )
+      this.objects = ([]).concat( this.children )
     }
 
   }

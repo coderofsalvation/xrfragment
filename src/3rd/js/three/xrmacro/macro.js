@@ -64,6 +64,7 @@ xrf.addEventListener('mesh', (opts) => {
         mesh.scale.copy(world.scale)
         mesh.setRotationFromQuaternion(world.quat);
         xrf.interactive.add(mesh)
+        xrf.emit('interactionReady', {mesh,xrf:fragment, clickHandler: fragment.trigger})
       }, 10, mesh )
     }
   }

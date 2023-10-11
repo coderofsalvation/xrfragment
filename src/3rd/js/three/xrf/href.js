@@ -90,6 +90,7 @@ xrf.frag.href = function(v, opts){
   }else if( mesh.material){ mesh.material = mesh.material.clone() }
 
   let click = mesh.userData.XRF.href.exec = (e) => {
+
     let isLocal = v.string[0] == '#'
     let lastPos = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
 
@@ -103,6 +104,7 @@ xrf.frag.href = function(v, opts){
       if( !document.location.hash.match(/pos=/) ) xrf.navigator.to(`#${lastPos}`,flags)
       xrf.navigator.to(v.string)    // let's surf to HREF!
     }) 
+    .catch( console.error )
   }
 
   let selected = (state) => () => {
@@ -133,7 +135,8 @@ xrf.frag.href = function(v, opts){
     mesh.scale.copy(world.scale)
     mesh.setRotationFromQuaternion(world.quat);
     xrf.interactive.add(mesh)
-  }, 10, mesh )
+    xrf.emit('interactionReady', {mesh,xrf:v,clickHandler: mesh.userData.XRF.href.exec })
+  }, 0, mesh )
 }
 
 /**

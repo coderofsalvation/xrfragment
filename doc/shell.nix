@@ -6,6 +6,7 @@
 
       mmark
       xml2rfc
+      wkhtmltopdf-bin
 
     ];
 }

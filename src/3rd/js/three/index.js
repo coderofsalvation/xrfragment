@@ -50,7 +50,10 @@ xrf.parseModel = function(model,url){
   // add animations
   model.clock            = new xrf.THREE.Clock();
   model.mixer            = new xrf.THREE.AnimationMixer(model.scene)
-  model.animations.map( (anim) => model.mixer.clipAction( anim ).play() )
+  model.animations.map( (anim) => { 
+    anim.action = model.mixer.clipAction( anim )
+    anim.action.play() 
+  })
 
   let tmp = new xrf.THREE.Vector3()
   model.render           = function(){

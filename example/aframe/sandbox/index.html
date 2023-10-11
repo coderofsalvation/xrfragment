@@ -25,13 +25,13 @@
     <textarea style="display:none"></textarea>
     <a-scene light="defaultLightsEnabled: false">
       <a-entity id="player" wasd-controls look-controls>
-        <a-entity id="left-hand"  laser-controls="hand: left" raycaster="objects:.ray;far:5500"  oculus-touch-controls="hand: left" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: #floor">
+        <a-entity id="left-hand"  laser-controls="hand: left" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: #floor">
           <a-entity rotation="-90 0 0" position="0 0.1 0"> 
             <a-entity id="back" xrf-button="label: <; width:0.05; action: history.back()"    position="-0.025 0 0" class="ray"></a-entity>
             <a-entity id="next" xrf-button="label: >; width:0.05; action: history.forward()" position=" 0.025 0 0" class="ray"></a-entity>
           </a-entity>
         </a-entity>
-        <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects:.ray;far:5500" oculus-touch-controls="hand: right" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: #floor"></a-entity>
+        <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: #floor"></a-entity>
         <a-entity camera="fov:90" position="0 1.6 0" id="camera"></a-entity>
       </a-entity>
 
