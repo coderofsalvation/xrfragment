@@ -54,18 +54,12 @@ export function setupConsole(el){
 }
 
 export function setupUrlBar(el,XRF){
-  var isIframe = document.location.hash.match(/embed=1/) 
   let ids = ['#overlay','a#embed','a#source','a#model']
   let showButtons = () => {
     ids.map( (i) => $(i).style.display = 'block' ) 
     $('a#more').style.display = 'none' 
   }
-  if( isIframe ){
-    // show internal URL bar & backbuttons to test XR fragments interactively 
-    showButtons()
-  }else{
-    $('a#more').addEventListener('click', () => showButtons() )
-  }
+  $('a#more').addEventListener('click', () => showButtons() )
 
   XRF.addEventListener('updateHash', () => reflectUrl() )
   const reflectUrl = (url) => el.value = url || document.location.search.substr(1) + document.location.hash

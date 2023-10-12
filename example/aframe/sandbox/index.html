@@ -47,6 +47,7 @@
       window.$ = (s) => document.querySelector(s)
       window.notify = notify(window)
       window.embed  = embed
+
       console.log = ( (log) => function(str){
         if( String(str).match(/:.*#/) ) window.notify(str)
         log(str)
