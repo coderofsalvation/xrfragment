@@ -3,7 +3,7 @@
 
 
 Internet Engineering Task Force                          L.R. van Kammen
-Internet-Draft                                         22 September 2023
+Internet-Draft                                           12 October 2023
 Intended status: Informational                                          
 
 
@@ -38,7 +38,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 25 March 2024.
+   This Internet-Draft will expire on 14 April 2024.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-van Kammen                Expires 25 March 2024                 [Page 1]
+van Kammen                Expires 14 April 2024                 [Page 1]
 
-Internet-Draft                  XR Macros                 September 2023
+Internet-Draft                  XR Macros                   October 2023
 
 
    extracted from this document must include Revised BSD License text as
@@ -68,17 +68,17 @@ Table of Contents
    2.  Core principle  . . . . . . . . . . . . . . . . . . . . . . .   2
    3.  Conventions and Definitions . . . . . . . . . . . . . . . . .   3
    4.  List of XR Macros . . . . . . . . . . . . . . . . . . . . . .   3
-     4.1.  Usecase: click object . . . . . . . . . . . . . . . . . .   3
-     4.2.  Usecase: conditional click object . . . . . . . . . . . .   3
-     4.3.  Usecase: click object (roundrobin)  . . . . . . . . . . .   4
+     4.1.  Usecase: click object . . . . . . . . . . . . . . . . . .   4
+     4.2.  Usecase: conditional click object . . . . . . . . . . . .   4
+     4.3.  Usecase: click object (roundrobin)  . . . . . . . . . . .   5
      4.4.  Usecase: click object or URI fragment, and scene load
-           trigger . . . . . . . . . . . . . . . . . . . . . . . . .   4
-     4.5.  Usecase: present context menu with options  . . . . . . .   5
-     4.6.  Event Bubble-flow . . . . . . . . . . . . . . . . . . . .   5
-   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   6
-   6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   6
-   7.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .   6
-   8.  Appendix: Definitions . . . . . . . . . . . . . . . . . . . .   6
+           trigger . . . . . . . . . . . . . . . . . . . . . . . . .   5
+     4.5.  Usecase: present context menu with options  . . . . . . .   6
+     4.6.  Event Bubble-flow . . . . . . . . . . . . . . . . . . . .   6
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
+   6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
+   7.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .   7
+   8.  Appendix: Definitions . . . . . . . . . . . . . . . . . . . .   7
 
 1.  Introduction
 
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-van Kammen                Expires 25 March 2024                 [Page 2]
+van Kammen                Expires 14 April 2024                 [Page 2]
 
-Internet-Draft                  XR Macros                 September 2023
+Internet-Draft                  XR Macros                   October 2023
 
 
    3.  Metadata-values can contain the | symbol to &#127922; roundrobin
@@ -144,6 +144,61 @@ Internet-Draft                  XR Macros                 September 2023
    Macros also act as events, so more serious scripting languages can
    react to them as well.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+van Kammen                Expires 14 April 2024                 [Page 3]
+
+Internet-Draft                  XR Macros                   October 2023
+
+
+   +=========+======+===================+=================+=============+
+   |key      |type  |example (JSON)     |function         |existing     |
+   |         |      |                   |                 |compatibility|
+   +=========+======+===================+=================+=============+
+   |@bg      |string|"@bg":"#cube"      |bg: binds fog    |custom       |
+   |         |      |                   |near/far based to|property in  |
+   |         |      |                   |cube x/y/z (anim)|3D           |
+   |         |      |                   |values           |fileformats  |
+   +---------+------+-------------------+-----------------+-------------+
+   |@fog     |string|"@fog":"#cube"     |fog: binds fog   |custom       |
+   |         |      |                   |near/far based to|property in  |
+   |         |      |                   |cube x/y (anim)  |3D           |
+   |         |      |                   |values           |fileformats  |
+   +---------+------+-------------------+-----------------+-------------+
+   |@scroll  |string|"@scroll":"#cube"  |texturescrolling:|custom       |
+   |         |      |                   |binds texture    |property in  |
+   |         |      |                   |x/y/rot based to |3D           |
+   |         |      |                   |cube x/y/z (anim)|fileformats  |
+   |         |      |                   |values           |             |
+   +---------+------+-------------------+-----------------+-------------+
+   |@emissive|string|"@emissive":"#cube"|day/night/mood:  |custom       |
+   |         |      |                   |binds material's |property in  |
+   |         |      |                   |emissive value to|3D           |
+   |         |      |                   |cube x/y/z (anim)|fileformats  |
+   |         |      |                   |values           |             |
+   +---------+------+-------------------+-----------------+-------------+
+
+                                  Table 1
+
 4.1.  Usecase: click object
 
            +=================+================+================+
@@ -152,7 +207,7 @@ Internet-Draft                  XR Macros                 September 2023
            | !clickme        | bg=1,1,1&foo=2 | object clicked |
            +-----------------+----------------+----------------+
 
-                                  Table 1
+                                  Table 2
 
 4.2.  Usecase: conditional click object
 
@@ -162,17 +217,16 @@ Internet-Draft                  XR Macros                 September 2023
     | #               | foo=1            | scene                      |
     +-----------------+------------------+----------------------------+
     | !clickme        | q=foo>2&bg=1,1,1 | object clicked and foo > 2 |
-
-
-
-van Kammen                Expires 25 March 2024                 [Page 3]
-
-Internet-Draft                  XR Macros                 September 2023
-
-
     +-----------------+------------------+----------------------------+
 
-                                  Table 2
+
+
+van Kammen                Expires 14 April 2024                 [Page 4]
+
+Internet-Draft                  XR Macros                   October 2023
+
+
+                                  Table 3
 
    |  when a user clicks an object with the custom properties above, it
    |  should set the backgroundcolor to 1,1,1 when foo is greater than 2
@@ -192,7 +246,7 @@ Internet-Draft                  XR Macros                 September 2023
            | night           | bg=0,0,0&foo=2 | roundrobin     |
            +-----------------+----------------+----------------+
 
-                                  Table 3
+                                  Table 4
 
    |  when a user clicks an object with the custom properties above, it
    |  should trigger either day noon or night in roundrobin fashion.
@@ -215,15 +269,17 @@ Internet-Draft                  XR Macros                 September 2023
         | night           | bg=0,0,0&foo=2 | roundrobin           |
         +-----------------+----------------+----------------------+
 
-                                  Table 4
+                                  Table 5
 
 
 
 
 
-van Kammen                Expires 25 March 2024                 [Page 4]
+
+
+van Kammen                Expires 14 April 2024                 [Page 5]
 
-Internet-Draft                  XR Macros                 September 2023
+Internet-Draft                  XR Macros                   October 2023
 
 
 4.5.  Usecase: present context menu with options
@@ -240,7 +296,7 @@ Internet-Draft                  XR Macros                 September 2023
        | !night          | bg=0,0,0&foo=2 | clicked in contextmenu |
        +-----------------+----------------+------------------------+
 
-                                  Table 5
+                                  Table 6
 
    |  When interacting with an object with more than one !-macro, the XR
    |  Browser should offer a contextmenu to execute a macro.
@@ -277,9 +333,9 @@ click object with (`!clickme`:`!foo|!bar|!flop` e.g.)
 
 
 
-van Kammen                Expires 25 March 2024                 [Page 5]
+van Kammen                Expires 14 April 2024                 [Page 6]
 
-Internet-Draft                  XR Macros                 September 2023
+Internet-Draft                  XR Macros                   October 2023
 
 
    |  Note that only macro's can trigger roundrobin values or
@@ -326,11 +382,11 @@ Internet-Draft                  XR Macros                 September 2023
    |               | a salad of machine-symbols and words              |
    +---------------+---------------------------------------------------+
 
-                                  Table 6
+                                  Table 7
 
 
 
 
 
 
-van Kammen                Expires 25 March 2024                 [Page 6]
+van Kammen                Expires 14 April 2024                 [Page 7]

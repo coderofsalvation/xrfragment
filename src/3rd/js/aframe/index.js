@@ -12,9 +12,9 @@ window.AFRAME.registerComponent('xrf', {
         let aScene = document.querySelector('a-scene')
         let XRF = AFRAME.XRF = xrf.init({
           THREE,
-          camera:   aScene.camera,
-          scene:    aScene.object3D,
-          renderer: aScene.renderer,
+          camera:    aScene.camera,
+          scene:     aScene.object3D,
+          renderer:  aScene.renderer,
           debug: true,
           loaders: { 
             gltf: THREE.GLTFLoader, // which 3D assets (exts) to check for XR fragments?

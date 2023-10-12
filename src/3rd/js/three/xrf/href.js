@@ -81,7 +81,7 @@ xrf.frag.href = function(v, opts){
           vec4 color = texture2D(pano, sampleUV);
           // Convert color to grayscale (lazy lite approach to not having to match tonemapping/shaderstacking of THREE.js)
           float luminance = 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
-          vec4 grayscale_color = color; //selected ? color : vec4(vec3(luminance) + vec3(0.33), color.a);
+          vec4 grayscale_color = selected ? color : vec4(vec3(luminance) + vec3(0.33), color.a);
           gl_FragColor = grayscale_color;
         }
       `,
@@ -109,14 +109,18 @@ xrf.frag.href = function(v, opts){
 
   let selected = (state) => () => {
     if( mesh.selected == state ) return // nothing changed 
-    if( mesh.material ){
-      if( mesh.material.uniforms ) mesh.material.uniforms.selected.value = state 
-      else mesh.material.color.r = mesh.material.color.g = mesh.material.color.b = state ? 2.0 : 1.0
-    }
+    xrf.interactive.objects.map( (o) => {
+      let newState = o.name == mesh.name ? state : false
+      if( o.material ){
+        if( o.material.uniforms ) o.material.uniforms.selected.value = newState 
+        if( o.material.emissive ) o.material.emissive.r = o.material.emissive.g = o.material.emissive.b = newState ? 2.0 : 1.0
+      }
+    })
     // update mouse cursor
     if( !renderer.domElement.lastCursor )
       renderer.domElement.lastCursor = renderer.domElement.style.cursor
     renderer.domElement.style.cursor = state ? 'pointer' : renderer.domElement.lastCursor 
+
     xrf
     .emit('href',{selected:state,mesh,xrf:v}) // let all listeners agree
     .then( () => mesh.selected = state )

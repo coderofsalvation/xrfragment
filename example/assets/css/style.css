@@ -73,7 +73,6 @@ input[type="submit"] {
 }
 
 #overlay > #uri {
-    display:none;
     height: 29px;
     font-size: 21px;
     position: absolute;
@@ -92,25 +91,40 @@ input[type="submit"] {
   border: 5px solid #1c1c3299;
   padding: 0px 6px;
   position: absolute;
-  font-weight: bold;
+  font-weight: 1000;
   font-family: sans-serif;
-  color: #7c7c7c;
+  font-size:17px;
+  color: #888;
+  height:43px;
   z-index:2000;
   cursor:pointer;
   right: 10px;
+  text-transform:uppercase;
 }
 
 a.btn-foot#embed{
   color: #888;
-  bottom: 126px;
+  bottom: 129px;
 }
 
 a.btn-foot#model{
-  bottom:73px;
+  bottom:72px;
+}
+
+a.btn-foot#more{
+  bottom:72px;
+  width: 60px;
+  text-align: center;
 }
 
 a.btn-foot#source{
-  bottom:179px;
+  bottom:186px;
+}
+
+a#source,
+a#embed,
+a#model{
+  display:none
 }
 
 html.a-fullscreen a.btn-foot {
@@ -249,5 +263,9 @@ html{
 
 .js-snackbar__close:hover {
     background-color: #4443;
+}
+
+.a-enter-vr-button, .a-enter-ar-button{
+  height:41px;
 }
 

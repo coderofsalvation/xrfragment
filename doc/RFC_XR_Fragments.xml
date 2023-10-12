@@ -10,7 +10,7 @@
 <workgroup>Internet Engineering Task Force</workgroup>
 
 <abstract>
-<t>This draft is a specification for 4D URLs &amp; navigation, which links together space, time &amp; text together, for hypermedia browsers with- or without a network-connection.<br />
+<t>This draft is a specification for 4D URLs &amp; <eref target="https://github.com/coderofsalvation/hypermediatic">hypermediatic</eref> navigation, which links together space, time &amp; text together, for hypermedia browsers with- or without a network-connection.<br />
 
 The specification promotes spatial addressibility, sharing, navigation, query-ing and annotating interactive (text)objects across for (XR) Browsers.<br />
 
@@ -28,13 +28,13 @@ XR Fragments allows us to enrich existing dataformats, by recursive use of exist
 
 Historically, there's many attempts to create the ultimate markuplanguage or 3D fileformat.<br />
 
-Their lowest common denominator is: (co)authoring using plain text.<br />
+The lowest common denominator is: describing/tagging/naming nodes using <strong>plain text</strong>.<br />
 
 XR Fragments allows us to enrich/connect existing dataformats, by introducing existing technologies/ideas:<br />
 </t>
 
 <ol spacing="compact">
-<li>addressibility and navigation of 3D scenes/objects: <eref target="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</eref> + src/href spatial metadata</li>
+<li>addressibility and <eref target="https://github.com/coderofsalvation/hypermediatic">hypermediatic</eref> navigation of 3D scenes/objects: <eref target="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</eref> + src/href spatial metadata</li>
 <li>Interlinking text/&amp; 3D by collapsing space into a Word Graph (XRWG) to show <eref target="#visible-links">visible links</eref> (and augmenting text with <eref target="https://github.com/coderofsalvation/tagbibs">bibs</eref> / <eref target="https://en.wikipedia.org/wiki/BibTeX">BibTags</eref> appendices (see <eref target="https://visual-meta.info">visual-meta</eref> e.g.)</li>
 <li>unlocking spatial potential of the (originally 2D) hashtag (which jumps to a chapter) for navigating XR documents</li>
 </ol>
@@ -132,11 +132,11 @@ But approaches things from a higherlevel feedbackloop/hypermedia browser-perspec
 <t>Traditional webbrowsers can become 4D document-ready by:</t>
 
 <ul spacing="compact">
-<li>loading 3D assets (gltf/fbx e.g.) natively (with or without using HTML).</li>
+<li><eref target="https://github.com/coderofsalvation/hypermediatic">hypermediatic</eref> loading 3D assets (gltf/fbx e.g.) natively (with or without using HTML).</li>
 <li>allowing assets to publish hashtags to themselves (the scene) using the hashbus (like hashtags controlling the scrollbar).</li>
 <li>collapsing the 3D scene to an wordgraph (for essential navigation purposes) controllable thru a hash(tag)bus</li>
 </ul>
-<t>XR Fragments itself are HTML-agnostic, though pseudo-XR Fragment browsers <strong>can</strong> be implemented on top of HTML/Javascript.</t>
+<t>XR Fragments itself are <eref target="https://github.com/coderofsalvation/hypermediatic">hypermediatic</eref> and HTML-agnostic, though pseudo-XR Fragment browsers <strong>can</strong> be implemented on top of HTML/Javascript.</t>
 </section>
 
 <section anchor="conventions-and-definitions"><name>Conventions and Definitions</name>
@@ -200,9 +200,9 @@ sub-delims  = &quot;,&quot; / &quot;=&quot;
 
 <tr>
 <td><tt>#t</tt></td>
-<td>vector2</td>
-<td><tt>#t=500,1000</tt></td>
-<td>sets animation-loop range between frame 500 and 1000</td>
+<td>vector3</td>
+<td><tt>#t=1,500,1000</tt></td>
+<td>play animation-loop range between frame 500 and 1000, at normal speed</td>
 </tr>
 
 <tr>
@@ -229,22 +229,6 @@ sub-delims  = &quot;,&quot; / &quot;=&quot;
 
 <tbody>
 <tr>
-<td><tt>name</tt></td>
-<td>string</td>
-<td><tt>&quot;name&quot;: &quot;cube&quot;</tt></td>
-<td>identify/tag</td>
-<td>object supported in all 3D fileformats &amp; scenes</td>
-</tr>
-
-<tr>
-<td><tt>tag</tt></td>
-<td>string</td>
-<td><tt>&quot;tag&quot;: &quot;cubes geo&quot;</tt></td>
-<td>tag object</td>
-<td>custom property in 3D fileformats</td>
-</tr>
-
-<tr>
 <td><tt>href</tt></td>
 <td>string</td>
 <td><tt>&quot;href&quot;: &quot;b.gltf&quot;</tt></td>
@@ -259,12 +243,21 @@ sub-delims  = &quot;,&quot; / &quot;=&quot;
 <td>XR embed / teleport</td>
 <td>custom property in 3D fileformats</td>
 </tr>
+
+<tr>
+<td><tt>tag</tt></td>
+<td>string</td>
+<td><tt>&quot;tag&quot;: &quot;cubes geo&quot;</tt></td>
+<td>tag object (for query-use / XRWG highlighting)</td>
+<td>custom property in 3D fileformats</td>
+</tr>
 </tbody>
 </table><t>Supported popular compatible 3D fileformats: <tt>.gltf</tt>, <tt>.obj</tt>, <tt>.fbx</tt>, <tt>.usdz</tt>, <tt>.json</tt> (THREE.js), <tt>.dae</tt> and so on.</t>
-<blockquote><t>NOTE: XR Fragments are file-agnostic, which means that the metadata exist in programmatic 3D scene(nodes) too.</t>
+<blockquote><t>NOTE: XR Fragments are optional but also file- and protocol-agnostic, which means that programmatic 3D scene(nodes) can also use the mechanism/metadata.</t>
 </blockquote></section>
 
 <section anchor="spatial-referencing-3d"><name>Spatial Referencing 3D</name>
+<t>XR Fragments assume the following objectname-to-URIFragment mapping:</t>
 
 <artwork>
   my.io/scene.fbx
@@ -283,7 +276,8 @@ sub-delims  = &quot;,&quot; / &quot;=&quot;
   +─────────────────────────────+
 
 </artwork>
-<t>Clever nested design of 3D scenes allow great ways for re-using content, and/or previewing scenes.<br />
+<blockquote><t>Every 3D fileformat supports named 3D object, and this name allows URLs (fragments) to reference them (and their children objects).</t>
+</blockquote><t>Clever nested design of 3D scenes allow great ways for re-using content, and/or previewing scenes.<br />
 
 For example, to render a portal with a preview-version of the scene, create an 3D object with:</t>
 
@@ -291,7 +285,7 @@ For example, to render a portal with a preview-version of the scene, create an 3
 <li>href: <tt>https://scene.fbx</tt></li>
 <li>src: <tt>https://otherworld.gltf#mainobject</tt></li>
 </ul>
-<blockquote><t>It also allows <strong>sourceportation</strong>, which basically means the enduser can teleport to the original XR Document of an <tt>src</tt> embedded object, and see a visible connection to the particular embedded object.</t>
+<blockquote><t>It also allows <strong>sourceportation</strong>, which basically means the enduser can teleport to the original XR Document of an <tt>src</tt> embedded object, and see a visible connection to the particular embedded object. Basically an embedded link becoming an outbound link by activating it.</t>
 </blockquote></section>
 
 <section anchor="navigating-3d"><name>Navigating 3D</name>
@@ -313,8 +307,8 @@ For example, to render a portal with a preview-version of the scene, create an 3
 
 <tr>
 <td>&lt;b&gt;#t&lt;/b&gt;=0,100</td>
-<td>vector2</td>
-<td>(re)position looprange of scene-animation or <tt>src</tt>-mediacontent</td>
+<td>vector3</td>
+<td>set playback speed, and (re)position looprange of scene-animation or <tt>src</tt>-mediacontent</td>
 </tr>
 
 <tr>
@@ -332,7 +326,7 @@ For example, to render a portal with a preview-version of the scene, create an 3
 <li>the Y-coordinate of <tt>pos</tt> identifies the floorposition. This means that desktop-projections usually need to add 1.5m (average person height) on top (which is done automatically by VR/AR headsets).</li>
 <li>set the position of the camera accordingly to the vector3 values of <tt>#pos</tt></li>
 <li><tt>rot</tt> sets the rotation of the camera (only for non-VR/AR headsets)</li>
-<li><tt>t</tt> sets the animation-range of the current scene animation(s) or <tt>src</tt>-mediacontent (video/audioframes e.g., use <tt>t=7,7</tt> to 'STOP' at certain frame)</li>
+<li><tt>t</tt> sets the playbackspeed and animation-range of the current scene animation(s) or <tt>src</tt>-mediacontent (video/audioframes e.g., use <tt>t=0,7,7</tt> to 'STOP' at frame 7 e.g.)</li>
 <li>in case an <tt>href</tt> does not mention any <tt>pos</tt>-coordinate, <tt>pos=0,0,0</tt> will be assumed</li>
 </ol>
 <t>Here's an ascii representation of a 3D scene-graph which contains 3D objects <tt>◻</tt> and their metadata:</t>
@@ -450,7 +444,7 @@ Resizing will be happen accordingly to its placeholder object <tt>aquariumcube</
 </t>
 </section>
 
-<section anchor="navigating-content-href-portals"><name>Navigating content (href portals)</name>
+<section anchor="navigating-content-internal-outbound-href-portals"><name>Navigating content (internal/outbound href portals)</name>
 <t>navigation, portals &amp; mutations</t>
 <table>
 <thead>
@@ -473,7 +467,7 @@ Resizing will be happen accordingly to its placeholder object <tt>aquariumcube</
 </tbody>
 </table>
 <ol>
-<li><t>clicking an ''external''- or ''file URI'' fully replaces the current scene and assumes <tt>pos=0,0,0&amp;rot=0,0,0</tt> by default (unless specified)</t>
+<li><t>clicking an outbound ''external''- or ''file URI'' fully replaces the current scene and assumes <tt>pos=0,0,0&amp;rot=0,0,0</tt> by default (unless specified)</t>
 </li>
 <li><t>relocation/reorientation should happen locally for local URI's (<tt>#pos=....</tt>)</t>
 </li>
@@ -943,15 +937,16 @@ here are some hashtagbibs followed by bibtex:
 </blockquote></section>
 </section>
 
-<section anchor="broken-links"><name>Broken links</name>
-<t>There's a soft-mechanism to harden links &amp; prevent broken links in various ways:</t>
+<section anchor="transclusion-broken-link-resolution"><name>Transclusion (broken link) resolution</name>
+<t>In spirit of Ted Nelson's 'transclusion resolution', there's a soft-mechanism to harden links &amp; minimize broken links in various ways:</t>
 
 <ol spacing="compact">
 <li>defining a different transport protocol (https vs ipfs or DAT) in <tt>src</tt> or <tt>href</tt> values can make a difference</li>
-<li>mirroring files on another protocol using errorcodes in <tt>src</tt> or <tt>href</tt> properties</li>
+<li>mirroring files on another protocol using (HTTP) errorcode tags in <tt>src</tt> or <tt>href</tt> properties</li>
 <li>in case of <tt>src</tt>: nesting a copy of the embedded object in the placeholder object (<tt>embeddedObject</tt>) will not be replaced when the request fails</li>
 </ol>
-<t>For example:</t>
+<blockquote><t>due to the popularity, maturity and extensiveness of HTTP codes for client/server communication, non-HTTP protocols easily map to HTTP codes (ipfs ERR_NOT_FOUND maps to 404 e.g.)</t>
+</blockquote><t>For example:</t>
 
 <artwork>  +────────────────────────────────────────────────────────+ 
   │                                                        │
@@ -961,18 +956,41 @@ here are some hashtagbibs followed by bibtex:
   │    │                                                   │
   │    ├── ◻ buttonA                                       │
   │    │      └ href:     http://foo.io/campagne.fbx       │
-  │    │      └ href!404: ipfs://foo.io/campagne.fbx       │
-  │    │      └ href!400: #q=clienterrortext               │
+  │    │      └ href@404: ipfs://foo.io/campagne.fbx       │
+  │    │      └ href@400: #q=clienterrortext               │
   │    │      └ ◻ offlinetext                              │
   │    │                                                   │
   │    └── ◻ embeddedObject                          &lt;--------- the meshdata inside embeddedObject will (not)
   │           └ src: https://foo.io/bar.gltf               │    be flushed when the request (does not) succeed.
-  │           └ src!404: http://foo.io/bar.gltf            │    So worstcase the 3D data (of the time of publishing index.gltf)
-  │           └ src!400: https://archive.org/l2kj43.gltf   │    will be displayed.
+  │           └ src@404: http://foo.io/bar.gltf            │    So worstcase the 3D data (of the time of publishing index.gltf)
+  │           └ src@400: https://archive.org/l2kj43.gltf   │    will be displayed.
   │                                                        │
   +────────────────────────────────────────────────────────+
 
 </artwork>
+</section>
+
+<section anchor="topic-based-index-less-webrings"><name>Topic-based index-less Webrings</name>
+<t>As hashtags in URLs map to the XWRG, <tt>href</tt>-values can be used to promote topic-based index-less webrings.<br />
+
+Consider 3D scenes linking to eachother using these <tt>href</tt> values:</t>
+
+<ul spacing="compact">
+<li><tt>href: schoolA.edu/projects.gltf#math</tt></li>
+<li><tt>href: schoolB.edu/projects.gltf#math</tt></li>
+<li><tt>href: university.edu/projects.gltf#math</tt></li>
+</ul>
+<t>These links would all show visible links to math-tagged objects in the scene.<br />
+
+To filter out non-related objects one could take it a step further using queries:</t>
+
+<ul spacing="compact">
+<li><tt>href: schoolA.edu/projects.gltf#math&amp;q=-topics math</tt></li>
+<li><tt>href: schoolB.edu/projects.gltf#math&amp;q=-courses math</tt></li>
+<li><tt>href: university.edu/projects.gltf#math&amp;q=-theme math</tt></li>
+</ul>
+<blockquote><t>This would hide all object tagged with <tt>topic</tt>, <tt>courses</tt> or <tt>theme</tt> (including math) so that later only objects tagged with <tt>math</tt> will be visible</t>
+</blockquote><t>This makes spatial content multi-purpose, without the need to separate content into separate files, or show/hide things using a complex logiclayer like javascript.</t>
 </section>
 
 <section anchor="security-considerations"><name>Security Considerations</name>
@@ -987,8 +1005,17 @@ here are some hashtagbibs followed by bibtex:
 <t><strong>Q:</strong> Why is everything HTTP GET-based, what about POST/PUT/DELETE HATEOS<br />
 
 <strong>A:</strong> Because it's out of scope: XR Fragment specifies a read-only way to surf XR documents. These things belong in the application layer (for example, an XR Hypermedia browser can decide to support POST/PUT/DELETE requests for embedded HTML thru <tt>src</tt> values)</t>
-<t><strong>Q:</strong> Why isn't there support for scripting
-<strong>A:</strong> This is out of scope, and up to the XR hypermedia browser. Javascript seems to been able to turn webpages from hypermedia documents into its opposite (hyperscripted nonhypermedia documents). In order to prevent this backward-movement (hypermedia tends to liberate people from finnicky scripting) XR Fragments should never unhyperify itself by hardcoupling to a particular markup or scripting language. <eref target="https://xrfragment.org/doc/RFC_XR_Macros.html">XR Macro's</eref> are an example of something which is probably smarter and safer for hypermedia browsers to implement, instead of going full-in with a turing-complete scripting language (and suffer the security consequences later).</t>
+<t><strong>Q:</strong> Why isn't there support for scripting, while we have things like WASM
+<strong>A:</strong> This is out of scope as it unhyperifies hypermedia, and this is up to XR hypermedia browser-extensions.<br />
+ Historically scripting/Javascript seems to been able to turn webpages from hypermedia documents into its opposite (hyperscripted nonhypermedia documents).<br />
+In order to prevent this backward-movement (hypermedia tends to liberate people from finnicky scripting) XR Fragments should never unhyperify itself by hardcoupling to a particular markup or scripting language. <eref target="https://xrfragment.org/doc/RFC_XR_Macros.html">XR Macro's</eref> are an example of something which is probably smarter and safer for hypermedia browsers to implement, instead of going full-in with a turing-complete scripting language (and suffer the security consequences later).<br />
+
+XR Fragments supports filtering objects in a scene only, because in the history of the javascript-powered web, showing/hiding document-entities seems to be one of the most popular basic usecases.<br />
+
+Doing advanced scripting &amp; networkrequests under the hood are obviously interesting endavours, but this is something which should not be hardcoupled with hypermedia.<br />
+This belongs to browser extensions.<br />
+
+Non-HTML Hypermedia browsers should make browser extensions the right place, to 'extend' experiences, in contrast to code/javascript inside hypermedia documents (this turned out as a hypermedia antipattern).</t>
 </section>
 
 <section anchor="iana-considerations"><name>IANA Considerations</name>

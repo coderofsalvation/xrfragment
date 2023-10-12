@@ -199,16 +199,18 @@ sub-delims  = "," / "="
 
 | key          | type     | example (JSON)         | function            | existing compatibility                 |
 |--------------|----------|------------------------|---------------------|----------------------------------------|
-| `name`       | string   | `"name": "cube"`       | identify/tag        | object supported in all 3D fileformats & scenes               |
-| `tag`        | string   | `"tag": "cubes geo"`   | tag object          | custom property in 3D fileformats      |
 | `href`       | string   | `"href": "b.gltf"`     | XR teleport         | custom property in 3D fileformats      |
-| `src`        | string   | `"src": "#cube"`       | XR embed / teleport |custom property in 3D fileformats       |
+| `src`        | string   | `"src": "#cube"`       | XR embed / teleport | custom property in 3D fileformats      |
+| `tag`        | string   | `"tag": "cubes geo"`   | tag object (for query-use / XRWG highlighting) | custom property in 3D fileformats      |
 
 Supported popular compatible 3D fileformats: `.gltf`, `.obj`, `.fbx`, `.usdz`, `.json` (THREE.js), `.dae` and so on.
 
-> NOTE: XR Fragments are file-agnostic, which means that the metadata exist in programmatic 3D scene(nodes) too.
+> NOTE: XR Fragments are optional but also file- and protocol-agnostic, which means that programmatic 3D scene(nodes) can also use the mechanism/metadata.
 
 # Spatial Referencing 3D 
+
+
+XR Fragments assume the following objectname-to-URIFragment mapping:
 
 ```
 
@@ -228,6 +230,8 @@ Supported popular compatible 3D fileformats: `.gltf`, `.obj`, `.fbx`, `.usdz`, `
   +─────────────────────────────+
 
 ```
+
+> Every 3D fileformat supports named 3D object, and this name allows URLs (fragments) to reference them (and their children objects).
 
 Clever nested design of 3D scenes allow great ways for re-using content, and/or previewing scenes.<br>
 For example, to render a portal with a preview-version of the scene, create an 3D object with:

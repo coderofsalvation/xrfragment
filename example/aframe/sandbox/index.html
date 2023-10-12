@@ -12,16 +12,19 @@
     <script src="./../../../dist/xrfragment.aframe.js"></script>
   </head>
   <body>
-    <div id="overlay">
+    <div id="overlay" style="display:none">
       <img src="./../../assets/logo.png" class="logo"/>
       <button id="navback"  onclick="history.back()">&lt;</button>
       <button id="navforward" onclick="history.forward()">&gt;</button>
-      <input type="submit" value="load 3D asset"></input>
+      <input type="submit" value="load 3D file"></input>
       <input type="text" id="uri" value="" onchange="AFRAME.XRF.navigator.to( $('#uri').value )"/> 
     </div>
+
+    <!-- open AFRAME inspector: $('a-scene').components.inspector.openInspector() -->
     <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment-helloworld">➕ clone project</a> 
     <a class="btn-foot" id="embed" target="_blank" onclick="embed()">📺 embed</a> 
     <a class="btn-foot" id="model" target="_blank" href="example.gltf">⬇️ model</a> 
+    <a class="btn-foot" id="more" target="_blank">XRF</a> 
     <textarea style="display:none"></textarea>
     <a-scene light="defaultLightsEnabled: false">
       <a-entity id="player" wasd-controls look-controls>

@@ -788,6 +788,7 @@ pub.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) insid
 
 pub.fragment = (k, opts ) => { // evaluate one fragment
   let frag = opts.frag[k];
+
   // call native function (xrf/env.js e.g.), or pass it to user decorator
   xrf.emit(k,opts)
   .then( () => {
@@ -852,6 +853,7 @@ xrf.parseModel = function(model,url){
   model.mixer            = new xrf.THREE.AnimationMixer(model.scene)
   model.animations.map( (anim) => { 
     anim.action = model.mixer.clipAction( anim )
+    //anim.action.setLoop(0)
     anim.action.play() 
   })
 
@@ -865,9 +867,10 @@ xrf.parseModel = function(model,url){
     xrf.focusLine.material.dashSize = 0.2 + 0.02*Math.sin( model.clock.getElapsedTime()  )
     xrf.focusLine.material.gapSize  = 0.1 + 0.02*Math.sin( model.clock.getElapsedTime() *3  )
     xrf.focusLine.material.opacity  = (0.25 + 0.15*Math.sin( model.clock.getElapsedTime() * 3 )) * xrf.focusLine.opacity;
-    if( xrf.focusLine.opacity > 0.0 ) xrf.focusLine.opacity -= time*0.3
+    if( xrf.focusLine.opacity > 0.0 ) xrf.focusLine.opacity -= time*0.2
     if( xrf.focusLine.opacity < 0.0 ) xrf.focusLine.opacity = 0
   }
+
 }
 
 xrf.getLastModel = ()           => xrf.model.last 
@@ -940,7 +943,7 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
       function nocollide(){
         if( nocollide.tid ) return  // ratelimit
         _event.type = "nocollide"
-        scope.children.map( (c) => c.dispatchEvent(_event) )
+        scope.objects.map( (c) => c.dispatchEvent(_event) )
         nocollide.tid = setTimeout( () => nocollide.tid = null, 100 )
       }
 
@@ -1082,8 +1085,12 @@ xrf.navigator.to = (url,flags,loader,data) => {
       xrf.XRWG.generate({model,scene:model.scene})
       // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
       xrf.frag.defaultPredefinedView({model,scene:model.scene})
-      // spec: 2. execute predefined view(s) from URL (https://xrfragment.org/#predefined_view)
-      hashbus.pub( url, model )                                                 // and eval URI XR fragments 
+      // spec: 2. init metadata
+      let frag = hashbus.pub( url, model )           // and eval URI XR fragments 
+      // spec: predefined view(s) from URL (https://xrfragment.org/#predefined_view)
+      setTimeout( () => { // give external objects some slack 
+        xrf.frag.updatePredefinedView({model,scene:model.scene,frag})
+      },2000)
       xrf.add( model.scene )
       xrf.navigator.updateHash(hash)
       resolve(model)
@@ -1096,8 +1103,13 @@ xrf.navigator.to = (url,flags,loader,data) => {
 
 xrf.navigator.init = () => {
   if( xrf.navigator.init.inited ) return
+
   window.addEventListener('popstate', function (event){
     xrf.navigator.to( document.location.search.substr(1) + document.location.hash )
+  })
+  
+  window.addEventListener('hashchange', function (e){
+    xrf.emit('hash', {hash: document.location.hash })
   })
 
   // this allows selectionlines to be updated according to the camera (renderloop)
@@ -1398,7 +1410,7 @@ xrf.frag.href = function(v, opts){
           vec4 color = texture2D(pano, sampleUV);
           // Convert color to grayscale (lazy lite approach to not having to match tonemapping/shaderstacking of THREE.js)
           float luminance = 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
-          vec4 grayscale_color = color; //selected ? color : vec4(vec3(luminance) + vec3(0.33), color.a);
+          vec4 grayscale_color = selected ? color : vec4(vec3(luminance) + vec3(0.33), color.a);
           gl_FragColor = grayscale_color;
         }
       `,
@@ -1426,14 +1438,18 @@ xrf.frag.href = function(v, opts){
 
   let selected = (state) => () => {
     if( mesh.selected == state ) return // nothing changed 
-    if( mesh.material ){
-      if( mesh.material.uniforms ) mesh.material.uniforms.selected.value = state 
-      else mesh.material.color.r = mesh.material.color.g = mesh.material.color.b = state ? 2.0 : 1.0
-    }
+    xrf.interactive.objects.map( (o) => {
+      let newState = o.name == mesh.name ? state : false
+      if( o.material ){
+        if( o.material.uniforms ) o.material.uniforms.selected.value = newState 
+        if( o.material.emissive ) o.material.emissive.r = o.material.emissive.g = o.material.emissive.b = newState ? 2.0 : 1.0
+      }
+    })
     // update mouse cursor
     if( !renderer.domElement.lastCursor )
       renderer.domElement.lastCursor = renderer.domElement.style.cursor
     renderer.domElement.style.cursor = state ? 'pointer' : renderer.domElement.lastCursor 
+
     xrf
     .emit('href',{selected:state,mesh,xrf:v}) // let all listeners agree
     .then( () => mesh.selected = state )
@@ -1481,7 +1497,7 @@ xrf.frag.defaultPredefinedView = (opts) => {
 }
 
 xrf.frag.updatePredefinedView = (opts) => {
-  let {frag,scene,model} = opts 
+  let {frag,scene,model,renderer} = opts 
 
   // spec: https://xrfragment.org/#Selection%20of%20interest
   const selectionOfInterest = (frag,scene,mesh) => {
@@ -1489,7 +1505,7 @@ xrf.frag.updatePredefinedView = (opts) => {
     let oldSelection
     if(!id) return id // important: ignore empty strings 
     // Selection of Interest if predefined_view matches object name
-    if( mesh.visible ){
+    if( mesh.visible && mesh.material){
       xrf.emit('focus',{...opts,frag})
       .then( () => {
         const color    = new THREE.Color();
@@ -1557,14 +1573,13 @@ xrf.frag.updatePredefinedView = (opts) => {
     remove.map(     (n) => scene.remove(n.selection) )
     // create new selections
     match.map( (w) => {
-      if( w.key == `#${id}` && w.value && w.value[0] == '#' ){
-        // if value is alias, execute fragment value 
-        xrf.hashbus.pub( w.value, xrf.model, xrf.XRF.METADATA | xrf.XRF.PV_OVERRIDE | xrf.XRF.NAVIGATOR )
+      if( w.key == `#${id}` ){
+        if(  w.value && w.value[0] == '#' ){
+          // if value is alias, execute fragment value 
+          xrf.hashbus.pub( w.value, xrf.model, xrf.XRF.METADATA | xrf.XRF.PV_OVERRIDE | xrf.XRF.NAVIGATOR )
+        }
       }
-      w.nodes.map( (mesh) => {
-        if( mesh.material )
-          selectionOfInterest( v, scene, mesh )
-      })
+      w.nodes.map( (mesh) => selectionOfInterest( v, scene, mesh ) )
     })
   }
 
@@ -1574,6 +1589,8 @@ xrf.frag.updatePredefinedView = (opts) => {
     console.log("filtering predefined view of src")
     console.dir(frag)
   }else{
+    console.log("updatePredefinedView")
+    console.dir(frag)
     for ( let i in frag  ) {
       let v = frag[i]
       if( v.is( xrf.XRF.PV_EXECUTE ) ){
@@ -1588,7 +1605,6 @@ xrf.frag.updatePredefinedView = (opts) => {
 // react to enduser typing url
 xrf.addEventListener('hash', (opts) => {
   let frag = xrf.URI.parse( opts.hash, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-  console.dir({opts,frag})
   xrf.frag.updatePredefinedView({frag,scene:xrf.scene})
 }) 
 
@@ -1627,10 +1643,8 @@ xrf.frag.q = function(v, opts){
 xrf.frag.q.filter = function(scene,frag){
   // spec: https://xrfragment.org/#queries
   let q        = frag.q.query 
-  console.dir(q)
   scene.traverse( (mesh) => {
     for ( let i in q ) {
-      if( i == '' ) continue
       let isMeshId       = q[i].id    != undefined 
       let isMeshProperty = q[i].rules != undefined && q[i].rules.length && !isMeshId
       if( q[i].root && mesh.isSRC ) continue;  // ignore nested object for root-items (queryseletor '/foo' e.g.)
@@ -1655,21 +1669,39 @@ xrf.frag.rot = function(v, opts){
 xrf.frag.src = function(v, opts){
 
   opts.embedded = v // indicate embedded XR fragment
-  let { mesh, model, camera, scene, renderer, THREE, hashbus} = opts
+  let { mesh, model, camera, scene, renderer, THREE, hashbus, frag} = opts
 
   console.log("   └ instancing src")
   let src;
   let url      = v.string
-  let frag     = xrfragment.URI.parse(url)
+  let vfrag    = xrfragment.URI.parse(url)
   opts.isPlane = mesh.geometry && mesh.geometry.attributes.uv && mesh.geometry.attributes.uv.count == 4 
 
   const addScene = (scene,url,frag) => {
     src = xrf.frag.src.filterScene(scene,{...opts,frag})
     xrf.frag.src.scale( src, opts, url )
     xrf.frag.src.eval( src, opts, url )
+    enableSourcePortation(src)
     mesh.add(src)
     mesh.traverse( (n) => n.isSRC = n.isXRF = true )
     if( mesh.material ) mesh.material.visible = false
+  }
+
+  const enableSourcePortation = (src) => {
+    if( vfrag.href || v.string[0] == '#' ) return
+    let scale = new THREE.Vector3()
+    let size  = new THREE.Vector3()
+    mesh.getWorldScale(scale)
+    new THREE.Box3().setFromObject(src).getSize(size)
+    const geo    = new THREE.SphereGeometry( Math.max(size.x, size.y, size.z) / scale.x, 10, 10 )
+    const mat    = new THREE.MeshBasicMaterial()
+    mat.transparent = true
+    mat.roughness = 0.05
+    mat.metalness = 1
+    mat.opacity = 0
+    const cube = new THREE.Mesh( geo, mat )
+    console.log("todo: sourceportate")
+    //mesh.add(cube)
   }
 
   const externalSRC = (url,frag,src) => {
@@ -1690,8 +1722,8 @@ xrf.frag.src = function(v, opts){
     .catch( console.error )
   }
 
-  if( url[0] == "#" ) addScene(scene,url,frag)    // current file 
-  else externalSRC(url,frag)                      // external file
+  if( url[0] == "#" ) addScene(scene,url,vfrag)    // current file 
+  else externalSRC(url,vfrag)                      // external file
 }
 
 xrf.frag.src.eval = function(scene, opts, url){

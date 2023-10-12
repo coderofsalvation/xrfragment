@@ -134,6 +134,13 @@ Macros enrich existing spatial content with a lowcode, limited logic-layer, by r
 This is done by allowing string/integer variables, and the `|` symbol to roundrobin variable values.<br>
 Macros also act as events, so more serious scripting languages can react to them as well.<br>
 
+| key          | type     | example (JSON)         | function            | existing compatibility                 |
+|--------------|----------|------------------------|---------------------|----------------------------------------|
+| `@bg`        | string   | `"@bg":"#cube"`        | bg: binds fog near/far based to cube x/y/z (anim) values | custom property in 3D fileformats      |
+| `@fog`       | string   | `"@fog":"#cube"`       | fog: binds fog near/far based to cube x/y (anim) values | custom property in 3D fileformats      |
+| `@scroll`    | string   | `"@scroll":"#cube"`    | texturescrolling: binds texture x/y/rot based to cube x/y/z (anim) values | custom property in 3D fileformats      |
+| `@emissive`  | string   | `"@emissive":"#cube"`  | day/night/mood: binds material's emissive value to cube x/y/z (anim) values | custom property in 3D fileformats      |
+
 ## Usecase: click object
 
 | custom property | value                    | trigger when           |

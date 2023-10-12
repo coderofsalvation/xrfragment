@@ -32,7 +32,7 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
       function nocollide(){
         if( nocollide.tid ) return  // ratelimit
         _event.type = "nocollide"
-        scope.children.map( (c) => c.dispatchEvent(_event) )
+        scope.objects.map( (c) => c.dispatchEvent(_event) )
         nocollide.tid = setTimeout( () => nocollide.tid = null, 100 )
       }
 

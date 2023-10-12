@@ -52,6 +52,7 @@ xrf.parseModel = function(model,url){
   model.mixer            = new xrf.THREE.AnimationMixer(model.scene)
   model.animations.map( (anim) => { 
     anim.action = model.mixer.clipAction( anim )
+    //anim.action.setLoop(0)
     anim.action.play() 
   })
 
@@ -65,9 +66,10 @@ xrf.parseModel = function(model,url){
     xrf.focusLine.material.dashSize = 0.2 + 0.02*Math.sin( model.clock.getElapsedTime()  )
     xrf.focusLine.material.gapSize  = 0.1 + 0.02*Math.sin( model.clock.getElapsedTime() *3  )
     xrf.focusLine.material.opacity  = (0.25 + 0.15*Math.sin( model.clock.getElapsedTime() * 3 )) * xrf.focusLine.opacity;
-    if( xrf.focusLine.opacity > 0.0 ) xrf.focusLine.opacity -= time*0.3
+    if( xrf.focusLine.opacity > 0.0 ) xrf.focusLine.opacity -= time*0.2
     if( xrf.focusLine.opacity < 0.0 ) xrf.focusLine.opacity = 0
   }
+
 }
 
 xrf.getLastModel = ()           => xrf.model.last 

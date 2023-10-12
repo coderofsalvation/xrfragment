@@ -34,6 +34,7 @@ pub.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) insid
 
 pub.fragment = (k, opts ) => { // evaluate one fragment
   let frag = opts.frag[k];
+
   // call native function (xrf/env.js e.g.), or pass it to user decorator
   xrf.emit(k,opts)
   .then( () => {

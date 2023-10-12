@@ -63,7 +63,51 @@ This is done by allowing string/integer variables, and the <tt>|</tt> symbol to 
 
 Macros also act as events, so more serious scripting languages can react to them as well.<br />
 </t>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>type</th>
+<th>example (JSON)</th>
+<th>function</th>
+<th>existing compatibility</th>
+</tr>
+</thead>
 
+<tbody>
+<tr>
+<td><tt>@bg</tt></td>
+<td>string</td>
+<td><tt>&quot;@bg&quot;:&quot;#cube&quot;</tt></td>
+<td>bg: binds fog near/far based to cube x/y/z (anim) values</td>
+<td>custom property in 3D fileformats</td>
+</tr>
+
+<tr>
+<td><tt>@fog</tt></td>
+<td>string</td>
+<td><tt>&quot;@fog&quot;:&quot;#cube&quot;</tt></td>
+<td>fog: binds fog near/far based to cube x/y (anim) values</td>
+<td>custom property in 3D fileformats</td>
+</tr>
+
+<tr>
+<td><tt>@scroll</tt></td>
+<td>string</td>
+<td><tt>&quot;@scroll&quot;:&quot;#cube&quot;</tt></td>
+<td>texturescrolling: binds texture x/y/rot based to cube x/y/z (anim) values</td>
+<td>custom property in 3D fileformats</td>
+</tr>
+
+<tr>
+<td><tt>@emissive</tt></td>
+<td>string</td>
+<td><tt>&quot;@emissive&quot;:&quot;#cube&quot;</tt></td>
+<td>day/night/mood: binds material's emissive value to cube x/y/z (anim) values</td>
+<td>custom property in 3D fileformats</td>
+</tr>
+</tbody>
+</table>
 <section anchor="usecase-click-object"><name>Usecase: click object</name>
 <table>
 <thead>

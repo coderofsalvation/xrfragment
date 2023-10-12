@@ -3,21 +3,39 @@
 xrf.frag.src = function(v, opts){
 
   opts.embedded = v // indicate embedded XR fragment
-  let { mesh, model, camera, scene, renderer, THREE, hashbus} = opts
+  let { mesh, model, camera, scene, renderer, THREE, hashbus, frag} = opts
 
   console.log("   └ instancing src")
   let src;
   let url      = v.string
-  let frag     = xrfragment.URI.parse(url)
+  let vfrag    = xrfragment.URI.parse(url)
   opts.isPlane = mesh.geometry && mesh.geometry.attributes.uv && mesh.geometry.attributes.uv.count == 4 
 
   const addScene = (scene,url,frag) => {
     src = xrf.frag.src.filterScene(scene,{...opts,frag})
     xrf.frag.src.scale( src, opts, url )
     xrf.frag.src.eval( src, opts, url )
+    enableSourcePortation(src)
     mesh.add(src)
     mesh.traverse( (n) => n.isSRC = n.isXRF = true )
     if( mesh.material ) mesh.material.visible = false
+  }
+
+  const enableSourcePortation = (src) => {
+    if( vfrag.href || v.string[0] == '#' ) return
+    let scale = new THREE.Vector3()
+    let size  = new THREE.Vector3()
+    mesh.getWorldScale(scale)
+    new THREE.Box3().setFromObject(src).getSize(size)
+    const geo    = new THREE.SphereGeometry( Math.max(size.x, size.y, size.z) / scale.x, 10, 10 )
+    const mat    = new THREE.MeshBasicMaterial()
+    mat.transparent = true
+    mat.roughness = 0.05
+    mat.metalness = 1
+    mat.opacity = 0
+    const cube = new THREE.Mesh( geo, mat )
+    console.log("todo: sourceportate")
+    //mesh.add(cube)
   }
 
   const externalSRC = (url,frag,src) => {
@@ -38,8 +56,8 @@ xrf.frag.src = function(v, opts){
     .catch( console.error )
   }
 
-  if( url[0] == "#" ) addScene(scene,url,frag)    // current file 
-  else externalSRC(url,frag)                      // external file
+  if( url[0] == "#" ) addScene(scene,url,vfrag)    // current file 
+  else externalSRC(url,vfrag)                      // external file
 }
 
 xrf.frag.src.eval = function(scene, opts, url){

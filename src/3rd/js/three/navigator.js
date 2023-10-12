@@ -35,8 +35,12 @@ xrf.navigator.to = (url,flags,loader,data) => {
       xrf.XRWG.generate({model,scene:model.scene})
       // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
       xrf.frag.defaultPredefinedView({model,scene:model.scene})
-      // spec: 2. execute predefined view(s) from URL (https://xrfragment.org/#predefined_view)
-      hashbus.pub( url, model )                                                 // and eval URI XR fragments 
+      // spec: 2. init metadata
+      let frag = hashbus.pub( url, model )           // and eval URI XR fragments 
+      // spec: predefined view(s) from URL (https://xrfragment.org/#predefined_view)
+      setTimeout( () => { // give external objects some slack 
+        xrf.frag.updatePredefinedView({model,scene:model.scene,frag})
+      },2000)
       xrf.add( model.scene )
       xrf.navigator.updateHash(hash)
       resolve(model)
@@ -49,8 +53,13 @@ xrf.navigator.to = (url,flags,loader,data) => {
 
 xrf.navigator.init = () => {
   if( xrf.navigator.init.inited ) return
+
   window.addEventListener('popstate', function (event){
     xrf.navigator.to( document.location.search.substr(1) + document.location.hash )
+  })
+  
+  window.addEventListener('hashchange', function (e){
+    xrf.emit('hash', {hash: document.location.hash })
   })
 
   // this allows selectionlines to be updated according to the camera (renderloop)

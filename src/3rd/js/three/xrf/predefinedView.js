@@ -6,7 +6,7 @@ xrf.frag.defaultPredefinedView = (opts) => {
 }
 
 xrf.frag.updatePredefinedView = (opts) => {
-  let {frag,scene,model} = opts 
+  let {frag,scene,model,renderer} = opts 
 
   // spec: https://xrfragment.org/#Selection%20of%20interest
   const selectionOfInterest = (frag,scene,mesh) => {
@@ -14,7 +14,7 @@ xrf.frag.updatePredefinedView = (opts) => {
     let oldSelection
     if(!id) return id // important: ignore empty strings 
     // Selection of Interest if predefined_view matches object name
-    if( mesh.visible ){
+    if( mesh.visible && mesh.material){
       xrf.emit('focus',{...opts,frag})
       .then( () => {
         const color    = new THREE.Color();
@@ -82,14 +82,13 @@ xrf.frag.updatePredefinedView = (opts) => {
     remove.map(     (n) => scene.remove(n.selection) )
     // create new selections
     match.map( (w) => {
-      if( w.key == `#${id}` && w.value && w.value[0] == '#' ){
-        // if value is alias, execute fragment value 
-        xrf.hashbus.pub( w.value, xrf.model, xrf.XRF.METADATA | xrf.XRF.PV_OVERRIDE | xrf.XRF.NAVIGATOR )
+      if( w.key == `#${id}` ){
+        if(  w.value && w.value[0] == '#' ){
+          // if value is alias, execute fragment value 
+          xrf.hashbus.pub( w.value, xrf.model, xrf.XRF.METADATA | xrf.XRF.PV_OVERRIDE | xrf.XRF.NAVIGATOR )
+        }
       }
-      w.nodes.map( (mesh) => {
-        if( mesh.material )
-          selectionOfInterest( v, scene, mesh )
-      })
+      w.nodes.map( (mesh) => selectionOfInterest( v, scene, mesh ) )
     })
   }
 
@@ -99,6 +98,8 @@ xrf.frag.updatePredefinedView = (opts) => {
     console.log("filtering predefined view of src")
     console.dir(frag)
   }else{
+    console.log("updatePredefinedView")
+    console.dir(frag)
     for ( let i in frag  ) {
       let v = frag[i]
       if( v.is( xrf.XRF.PV_EXECUTE ) ){
@@ -113,7 +114,6 @@ xrf.frag.updatePredefinedView = (opts) => {
 // react to enduser typing url
 xrf.addEventListener('hash', (opts) => {
   let frag = xrf.URI.parse( opts.hash, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-  console.dir({opts,frag})
   xrf.frag.updatePredefinedView({frag,scene:xrf.scene})
 }) 
 
