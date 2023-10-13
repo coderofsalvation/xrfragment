@@ -8,7 +8,7 @@ xrf.init = function(opts){
   xrf.Parser.debug = xrf.debug 
   for ( let i in opts    ) xrf[i] = opts[i]
   xrf.emit('init',opts)
-  return xrf.query
+  return xrf
 }
 
 xrf.query = function(){

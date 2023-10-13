@@ -269,3 +269,20 @@ html{
   height:41px;
 }
 
+#qrcode{
+  z-index: 2000;
+  position: absolute;
+  border: 5px solid #1c1c3299;
+  bottom: 247px;
+  right: 20px;
+  width: 193px;
+  border-radius: 20px;
+}
+
+input#share{
+  font-size:14px;
+  font-family: monospace;
+  border:2px solid #AAA;
+  width:50vw;
+  max-width:500px;
+}

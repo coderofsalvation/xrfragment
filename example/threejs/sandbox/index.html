@@ -6,6 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="./../../assets/css/axist.min.css" />
     <link type="text/css" rel="stylesheet" href="./../../assets/css/style.css"/>
+    <script src="./../../assets/js/qr.js"></script>
 	</head>
 	<body>
     <div id="overlay" x-data="{ urls: ['#pos=0,1.6,15','#pos=0,1.6,15&rot=0,360,0'] }">
@@ -16,10 +17,11 @@
 
     <!-- open AFRAME inspector: $('a-scene').components.inspector.openInspector() -->
     <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment-helloworld">➕ clone project</a> 
-    <a class="btn-foot" id="embed" target="_blank" onclick="embed()">📺 embed</a> 
-    <a class="btn-foot" id="model" target="_blank" href="index.gltf">⬇️ model</a> 
+    <a class="btn-foot" id="embed" target="_blank" onclick="embed()">🔗 share</a> 
+    <a class="btn-foot" id="model" target="_blank" href="index.gltf">⬇️  scene</a> 
     <a class="btn-foot" id="more" target="_blank" >XRF</a> 
 		<textarea style="display:none"></textarea>
+    <canvas id="qrcode" style="display:none" width="300" height="300"></canvas>
 		
 		<script async src="./../../assets/js/alpine.min.js"></script>
 		<!-- Import maps polyfill -->

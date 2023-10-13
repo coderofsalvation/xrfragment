@@ -93,7 +93,6 @@ xrf.frag.href = function(v, opts){
 
     let isLocal = v.string[0] == '#'
     let lastPos = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
-    console.dir(lastPos)
 
     xrf
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree

@@ -54,15 +54,20 @@ export function setupConsole(el){
 }
 
 export function setupUrlBar(el,XRF){
-  let ids = ['#overlay','a#embed','a#source','a#model']
+  let ids = ['#overlay','a#embed','a#source','a#model','#qrcode']
   let showButtons = () => {
     ids.map( (i) => $(i).style.display = 'block' ) 
     $('a#more').style.display = 'none' 
   }
   $('a#more').addEventListener('click', () => showButtons() )
 
-  XRF.addEventListener('updateHash', () => reflectUrl() )
-  const reflectUrl = (url) => el.value = url || document.location.search.substr(1) + document.location.hash
+  XRF.addEventListener('hash', () => reflectUrl() )
+  const reflectUrl = window.reflectUrl = (url) => {
+    el.value = url || document.location.search.substr(1) + document.location.hash
+    let QR = window.QR
+    QR.canvas = document.getElementById('qrcode')
+    QR.draw( document.location.href, QR.canvas )
+  }
   reflectUrl()
 }
 
@@ -204,6 +209,7 @@ function SnackBar(userOptions) {
         if (userOptions.status !== undefined) {
             _Options.status = userOptions.status;
         }
+    console.dir(_Options)
     }
 
     snackbar.Open = function() {
@@ -266,5 +272,12 @@ export function notify(scope){
 }
 
 export function embed(){
-  window.notify(`copy/paste the following into your HTML:<br><br>&lt;iframe src='${document.location.href}'&gt;<br>&lt;/iframe&gt;<br>`,{timeout:null})
+  // *TODO* this should be part of the XRF framework
+  let camera = document.querySelector('[camera]').object3D.parent // *TODO* fix for threejs
+  let lastPos = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
+  let newHash = document.location.hash.replace(/[&]?pos=[0-9\.-]+,[0-9\.-]+,[0-9\.-]+/,'')
+  newHash += `&${lastPos}`
+  document.location.hash = newHash.replace(/&&/,'&')
+  // End of *TODO* 
+  window.notify(`<b>Link copied to clipboard!</b> ❤️<br>ps. to embed this experience in your website,<br>copy/paste the following into your HTML:<br><input type="text" value="&lt;iframe src='${document.location.href}'&gt;<br>&lt;/iframe&gt;" id="share"/>`,{timeout:10000})
 }

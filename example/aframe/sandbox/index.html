@@ -10,6 +10,7 @@
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js"></script>
     <script src="./../../../dist/xrfragment.aframe.js"></script>
+    <script src="./../../assets/js/qr.js"></script>
   </head>
   <body>
     <div id="overlay" style="display:none">
@@ -22,10 +23,12 @@
 
     <!-- open AFRAME inspector: $('a-scene').components.inspector.openInspector() -->
     <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment-helloworld">➕ clone project</a> 
-    <a class="btn-foot" id="embed" target="_blank" onclick="embed()">📺 embed</a> 
-    <a class="btn-foot" id="model" target="_blank" href="example.gltf">⬇️ model</a> 
+    <a class="btn-foot" id="embed" target="_blank" onclick="embed()">🔗 share</a> 
+    <a class="btn-foot" id="model" target="_blank" href="index.gltf">⬇️  scene</a> 
     <a class="btn-foot" id="more" target="_blank">XRF</a> 
     <textarea style="display:none"></textarea>
+    <canvas id="qrcode" style="display:none" width="300" height="300"></canvas>
+
     <a-scene light="defaultLightsEnabled: false">
       <a-entity id="player" wasd-controls look-controls>
         <a-entity id="left-hand"  laser-controls="hand: left" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: #floor">
