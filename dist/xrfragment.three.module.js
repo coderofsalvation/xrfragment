@@ -941,13 +941,6 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
       const raycaster = new Raycaster();
       const tempMatrix = new Matrix4();
 
-      function nocollide(){
-        if( nocollide.tid ) return  // ratelimit
-        _event.type = "nocollide"
-        scope.objects.map( (c) => c.dispatchEvent(_event) )
-        nocollide.tid = setTimeout( () => nocollide.tid = null, 10 )
-      }
-
       // Pointer Events
 
       const element = renderer.domElement;

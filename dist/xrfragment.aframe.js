@@ -941,13 +941,6 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
       const raycaster = new Raycaster();
       const tempMatrix = new Matrix4();
 
-      function nocollide(){
-        if( nocollide.tid ) return  // ratelimit
-        _event.type = "nocollide"
-        scope.objects.map( (c) => c.dispatchEvent(_event) )
-        nocollide.tid = setTimeout( () => nocollide.tid = null, 10 )
-      }
-
       // Pointer Events
 
       const element = renderer.domElement;
@@ -2174,15 +2167,16 @@ AFRAME.registerComponent('xrf-gaze',{
         material="color: #BBBBBB; shader: flat">
       </a-entity>`
     }else{
-      cam.innerHTML = ''
+      //if( document.querySelector('[cursor]') ) 
+      //  document.querySelector('[cursor]').setAttribute("visible",false)
     }
   }, 
   init:function(data){
     this.immersive = false;
     let enabled    = () => AFRAME.utils.device.isMobile()
-    let setVisible = () => this.el.setAttribute('visible', enabled() )
+    let setVisible = () => document.querySelector('[cursor]').setAttribute('visible', enabled() )
     this.setGazer(enabled())
-    setVisible();
+    if( enabled() ) setVisible();
 
     document.querySelector("a-scene").addEventListener('exit-vr', () => {
       this.immersive = false;
@@ -2203,14 +2197,6 @@ AFRAME.registerComponent('xrf-gaze',{
     }
     this.el.addEventListener("mouseenter", highlightMesh(true) )
     this.el.addEventListener("mouseleave", highlightMesh(false ) )
-
-    //this.el.addEventListener('click',function(evt){
-    //  document.querySelector('a-scene').querySelector('#player').setAttribute('position',{
-    //    x:this.getAttribute('position').x,
-    //    y:this.getAttribute('position').y,
-    //    z:this.getAttribute('position').z
-    //  });
-    //});
   }
 });
 window.AFRAME.registerComponent('xrf-get', {
