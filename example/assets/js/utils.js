@@ -209,7 +209,6 @@ function SnackBar(userOptions) {
         if (userOptions.status !== undefined) {
             _Options.status = userOptions.status;
         }
-    console.dir(_Options)
     }
 
     snackbar.Open = function() {

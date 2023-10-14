@@ -11,6 +11,7 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
 
   const _pointer = new Vector2();
   const _event = { type: '', data: _pointer };
+  let object   = {selected:false}
 
   class InteractiveGroup extends Group {
 
@@ -33,7 +34,7 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
         if( nocollide.tid ) return  // ratelimit
         _event.type = "nocollide"
         scope.objects.map( (c) => c.dispatchEvent(_event) )
-        nocollide.tid = setTimeout( () => nocollide.tid = null, 100 )
+        nocollide.tid = setTimeout( () => nocollide.tid = null, 10 )
       }
 
       // Pointer Events
@@ -57,15 +58,19 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
 
           const intersection = intersects[ 0 ];
 
-          const object = intersection.object;
+          object = intersection.object;
           const uv = intersection.uv;
 
           _event.type = event.type;
           _event.data.set( uv.x, 1 - uv.y );
-
           object.dispatchEvent( _event );
 
-        }else nocollide()
+        }else{
+          if( object.selected ) {
+            _event.type = 'mouseleave'
+            object.dispatchEvent(_event)
+          }
+        }
 
       }
 
@@ -102,7 +107,7 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
 
           const intersection = intersections[ 0 ];
 
-          const object = intersection.object;
+          object = intersection.object;
           const uv = intersection.uv;
 
           _event.type = events[ event.type ];
@@ -110,7 +115,12 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
 
           object.dispatchEvent( _event );
 
-        }else nocollide()
+        }else{
+          if( object.selected ) {
+            _event.type = 'mouseleave'
+            object.dispatchEvent(_event)
+          }
+        }
 
       }
 

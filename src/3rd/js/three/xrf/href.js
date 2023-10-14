@@ -106,7 +106,7 @@ xrf.frag.href = function(v, opts){
     .catch( console.error )
   }
 
-  let selected = (state) => () => {
+  let selected = mesh.userData.XRF.href.selected = (state) => () => {
     if( mesh.selected == state ) return // nothing changed 
     xrf.interactive.objects.map( (o) => {
       let newState = o.name == mesh.name ? state : false
@@ -127,7 +127,7 @@ xrf.frag.href = function(v, opts){
 
   mesh.addEventListener('click', click )
   mesh.addEventListener('mousemove', selected(true) )
-  mesh.addEventListener('nocollide', selected(false) )
+  mesh.addEventListener('mouseleave', selected(false) )
 
   // lazy add mesh (because we're inside a recursive traverse)
   setTimeout( (mesh) => {

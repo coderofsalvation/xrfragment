@@ -85,6 +85,10 @@ window.AFRAME.registerComponent('xrf', {
                            })
 
         aScene.emit('XRF',{})
+        
+        // enable gaze-click on Mobile VR
+        aScene.setAttribute('xrf-gaze','')
+
       })
     }
 
