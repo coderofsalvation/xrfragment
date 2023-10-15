@@ -100,6 +100,7 @@ input[type="submit"] {
   cursor:pointer;
   right: 10px;
   text-transform:uppercase;
+  min-width:107px;
 }
 
 a.btn-foot#embed{
@@ -114,6 +115,7 @@ a.btn-foot#model{
 a.btn-foot#more{
   bottom:72px;
   width: 60px;
+  min-width:60px;
   text-align: center;
 }
 
@@ -273,9 +275,9 @@ html{
   z-index: 2000;
   position: absolute;
   border: 5px solid #1c1c3299;
-  bottom: 247px;
+  top: 66px;
   right: 20px;
-  width: 193px;
+  width: 175px;
   border-radius: 20px;
 }
 

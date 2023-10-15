@@ -12,7 +12,7 @@
     <div id="overlay" x-data="{ urls: ['#pos=0,1.6,15','#pos=0,1.6,15&rot=0,360,0'] }">
       <img src="./../../assets/logo.png" class="logo"/>
 			<input type="submit" value="load 3D file"></input>
-			<input type="text" id="uri" value="" onchange="XRF.navigator.to( $('#uri').value )"/>
+      <input type="text" id="uri" value="" onchange="XRF.navigator.to( $('#uri').value )" style="display:none"/> 
     </div>
 
     <!-- open AFRAME inspector: $('a-scene').components.inspector.openInspector() -->

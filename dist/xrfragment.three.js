@@ -1060,8 +1060,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
 
   return new Promise( (resolve,reject) => {
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
-
-    if( !file || xrf.model.file == file ){ // we're already loaded
+    if( !file || (!data && xrf.model.file == file) ){ // we're already loaded
       hashbus.pub( url, xrf.model, flags )    // and eval local URI XR fragments 
       xrf.navigator.updateHash(hash)
       return resolve(xrf.model) 

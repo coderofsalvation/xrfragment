@@ -1,7 +1,7 @@
 
 // contentLoaders = {".gltf" : () => .....} and so on
 
-export function loadFile(contentLoaders, multiple){
+function loadFile(contentLoaders, multiple){
   return () => {
     window.notify("if you're on Meta browser, file-uploads might be disabled")
     let input = document.createElement('input');
@@ -21,7 +21,7 @@ export function loadFile(contentLoaders, multiple){
   }
 }
 
-export function setupConsole(el){
+function setupConsole(el){
   if( !el ) return setTimeout( () => setupConsole( $('.lil-gui') ),200 )
   let $console = document.createElement('textarea')
   $console.style.position = 'absolute'
@@ -53,7 +53,7 @@ export function setupConsole(el){
   })(console.log.bind(console))
 }
 
-export function setupUrlBar(el,XRF){
+function setupUrlBar(el,XRF){
   let inIframe = window.location !== window.parent.location
   let ids = ['#overlay','a#embed','a#source','a#model','#qrcode']
   let showButtons = () => {
@@ -258,7 +258,7 @@ function SnackBar(userOptions) {
     snackbar.Open();
 }
 
-export function notify(scope){
+function notify(scope){
   return function notify(str,opts){
     str  = String(str)
     opts = opts || {}        
@@ -272,7 +272,7 @@ export function notify(scope){
   }
 }
 
-export function download(){
+function download(){
   function fetchAndDownload(dataurl, filename) {
     var a = document.createElement("a");
     a.href = dataurl;
@@ -284,7 +284,7 @@ export function download(){
   fetchAndDownload( file, file )
 }
 
-export function embed(){
+function embed(){
   // *TODO* this should be part of the XRF framework
   let camera = document.querySelector('[camera]').object3D.parent // *TODO* fix for threejs
   let lastPos = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`

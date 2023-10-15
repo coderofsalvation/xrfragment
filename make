@@ -77,6 +77,8 @@ build_js(){
   # add AFRAME 
   cat dist/xrfragment.three.js \
       src/3rd/js/aframe/*.js          > dist/xrfragment.aframe.js
+  # convert ESM to normal browser js
+  sed 's/export //g' example/assets/js/utils.js > dist/utils.js
   ls -la dist | grep js
   exit $ok
 }
