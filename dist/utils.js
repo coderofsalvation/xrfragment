@@ -291,6 +291,14 @@ function embed(){
   let newHash = document.location.hash.replace(/[&]?pos=[0-9\.-]+,[0-9\.-]+,[0-9\.-]+/,'')
   newHash += `&${lastPos}`
   document.location.hash = newHash.replace(/&&/,'&')
+  // copy url to clipboard 
+  var dummy = document.createElement('input'),
+      text = window.location.href;
+  document.body.appendChild(dummy);
+  dummy.value = text;
+  dummy.select();
+  document.execCommand('copy');
+  document.body.removeChild(dummy); 
   // End of *TODO* 
   window.notify(`<b>Link copied to clipboard!</b> ❤️<br>ps. to embed this experience in your website,<br>copy/paste the following into your HTML:<br><input type="text" value="&lt;iframe src='${document.location.href}'&gt;<br>&lt;/iframe&gt;" id="share"/>`,{timeout:10000})
 }
