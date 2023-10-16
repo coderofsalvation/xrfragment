@@ -25,7 +25,11 @@ AFRAME.registerComponent('xrf-gaze',{
   }, 
   init:function(data){
     this.immersive = false;
-    let enabled    = () => AFRAME.utils.device.isMobile()
+    let enabled    = () => {
+      const vrModeUI = $('a-scene').getAttribute('vr-mode-ui')
+      return vrModeUI && vrModeUI.cardboardModeEnabled
+    }
+    //let enabled  = () => AFRAME.utils.device.isMobile()
     let setVisible = () => document.querySelector('[cursor]').setAttribute('visible', enabled() )
     this.setGazer(enabled())
     if( enabled() ) setVisible();
