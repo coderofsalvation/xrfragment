@@ -90,6 +90,8 @@ xrf.reset = () => {
   xrf.scene.traverse( (child) => child.isXRF ? nodes.push(child) : false )
   nodes.map( disposeObject ) // leave non-XRF objects intact
   xrf.interactive = xrf.InteractiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
+  if( xrf.audio ) xrf.audio.map( (a) => a.remove() ) 
+  xrf.audio = []
   xrf.add( xrf.interactive )
   xrf.layers = 0
 }
@@ -107,4 +109,3 @@ xrf.add = (object) => {
   object.isXRF = true // mark for easy deletion when replacing scene
   xrf.scene.add(object)
 }
-

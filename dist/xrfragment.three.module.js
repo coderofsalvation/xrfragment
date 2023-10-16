@@ -891,6 +891,8 @@ xrf.reset = () => {
   xrf.scene.traverse( (child) => child.isXRF ? nodes.push(child) : false )
   nodes.map( disposeObject ) // leave non-XRF objects intact
   xrf.interactive = xrf.InteractiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
+  if( xrf.audio ) xrf.audio.map( (a) => a.remove() ) 
+  xrf.audio = []
   xrf.add( xrf.interactive )
   xrf.layers = 0
 }
@@ -908,7 +910,6 @@ xrf.add = (object) => {
   object.isXRF = true // mark for easy deletion when replacing scene
   xrf.scene.add(object)
 }
-
 // wrapper to survive in/outside modules
 
 xrf.InteractiveGroup = function(THREE,renderer,camera){
@@ -1820,9 +1821,100 @@ xrf.frag.src.type = {}
 
 xrf.frag.src.type['unknown'] = function( url, opts ){
   return new Promise( (resolve,reject) => {
-    reject(`${url} mimetype not supported (yet)`)
+    reject(`${url} mimetype not found or supported (yet)`)
   })
 }
+xrf.frag.t = function(v, opts){
+  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+  console.log(`   └ setting animation loop to ${v.x} ${v.y} ${v.z}` )
+  if( !model.animations || model.animations[0] == undefined ) return console.warn('no animation in scene')
+
+  model.mixer.t = v
+  let duration  = model.animations[0].duration
+  let frames    = model.animations[0].tracks[0].times.length
+  let mixer     = model.mixer
+  mixer.loop    = mixer.loop || {frameStart:0,frameStop:99999999,speed: 1}
+  let fps       = frames / duration 
+
+  mixer.loop.speed    = v.x 
+  mixer.loop.speedAbs = Math.abs(v.x)
+  mixer.loop.frameStart = v.y || mixer.loop.frameStart
+  mixer.loop.frameStop  = v.z || mixer.loop.frameStop
+  // always recalculate time using frameStart/Stop 
+  mixer.loop.timeStart = mixer.loop.frameStart / (fps * mixer.loop.speedAbs)
+  mixer.loop.timeStop  = mixer.loop.frameStop  / (fps * mixer.loop.speedAbs)
+  
+  // update speed
+  mixer.timeScale = mixer.loop.speed
+
+  let updateTime = (time) => {
+    mixer.setTime(time)
+    mixer.time = Math.abs(mixer.time)
+    mixer.update(0)      // (forgetting) this little buddy costed me lots of time :]
+    // (re)trigger audio
+    xrf.audio.map( (a) => {
+      a.play() 
+      a.currentTime = time
+    })
+  }
+
+  if( v.y > 0 || v.z > 0 ) updateTime( mixer.loop.timeStart )
+
+  // update loop when needed 
+  if( !mixer.update.patched ){
+    let update = mixer.update
+    mixer.update = function(time){
+      mixer.time = Math.abs(mixer.time)
+      if( time == 0 ) return update.call(mixer,time)
+
+      if( mixer.loop.speed > 0.0 && mixer.time > mixer.loop.timeStop * mixer.loop.speedAbs ){ 
+        setTimeout( (time) => updateTime(time),0,mixer.loop.timeStart) // prevent recursion
+      }
+      return update.call( mixer, time )
+    }
+    mixer.update.patched = true
+  }
+}
+/*
+ * mimetype: audio/aac 
+ * mimetype: audio/mpeg 
+ * mimetype: audio/ogg 
+ * mimetype: audio/weba 
+ * mimetype: audio/wav 
+ */
+
+let loadAudio = (mimetype) => function(url,opts){
+  let {mesh} = opts
+  let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
+
+  // global audio
+  if( mesh.position.x == 0 && mesh.position.y == 0 && mesh.position.z == 0 ){
+    let audio = window.document.createElement('audio')
+    // init fallback formats
+    let fallback  = ['mp3','ogg','wav','weba','aac']
+    let addSource = (ext) => {
+      const src     = window.document.createElement('source')
+      src.setAttribute("src", url)
+      src.setAttribute("type",mimetype)
+      audio.appendChild(src)
+    }
+    fallback
+    .filter( (e) => e != ext )
+    .map( addSource )
+    document.body.appendChild(audio)
+    xrf.audio.push(audio)
+  }
+}
+
+let audioMimeTypes = [
+  'audio/wav',
+  'audio/mpeg',
+  'audio/weba',
+  'audio/aac',
+  'audio/ogg',
+  'application/ogg'
+]
+audioMimeTypes.map( (mimetype) =>  xrf.frag.src.type[ mimetype ] = loadAudio(mimetype) )
 
 /*
  * mimetype: model/gltf+json
@@ -1889,50 +1981,4 @@ xrf.frag.src.type['image/png'] = function(url,opts){
 xrf.frag.src.type['image/gif'] = xrf.frag.src.type['image/png']
 xrf.frag.src.type['image/jpg'] = xrf.frag.src.type['image/png']
 
-xrf.frag.t = function(v, opts){
-  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-  console.log(`   └ setting animation loop to ${v.x} ${v.y} ${v.z}` )
-  if( !model.animations || model.animations[0] == undefined ) return console.warn('no animation in scene')
-
-  model.mixer.t = v
-  let duration  = model.animations[0].duration
-  let frames    = model.animations[0].tracks[0].times.length
-  let mixer     = model.mixer
-  mixer.loop    = mixer.loop || {frameStart:0,frameStop:99999999,speed: 1}
-  let fps       = frames / duration 
-
-  mixer.loop.speed    = v.x 
-  mixer.loop.speedAbs = Math.abs(v.x)
-  mixer.loop.frameStart = v.y || mixer.loop.frameStart
-  mixer.loop.frameStop  = v.z || mixer.loop.frameStop
-  // always recalculate time using frameStart/Stop 
-  mixer.loop.timeStart = mixer.loop.frameStart / (fps * mixer.loop.speedAbs)
-  mixer.loop.timeStop  = mixer.loop.frameStop  / (fps * mixer.loop.speedAbs)
-  
-  // update speed
-  mixer.timeScale = mixer.loop.speed
-
-  let updateTime = (time) => {
-    mixer.setTime(time)
-    mixer.time = Math.abs(mixer.time)
-    mixer.update(0)      // (forgetting) this little buddy costed me lots of time :]
-  }
-
-  if( v.y > 0 || v.z > 0 ) updateTime( mixer.loop.timeStart )
-
-  // update loop when needed 
-  if( !mixer.update.patched ){
-    let update = mixer.update
-    mixer.update = function(time){
-      mixer.time = Math.abs(mixer.time)
-      if( time == 0 ) return update.call(mixer,time)
-
-      if( mixer.loop.speed > 0.0 && mixer.time > mixer.loop.timeStop * mixer.loop.speedAbs ){ 
-        setTimeout( (time) => updateTime(time),0,mixer.loop.timeStart) // prevent recursion
-      }
-      return update.call( mixer, time )
-    }
-    mixer.update.patched = true
-  }
-}
 export default xrf;
