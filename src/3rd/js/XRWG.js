@@ -64,5 +64,4 @@ XRWG.generate = (opts) => {
   // sort by n
   XRWG.sort( (a,b) => a.nodes.length - b.nodes.length )
   XRWG = XRWG.reverse() // the cleankey/get functions e.g. will persist
-  console.dir(XRWG)
 }

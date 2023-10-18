@@ -8,15 +8,9 @@ xrf.frag.t = function(v, opts){
   let frames    = model.animations[0].tracks[0].times.length
   let mixer     = model.mixer
   mixer.loop    = mixer.loop || {frameStart:0,frameStop:99999999,speed: 1}
-  let fps       = frames / duration 
+  mixer.loop.fps = frames / duration 
 
-  mixer.loop.speed    = v.x 
-  mixer.loop.speedAbs = Math.abs(v.x)
-  mixer.loop.frameStart = v.y || mixer.loop.frameStart
-  mixer.loop.frameStop  = v.z || mixer.loop.frameStop
-  // always recalculate time using frameStart/Stop 
-  mixer.loop.timeStart = mixer.loop.frameStart / (fps * mixer.loop.speedAbs)
-  mixer.loop.timeStop  = mixer.loop.frameStop  / (fps * mixer.loop.speedAbs)
+  xrf.frag.t.calculateLoop( v, mixer.loop, mixer.loop.fps )
   
   // update speed
   mixer.timeScale = mixer.loop.speed
@@ -26,12 +20,9 @@ xrf.frag.t = function(v, opts){
     mixer.time = Math.abs(mixer.time)
     mixer.update(0)      // (forgetting) this little buddy costed me lots of time :]
     // (re)trigger audio
-    xrf.audio.map( (a) => {
-      a.play() 
-      a.currentTime = time
-    })
   }
 
+  //if( v.x != 0 ) xrf.emit('play',v) *TODO* touchend/usergesture
   if( v.y > 0 || v.z > 0 ) updateTime( mixer.loop.timeStart )
 
   // update loop when needed 
@@ -48,4 +39,16 @@ xrf.frag.t = function(v, opts){
     }
     mixer.update.patched = true
   }
+}
+
+xrf.frag.t.default = {x:1, y:0, z:0}
+
+xrf.frag.t.calculateLoop = (t,obj,fps) => {
+  obj.speed    = t.x 
+  obj.speedAbs = Math.abs(t.x)
+  obj.frameStart = t.y || obj.frameStart
+  obj.frameStop  = t.z || obj.frameStop
+  // always recalculate time using frameStart/Stop 
+  obj.timeStart = obj.frameStart / (fps * obj.speedAbs)
+  obj.timeStop  = obj.frameStop  / (fps * obj.speedAbs)
 }

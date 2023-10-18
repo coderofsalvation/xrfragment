@@ -72,7 +72,6 @@ xrf.frag.updatePredefinedView = (opts) => {
     let id = v.string || v.fragment
     if( id == '#' ) return
     let match = xrf.XRWG.match(id)
-    console.dir({id,match,XRWG:xrf.XRWG})
     // erase previous lines
     xrf.focusLine.lines.map( (line) => scene.remove(line) )
     xrf.focusLine.points = []
@@ -94,12 +93,7 @@ xrf.frag.updatePredefinedView = (opts) => {
 
   // if this query was triggered by an src-value, lets filter it
   const isSRC = opts.embedded && opts.embedded.fragment == 'src'
-  if( isSRC ){                             // spec : https://xrfragment.org/#src
-    console.log("filtering predefined view of src")
-    console.dir(frag)
-  }else{
-    console.log("updatePredefinedView")
-    console.dir(frag)
+  if( !isSRC ){                             // spec : https://xrfragment.org/#src
     for ( let i in frag  ) {
       let v = frag[i]
       if( v.is( xrf.XRF.PV_EXECUTE ) ){

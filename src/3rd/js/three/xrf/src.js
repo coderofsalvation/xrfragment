@@ -45,7 +45,6 @@ xrf.frag.src = function(v, opts){
       let mimetype = res.headers.get('Content-type')
       if( url.replace(/#.*/,'').match(/\.(gltf|glb)$/)    ) mimetype = 'gltf'
       //if( url.match(/\.(fbx|stl|obj)$/) ) mimetype = 
-      console.log("src mimetype: "+mimetype)
       opts = { ...opts, src, frag }
       return xrf.frag.src.type[ mimetype ] ? xrf.frag.src.type[ mimetype ](url,opts) : xrf.frag.src.type.unknown(url,opts)
     })

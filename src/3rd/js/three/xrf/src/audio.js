@@ -7,26 +7,49 @@
  */
 
 let loadAudio = (mimetype) => function(url,opts){
-  let {mesh} = opts
+  let {mesh,src,camera} = opts
   let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
+  let frag = xrf.URI.parse( url )
 
-  // global audio
-  if( mesh.position.x == 0 && mesh.position.y == 0 && mesh.position.z == 0 ){
-    let audio = window.document.createElement('audio')
-    // init fallback formats
-    let fallback  = ['mp3','ogg','wav','weba','aac']
-    let addSource = (ext) => {
-      const src     = window.document.createElement('source')
-      src.setAttribute("src", url)
-      src.setAttribute("type",mimetype)
-      audio.appendChild(src)
-    }
-    fallback
-    .filter( (e) => e != ext )
-    .map( addSource )
-    document.body.appendChild(audio)
-    xrf.audio.push(audio)
+  /* WebAudio: setup context via THREEjs */
+  if( !camera.listener ){
+    camera.listener = new THREE.AudioListener();
+	  camera.add( camera.listener );
   }
+
+  let listener          = camera.listener 
+  let isPositionalAudio = !(mesh.position.x == 0 && mesh.position.y == 0 && mesh.position.z == 0)
+  const audioLoader = new THREE.AudioLoader();
+  let sound = isPositionalAudio ? new THREE.PositionalAudio(listener) : new THREE.Audio(listener)
+  audioLoader.load( url.replace(/#.*/,''), function( buffer ) {
+    sound.setBuffer( buffer );
+    sound.setLoop(true);
+    sound.setVolume(0.5);
+    sound.playXRF = (t) => {
+      if( sound.isPlaying ) sound.stop()
+      let hardcodedLoop = frag.t != undefined
+      t = hardcodedLoop ? { ...frag.t, x: t.x} : t // override with hardcoded metadata except playstate (x)
+      if( t && t.x != 0 ){
+        // *TODO* https://stackoverflow.com/questions/12484052/how-can-i-reverse-playback-in-web-audio-api-but-keep-a-forward-version-as-well 
+        sound.setPlaybackRate( Math.abs(t.x) ) // WebAudio does not support negative playback
+        // setting loop
+        sound.setLoop( t.z > 0 )
+        // apply embedded audio/video samplerate/fps or global mixer fps
+        let loopStart = hardcodedLoop ? t.y / buffer.sampleRate : t.y / xrf.model.mixer.loop.fps
+        let loopEnd   = hardcodedLoop ? t.z / buffer.sampleRate : t.z / xrf.model.mixer.loop.fps
+        let timeStart = loopStart > 0 ? loopStart : xrf.model.mixer.time
+
+        if( t.y > 0 ) sound.setLoopStart( loopStart )
+        if( t.z > 0 ) sound.setLoopEnd(   loopEnd   )
+        if( t.x != 0 ){
+          sound.offset = loopStart > 0 ? loopStart : timeStart
+          sound.play()
+        }
+      }
+    }
+    mesh.add(sound)
+    xrf.audio.push(sound)
+  });
 }
 
 let audioMimeTypes = [
@@ -39,4 +62,7 @@ let audioMimeTypes = [
 ]
 audioMimeTypes.map( (mimetype) =>  xrf.frag.src.type[ mimetype ] = loadAudio(mimetype) )
 
-// *TODO* https://www.svgrepo.com/svg/20195/play-button should trigger play?
+xrf.addEventListener('t', (opts) => {
+  let t = opts.frag.t
+  xrf.audio.map( (a) => a.playXRF(t) )
+})
