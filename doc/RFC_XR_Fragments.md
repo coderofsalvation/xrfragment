@@ -298,7 +298,7 @@ It instances content (in objects) in the current scene/asset.
 
 | fragment | type | example value |
 |----------|------|---------------|
-|`src`| string (uri, hashtag/query) | `#cube`<br>`#sometag`<br>#q=-ball_inside_cube`<br>`#q=-/sky -rain`<br>`#q=-.language .english`<br>`#q=price:>2 price:<5`<br>`https://linux.org/penguin.png`<br>`https://linux.world/distrowatch.gltf#t=1,100`<br>`linuxapp://conference/nixworkshop/apply.gltf#q=flyer`<br>`androidapp://page1?tutorial#pos=0,0,1&t1,100`|
+|`src`| string (uri, hashtag/query) | `#cube`<br>`#sometag`<br>#q=-ball_inside_cube`<br>`#q=-/sky -rain`<br>`#q=-.language .english`<br>`#q=price:>2 price:<5`<br>`https://linux.org/penguin.png`<br>`https://linux.world/distrowatch.gltf#t=1,100`<br>`linuxapp://conference/nixworkshop/apply.gltf#q=flyer`<br>`androidapp://page1?tutorial#pos=0,0,1&t1,100`<br>`foo.mp3#0,0,0`|
 
 Here's an ascii representation of a 3D scene-graph with 3D objects `◻` which embeds remote & local 3D objects `◻` with/out using queries:
 
@@ -406,6 +406,45 @@ How does the scale of the object (with the embedded properties) impact the scale
 2. ELSE multiply the scale-vector of the instanced scene with the scale-vector (a common property of a 3D node) of the <b>placeholder</b> object. 
 
 > TODO: needs intermediate visuals to make things more obvious
+
+# XR Fragment: pos
+
+# XR Fragment: rot
+
+# XR Fragment: t 
+
+controls the animation(s) of the scene (or `src` resource which contains a timeline)
+
+| fragment | type | functionality |
+| <b>#t</b>=1,1,100 | [[vector3|vector]] (default:`#t=1,0,0`) | speed,framestart,framestop  |
+
+* playposition is reset to framestart, when framestart or framestop is greater than 0 |
+
+| Example Value     | Explanation |
+|-|-|
+| `1,1,100` |  play loop between frame 1 and 100 |
+| `1,1,0`   | play once from frame 1 (oneshot) |
+| `1,0,0`   | play (previously set looprange if any) |
+| `0,0,0`   | pause                            |
+| `1,1,1`   | play and auto-loop between begin and end of duration |
+| `-1,0,0`  | reverse playback speed           |
+| `2.3,0,0` | set (forward) playback speed to 2.3 (no restart) |
+| `-2.3,0,0` | set (reverse) playback speed to -2.3 ( no restart)|
+| `-2.3,100,0` | set (reverse) playback speed to -2.3 restarting from frame 100 |
+
+[[» example implementation|https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/t.js]]<br>
+[[» discussion|https://github.com/coderofsalvation/xrfragment/issues/10]]<br>
+
+# XR audio/video integration
+
+To play global audio/video items:
+
+* add a `src: foo.mp3` or `src: bar.mp4` metadata to a 3D object (`cube` e.g.)
+* to disable auto-play and global timeline ([[#t=|t]]) control: hardcode a [[#t=|t]] XR Fragment: (`src: bar.mp3#t=0,0,0` e.g.)
+* to play it, add `href: #cube` somewhere else 
+* when the enduser clicks the `href`, `#t=1,0,0` (play) will be applied to the `src` value
+
+> NOTE: hardcoded framestart/framestop uses sampleRate/fps of embedded audio/video, otherwise the global fps applies. For more info see [[#t|t]].
 
 # XR Fragment queries
 
