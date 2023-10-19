@@ -131,9 +131,9 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
 
     }
 
-    add(obj){
-      Group.prototype.add.call( this, obj )
-      this.objects = ([]).concat( this.children )
+    add(obj, unparent){
+      if( unparent ) Group.prototype.add.call( this, obj )
+      this.objects.push(obj)
     }
 
   }

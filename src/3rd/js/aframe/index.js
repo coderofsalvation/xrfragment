@@ -67,6 +67,21 @@ window.AFRAME.registerComponent('xrf', {
         }
         xrf.addEventListener('interactionReady', AFRAME.XRF.clickableMeshToEntity )
 
+//        xrf.addEventListener('interactionReady', () => {
+//          let raycasters = [ ...document.querySelectorAll('[raycaster]') ]
+//          raycasters.map( (rc) => {
+//              rc = rc.components['raycaster']
+//              rc.refreshObjects = () => {
+//                rc.objects = xrf.interactive.objects.map( (o) => ({ ...o, el:{} }) ) // AFRAME raycaster requires 'el' property
+//                console.log("refreshing")
+//                rc.dirty = false
+//              }
+//              rc.dirty = true
+//              rc.refreshObjects()
+//          })
+//        })
+
+
         // cleanup xrf-get objects when resetting scene
         xrf.reset = ((reset) => () => {
           reset()

@@ -131,12 +131,12 @@ xrf.frag.href = function(v, opts){
 
   // lazy add mesh (because we're inside a recursive traverse)
   setTimeout( (mesh) => {
-    mesh.getWorldPosition(world.pos)
-    mesh.getWorldScale(world.scale)
-    mesh.getWorldQuaternion(world.quat);
-    mesh.position.copy(world.pos)
-    mesh.scale.copy(world.scale)
-    mesh.setRotationFromQuaternion(world.quat);
+    //mesh.getWorldPosition(world.pos)
+    //mesh.getWorldScale(world.scale)
+    //mesh.getWorldQuaternion(world.quat);
+    //mesh.position.copy(world.pos)
+    //mesh.scale.copy(world.scale)
+    //mesh.setRotationFromQuaternion(world.quat);
     xrf.interactive.add(mesh)
     xrf.emit('interactionReady', {mesh,xrf:v,clickHandler: mesh.userData.XRF.href.exec })
   }, 0, mesh )

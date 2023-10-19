@@ -21,10 +21,11 @@ window.AFRAME.registerComponent('xrf-get', {
             return;
           }
           // convert to worldcoordinates
-          mesh.getWorldPosition(mesh.position)
-          mesh.getWorldScale(mesh.scale)
-          mesh.getWorldQuaternion(mesh.quaternion)
+//          mesh.getWorldPosition(mesh.position)
+//          mesh.getWorldScale(mesh.scale)
+//          mesh.getWorldQuaternion(mesh.quaternion)
           mesh.isXRF = true    // mark for deletion by xrf
+          this.el.object3D.add = (a) => a  // dummy
           this.el.setObject3D('mesh',mesh)
           // normalize position
           //this.el.object3D.position.copy( mesh.position )
