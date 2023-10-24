@@ -117,3 +117,17 @@ xrf.addEventListener('href', (opts) => {
   let frag = xrf.URI.parse( opts.xrf.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
   xrf.frag.updatePredefinedView({frag,scene:xrf.scene,href:opts.xrf})
 }) 
+
+xrf.addEventListener('render', (opts) => {
+  let model = xrf.model
+  if( !model || !model.clock ) return
+  // update focusline 
+  let {time} = opts
+  xrf.focusLine.material.color.r  = (1.0 + Math.sin( model.clock.getElapsedTime()*10  ))/2
+  xrf.focusLine.material.dashSize = 0.2 + 0.02*Math.sin( model.clock.getElapsedTime()  )
+  xrf.focusLine.material.gapSize  = 0.1 + 0.02*Math.sin( model.clock.getElapsedTime() *3  )
+  xrf.focusLine.material.opacity  = (0.25 + 0.15*Math.sin( model.clock.getElapsedTime() * 3 )) * xrf.focusLine.opacity;
+  if( xrf.focusLine.opacity > 0.0 ) xrf.focusLine.opacity -= time*0.2
+  if( xrf.focusLine.opacity < 0.0 ) xrf.focusLine.opacity = 0
+})
+

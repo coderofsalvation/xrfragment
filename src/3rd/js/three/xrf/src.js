@@ -45,7 +45,7 @@ xrf.frag.src = function(v, opts){
       let mimetype = res.headers.get('Content-type')
       if( url.replace(/#.*/,'').match(/\.(gltf|glb)$/)    ) mimetype = 'gltf'
       //if( url.match(/\.(fbx|stl|obj)$/) ) mimetype = 
-      opts = { ...opts, src, frag }
+      opts = { ...opts, src, frag, mimetype }
       return xrf.frag.src.type[ mimetype ] ? xrf.frag.src.type[ mimetype ](url,opts) : xrf.frag.src.type.unknown(url,opts)
     })
     .then( (model) => {
@@ -132,6 +132,7 @@ xrf.frag.src.filterScene = (scene,opts) => {
   if( frag.q ){
     src = scene.clone(true);
     xrf.frag.q.filter(src,frag)
+    console.dir(src)
   }
   src.traverse( (m) => {
     if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 
@@ -152,6 +153,6 @@ xrf.frag.src.type = {}
 
 xrf.frag.src.type['unknown'] = function( url, opts ){
   return new Promise( (resolve,reject) => {
-    reject(`${url} mimetype not found or supported (yet)`)
+    reject(`${url} mimetype '${opts.mimetype}' not found or supported (yet)`)
   })
 }

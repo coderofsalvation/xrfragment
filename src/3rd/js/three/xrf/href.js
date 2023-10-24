@@ -39,55 +39,8 @@ xrf.frag.href = function(v, opts){
     scale: new THREE.Vector3(),
     quat: new THREE.Quaternion()
   }
-  // detect equirectangular image
-  let texture = mesh.material && mesh.material.map ? mesh.material.map : null
-  if( texture && texture.source.data.height == texture.source.data.width/2 ){
-    texture.mapping = THREE.ClampToEdgeWrapping
-    texture.needsUpdate = true
 
-    // poor man's equi-portal
-    mesh.material = new THREE.ShaderMaterial( {
-      side: THREE.DoubleSide,
-      uniforms: {
-        pano: { value: texture },
-        selected: { value: false },
-      },
-      vertexShader: `
-         vec3 portalPosition;
-         varying vec3 vWorldPosition;
-         varying float vDistanceToCenter;
-         varying float vDistance;
-         void main() {
-           vDistanceToCenter = clamp(length(position - vec3(0.0, 0.0, 0.0)), 0.0, 1.0);
-           portalPosition = (modelMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
-           vDistance = length(portalPosition - cameraPosition);
-           vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
-           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-         }
-      `,
-      fragmentShader: `
-        #define RECIPROCAL_PI2 0.15915494
-        uniform sampler2D pano;
-        uniform bool selected;
-        varying float vDistanceToCenter;
-        varying float vDistance;
-        varying vec3 vWorldPosition;
-        void main() {
-          vec3 direction = normalize(vWorldPosition - cameraPosition );
-          vec2 sampleUV;
-          sampleUV.y = -clamp(direction.y * 0.5  + 0.5, 0.0, 1.0);
-          sampleUV.x = atan(direction.z, -direction.x) * -RECIPROCAL_PI2;
-          sampleUV.x += 0.33; // adjust focus to AFRAME's a-scene.components.screenshot.capture()
-          vec4 color = texture2D(pano, sampleUV);
-          // Convert color to grayscale (lazy lite approach to not having to match tonemapping/shaderstacking of THREE.js)
-          float luminance = 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
-          vec4 grayscale_color = selected ? color : vec4(vec3(luminance) + vec3(0.33), color.a);
-          gl_FragColor = grayscale_color;
-        }
-      `,
-    });
-    mesh.material.needsUpdate = true
-  }else if( mesh.material){ mesh.material = mesh.material.clone() }
+  mesh.material = mesh.material.clone() // we need this so we can individually highlight meshes
 
   let click = mesh.userData.XRF.href.exec = (e) => {
 

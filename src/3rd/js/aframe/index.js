@@ -23,15 +23,6 @@ window.AFRAME.registerComponent('xrf', {
         })
         if( !XRF.camera ) throw 'xrfragment: no camera detected, please declare <a-entity camera..> ABOVE entities with xrf-attributes'
 
-        // override the camera-related XR Fragments so the camera-rig is affected
-        let camOverride = (xrf,v,opts) => {
-          opts.camera = document.querySelector('[camera]').object3D.parent
-          xrf(v,opts)
-        }
-
-        xrf.pos  = camOverride
-        xrf.href = camOverride 
-
         // in order to set the rotation programmatically
         // we need to disable look-controls
         xrf.rot  = (xrf,v,opts) => {

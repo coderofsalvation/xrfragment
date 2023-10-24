@@ -19,8 +19,8 @@ xrf.patchRenderer = function(renderer){
   renderer.xr.addEventListener( 'sessionstart', () => xrf.baseReferenceSpace = renderer.xr.getReferenceSpace() );
   renderer.xr.enabled = true;
   renderer.render = ((render) => function(scene,camera){
-    if( xrf.model && xrf.model.render ) 
-      xrf.model.render(scene,camera)
+    let time = xrf.model && xrf.model.clock ? xrf.model.clock.getDelta() : 0
+    xrf.emit('render',{scene,camera,time}) // allow fragments to do something at renderframe
     render(scene,camera)
   })(renderer.render.bind(renderer))
 }
@@ -47,29 +47,7 @@ xrf.parseModel = function(model,url){
   model.file             = file
   // eval embedded XR fragments
   model.scene.traverse( (mesh) => xrf.hashbus.pub.mesh(mesh,model) )
-  // add animations
-  model.clock            = new xrf.THREE.Clock();
-  model.mixer            = new xrf.THREE.AnimationMixer(model.scene)
-  model.animations.map( (anim) => { 
-    anim.action = model.mixer.clipAction( anim )
-    //anim.action.setLoop(0)
-    anim.action.play() 
-  })
-
-  let tmp = new xrf.THREE.Vector3()
-  model.render           = function(){
-    let time = model.clock.getDelta()
-    model.mixer.update( time )
-
-    // update focusline 
-    xrf.focusLine.material.color.r  = (1.0 + Math.sin( model.clock.getElapsedTime()*10  ))/2
-    xrf.focusLine.material.dashSize = 0.2 + 0.02*Math.sin( model.clock.getElapsedTime()  )
-    xrf.focusLine.material.gapSize  = 0.1 + 0.02*Math.sin( model.clock.getElapsedTime() *3  )
-    xrf.focusLine.material.opacity  = (0.25 + 0.15*Math.sin( model.clock.getElapsedTime() * 3 )) * xrf.focusLine.opacity;
-    if( xrf.focusLine.opacity > 0.0 ) xrf.focusLine.opacity -= time*0.2
-    if( xrf.focusLine.opacity < 0.0 ) xrf.focusLine.opacity = 0
-  }
-
+  xrf.emit('parseModel',{model,url,file})
 }
 
 xrf.getLastModel = ()           => xrf.model.last 

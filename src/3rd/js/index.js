@@ -6,6 +6,7 @@ var xrf = {}
 xrf.init = function(opts){
   opts = opts || {}
   xrf.Parser.debug = xrf.debug 
+  xrf.detectCameraRig(opts)
   for ( let i in opts    ) xrf[i] = opts[i]
   xrf.emit('init',opts)
   return xrf
@@ -14,6 +15,20 @@ xrf.init = function(opts){
 xrf.query = function(){
   // framework implementations can override this function, see src/3rd/js/three/index.sj 
   alert("queries are not implemented (yet) for this particular framework")
+}
+
+xrf.detectCameraRig = function(opts){
+  if( opts.camera ){ // detect rig (if any)
+    let getCam  = ((cam) => () => cam)(opts.camera)
+    let offsetY = 0 
+    while( opts.camera.parent.type != "Scene" ){
+      offsetY += opts.camera.position.y
+      opts.camera = opts.camera.parent
+      opts.camera.getCam = getCam
+      opts.camera.updateProjectionMatrix = () => opts.camera.getCam().updateProjectionMatrix()
+    }
+    opts.camera.offsetY = offsetY
+  }
 }
 
 xrf.roundrobin = (frag, store) => {
