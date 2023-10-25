@@ -66,11 +66,12 @@ build_js(){
   cat dist/xrfragment.js             > dist/xrfragment.module.js
   echo "export default xrfragment;" >> dist/xrfragment.module.js
   # add THREE 
-  cat dist/xrfragment.js               \
-      src/3rd/js/*.js                  \
-      src/3rd/js/three/*.js            \
-      src/3rd/js/three/xrmacro/*.js    \
-      src/3rd/js/three/xrf/*.js        \
+  cat dist/xrfragment.js                  \
+      src/3rd/js/*.js                     \
+      src/3rd/js/three/*.js               \
+      src/3rd/js/three/xrmacro/*.js       \
+      src/3rd/js/three/xrf/*.js           \
+      src/3rd/js/three/xrf/dynamic/*.js   \
       src/3rd/js/three/xrf/src/*.js    > dist/xrfragment.three.js
   # add THREE module
   cat dist/xrfragment.three.js        > dist/xrfragment.three.module.js

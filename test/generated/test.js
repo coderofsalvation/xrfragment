@@ -359,19 +359,15 @@ xrfragment_Parser.parse = function(key,value,store) {
 		store[key] = v;
 		return true;
 	}
-	if(key.split(".").length > 1 && value.split(".").length > 1) {
-		store[key] = new xrfragment_XRF(key,xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.PROP_BIND);
-		return true;
-	}
 	var v = new xrfragment_XRF(key,Frag_h[key]);
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		if(!v.validate(value)) {
-			console.log("src/xrfragment/Parser.hx:83:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:79:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 		store[key] = v;
 		if(xrfragment_Parser.debug) {
-			console.log("src/xrfragment/Parser.hx:87:","✔ " + key + ": " + v.string);
+			console.log("src/xrfragment/Parser.hx:83:","✔ " + key + ": " + v.string);
 		}
 	} else {
 		if(typeof(value) == "string") {

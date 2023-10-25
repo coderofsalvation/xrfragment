@@ -71,10 +71,6 @@ class Parser {
 				store.set(key, v );
 				return true;
 			}
-			if( key.split(".").length > 1 && value.split(".").length > 1 ){
-				store.set(key, new XRF(key, XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_STRING | XRF.PROP_BIND ) );
-				return true;
-			}
 
 			// regular fragments:
       var v:XRF = new XRF(key, Frag.get(key));

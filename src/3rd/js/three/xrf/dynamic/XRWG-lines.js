@@ -1,8 +1,7 @@
 
-const drawLineToMesh = (frag,scene,mesh) => {
-  let id = frag.string
+const drawLineToMesh = (opts) => {
+  let {scene,mesh,frag,id} = opts
   let oldSelection
-  if(!id) return id // important: ignore empty strings 
   // Selection of Interest if predefined_view matches object name
   if( mesh.visible && mesh.material){
     xrf.emit('focus',{...opts,frag})
@@ -12,12 +11,12 @@ const drawLineToMesh = (frag,scene,mesh) => {
       let from       = new THREE.Vector3()
 
       let getCenterPoint = (mesh) => {
-          var geometry = mesh.geometry;
-          geometry.computeBoundingBox();
-          var center = new THREE.Vector3();
-          geometry.boundingBox.getCenter( center );
-          mesh.localToWorld( center );
-          return center;
+        var geometry = mesh.geometry;
+        geometry.computeBoundingBox();
+        var center = new THREE.Vector3();
+        geometry.boundingBox.getCenter( center );
+        mesh.localToWorld( center );
+        return center;
       }         
 
       xrf.camera.updateMatrixWorld(true); // always keeps me diving into the docs :]
@@ -37,7 +36,6 @@ const drawLineToMesh = (frag,scene,mesh) => {
 }
 
 xrf.addEventListener('dynamicKey', (opts) => {
-  console.dir(opts)
   let {scene,id,match,v} = opts
   if( !scene ) return 
   let remove = []
@@ -50,7 +48,7 @@ xrf.addEventListener('dynamicKey', (opts) => {
   remove.map(     (n) => scene.remove(n.selection) )
   // drawlines
   match.map( (w) => {
-    w.nodes.map( (mesh) => drawLineToMesh( v, scene, mesh ) )
+    w.nodes.map( (mesh) => drawLineToMesh({ ...opts, mesh}) )
   })
 })
 
@@ -66,4 +64,3 @@ xrf.addEventListener('render', (opts) => {
   if( xrf.focusLine.opacity > 0.0 ) xrf.focusLine.opacity -= time*0.2
   if( xrf.focusLine.opacity < 0.0 ) xrf.focusLine.opacity = 0
 })
-

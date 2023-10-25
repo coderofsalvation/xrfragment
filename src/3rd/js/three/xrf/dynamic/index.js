@@ -14,10 +14,11 @@ xrf.frag.updatePredefinedView = (opts) => {
     for ( let i in frag  ) {
       let v = frag[i]
       let id = v.string || v.fragment
-      if( id == '#' ) return
+      if( id == '#' || !id ) return
       let match = xrf.XRWG.match(id)
 
       if( v.is( xrf.XRF.PV_EXECUTE ) ){
+        console.log("pv_execute")
         scene.XRF_PV_ORIGIN = v.string
         // evaluate aliases 
         match.map( (w) => {
@@ -29,6 +30,9 @@ xrf.frag.updatePredefinedView = (opts) => {
           }
         })
         xrf.emit('dynamicKey',{ ...opts,v,frag,id,match,scene })
+      }else{
+        console.log("non pv_execute")
+        xrf.emit('dynamicKeyValue',{ ...opts,v,frag,id,match,scene })
       }
     }
   }
@@ -36,7 +40,7 @@ xrf.frag.updatePredefinedView = (opts) => {
 
 // react to enduser typing url
 xrf.addEventListener('hash', (opts) => {
-  let frag = xrf.URI.parse( opts.hash, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
+  let frag = xrf.URI.parse( opts.hash )
   xrf.frag.updatePredefinedView({frag,scene:xrf.scene})
 }) 
 

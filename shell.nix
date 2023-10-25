@@ -4,6 +4,7 @@
     # nativeBuildInputs is usually what you want -- tools you need to run
     nativeBuildInputs = with pkgs.buildPackages; [ 
 
+      haxe
       mmark
       xml2rfc
 

@@ -1436,10 +1436,6 @@ class xrfragment_Parser:
             v.validate(key)
             setattr(store,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),v)
             return True
-        if ((len(key.split(".")) > 1) and ((len(value.split(".")) > 1))):
-            value1 = xrfragment_XRF(key,(((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_STRING) | xrfragment_XRF.PROP_BIND))
-            setattr(store,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),value1)
-            return True
         v = xrfragment_XRF(key,Frag.h.get(key,None))
         if (key in Frag.h):
             if (not v.validate(value)):
