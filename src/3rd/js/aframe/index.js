@@ -5,9 +5,6 @@ window.AFRAME.registerComponent('xrf', {
     if( !AFRAME.XRF ){
       document.querySelector('a-scene').addEventListener('loaded', () => {
 
-        //window.addEventListener('popstate', clear )
-        //window.addEventListener('pushstate', clear )
-
         // enable XR fragments
         let aScene = document.querySelector('a-scene')
         let XRF = AFRAME.XRF = xrf.init({
@@ -30,7 +27,6 @@ window.AFRAME.registerComponent('xrf', {
           if( frag.q ) return // camera was not targeted for rotation 
           let look = document.querySelector('[look-controls]')
           if( look ) look.removeAttribute("look-controls")
- //         camOverride(xrf,v,opts)
           // *TODO* make look-controls compatible, because simply
           // adding the look-controls will revert to the old rotation (cached somehow?)
           //setTimeout( () => look.setAttribute("look-controls",""), 100 )
@@ -46,40 +42,17 @@ window.AFRAME.registerComponent('xrf', {
           el.setAttribute("pressable", '')       // detect hand-controller click
           // add click
           el.addEventListener("click",          clickHandler )
-          el.addEventListener("pressedstarted", clickHandler )
-  //      this.el.addEventListener("buttondown",    console.dir )
-  //      this.el.addEventListener("touchstart",    console.dir )
-  //      this.el.addEventListener("triggerdown",   console.dir )
-  //      this.el.addEventListener("gripdown",      console.dir )
-  //      this.el.addEventListener("abuttondown",   console.dir )
-  //      this.el.addEventListener("pinchended",    console.dir )
-
+          //el.addEventListener("pressedstarted", clickHandler )
           $('a-scene').appendChild(el)
         }
         xrf.addEventListener('interactionReady', AFRAME.XRF.clickableMeshToEntity )
 
-//        xrf.addEventListener('interactionReady', () => {
-//          let raycasters = [ ...document.querySelectorAll('[raycaster]') ]
-//          raycasters.map( (rc) => {
-//              rc = rc.components['raycaster']
-//              rc.refreshObjects = () => {
-//                rc.objects = xrf.interactive.objects.map( (o) => ({ ...o, el:{} }) ) // AFRAME raycaster requires 'el' property
-//                console.log("refreshing")
-//                rc.dirty = false
-//              }
-//              rc.dirty = true
-//              rc.refreshObjects()
-//          })
-//        })
-
-
         // cleanup xrf-get objects when resetting scene
-        xrf.reset = ((reset) => () => {
-          reset()
+        xrf.addEventListener('reset', (opts) => {
           console.log("aframe reset")
           let els = [...document.querySelectorAll('[xrf-get]')]
           els.map( (el) => document.querySelector('a-scene').removeChild(el) )
-        })(XRF.reset)
+        })
 
         // undo lookup-control shenanigans (which blocks updating camerarig position in VR)
         aScene.addEventListener('enter-vr', () => document.querySelector('[camera]').object3D.parent.matrixAutoUpdate = true )

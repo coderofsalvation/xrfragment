@@ -34,12 +34,6 @@ xrf.frag.href = function(v, opts){
 
   if( mesh.userData.XRF.href.exec ) return // mesh already initialized
 
-  const world = { 
-    pos: new THREE.Vector3(), 
-    scale: new THREE.Vector3(),
-    quat: new THREE.Quaternion()
-  }
-
   mesh.material = mesh.material.clone() // we need this so we can individually highlight meshes
 
   let click = mesh.userData.XRF.href.exec = (e) => {
@@ -84,12 +78,6 @@ xrf.frag.href = function(v, opts){
 
   // lazy add mesh (because we're inside a recursive traverse)
   setTimeout( (mesh) => {
-    //mesh.getWorldPosition(world.pos)
-    //mesh.getWorldScale(world.scale)
-    //mesh.getWorldQuaternion(world.quat);
-    //mesh.position.copy(world.pos)
-    //mesh.scale.copy(world.scale)
-    //mesh.setRotationFromQuaternion(world.quat);
     xrf.interactive.add(mesh)
     xrf.emit('interactionReady', {mesh,xrf:v,clickHandler: mesh.userData.XRF.href.exec })
   }, 0, mesh )

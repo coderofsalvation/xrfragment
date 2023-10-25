@@ -94,8 +94,8 @@ value:     draft-XRFRAGMENTS-leonvankammen-00
 .# Abstract
 
 This draft is a specification for 4D URLs & [hypermediatic](https://github.com/coderofsalvation/hypermediatic) navigation, which links together space, time & text together, for hypermedia browsers with- or without a network-connection.<br> 
-The specification promotes spatial addressibility, sharing, navigation, query-ing and annotating interactive (text)objects across for (XR) Browsers.<br>
-XR Fragments allows us to enrich existing dataformats, by recursive use of existing proven technologies like [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) and BibTags notation.<br>
+The specification promotes spatial addressibility, sharing, navigation, query-ing and databinding objects for (XR) Browsers.<br>
+XR Fragments allows us to enrich existing dataformats, by recursive use of existing metadata inside 3D scene(files), and proven technologies like [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment).
 
 > Almost every idea in this document is demonstrated at [https://xrfragment.org](https://xrfragment.org)
 
@@ -103,34 +103,38 @@ XR Fragments allows us to enrich existing dataformats, by recursive use of exist
 
 # Introduction
 
-How can we add more features to existing text & 3D scenes, without introducing new dataformats?<br>
+How can we add more control to existing text & 3D scenes, without introducing new dataformats?<br>
 Historically, there's many attempts to create the ultimate markuplanguage or 3D fileformat.<br>
-The lowest common denominator is: describing/tagging/naming nodes using **plain text**.<br>
-XR Fragments allows us to enrich/connect existing dataformats, by introducing existing technologies/ideas:<br>
+The lowest common denominator is: designers describing/tagging/naming things using **plain text**.<br>
+XR Fragments exploits the fact that all 3D models already contain such metadata:
+
+**XR Fragments allows controlling of metadata in 3D scene(files) using URLs**
+
+Or more detailed:
 
 1. addressibility and [hypermediatic](https://github.com/coderofsalvation/hypermediatic) navigation of 3D scenes/objects: [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) + src/href spatial metadata 
-1. Interlinking text/& 3D by collapsing space into a Word Graph (XRWG) to show [visible links](#visible-links) (and augmenting text with [bibs](https://github.com/coderofsalvation/tagbibs) / [BibTags](https://en.wikipedia.org/wiki/BibTeX) appendices (see [visual-meta](https://visual-meta.info) e.g.)
+1. Interlinking (text)objects by collapsing space into a Word Graph (XRWG) to show [visible links](#visible-links)
 1. unlocking spatial potential of the (originally 2D) hashtag (which jumps to a chapter) for navigating XR documents
 
 > NOTE: The chapters in this document are ordered from highlevel to lowlevel (technical) as much as possible
 
 # Core principle
 
-XR Fragments strives to serve (nontechnical/fuzzy) humans first, and machine(implementations) later, by ensuring hasslefree text-vs-thought feedback loops.<br>
-This also means that the repair-ability of machine-matters should be human friendly too (not too complex).<br>
+**XR Fragments allows controlling of metadata in 3D scene(files) using URLs**
+
 XR Fragments tries to seek to connect the world of text (semantical web / RDF), and the world of pixels.<br>
-Instead of combining them (in a game-editor e.g.), XR Fragments is opting for a more integrated path **towards** them, by describing how to make browsers **4D URL-ready**:
+Instead of combining them (in a game-editor e.g.), XR Fragments **integrates all**, by collecting metadata into an XRWG and control it via URL:
 
 | principle            | XR 4D URL                                       | HTML 2D URL                           |
 |----------------------|-------------------------------------------------|---------------------------------------|
 | the XRWG             | wordgraph (collapses 3D scene to tags)          | Ctrl-F (find)                         |
-| the hashbus          | hashtags map to camera/scene-projections        | hashtags map to document positions    |
-| spacetime hashtags   | positions camera, triggers scene-preset/time    | jumps/scrolls to chapter              |
+| the hashbus          | hashtags alter camera/scene/object-projections  | hashtags alter document positions     |
 | src metadata         | renders content and offers sourceportation      | renders content                       |
 | href metadata        | teleports to other XR document                  | jumps to other HTML document          |
-| href metadata        | repositions camera or animation-range           | jumps to camera                       |
-| href metadata        | draws visible connection(s) for XRWG 'tag'      |                                       |
 | href metadata        | triggers predefined view                        | Media fragments                       |
+| href metadata        | triggers camera/scene/object/projections        | n/a                                   |
+| href metadata        | draws visible connection(s) for XRWG 'tag'      | n/a                                   |
+| href metadata        | queries certain (in)visible objects             | n/a                                   |
 
 > XR Fragments does not look at XR (or the web) thru the lens of HTML.<br>But approaches things from a higherlevel feedbackloop/hypermedia browser-perspective:
 
@@ -144,11 +148,14 @@ Instead of combining them (in a game-editor e.g.), XR Fragments is opting for a 
  │                4D URL:       ://park.com     /4Dscene.fbx ──> ?misc  ──>  #view ───> hashbus │
  │                                                │                          #query      │      │
  │                                                │                          #tag        │      │
+ │                                                │                          #material   │      │
+ │                                                │                          #animation  │      │
+ │                                                │                          #texture    │      │
+ │                                                │                          #variable   │      │
  │                                                │                                      │      │
  │                                               XRWG <─────────────────────<────────────+      │
  │                                                │                                      │      │
- │                                                ├─ objects ───────────────>────────────│      │
- │                                                └─ text    ───────────────>────────────+      │
+ │                                                └─ objects  ──────────────>────────────+      │
  │                                                                                              │
  │                                                                                              │
  +──────────────────────────────────────────────────────────────────────────────────────────────+
@@ -180,22 +187,19 @@ sub-delims  = "," / "="
 | Demo                          | Explanation                     |
 |-------------------------------|---------------------------------|
 | `pos=1,2,3`                   | vector/coordinate argument e.g. |
-| `pos=1,2,3&rot=0,90,0&q=.foo` | combinators                     |
+| `pos=1,2,3&rot=0,90,0&q=foo`  | combinators                     |
 
 > this is already implemented in all browsers
 
 # List of URI Fragments
 
-| fragment     | type     | example           | info                                                                 |
-|--------------|----------|-------------------|----------------------------------------------------------------------|
-| `#pos`       | vector3  | `#pos=0.5,0,0`    | positions camera (or XR floor) to xyz-coord 0.5,0,0,                 |
-| `#rot`       | vector3  | `#rot=0,90,0`     | rotates camera to xyz-coord 0.5,0,0                                  |
-| `#t`         | vector3  | `#t=1,500,1000`   | play animation-loop range between frame 500 and 1000, at normal speed|
-| `#......`    | string   | `#.cubes` `#cube` | predefined views, XRWG fragments and ID fragments                    |
+| fragment          | type     | example           | info                                                                 |
+|-------------------|----------|-------------------|----------------------------------------------------------------------|
+| `#pos`            | vector3  | `#pos=0.5,0,0`    | positions camera (or XR floor) to xyz-coord 0.5,0,0,                 |
+| `#rot`            | vector3  | `#rot=0,90,0`     | rotates camera to xyz-coord 0.5,0,0                                  |
+| `#t`              | vector3  | `#t=1,500,1000`   | play animation-loop range between frame 500 and 1000, at normal speed|
 
-> xyz coordinates are similar to ones found in SVG Media Fragments
-
-# List of metadata for 3D nodes 
+## List of metadata for 3D nodes 
 
 | key          | type     | example (JSON)         | function            | existing compatibility                 |
 |--------------|----------|------------------------|---------------------|----------------------------------------|
@@ -207,8 +211,22 @@ Supported popular compatible 3D fileformats: `.gltf`, `.obj`, `.fbx`, `.usdz`, `
 
 > NOTE: XR Fragments are optional but also file- and protocol-agnostic, which means that programmatic 3D scene(nodes) can also use the mechanism/metadata.
 
-# Spatial Referencing 3D 
+## Dynamic XR Fragments (databindings)
 
+These are automatic fragment-to-metadata mappings, which only trigger if the 3D scene metadata matches a specific identifier (`aliasname` e.g.)
+
+| fragment               | type     | example           | info                                                                          |
+|------------------------|----------|-------------------|-------------------------------------------------------------------------------|
+| `#<aliasname>`               | string   | `#cubes`          | evaluate predefined views (`#cubes: #foo&bar` e.g.)                     |
+| `#<tag_or_objectname>`       | string   | `#person`         | focus object(s) with `tag: person` or name `person` by looking up XRWG  |
+| `#<cameraname>`              | string   | `#cam01`          | set camera as active camera                                             |
+| `#<objectname_with_src=x,x,x`| vector3  | `#person=1,1,0`   | play src-metadata of object `person` using `#t=` timeline-value (see #t)|
+| `#<animname>=x,x,x`          | vector3  | `#myanim=1,1,0`   | play (non-global) animation ID                                          |
+| `#<materialname>=<x,x,x|objectname>`| string  | `horizon=fader`   | animate r/g/b/o(pacity) of material `horizon` with `fader` obj (xyzw=rgbo) |
+| `#<texturename>=<x,x,x|objectname>`| string   | `page=scroller`   | animate x/y/r(otation) of texture `page` with `scroller` object (xyz=xyr) |
+| `#<varname>=<x,x,x|string>`   | string|vector3  | `myvar=fader`     | set/animate shaderuniform- or scene-specific vars with `fader` object (*) |
+
+# Spatial Referencing 3D 
 
 XR Fragments assume the following objectname-to-URIFragment mapping:
 
@@ -341,6 +359,8 @@ Resizing will be happen accordingly to its placeholder object `aquariumcube`, se
 1. src-values are non-recursive: when linking to an external object (`src: foo.fbx#bar`), then `src`-metadata on object `bar` should be ignored. 
 1. clicking on external `src`-values always allow sourceportation: teleporting to the origin URI to which the object belongs.
 1. when only one object was cherrypicked (`#cube` e.g.), set its position to `0,0,0`
+1. equirectangular detection: when the width of an image is twice the height (aspect 2:1), an equirectangular projection is assumed.
+1. when the enduser clicks an href with `#t=1,0,0` (play) will be applied to all src mediacontent with a timeline (mp4/mp3 e.g.)
 
 * `model/gltf+json`
 * `image/png`
@@ -439,10 +459,11 @@ controls the animation(s) of the scene (or `src` resource which contains a timel
 
 To play global audio/video items:
 
-* add a `src: foo.mp3` or `src: bar.mp4` metadata to a 3D object (`cube` e.g.)
-* to disable auto-play and global timeline ([[#t=|t]]) control: hardcode a [[#t=|t]] XR Fragment: (`src: bar.mp3#t=0,0,0` e.g.)
-* to play it, add `href: #cube` somewhere else 
-* when the enduser clicks the `href`, `#t=1,0,0` (play) will be applied to the `src` value
+1. add a `src: foo.mp3` or `src: bar.mp4` metadata to a 3D object (`cube` e.g.)
+1. to disable auto-play and global timeline ([[#t=|t]]) control: hardcode a [[#t=|t]] XR Fragment: (`src: bar.mp3#t=0,0,0` e.g.)
+1. to play it, add `href: #cube` somewhere else 
+1. when the enduser clicks the `href`, `#t=1,0,0` (play) will be applied to the `src` value
+1. to play a single animation, add href: #animationname=1,0,0 somewhere else
 
 > NOTE: hardcoded framestart/framestop uses sampleRate/fps of embedded audio/video, otherwise the global fps applies. For more info see [[#t|t]].
 

@@ -72,6 +72,7 @@ xrf.reset = () => {
   xrf.audio = []
   xrf.add( xrf.interactive )
   xrf.layers = 0
+  xrf.emit('reset',{})
 }
 
 xrf.parseUrl = (url) => {
