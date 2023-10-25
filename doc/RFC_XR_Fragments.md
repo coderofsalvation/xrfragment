@@ -193,11 +193,12 @@ sub-delims  = "," / "="
 
 # List of URI Fragments
 
-| fragment          | type     | example           | info                                                                 |
-|-------------------|----------|-------------------|----------------------------------------------------------------------|
-| `#pos`            | vector3  | `#pos=0.5,0,0`    | positions camera (or XR floor) to xyz-coord 0.5,0,0,                 |
-| `#rot`            | vector3  | `#rot=0,90,0`     | rotates camera to xyz-coord 0.5,0,0                                  |
-| `#t`              | vector3  | `#t=1,500,1000`   | play animation-loop range between frame 500 and 1000, at normal speed|
+| fragment          | type     | example            | info                                                                 |
+|-------------------|----------|--------------------|----------------------------------------------------------------------|
+| `#pos`            | vector3  | `#pos=0.5,0,0`     | positions camera (or XR floor) to xyz-coord 0.5,0,0,                 |
+| `#rot`            | vector3  | `#rot=0,90,0`      | rotates camera to xyz-coord 0.5,0,0                                  |
+| `#t`              | vector3  | `#t=1,500,1000`    | play animation-loop range between frame 500 and 1000, at normal speed|
+| `#q`              | vector3  | `#q=-sky -tag:hide`| queries scene-graph (and removes object with name `cube` or `tag: hide`) |
 
 ## List of metadata for 3D nodes 
 
