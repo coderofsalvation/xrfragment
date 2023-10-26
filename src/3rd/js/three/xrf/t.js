@@ -14,7 +14,9 @@ xrf.frag.t = function(v, opts){
     mixer.setTime(time)
     mixer.time = Math.abs(mixer.time)
     mixer.update(0)      // (forgetting) this little buddy costed me lots of time :]
-    // (re)trigger audio
+    xrf.model.animations.map( (anim) => { 
+      anim.action.setLoop( v.z == 0 ? THREE.LoopOnce : THREE.LoopRepeat)
+    })
   }
 
   // play animations

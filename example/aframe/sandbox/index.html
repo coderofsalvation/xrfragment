@@ -48,8 +48,6 @@
 
     <script>
       window.$ = (s) => document.querySelector(s)
-      window.notify = notify(window)
-      window.embed  = embed
 
       console.log = ( (log) => function(str){
         if( String(str).match(/:.*#/) ) window.notify(str)
@@ -60,6 +58,9 @@
         $('#home').setAttribute('xrf', document.location.search.substr(1)+document.location.hash )
 
       $('a-scene').addEventListener('XRF', () => {
+        window.notify = notify(window)
+        window.embed  = embed
+
 
         let XRF = window.AFRAME.XRF
         setupConsole( $('textarea') )

@@ -50,6 +50,7 @@ class XRF {
   public var x:Float;                                                      //  |vector| x,y,z| comma-separated    | #pos=1,2,3           |
   public var y:Float;
   public var z:Float;
+  public var w:Float;
   public var color:String;                                                 //  |string| color| FFFFFF (hex)      | #fog=5m,FFAACC        |
   public var string:String;                                                //  |string|      |                   | #q=-sun               |
   public var int:Int;                                                      //  |int   |      | [-]x[xxxxx]       | #price:>=100          |
@@ -107,6 +108,7 @@ class XRF {
       if( xyz.length > 0 ) v.x = Std.parseFloat(xyz[0]);                 //  1. anything else will be treated as string-value 
       if( xyz.length > 1 ) v.y = Std.parseFloat(xyz[1]);                 //  1. incompatible value-types will be dropped / not used
       if( xyz.length > 2 ) v.z = Std.parseFloat(xyz[2]);                 //  
+      if( xyz.length > 3 ) v.w = Std.parseFloat(xyz[3]);                 //  
     }                                                                    //  > the xrfragment specification should stay simple enough
                                                                          //  > for anyone to write a parser using either regexes or grammar/lexers
     if( isColor.match(str) ) v.color = str;                         //  > therefore expressions/comprehensions are not supported (max wildcard/comparison operators for queries e.g.)
