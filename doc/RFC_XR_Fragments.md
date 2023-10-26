@@ -223,8 +223,8 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 | `#<cameraname>`              | string   | `#cam01`          | set camera as active camera                                             |
 | `#<objectname_with_src=x,x,x`| vector3  | `#person=1,1,0`   | play src-metadata of object `person` using `#t=` timeline-value (see #t)|
 | `#<animname>=x,x,x`          | vector3  | `#myanim=1,1,0`   | play (non-global) animation ID                                          |
-| `#<materialname>=<x,x,x|objectname>`| string  | `horizon=fader`   | animate r/g/b/o(pacity) of material `horizon` with `fader` obj (xyzw=rgbo) |
-| `#<texturename>=<x,x,x|objectname>`| string   | `page=scroller`   | animate x/y/r(otation) of texture `page` with `scroller` object (xyz=xyr) |
+| `#<materialname>=<x,x,x|animationname>`| string  | `horizon=fader`   | animate o(pacity) of material `horizon` with `fader` obj (xyzw=o...) |
+| `#<texturename>=<x,x,x|animationname>`| string   | `page=scroller`   | animate x/y/r(otation) of texture `page` with `scroller` object (xyz=xyr) |
 | `#<varname>=<x,x,x|string>`   | string|vector3  | `myvar=fader`     | set/animate shaderuniform- or scene-specific vars with `fader` object (*) |
 
 # Spatial Referencing 3D 

@@ -14,22 +14,24 @@ xrf.frag.t = function(v, opts){
     mixer.setTime(time)
     mixer.time = Math.abs(mixer.time)
     mixer.update(0)      // (forgetting) this little buddy costed me lots of time :]
-    xrf.model.animations.map( (anim) => { 
-      anim.action.setLoop( v.z == 0 ? THREE.LoopOnce : THREE.LoopRepeat)
-    })
   }
 
   // play animations
   mixer.play( v.x == 1 )
 
   if( v.y > 0 || v.z > 0 ) updateTime( mixer.loop.timeStart )
+  if( v.y > 0 && v.z > 0 ){
+    xrf.model.animations.map( (anim) => { 
+      anim.action.setLoop( v.z == 0 ? THREE.LoopOnce : THREE.LoopRepeat, v.z == 0 ? 0 : 99999999)
+    })
+  }
 
   // update loop when needed 
   if( !mixer.update.patched ){
     let update = mixer.update
     mixer.update = function(time){
       mixer.time = Math.abs(mixer.time)
-      if( time == 0 ) return update.call(mixer,time)
+      if( time == 0 ) return update.call(this,time)
 
       if( mixer.loop.speed > 0.0 && mixer.time > mixer.loop.timeStop * mixer.loop.speedAbs ){ 
         setTimeout( (time) => updateTime(time),0,mixer.loop.timeStart) // prevent recursion

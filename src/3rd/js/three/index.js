@@ -19,7 +19,9 @@ xrf.patchRenderer = function(renderer){
   renderer.xr.addEventListener( 'sessionstart', () => xrf.baseReferenceSpace = renderer.xr.getReferenceSpace() );
   renderer.xr.enabled = true;
   renderer.render = ((render) => function(scene,camera){
+    // update clock
     let time = xrf.model && xrf.model.clock ? xrf.model.clock.getDelta() : 0
+    // allow entities to do stuff during render (onBeforeRender and onAfterRender don't always fire)
     xrf.emit('render',{scene,camera,time}) // allow fragments to do something at renderframe
     render(scene,camera)
   })(renderer.render.bind(renderer))
@@ -46,7 +48,14 @@ xrf.parseModel = function(model,url){
   let file               = xrf.getFile(url)
   model.file             = file
   // eval embedded XR fragments
-  model.scene.traverse( (mesh) => xrf.hashbus.pub.mesh(mesh,model) )
+  model.scene.traverse( (mesh) => {
+    xrf.hashbus.pub.mesh(mesh,model) 
+    let obj = [ `'${mesh.name}'` ]
+    if( mesh.material ) obj.push([`material:'${mesh.material.name}'`])
+    if( mesh.material && mesh.material.map ) obj.push([`texture: '${mesh.material.map.name}'`])
+    console.log("obj "+obj.join(" ") )
+  })
+  model.animations.map( (a) => console.log("anim: "+a.name) )
   xrf.emit('parseModel',{model,url,file})
 }
 

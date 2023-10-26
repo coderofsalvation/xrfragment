@@ -15,24 +15,20 @@
  */
 
 xrf.addEventListener = function(eventName, callback, scene) {
-    if( !this._listeners ) this._listeners = []
-    if (!this._listeners[eventName]) {
-        // create a new array for this event name if it doesn't exist yet
-        this._listeners[eventName] = [];
-    }
-    if( scene ) callback.scene = scene
-    // add the callback to the listeners array for this event name
-    this._listeners[eventName].push(callback);
-};
-
-xrf.removeEventListeners = function( everything ){
-  if( everything ) this._listeners = []
-  else{
-    for( let eventName in this._listener ){
-      this._listener[eventName] = this._listener[eventName].filter( (e) => e.callback ? null : e )
-    } 
+  if( !this._listeners ) this._listeners = []
+  if (!this._listeners[eventName]) {
+      // create a new array for this event name if it doesn't exist yet
+      this._listeners[eventName] = [];
   }
-}
+  if( scene ) callback.scene = scene
+  // add the callback to the listeners array for this event name
+  this._listeners[eventName].push(callback);
+  return () => {
+    console.log("size = "+this._listeners[eventName].length)
+    this._listeners[eventName] = this._listeners[eventName].filter( (c) => c != callback )
+    console.log("size = "+this._listeners[eventName].length)
+  }
+};
 
 xrf.emit = function(eventName, data){
   if( typeof data != 'object' ) throw 'emit() requires passing objects'
