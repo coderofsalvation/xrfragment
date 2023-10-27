@@ -212,7 +212,7 @@ Supported popular compatible 3D fileformats: `.gltf`, `.obj`, `.fbx`, `.usdz`, `
 
 > NOTE: XR Fragments are optional but also file- and protocol-agnostic, which means that programmatic 3D scene(nodes) can also use the mechanism/metadata.
 
-## Dynamic XR Fragments (databindings)
+## Dynamic XR Fragments (+databindings)
 
 These are automatic fragment-to-metadata mappings, which only trigger if the 3D scene metadata matches a specific identifier (`aliasname` e.g.)
 
@@ -221,11 +221,7 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 | `#<aliasname>`               | string   | `#cubes`          | evaluate predefined views (`#cubes: #foo&bar` e.g.)                     |
 | `#<tag_or_objectname>`       | string   | `#person`         | focus object(s) with `tag: person` or name `person` by looking up XRWG  |
 | `#<cameraname>`              | string   | `#cam01`          | set camera as active camera                                             |
-| `#<objectname_with_src=x,x,x`| vector3  | `#person=1,1,0`   | play src-metadata of object `person` using `#t=` timeline-value (see #t)|
-| `#<animname>=x,x,x`          | vector3  | `#myanim=1,1,0`   | play (non-global) animation ID                                          |
-| `#<materialname>=<x,x,x|animationname>`| string  | `horizon=fader`   | animate o(pacity) of material `horizon` with `fader` obj (xyzw=o...) |
-| `#<texturename>=<x,x,x|animationname>`| string   | `page=scroller`   | animate x/y/r(otation) of texture `page` with `scroller` object (xyz=xyr) |
-| `#<varname>=<x,x,x|string>`   | string|vector3  | `myvar=fader`     | set/animate shaderuniform- or scene-specific vars with `fader` object (*) |
+| `#<objectname>=x,y`          | string   | `#sky=0,0.5`      | set scroll-position of object by offsetting (uv) coordinates (uv scrolling)|
 
 # Spatial Referencing 3D 
 

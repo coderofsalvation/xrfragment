@@ -60,6 +60,8 @@ xrf.frag.src.type['image/png'] = function(url,opts){
   }
 
   let renderImage = (texture) => {
+    let img = {w: texture.source.data.width, h: texture.source.data.height}
+
     // stretch image by pinning uv-coordinates to corners 
     if( mesh.geometry ){
       if( mesh.geometry.attributes.uv ){ // buffergeometries 
@@ -88,6 +90,8 @@ xrf.frag.src.type['image/png'] = function(url,opts){
 
   let onLoad = (texture) => {
     texture.colorSpace = THREE.SRGBColorSpace;
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
     // detect equirectangular image
     if( texture && texture.source.data.height == texture.source.data.width/2 ){
       renderEquirect(texture)
