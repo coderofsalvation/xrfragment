@@ -66,11 +66,6 @@ xrf.frag.src.type['image/png'] = function(url,opts){
     if( mesh.geometry ){
       if( mesh.geometry.attributes.uv ){ // buffergeometries 
         let uv = mesh.geometry.attributes.uv;
-        //       i  u  v
-        uv.setXY(0, 0, 0 )
-        uv.setXY(1, 1, 0 )
-        uv.setXY(2, 0, 1 )
-        uv.setXY(3, 1, 1 )
       }else {
         console.warn("xrfragment: uv's of ${url} might be off for non-buffer-geometries *TODO*")
         //if( geometry.faceVertexUvs ){

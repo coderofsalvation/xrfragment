@@ -105,7 +105,6 @@ xrf.frag.src.scale = function(scene, opts, url){
     }else{
       // spec 4 of https://xrfragment.org/#src
       // spec 2 of https://xrfragment.org/#scaling%20of%20instanced%20objects
-      console.log("normal scale: "+url)
       scene.scale.multiply( mesh.scale ) 
     }
     scene.isXRF = model.scene.isSRC = true
@@ -132,7 +131,6 @@ xrf.frag.src.filterScene = (scene,opts) => {
   if( frag.q ){
     src = scene.clone(true);
     xrf.frag.q.filter(src,frag)
-    console.dir(src)
   }
   src.traverse( (m) => {
     if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 

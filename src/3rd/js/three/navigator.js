@@ -33,12 +33,13 @@ xrf.navigator.to = (url,flags,loader,data) => {
       // spec: 1. generate the XRWG
       xrf.XRWG.generate({model,scene:model.scene})
       // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
-      xrf.frag.defaultPredefinedView({model,scene:model.scene})
+      xrf.frag.defaultPredefinedViews({model,scene:model.scene})
       // spec: 2. init metadata
-      let frag = hashbus.pub( url, model )           // and eval URI XR fragments 
       // spec: predefined view(s) from URL (https://xrfragment.org/#predefined_view)
       setTimeout( () => { // give external objects some slack 
-        xrf.frag.updatePredefinedView({model,scene:model.scene,frag})
+        let frag = hashbus.pub( url, model) // and eval URI XR fragments 
+        hashbus.pub.XRWG({model,scene:model.scene,frag})
+        console.dir(frag)
       },2000)
       xrf.add( model.scene )
       xrf.navigator.updateHash(hash)

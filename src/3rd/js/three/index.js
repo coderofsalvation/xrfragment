@@ -50,10 +50,6 @@ xrf.parseModel = function(model,url){
   // eval embedded XR fragments
   model.scene.traverse( (mesh) => {
     xrf.hashbus.pub.mesh(mesh,model) 
-    let obj = [ `'${mesh.name}'` ]
-    if( mesh.material ) obj.push([`material:'${mesh.material.name}'`])
-    if( mesh.material && mesh.material.map ) obj.push([`texture: '${mesh.material.map.name}'`])
-    console.log("obj "+obj.join(" ") )
   })
   model.animations.map( (a) => console.log("anim: "+a.name) )
   xrf.emit('parseModel',{model,url,file})
