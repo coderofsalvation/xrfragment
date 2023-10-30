@@ -95,7 +95,7 @@ value:     draft-XRFRAGMENTS-leonvankammen-00
 
 This draft is a specification for 4D URLs & [hypermediatic](https://github.com/coderofsalvation/hypermediatic) navigation, which links together space, time & text together, for hypermedia browsers with- or without a network-connection.<br> 
 The specification promotes spatial addressibility, sharing, navigation, query-ing and databinding objects for (XR) Browsers.<br>
-XR Fragments allows us to enrich existing dataformats, by recursive use of existing metadata inside 3D scene(files), and proven technologies like [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment).
+XR Fragments allows us to better use existing metadata inside 3D scene(files), by connecting it to proven technologies like [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment).
 
 > Almost every idea in this document is demonstrated at [https://xrfragment.org](https://xrfragment.org)
 
@@ -194,11 +194,11 @@ sub-delims  = "," / "="
 # List of URI Fragments
 
 | fragment          | type     | example            | info                                                                 |
-|-------------------|----------|--------------------|----------------------------------------------------------------------|
-| `#pos`            | vector3  | `#pos=0.5,0,0`     | positions camera (or XR floor) to xyz-coord 0.5,0,0,                 |
-| `#rot`            | vector3  | `#rot=0,90,0`      | rotates camera to xyz-coord 0.5,0,0                                  |
-| `#t`              | vector3  | `#t=1,500,1000`    | play animation-loop range between frame 500 and 1000, at normal speed|
-| `#q`              | vector3  | `#q=-sky -tag:hide`| queries scene-graph (and removes object with name `cube` or `tag: hide`) |
+|-------------------|------------|--------------------|----------------------------------------------------------------------|
+| `#pos`            | vector3    | `#pos=0.5,0,0`     | positions camera (or XR floor) to xyz-coord 0.5,0,0,                 |
+| `#rot`            | vector3    | `#rot=0,90,0`      | rotates camera to xyz-coord 0.5,0,0                                  |
+| `#t`              | timevector | `#t=2,2000,1`      | play animation-loop range between frame 2 and 2000 at (normal) speed 1 |
+| `#q`              | vector3    | `#q=-sky -tag:hide`| queries scene-graph (and removes object with name `cube` or `tag: hide`) |
 
 ## List of metadata for 3D nodes 
 
@@ -208,7 +208,24 @@ sub-delims  = "," / "="
 | `src`        | string   | `"src": "#cube"`       | XR embed / teleport | custom property in 3D fileformats      |
 | `tag`        | string   | `"tag": "cubes geo"`   | tag object (for query-use / XRWG highlighting) | custom property in 3D fileformats      |
 
-Supported popular compatible 3D fileformats: `.gltf`, `.obj`, `.fbx`, `.usdz`, `.json` (THREE.js), `.dae` and so on.
+> Supported popular compatible 3D fileformats: `.gltf`, `.obj`, `.fbx`, `.usdz`, `.json` (THREE.js), `.dae` and so on.
+
+## vector datatypes 
+
+| type       | syntax | example | info |
+|------
+| vector2    | x,y                              | 2,3.0           | 2-dimensional vector |
+| vector3    | x,y,z                            | 2,3.0,4         | 3-dimensional vector |
+| timevector | speed                            | 1               | 1D timeline: play    |
+|            |                                  | 0               | 1D timeline: stop    |
+|            | x,speed                          | 1,1             | 1D timeline: play    at offset `1` at (normal) speed `1`                |
+|            |                                  | 0,0             | 1D timeline: stop    |
+|            |                                  | 0,1             | 1D timeline: unpause with (normal) speed `1`                            | 
+|            |                                  | [1,100],1       | 1D timeline: play (loop) between offset `1` and `100` at normal speed (`1`) |
+|            | x,y,xspeed,yspeed                | 0,0.5,0,0       | 2D timeline: stop uv-coordinate at `0,0.5`                                     |
+|            |                                  | 0,0.5,0.2,0     | 2D timeline: play uv-coordinate at offset `0,0.5` and scroll `x` (=u) `0.2` within each second |
+|            |                                  | 0,[0,0.5],0.2,0 | 2D timeline: play uv-coordinate between offset `0,0` and `0,0.5` (loop) and scroll `x` (=u) `0.2` within each second |
+|            | x,y,z,xspeed,yspeed,zspeed       | 0,0.5,1,0.2,0,2 | XD timeline: play uv-coordinate at `0,0.5` and scroll `x` (=u) `0.2` within each second and pass `1` and `2` as custom data to shader uniforms `za` and `zb` |
 
 > NOTE: XR Fragments are optional but also file- and protocol-agnostic, which means that programmatic 3D scene(nodes) can also use the mechanism/metadata.
 
@@ -221,10 +238,12 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 | `#<aliasname>`               | string   | `#cubes`          | evaluate predefined views (`#cubes: #foo&bar` e.g.)                     |
 | `#<tag_or_objectname>`       | string   | `#person`         | focus object(s) with `tag: person` or name `person` by looking up XRWG  |
 | `#<cameraname>`              | string   | `#cam01`          | set camera as active camera                                             |
-| `#<objectname>=x,y`          | string   | `#sky=0,0.5`      | set scroll-position of object by offsetting (uv) coordinates (uv scrolling)|
+| `#<objectname>=<material>`   | string=string     | `#car=metallic`| set material of car to material with name `metallic` |
+|                              | string=string     | `#product=metallic`| set material of objects tagged with `product` to material with name `metallic` |
+| `#<objectname>=<timevector>` | string=timevector | `#sky=0,0.5,0.1,0`| set uv-position to `0,0.5` (and autoscroll x with max `0.1` every second)|
+|                              |                   | `#music=1,2`| play media of object (`src: podcast.mp3` e.g.) from beginning (`1`) at double speed (`2`) |
 
 # Spatial Referencing 3D 
-
 XR Fragments assume the following objectname-to-URIFragment mapping:
 
 ```
