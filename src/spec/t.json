@@ -1,0 +1,10 @@
+[
+  {"fn":"url","data":"http://foo.com?foo=1#t=1", "expect":{ "fn":"equal.x", "input":"t","out":"1"},"label":"a equal.x"},
+  {"fn":"url","data":"http://foo.com?foo=1#t=-1", "expect":{ "fn":"equal.x", "input":"t","out":"-1"},"label":"a equal.x"},
+  {"fn":"url","data":"http://foo.com?foo=1#t=-1.02", "expect":{ "fn":"equal.x", "input":"t","out":"-1.02"},"label":"a equal.x"},
+  {"fn":"url","data":"http://foo.com?foo=1#t=1,2,3", "expect":{ "fn":"equal.xy", "input":"t","out":"1,2"},"label":"a equal.xy"},
+  {"fn":"url","data":"http://foo.com?foo=1#t=1,2,3", "expect":{ "fn":"equal.xyz", "input":"t","out":"1,2,3"},"label":"a equal.xyz"},
+  {"fn":"url","data":"http://foo.com?foo=1#t=1,-2,3", "expect":{ "fn":"equal.xyz", "input":"t","out":"1,-2,3"},"label":"a equal.xyz"},
+  {"fn":"url","data":"http://foo.com?foo=1#t=1,100", "expect":{ "fn":"equal.xy",    "input":"t","out":"1,100"},"label":"a equal.xy"},
+  {"fn":"url","data":"http://foo.com?foo=1#t=2,500", "expect":{ "fn":"testBrowserOverride", "input":"t","out":true},"label":"browser URI can override t (defined in asset)"}
+]

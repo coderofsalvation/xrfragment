@@ -34,7 +34,7 @@ xrf.frag.href = function(v, opts){
 
   if( mesh.userData.XRF.href.exec ) return // mesh already initialized
 
-  mesh.material = mesh.material.clone() // we need this so we can individually highlight meshes
+  if( mesh.material ) mesh.material = mesh.material.clone() // we need this so we can individually highlight meshes
 
   let click = mesh.userData.XRF.href.exec = (e) => {
 

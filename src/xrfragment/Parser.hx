@@ -24,16 +24,16 @@ class Parser {
       Frag.set("tag",           XRF.ASSET | XRF.T_STRING          );
 
       // category: query selector / object manipulation
-      Frag.set("pos",           XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.T_STRING_OBJ | XRF.METADATA | XRF.NAVIGATOR );
+      Frag.set("pos",           XRF.PV_OVERRIDE  | XRF.T_VECTOR3 | XRF.T_STRING_OBJ | XRF.METADATA | XRF.NAVIGATOR );
       Frag.set("q",             XRF.PV_OVERRIDE | XRF.T_STRING | XRF.METADATA                   );
-      Frag.set("scale",         XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.METADATA );
-      Frag.set("rot",           XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.METADATA | XRF.NAVIGATOR );
-      Frag.set("mov",           XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR3 | XRF.METADATA );
-      Frag.set("show",          XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_INT     | XRF.METADATA );
+      Frag.set("scale",         XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE  | XRF.T_VECTOR3 | XRF.METADATA );
+      Frag.set("rot",           XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE  | XRF.T_VECTOR3 | XRF.METADATA | XRF.NAVIGATOR );
+      Frag.set("mov",           XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE  | XRF.T_VECTOR3 | XRF.METADATA );
+      Frag.set("show",          XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE  | XRF.T_INT     | XRF.METADATA );
       Frag.set("env",           XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_STRING | XRF.METADATA );
 
       // category: animation
-      Frag.set("t",             XRF.ASSET | XRF.PV_OVERRIDE | XRF.ROUNDROBIN | XRF.T_VECTOR2 | XRF.NAVIGATOR | XRF.METADATA);
+      Frag.set("t",             XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_FLOAT | XRF.T_VECTOR2 | XRF.T_VECTOR3 | XRF.NAVIGATOR | XRF.METADATA);
       Frag.set("gravity",       XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR3 | XRF.METADATA );
       Frag.set("physics",       XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR3 | XRF.METADATA );
 
@@ -50,7 +50,7 @@ class Parser {
       Frag.set("description",   XRF.ASSET | XRF.T_STRING                                  );
 
       // category: multiparty
-      Frag.set("session",   XRF.ASSET | XRF.T_URL | XRF.PV_OVERRIDE | XRF.NAVIGATOR | XRF.METADATA | XRF.PROMPT );
+      Frag.set("session",       XRF.ASSET | XRF.T_URL | XRF.PV_OVERRIDE | XRF.NAVIGATOR | XRF.METADATA | XRF.PROMPT );
 
       /**
        * # Spec 

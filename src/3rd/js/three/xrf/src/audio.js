@@ -23,28 +23,34 @@ let loadAudio = (mimetype) => function(url,opts){
   let sound = isPositionalAudio ? new THREE.PositionalAudio(listener) : new THREE.Audio(listener)
   audioLoader.load( url.replace(/#.*/,''), function( buffer ) {
     sound.setBuffer( buffer );
-    sound.setLoop(true);
-    sound.setVolume(0.5);
+    sound.setLoop(false);
+    sound.setVolume(1.0);
     sound.playXRF = (t) => {
-      if( sound.isPlaying ) sound.stop()
+
+      if( sound.isPlaying && t.y != undefined ) sound.stop()
+      if( sound.isPlaying && t.y == undefined ) sound.pause()
+
       let hardcodedLoop = frag.t != undefined
       t = hardcodedLoop ? { ...frag.t, x: t.x} : t // override with hardcoded metadata except playstate (x)
       if( t && t.x != 0 ){
         // *TODO* https://stackoverflow.com/questions/12484052/how-can-i-reverse-playback-in-web-audio-api-but-keep-a-forward-version-as-well 
-        sound.setPlaybackRate( Math.abs(t.x) ) // WebAudio does not support negative playback
+        t.x = Math.abs(t.x)
+        sound.setPlaybackRate( t.x ) // WebAudio does not support negative playback
         // setting loop
-        sound.setLoop( t.z > 0 )
+        if( t.z ) sound.setLoop( true )
         // apply embedded audio/video samplerate/fps or global mixer fps
-        let loopStart = hardcodedLoop ? t.y / buffer.sampleRate : t.y / xrf.model.mixer.loop.fps
+        let loopStart = hardcodedLoop ? t.y / buffer.sampleRate : t.y / xrf.model.mixer.loop.fps 
         let loopEnd   = hardcodedLoop ? t.z / buffer.sampleRate : t.z / xrf.model.mixer.loop.fps
-        let timeStart = loopStart > 0 ? loopStart : xrf.model.mixer.time
+        let timeStart = loopStart > 0 ? loopStart : (t.y == undefined ? xrf.model.mixer.time : t.y)
 
-        if( t.y > 0 ) sound.setLoopStart( loopStart )
         if( t.z > 0 ) sound.setLoopEnd(   loopEnd   )
-        if( t.x != 0 ){
-          sound.offset = loopStart > 0 ? loopStart : timeStart
-          sound.play()
+        if( t.y != undefined ){ 
+          console.dir({loopStart,t})
+          sound.setLoopStart( loopStart )
+          sound.offset = loopStart 
         }
+
+        sound.play()
       }
     }
     mesh.add(sound)
@@ -57,11 +63,11 @@ let audioMimeTypes = [
   'audio/mpeg',
   'audio/weba',
   'audio/aac',
-  'audio/ogg',
   'application/ogg'
 ]
 audioMimeTypes.map( (mimetype) =>  xrf.frag.src.type[ mimetype ] = loadAudio(mimetype) )
 
+// listen to t XR fragment changes
 xrf.addEventListener('t', (opts) => {
   let t = opts.frag.t
   xrf.audio.map( (a) => a.playXRF(t) )

@@ -1,6 +1,6 @@
 xrf.frag.t = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-  console.log(`   └ setting animation loop to ${v.x} ${v.y} ${v.z}` )
+  if( !model.mixer ) return 
   if( !model.animations || model.animations[0] == undefined ) return console.warn('no animation in scene')
 
   model.mixer.t = v
@@ -10,20 +10,61 @@ xrf.frag.t = function(v, opts){
   // update speed
   mixer.timeScale = mixer.loop.speed
 
-  let updateTime = (time) => {
-    mixer.setTime(time)
-    mixer.time = Math.abs(mixer.time)
-    mixer.update(0)      // (forgetting) this little buddy costed me lots of time :]
+  if( v.y != undefined || v.z != undefined ) xrf.mixers[0].updateLoop( mixer.loop.timeStart )
+  if( v.y > 0 && v.z > 0 ){
+    xrf.model.animations.map( (anim) => { 
+      if( !anim.action ) return 
+      anim.action.setLoop( v.z == 0 ? THREE.LoopOnce : THREE.LoopRepeat, v.z == 0 ? 0 : 99999999)
+    })
   }
 
   // play animations
-  mixer.play( v.x == 1 )
+  mixer.play( v.x != 0 ) 
 
-  if( v.y > 0 || v.z > 0 ) updateTime( mixer.loop.timeStart )
-  if( v.y > 0 && v.z > 0 ){
-    xrf.model.animations.map( (anim) => { 
-      anim.action.setLoop( v.z == 0 ? THREE.LoopOnce : THREE.LoopRepeat, v.z == 0 ? 0 : 99999999)
+}
+
+xrf.frag.t.default = {x:1, y:0, z:0}
+
+xrf.frag.t.calculateLoop = (t,obj,fps) => {
+  obj.speed      = t ? t.x : 0 
+  obj.speedAbs   = Math.abs(obj.speed)
+  obj.frameStart = t ? t.y || obj.frameStart : 1
+  obj.frameStop  = t ? t.z || obj.frameStop  : 0
+  // always recalculate time using frameStart/Stop 
+  obj.timeStart  = obj.frameStart == 0 ? obj.mixerStart || 0 : obj.frameStart-1 / (fps * obj.speedAbs) 
+  obj.timeStop   = obj.frameStop  / (fps * obj.speedAbs)
+}
+
+xrf.frag.t.setupMixer = function(opts){
+  let {model,file,url} = opts
+  let mixer = model.mixer = new xrf.THREE.AnimationMixer(model.scene)
+
+  mixer.play  = (play) => {
+    mixer.isPlaying = play
+    model.animations.map( (anim) => { 
+      if( !anim.action ){
+        anim.action = mixer.clipAction( anim )
+        anim.action.enabled = true
+        anim.action.setLoop(THREE.LoopOnce)
+      }
+      if( mixer.isPlaying === false) anim.action.stop() 
+      else{
+        anim.action.play() 
+      }
+      mixer.update(0)
     })
+    xrf.emit( play === false ? 'stop' : 'play',{play})
+  }
+
+  mixer.stop = () => {
+    mixer.play(false)
+  }
+
+  mixer.updateLoop = (time) => {
+    console.log("updateLoop "+time)
+    mixer.setTime(time)
+    mixer.time = Math.abs(time)
+    mixer.update(0) // (forgetting) this little buddy costed me lots of time :]
   }
 
   // update loop when needed 
@@ -33,25 +74,29 @@ xrf.frag.t = function(v, opts){
       mixer.time = Math.abs(mixer.time)
       if( time == 0 ) return update.call(this,time)
 
-      if( mixer.loop.speed > 0.0 && mixer.time > mixer.loop.timeStop * mixer.loop.speedAbs ){ 
-        setTimeout( (time) => updateTime(time),0,mixer.loop.timeStart) // prevent recursion
-      }
-      return update.call( mixer, time )
+      // loop jump
+      //if( mixer.loop.speed > 0.0 && mixer.time > mixer.loop.timeStop * mixer.loop.speedAbs ){ 
+      //  setTimeout( (time) => mixer.updateLoop(time),0,mixer.loop.timeStart) // prevent recursion
+      //}
+      return update.call( this, time )
     }
     mixer.update.patched = true
   }
-}
 
-xrf.frag.t.default = {x:1, y:0, z:0}
+  // calculate total duration/frame based on longest animation
+  mixer.duration  = 0
+  mixer.frames    = 0
+  if( model.animations.length ){
+    model.animations.map( (a) => {
+      mixer.duration = a.duration               > mixer.duration ? a.duration               : mixer.duration 
+      mixer.frames   = a.tracks[0].times.length > mixer.frames   ? a.tracks[0].times.length : mixer.frames
+    })
+  }
 
-xrf.frag.t.calculateLoop = (t,obj,fps) => {
-  obj.speed    = t.x 
-  obj.speedAbs = Math.abs(t.x)
-  obj.frameStart = t.y || obj.frameStart
-  obj.frameStop  = t.z || obj.frameStop
-  // always recalculate time using frameStart/Stop 
-  obj.timeStart = obj.frameStart / (fps * obj.speedAbs)
-  obj.timeStop  = obj.frameStop  / (fps * obj.speedAbs)
+  mixer.loop      = {fps: mixer.frames / mixer.duration} 
+  xrf.frag.t.calculateLoop( null, mixer.loop, mixer.loop.fps ) // gltf uses looppoints in seconds (not frames)
+  xrf.mixers.push(mixer)
+  console.log("mixer fps="+mixer.loop.fps+" frames:"+mixer.frames+" duration:"+mixer.duration)
 }
 
 if( document.location.hash.match(/t=/) ){
@@ -68,36 +113,17 @@ if( document.location.hash.match(/t=/) ){
 xrf.addEventListener('parseModel', (opts) => {
   let {model,file,url} = opts
   // add animations
-  model.clock       = new xrf.THREE.Clock();
-  let mixer       = new xrf.THREE.AnimationMixer(model.scene)
-  mixer.play  = (play) => {
-    mixer.isPlaying = play
-    model.animations.map( (anim) => { 
-      anim.action = mixer.clipAction( anim )
-      anim.action.setLoop(THREE.LoopOnce,0)
-      if( play === false) anim.action.stop() 
-      else anim.action.play() 
-    })
-    xrf.emit( play === false ? 'stop' : 'play',{play})
-  }
-  mixer.stop = () => {
-    mixer.play(false)
-  }
-  mixer.duration  = model.animations.length ? model.animations[0].duration : 1
-  mixer.frames    = model.animations.length ? model.animations[0].tracks[0].times.length : 1
-  mixer.loop      = mixer.loop || {frameStart:0,frameStop:99999999,speed: 1}
-  mixer.loop.fps  = mixer.frames / mixer.duration 
-  model.mixer = mixer
+  xrf.frag.t.setupMixer(opts)
 })
 
 xrf.addEventListener('render', (opts) => {
   let model = xrf.model
   let {time} = opts
-  if( !model || !model.clock ) return
-  model.mixer.update( time )
+  if( !model ) return 
+  if( xrf.mixers.length ) xrf.mixers.map( (m) => m.update( time ) )
 
   // update camera if possible
-  if( model.cameras.length && model.mixer.isPlaying ){
+  if( model.cameras && model.cameras.length && xrf.mixers.length ){
 
     let cam = xrf.camera.getCam() 
     // cam.fov = model.cameras[0].fov (why is blender not exporting radians?)

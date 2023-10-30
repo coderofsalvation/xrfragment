@@ -1,5 +1,6 @@
 xrf.frag   = {}
 xrf.model  = {}
+xrf.mixers = []
 
 xrf.init = ((init) => function(opts){
   let scene = new opts.THREE.Group()
@@ -8,23 +9,26 @@ xrf.init = ((init) => function(opts){
   init(opts)
   if( opts.loaders ) Object.values(opts.loaders).map( xrf.patchLoader )
 
-  xrf.patchRenderer(opts.renderer)
+  xrf.patchRenderer(opts)
   xrf.navigator.init()
   // return xrfragment lib as 'xrf' query functor (like jquery)
   for ( let i in xrf ) xrf.query[i] = xrf[i] 
   return xrf.query
 })(xrf.init)
 
-xrf.patchRenderer = function(renderer){
+xrf.patchRenderer = function(opts){
+  let {renderer,camera} = opts
   renderer.xr.addEventListener( 'sessionstart', () => xrf.baseReferenceSpace = renderer.xr.getReferenceSpace() );
   renderer.xr.enabled = true;
+  xrf.clock = new xrf.THREE.Clock()
   renderer.render = ((render) => function(scene,camera){
     // update clock
-    let time = xrf.model && xrf.model.clock ? xrf.model.clock.getDelta() : 0
+    let time = xrf.clock.getDelta()
     // allow entities to do stuff during render (onBeforeRender and onAfterRender don't always fire)
     xrf.emit('render',{scene,camera,time}) // allow fragments to do something at renderframe
     render(scene,camera)
   })(renderer.render.bind(renderer))
+
 }
 
 xrf.patchLoader = function(loader){
@@ -78,6 +82,12 @@ xrf.reset = () => {
   xrf.add( xrf.interactive )
   xrf.layers = 0
   xrf.emit('reset',{})
+  // remove mixers
+  xrf.mixers.map( (m) => {
+    m.stop()
+    delete m
+  })
+  xrf.mixers = []
 }
 
 xrf.parseUrl = (url) => {
