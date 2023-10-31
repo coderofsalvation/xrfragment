@@ -39,14 +39,26 @@ xrf.frag.t.setupMixer = function(opts){
   let {model,file,url} = opts
   let mixer = model.mixer = new xrf.THREE.AnimationMixer(model.scene)
 
-  mixer.play  = (play) => {
-    mixer.isPlaying = play
-    model.animations.map( (anim) => { 
+  mixer.initClips = () => {
+    if( mixer.clipsInited ) return // fire only once
+    model.animations.map( (anim) => {  
+      let zombies = anim.tracks.map( (t) => !model.scene.getObjectByName(t.name) ? {anim:anim.name,obj:t.name} : undefined )
       if( !anim.action ){
         anim.action = mixer.clipAction( anim )
-        anim.action.enabled = true
         anim.action.setLoop(THREE.LoopOnce)
       }
+      if( zombies.length > 0 ){
+        zombies.map( (z) => console.warn(`gltf: object '${z.obj}' not found (anim: '${z.anim}'`) )
+        console.warn(`TIP: remove dots in objectnames in blender (which adds dots when duplicating)`)
+      } 
+    })
+    mixer.clipsInited = true
+  }
+
+  mixer.play  = (play) => {
+    mixer.initClips()
+    mixer.isPlaying = play
+    model.animations.map( (anim) => { 
       if( mixer.isPlaying === false) anim.action.stop() 
       else{
         anim.action.play() 
