@@ -14,17 +14,25 @@ let loadAudio = (mimetype) => function(url,opts){
   /* WebAudio: setup context via THREEjs */
   if( !camera.listener ){
     camera.listener = new THREE.AudioListener();
-	  camera.add( camera.listener );
+	  camera.getCam().add( camera.listener );
   }
 
-  let listener          = camera.listener 
   let isPositionalAudio = !(mesh.position.x == 0 && mesh.position.y == 0 && mesh.position.z == 0)
   const audioLoader = new THREE.AudioLoader();
-  let sound = isPositionalAudio ? new THREE.PositionalAudio(listener) : new THREE.Audio(listener)
+  let sound = isPositionalAudio ? new THREE.PositionalAudio( camera.listener) 
+                                : new THREE.Audio( camera.listener )
+
   audioLoader.load( url.replace(/#.*/,''), function( buffer ) {
+
     sound.setBuffer( buffer );
     sound.setLoop(false);
     sound.setVolume(1.0);
+    if( isPositionalAudio ){
+      sound.setRefDistance( mesh.scale.x);
+      sound.setRolloffFactor(5.0)
+      sound.setDirectionalCone( 360, 360, 1 );
+    }
+
     sound.playXRF = (t) => {
 
       if( sound.isPlaying && t.y != undefined ) sound.stop()
