@@ -29,8 +29,8 @@ let loadAudio = (mimetype) => function(url,opts){
     sound.setVolume(1.0);
     if( isPositionalAudio ){
       sound.setRefDistance( mesh.scale.x);
-      sound.setRolloffFactor(5.0)
-      sound.setDirectionalCone( 360, 360, 1 );
+      sound.setRolloffFactor(50.0)
+      sound.setDirectionalCone( 360, 360, 0.01 );
     }
 
     sound.playXRF = (t) => {

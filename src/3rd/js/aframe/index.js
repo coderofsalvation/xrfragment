@@ -54,8 +54,12 @@ window.AFRAME.registerComponent('xrf', {
           els.map( (el) => document.querySelector('a-scene').removeChild(el) )
         })
 
-        // undo lookup-control shenanigans (which blocks updating camerarig position in VR)
-        aScene.addEventListener('enter-vr', () => document.querySelector('[camera]').object3D.parent.matrixAutoUpdate = true )
+        aScene.addEventListener('enter-vr', () => {
+          // undo lookup-control shenanigans (which blocks updating camerarig position in VR)
+          document.querySelector('[camera]').object3D.parent.matrixAutoUpdate = true 
+          document.querySelector('[camera]').removeAttribute("look-controls")
+          document.querySelector('[camera]').removeAttribute("wasd-controls")
+        })
 
         AFRAME.XRF.navigator.to(this.data)
                            .then( (model) => {
