@@ -13,7 +13,7 @@ xrf.frag.t = function(v, opts){
     if( v.y != undefined || v.z != undefined ) mixer.updateLoop( v )
 
     // play animations
-    mixer.play( v.x != 0 ) 
+    mixer.play( v )
   })
 }
 
@@ -73,7 +73,7 @@ xrf.addEventListener('parseModel', (opts) => {
         anim.action.setLoop( THREE.LoopOnce, )
         anim.action.timeScale = mixer.timeScale
         anim.action.enabled = true
-        anim.action.play() 
+        if( t.x != 0 ) anim.action.play() 
       }
     })
     mixer.setTime(mixer.loop.timeStart)
@@ -122,21 +122,37 @@ xrf.addEventListener('render', (opts) => {
   let model = xrf.model
   let {time} = opts
   if( !model ) return 
-  if( xrf.mixers.length ) xrf.mixers.map( (m) => m.isPlaying ? m.update( time ) : false )
+  if( xrf.mixers.length ){
+    xrf.mixers.map( (m) => m.isPlaying ? m.update( time ) : false )
 
-  // update camera if possible
-  if( model.cameras && model.cameras.length && xrf.mixers.length ){
+    // update active camera in case selected by dynamicKey in URI 
+    if( xrf.model.camera && model.mixer.isPlaying ){
 
-    let cam = xrf.camera.getCam() 
-    // cam.fov = model.cameras[0].fov (why is blender not exporting radians?)
-    cam.far = model.cameras[0].far
-    cam.near = model.cameras[0].near
+      let cam = xrf.camera.getCam() 
+      // cam.fov = model.cameras[0].fov (why is blender not exporting radians?)
+      cam.far = model.cameras[0].far
+      cam.near = model.cameras[0].near
 
-    let rig = xrf.camera
-    rig.position.copy( model.cameras[0].position )
-    rig.position.y -= rig.offsetY // VR/AR compensate camera rig
-    //rig.rotation.copy( model.cameras[0].rotation )
+      let rig = xrf.camera
+      rig.position.copy( model.cameras[0].position )
+      rig.position.y -= rig.offsetY // VR/AR compensate camera rig
+      //rig.rotation.copy( model.cameras[0].rotation )
 
-    rig.updateProjectionMatrix()
+      rig.updateProjectionMatrix()
+    }
   }
+})
+
+xrf.addEventListener('dynamicKey', (opts) => {
+  // select active camera if any
+  let {id,match,v} = opts
+  console.dir(opts)
+  match.map( (w) => {
+    w.nodes.map( (node) => {
+      if( node.isCamera ){ 
+        console.log("setting camera to "+node.name)
+        xrf.model.camera = node 
+      }
+    })
+  })
 })
