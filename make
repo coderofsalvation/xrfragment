@@ -69,7 +69,7 @@ build_js(){
   cat dist/xrfragment.js                  \
       src/3rd/js/*.js                     \
       src/3rd/js/three/*.js               \
-      src/3rd/js/three/xrmacro/*.js       \
+      src/3rd/js/three/xrmacro/env.js     \
       src/3rd/js/three/xrf/*.js           \
       src/3rd/js/three/xrf/dynamic/*.js   \
       src/3rd/js/three/xrf/src/*.js    > dist/xrfragment.three.js

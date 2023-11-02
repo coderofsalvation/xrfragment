@@ -218,13 +218,13 @@ sub-delims  = "," / "="
 | vector3    | x,y,z                            | 2,3.0,4         | 3-dimensional vector |
 | timevector | speed                            | 1               | 1D timeline: play    |
 |            |                                  | 0               | 1D timeline: stop    |
-|            | x,speed                          | 1,1             | 1D timeline: play    at offset `1` at (normal) speed `1`                |
-|            |                                  | 0,0             | 1D timeline: stop    |
+|            | x,speed                          | 1,2             | 1D timeline: play at offset `1` at (normal) speed `2`                |
+|            |                                  | 0,0             | 1D timeline: stop (stopoffset-startoffset == 0)  |
 |            |                                  | 0,1             | 1D timeline: unpause with (normal) speed `1`                            | 
-|            |                                  | [1,100],1       | 1D timeline: play (loop) between offset `1` and `100` at normal speed (`1`) |
+|            |                                  | 1..100,1        | 1D timeline: play (loop) between offset `1` and `100` at normal speed (`1`) |
 |            | x,y,xspeed,yspeed                | 0,0.5,0,0       | 2D timeline: stop uv-coordinate at `0,0.5`                                     |
 |            |                                  | 0,0.5,0.2,0     | 2D timeline: play uv-coordinate at offset `0,0.5` and scroll `x` (=u) `0.2` within each second |
-|            |                                  | 0,[0,0.5],0.2,0 | 2D timeline: play uv-coordinate between offset `0,0` and `0,0.5` (loop) and scroll `x` (=u) `0.2` within each second |
+|            |                                  | 0,0..0.5,0.2,0  | 2D timeline: play uv-coordinate between offset `0,0` and `0,0.5` (loop) and scroll `x` (=u) `0.2` within each second |
 |            | x,y,z,xspeed,yspeed,zspeed       | 0,0.5,1,0.2,0,2 | XD timeline: play uv-coordinate at `0,0.5` and scroll `x` (=u) `0.2` within each second and pass `1` and `2` as custom data to shader uniforms `za` and `zb` |
 
 > NOTE: XR Fragments are optional but also file- and protocol-agnostic, which means that programmatic 3D scene(nodes) can also use the mechanism/metadata.
@@ -240,7 +240,8 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 | `#<cameraname>`              | string   | `#cam01`          | set camera as active camera                                             |
 | `#<objectname>=<material>`   | string=string     | `#car=metallic`| set material of car to material with name `metallic` |
 |                              | string=string     | `#product=metallic`| set material of objects tagged with `product` to material with name `metallic` |
-| `#<objectname>=<timevector>` | string=timevector | `#sky=0,0.5,0.1,0`| set uv-position to `0,0.5` (and autoscroll x with max `0.1` every second)|
+| `#<objectname>=<mediafrag>`  | string=[media frag](https://www.w3.org/TR/media-frags/#valid-uri) | `#foo=0,1`| play media `src` using [media fragment URI](https://www.w3.org/TR/media-frags/#valid-uri) |
+| `#<objectname>=<timevector>` | string=timevector | `#sky=0,0.5,0.1,0`| sets 1D/2D/3D time(line) vectors (uv-position e.g.) to `0,0.5` (and autoscroll x with max `0.1` every second)|
 |                              |                   | `#music=1,2`| play media of object (`src: podcast.mp3` e.g.) from beginning (`1`) at double speed (`2`) |
 
 # Spatial Referencing 3D 

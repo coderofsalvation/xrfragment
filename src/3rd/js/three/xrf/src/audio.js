@@ -47,6 +47,7 @@ let loadAudio = (mimetype) => function(url,opts){
         // setting loop
         if( t.z ) sound.setLoop( true )
         // apply embedded audio/video samplerate/fps or global mixer fps
+        return console.warn("TODO: convert samplerate frames to seconds!")
         let loopStart = hardcodedLoop ? t.y / buffer.sampleRate : t.y / xrf.model.mixer.loop.fps 
         let loopEnd   = hardcodedLoop ? t.z / buffer.sampleRate : t.z / xrf.model.mixer.loop.fps
         let timeStart = loopStart > 0 ? loopStart : (t.y == undefined ? xrf.model.mixer.time : t.y)

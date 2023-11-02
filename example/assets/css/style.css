@@ -130,6 +130,7 @@ a#model{
 }
 
 html.a-fullscreen a.btn-foot {
+  line-height:36px;
   margin-right:10px;
 }
 

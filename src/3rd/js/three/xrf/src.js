@@ -5,16 +5,18 @@ xrf.frag.src = function(v, opts){
   opts.embedded = v // indicate embedded XR fragment
   let { mesh, model, camera, scene, renderer, THREE, hashbus, frag} = opts
 
-  console.log("   └ instancing src")
   let src;
   let url      = v.string
   let vfrag    = xrfragment.URI.parse(url)
   opts.isPlane = mesh.geometry && mesh.geometry.attributes.uv && mesh.geometry.attributes.uv.count == 4 
 
-  const addScene = (scene,url,frag) => {
+  const addModel = (model,url,frag) => {
+    let scene = model.scene
     src = xrf.frag.src.filterScene(scene,{...opts,frag})
     xrf.frag.src.scale( src, opts, url )
     xrf.frag.src.eval( src, opts, url )
+    // allow 't'-fragment to setup separate animmixer
+    xrf.emit('parseModel', {...opts, scene:src, model}) 
     enableSourcePortation(src)
     mesh.add(src)
     mesh.traverse( (n) => n.isSRC = n.isXRF = true )
@@ -49,20 +51,23 @@ xrf.frag.src = function(v, opts){
       return xrf.frag.src.type[ mimetype ] ? xrf.frag.src.type[ mimetype ](url,opts) : xrf.frag.src.type.unknown(url,opts)
     })
     .then( (model) => {
-      if( model && model.scene ) addScene(model.scene, url, frag )
+      if( model && model.scene ) addModel(model, url, frag )
     })
     .finally( () => { })
     .catch( console.error )
   }
 
-  if( url[0] == "#" ) addScene(scene,url,vfrag)    // current file 
-  else externalSRC(url,vfrag)                      // external file
+  if( url[0] == "#" ){ 
+    let modelClone = {...model, scene: model.scene.clone()}
+    modelClone.scenes = [modelClone.scene]
+    modelClone.animations = modelClone.animations.map( (a) => a.clone() )
+    addModel(modelClone,url,vfrag)    // current file 
+  }else externalSRC(url,vfrag)        // external file
 }
 
 xrf.frag.src.eval = function(scene, opts, url){
     let { mesh, model, camera, renderer, THREE, hashbus} = opts
     if( url ){
-      console.log(mesh.name+" url="+url)
       //let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
       //let frag = xrfragment.URI.parse(url)
       //// scale URI XR Fragments (queries) inside src-value 
@@ -123,13 +128,13 @@ xrf.frag.src.filterScene = (scene,opts) => {
         }
         hashbus.pub.fragment(i, Object.assign(opts,{frag, model,scene}))
       }
-    }else src = scene.clone(true)
+    }
     if( src.children.length == 1 ) obj.position.set(0,0,0);
   }
 
   // filtering of objects using query
   if( frag.q ){
-    src = scene.clone(true);
+    src = scene
     xrf.frag.q.filter(src,frag)
   }
   src.traverse( (m) => {

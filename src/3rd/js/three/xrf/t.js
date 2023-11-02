@@ -3,53 +3,45 @@ xrf.frag.t = function(v, opts){
   if( !model.mixer ) return 
   if( !model.animations || model.animations[0] == undefined ) return console.warn('no animation in scene')
 
-  model.mixer.t = v
-  let mixer     = model.mixer
-  xrf.frag.t.calculateLoop( v, mixer.loop, mixer.loop.fps )
-  
-  // update speed
-  mixer.timeScale = mixer.loop.speed
+  xrf.mixers.map ( (mixer) => {
+    mixer.t = v
+    
+    // update speed
+    mixer.timeScale     = mixer.loop.speed = v.x
+    mixer.loop.speedAbs = Math.abs(v.x)
 
-  if( v.y != undefined || v.z != undefined ) xrf.mixers[0].updateLoop( mixer.loop.timeStart )
-  if( v.y > 0 && v.z > 0 ){
-    xrf.model.animations.map( (anim) => { 
-      if( !anim.action ) return 
-      anim.action.setLoop( v.z == 0 ? THREE.LoopOnce : THREE.LoopRepeat, v.z == 0 ? 0 : 99999999)
-    })
-  }
+    if( v.y != undefined || v.z != undefined ) mixer.updateLoop( v )
 
-  // play animations
-  mixer.play( v.x != 0 ) 
-
+    // play animations
+    mixer.play( v.x != 0 ) 
+  })
 }
 
-xrf.frag.t.default = {x:1, y:0, z:0}
-
-xrf.frag.t.calculateLoop = (t,obj,fps) => {
-  obj.speed      = t ? t.x : 0 
-  obj.speedAbs   = Math.abs(obj.speed)
-  obj.frameStart = t ? t.y || obj.frameStart : 1
-  obj.frameStop  = t ? t.z || obj.frameStop  : 0
-  // always recalculate time using frameStart/Stop 
-  obj.timeStart  = obj.frameStart == 0 ? obj.mixerStart || 0 : obj.frameStart-1 / (fps * obj.speedAbs) 
-  obj.timeStop   = obj.frameStop  / (fps * obj.speedAbs)
+xrf.frag.t.default = {
+  x:0,  // (play from) offset (in seconds)  
+  y:0   // optional: (stop at) offset (in seconds)
 }
 
-xrf.frag.t.setupMixer = function(opts){
-  let {model,file,url} = opts
-  let mixer = model.mixer = new xrf.THREE.AnimationMixer(model.scene)
+// setup animation mixer for global scene & src scenes
+xrf.addEventListener('parseModel', (opts) => {
+  let {model} = opts
+  let mixer   = model.mixer = new xrf.THREE.AnimationMixer(model.scene)
+  mixer.model = model
+  mixer.loop      = {}
+  mixer.i         = xrf.mixers.length
 
-  mixer.initClips = () => {
-    if( mixer.clipsInited ) return // fire only once
-    model.animations.map( (anim) => {  
+  model.animations.map( (anim) => { 
+    anim.action = mixer.clipAction( anim, model.scene )
+  })
+
+  mixer.checkZombies = (animations) => {
+    if( mixer.zombieCheck ) return // fire only once
+    animations.map( (anim) => {  
+      // collect zombie animations and warn user
       let zombies = anim.tracks.map( (t) => {
         let name = t.name.replace(/\..*/,'')
         return !model.scene.getObjectByName(name) ? {anim:anim.name,obj:t.name} : undefined 
       })
-      if( !anim.action ){
-        anim.action = mixer.clipAction( anim )
-        anim.action.setLoop(THREE.LoopOnce)
-      }
       if( zombies.length > 0 ){
         zombies
         .filter( (z) => z ) // filter out undefined
@@ -57,31 +49,37 @@ xrf.frag.t.setupMixer = function(opts){
         console.warn(`TIP: remove dots in objectnames in blender (which adds dots when duplicating)`)
       } 
     })
-    mixer.clipsInited = true
+    mixer.zombieCheck = true
   }
 
-  mixer.play  = (play) => {
-    mixer.initClips()
-    mixer.isPlaying = play
-    model.animations.map( (anim) => { 
-      if( mixer.isPlaying === false) anim.action.stop() 
-      else{
-        anim.action.play() 
-      }
-      mixer.update(0)
-    })
-    xrf.emit( play === false ? 'stop' : 'play',{play})
+  mixer.play  = (t) => {
+    mixer.isPlaying = t.x != 0
+    mixer.updateLoop(t)
+    xrf.emit( mixer.isPlaying === false ? 'stop' : 'play',{isPlaying: mixer.isPlaying})
   }
 
   mixer.stop = () => {
     mixer.play(false)
   }
 
-  mixer.updateLoop = (time) => {
-    console.log("updateLoop "+time)
-    mixer.setTime(time)
-    mixer.time = Math.abs(time)
-    mixer.update(0) // (forgetting) this little buddy costed me lots of time :]
+  mixer.updateLoop = (t) => {
+    mixer.loop.timeStart = t.y != undefined ? t.y : mixer.loop.timeStart
+    mixer.loop.timeStop  = t.z != undefined ? t.z : mixer.loop.timeStop
+    mixer.model.animations.map( (anim) => { 
+      if( mixer.loop.timeStart != undefined ){
+        //if( anim.action ) delete anim.action 
+        //anim.action = mixer.clipAction( anim )
+        anim.action.time = mixer.loop.timeStart
+        anim.action.setLoop( THREE.LoopOnce, )
+        anim.action.timeScale = mixer.timeScale
+        anim.action.enabled = true
+        anim.action.play() 
+      }
+    })
+    mixer.setTime(mixer.loop.timeStart)
+    mixer.time = Math.abs( mixer.loop.timeStart )
+    mixer.update(0)
+    mixer.checkZombies( model.animations)
   }
 
   // update loop when needed 
@@ -92,9 +90,9 @@ xrf.frag.t.setupMixer = function(opts){
       if( time == 0 ) return update.call(this,time)
 
       // loop jump
-      //if( mixer.loop.speed > 0.0 && mixer.time > mixer.loop.timeStop * mixer.loop.speedAbs ){ 
-      //  setTimeout( (time) => mixer.updateLoop(time),0,mixer.loop.timeStart) // prevent recursion
-      //}
+      if( mixer.loop.speed > 0.0 && mixer.time > mixer.loop.timeStop ){ 
+        setTimeout( (time,anims) => mixer.updateLoop(time), 0, mixer.loop.timeStart ) // prevent recursion
+      }
       return update.call( this, time )
     }
     mixer.update.patched = true
@@ -102,19 +100,12 @@ xrf.frag.t.setupMixer = function(opts){
 
   // calculate total duration/frame based on longest animation
   mixer.duration  = 0
-  mixer.frames    = 0
   if( model.animations.length ){
-    model.animations.map( (a) => {
-      mixer.duration = a.duration               > mixer.duration ? a.duration               : mixer.duration 
-      mixer.frames   = a.tracks[0].times.length > mixer.frames   ? a.tracks[0].times.length : mixer.frames
-    })
+    model.animations.map( (a) => mixer.duration = ( a.duration > mixer.duration ) ? a.duration : mixer.duration )
   }
 
-  mixer.loop      = {fps: mixer.frames / mixer.duration} 
-  xrf.frag.t.calculateLoop( null, mixer.loop, mixer.loop.fps ) // gltf uses looppoints in seconds (not frames)
   xrf.mixers.push(mixer)
-  console.log("mixer fps="+mixer.loop.fps+" frames:"+mixer.frames+" duration:"+mixer.duration)
-}
+})
 
 if( document.location.hash.match(/t=/) ){
   let url = document.location.href
@@ -127,17 +118,11 @@ if( document.location.hash.match(/t=/) ){
   window.addEventListener('touchstart', playAfterUserGesture )
 }
 
-xrf.addEventListener('parseModel', (opts) => {
-  let {model,file,url} = opts
-  // add animations
-  xrf.frag.t.setupMixer(opts)
-})
-
 xrf.addEventListener('render', (opts) => {
   let model = xrf.model
   let {time} = opts
   if( !model ) return 
-  if( xrf.mixers.length ) xrf.mixers.map( (m) => m.update( time ) )
+  if( xrf.mixers.length ) xrf.mixers.map( (m) => m.isPlaying ? m.update( time ) : false )
 
   // update camera if possible
   if( model.cameras && model.cameras.length && xrf.mixers.length ){
