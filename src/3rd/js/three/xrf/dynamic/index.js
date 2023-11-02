@@ -3,7 +3,8 @@ xrf.frag.defaultPredefinedViews = (opts) => {
   scene.traverse( (n) => {
     if( n.userData && n.userData['#'] ){
       let frag = xrf.URI.parse( n.userData['#'] )
-      xrf.hashbus.pub.XRWG({frag,model,scene})
+      xrf.hashbus.pub( n.userData['#'] )          // evaluate static XR fragments
+      xrf.hashbus.pub.XRWG({frag,model,scene})    // evaluate dynamic XR fragment using XRWG (see spec)
     }
   })
 }

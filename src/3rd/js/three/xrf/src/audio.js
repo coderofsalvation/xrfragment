@@ -29,8 +29,8 @@ let loadAudio = (mimetype) => function(url,opts){
     sound.setVolume(1.0);
     if( isPositionalAudio ){
       sound.setRefDistance( mesh.scale.x);
-      sound.setRolloffFactor(50.0)
-      sound.setDirectionalCone( 360, 360, 0.01 );
+      sound.setRolloffFactor(20.0)
+      //sound.setDirectionalCone( 360, 360, 0.01 );
     }
 
     sound.playXRF = (t) => {
@@ -47,9 +47,8 @@ let loadAudio = (mimetype) => function(url,opts){
         // setting loop
         if( t.z ) sound.setLoop( true )
         // apply embedded audio/video samplerate/fps or global mixer fps
-        return console.warn("TODO: convert samplerate frames to seconds!")
-        let loopStart = hardcodedLoop ? t.y / buffer.sampleRate : t.y / xrf.model.mixer.loop.fps 
-        let loopEnd   = hardcodedLoop ? t.z / buffer.sampleRate : t.z / xrf.model.mixer.loop.fps
+        let loopStart = hardcodedLoop ? t.y : t.y * buffer.sampleRate;
+        let loopEnd   = hardcodedLoop ? t.z : t.z * buffer.sampleRate;
         let timeStart = loopStart > 0 ? loopStart : (t.y == undefined ? xrf.model.mixer.time : t.y)
 
         if( t.z > 0 ) sound.setLoopEnd(   loopEnd   )
@@ -58,7 +57,6 @@ let loadAudio = (mimetype) => function(url,opts){
           sound.setLoopStart( loopStart )
           sound.offset = loopStart 
         }
-
         sound.play()
       }
     }

@@ -57,7 +57,6 @@ pub.XRWG = (opts) => {
       let match = xrf.XRWG.match(id)
 
       if( v.is( xrf.XRF.PV_EXECUTE ) ){
-        console.log("pv_execute")
         scene.XRF_PV_ORIGIN = v.string
         // evaluate aliases 
         match.map( (w) => {
@@ -70,7 +69,6 @@ pub.XRWG = (opts) => {
         })
         xrf.emit('dynamicKey',{ ...opts,v,frag,id,match,scene })
       }else{
-        console.log("non pv_execute")
         xrf.emit('dynamicKeyValue',{ ...opts,v,frag,id,match,scene })
       }
     }
