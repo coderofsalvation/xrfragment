@@ -68,6 +68,7 @@ let loadAudio = (mimetype) => function(url,opts){
 let audioMimeTypes = [
   'audio/wav',
   'audio/mpeg',
+  'audio/mp3',
   'audio/weba',
   'audio/aac',
   'application/ogg'
