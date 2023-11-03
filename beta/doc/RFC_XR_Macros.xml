@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- name="GENERATOR" content="github.com/mmarkdown/mmark Mmark Markdown Processor - mmark.miek.nl" -->
+<rfc version="3" ipr="trust200902" docName="draft-XRMACROS-leonvankammen-00" submissionType="IETF" category="info" xml:lang="en" xmlns:xi="http://www.w3.org/2001/XInclude" indexInclude="true" consensus="true">
+
+<front>
+<title>XR Macros</title><seriesInfo value="draft-XRMACROS-leonvankammen-00" stream="IETF" status="informational" name="XR-Macros"></seriesInfo>
+<author initials="L.R." surname="van Kammen" fullname="L.R. van Kammen"><organization></organization><address><postal><street></street>
+</postal></address></author><date/>
+<area>Internet</area>
+<workgroup>Internet Engineering Task Force</workgroup>
+
+<abstract>
+<t>This draft offers a specification for embedding macros in existing 3D scenes/assets, to offer simple interactions and configure the renderer further.<br />
+
+Together with URI Fragments, it allows for rich immersive experiences without the need of a complicated sandboxed scripting languages.</t>
+<t>Almost every idea in this document is demonstrated at <eref target="https://xrfragment.org">https://xrfragment.org</eref>, as this spec was created during the <eref target="https://xrfragment.org">XR Fragments</eref> spec.</t>
+</abstract>
+
+</front>
+
+<middle>
+
+<section anchor="introduction"><name>Introduction</name>
+<t>How can we add more features to existing text &amp; 3D scenes, without introducing new dataformats?<br />
+
+Historically, there's many attempts to create the ultimate markuplanguage or 3D fileformat.<br />
+
+Their lowest common denominator is: (co)authoring using plain text.<br />
+
+Therefore, XR Macros allows us to enrich/connect existing dataformats, by offering a polyglot notation based on existing notations:<br />
+</t>
+
+<ol spacing="compact">
+<li>getting/setting common used 3D properties using querystring- or JSON-notation</li>
+<li>targeting 3D properties using the lightweight query notation present in <eref target="https://xrfragment.org">XR Fragments</eref></li>
+</ol>
+<blockquote><t>NOTE: The chapters in this document are ordered from highlevel to lowlevel (technical) as much as possible</t>
+</blockquote></section>
+
+<section anchor="core-principle"><name>Core principle</name>
+
+<ol spacing="compact">
+<li>XR Macros use querystrings, but are HTML-agnostic (though pseudo-XR Fragment browsers <strong>can</strong> be implemented on top of HTML/Javascript).</li>
+<li>An XR Macro is 3D metadata which starts with '!' (<tt>!clickme: fog=0,10</tt> e.g.)</li>
+<li>Metadata-values can contain the <tt>|</tt> symbol to 🎲 roundrobin variable values (<tt>!toggleme: fog=0,10|fog=0,1000</tt> e.g.)</li>
+<li>XR Macros acts as simple eventhandlers for URI Fragments: they are automatically published on the (<eref target="https://xrfragment.org">XR Fragments</eref>) hashbus, to act as events (so more serious scripting languages can react to them as well).</li>
+<li>XR Macros can assign object metadata (<tt>!setlocal: foo=1</tt> writes <tt>foo:1</tt> metadata to the object containing the <tt>!setlocal</tt> metadata)</li>
+<li>XR Macros can assign global metadata  (<tt>!setfoo: #foo=1</tt> writes <tt>foo:1</tt> metadata to the root scene-node)</li>
+</ol>
+<blockquote><t>These very simple principles allow for rich interactions and dynamic querying</t>
+</blockquote></section>
+
+<section anchor="conventions-and-definitions"><name>Conventions and Definitions</name>
+<t>See appendix below in case certain terms are not clear.</t>
+</section>
+
+<section anchor="list-of-xr-macros"><name>List of XR Macros</name>
+<t>(XR) Macros can be embedded in 3D assets/scenes.<br />
+
+Macros enrich existing spatial content with a lowcode, limited logic-layer, by recursive (economic) use of the querystring syntax (which search engines and <eref target="https://xrfragment.org">XR Fragments</eref> already uses.<br />
+
+This is done by allowing string/integer variables, and the <tt>|</tt> symbol to roundrobin variable values.<br />
+
+Macros also act as events, so more serious scripting languages can react to them as well.<br />
+</t>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>type</th>
+<th>example (JSON)</th>
+<th>function</th>
+<th>existing compatibility</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><tt>@bg</tt></td>
+<td>string</td>
+<td><tt>&quot;@bg&quot;:&quot;#cube&quot;</tt></td>
+<td>bg: binds fog near/far based to cube x/y/z (anim) values</td>
+<td>custom property in 3D fileformats</td>
+</tr>
+
+<tr>
+<td><tt>@fog</tt></td>
+<td>string</td>
+<td><tt>&quot;@fog&quot;:&quot;#cube&quot;</tt></td>
+<td>fog: binds fog near/far based to cube x/y (anim) values</td>
+<td>custom property in 3D fileformats</td>
+</tr>
+
+<tr>
+<td><tt>@scroll</tt></td>
+<td>string</td>
+<td><tt>&quot;@scroll&quot;:&quot;#cube&quot;</tt></td>
+<td>texturescrolling: binds texture x/y/rot based to cube x/y/z (anim) values</td>
+<td>custom property in 3D fileformats</td>
+</tr>
+
+<tr>
+<td><tt>@emissive</tt></td>
+<td>string</td>
+<td><tt>&quot;@emissive&quot;:&quot;#cube&quot;</tt></td>
+<td>day/night/mood: binds material's emissive value to cube x/y/z (anim) values</td>
+<td>custom property in 3D fileformats</td>
+</tr>
+</tbody>
+</table>
+<section anchor="usecase-click-object"><name>Usecase: click object</name>
+<table>
+<thead>
+<tr>
+<th>custom property</th>
+<th>value</th>
+<th>trigger when</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>!clickme</td>
+<td>bg=1,1,1&amp;foo=2</td>
+<td>object clicked</td>
+</tr>
+</tbody>
+</table></section>
+
+<section anchor="usecase-conditional-click-object"><name>Usecase: conditional click object</name>
+<table>
+<thead>
+<tr>
+<th>custom property</th>
+<th>value</th>
+<th>trigger when</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>#</td>
+<td>foo=1</td>
+<td>scene</td>
+</tr>
+
+<tr>
+<td>!clickme</td>
+<td>q=foo&gt;2&amp;bg=1,1,1</td>
+<td>object clicked and foo &gt; 2</td>
+</tr>
+</tbody>
+</table><blockquote><t>when a user clicks an object with the custom properties above, it should set the backgroundcolor to <tt>1,1,1</tt> when <tt>foo</tt> is greater than <tt>2</tt> (see previous example)</t>
+</blockquote></section>
+
+<section anchor="usecase-click-object-roundrobin"><name>Usecase: click object (roundrobin)</name>
+<table>
+<thead>
+<tr>
+<th>custom property</th>
+<th>value</th>
+<th>trigger when</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>!cycleme</td>
+<td>day|noon|night</td>
+<td>object clicked</td>
+</tr>
+
+<tr>
+<td>day</td>
+<td>bg=1,1,1</td>
+<td>roundrobin</td>
+</tr>
+
+<tr>
+<td>noon</td>
+<td>bg=0.5,0.5,0.5</td>
+<td>roundrobin</td>
+</tr>
+
+<tr>
+<td>night</td>
+<td>bg=0,0,0&amp;foo=2</td>
+<td>roundrobin</td>
+</tr>
+</tbody>
+</table><blockquote><t>when a user clicks an object with the custom properties above, it should trigger either <tt>day</tt> <tt>noon</tt> or <tt>night</tt> in roundrobin fashion.</t>
+</blockquote></section>
+
+<section anchor="usecase-click-object-or-uri-fragment-and-scene-load-trigger"><name>Usecase: click object or URI fragment, and scene load trigger</name>
+<table>
+<thead>
+<tr>
+<th>custom property</th>
+<th>value</th>
+<th>trigger when</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>#</td>
+<td>random</td>
+<td>scene loaded</td>
+</tr>
+
+<tr>
+<td>#random</td>
+<td>random</td>
+<td>URL contains #random</td>
+</tr>
+
+<tr>
+<td>!random</td>
+<td>day|noon|night</td>
+<td>#random, # or click</td>
+</tr>
+
+<tr>
+<td>day</td>
+<td>bg=1,1,1</td>
+<td>roundrobin</td>
+</tr>
+
+<tr>
+<td>noon</td>
+<td>bg=0.5,0.5,0.5</td>
+<td>roundrobin</td>
+</tr>
+
+<tr>
+<td>night</td>
+<td>bg=0,0,0&amp;foo=2</td>
+<td>roundrobin</td>
+</tr>
+</tbody>
+</table></section>
+
+<section anchor="usecase-present-context-menu-with-options"><name>Usecase: present context menu with options</name>
+<table>
+<thead>
+<tr>
+<th>custom property</th>
+<th>value</th>
+<th>trigger when</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>!random</td>
+<td>!day</td>
+<td>!noon</td>
+</tr>
+
+<tr>
+<td>!day</td>
+<td>bg=1,1,1</td>
+<td>clicked in contextmenu</td>
+</tr>
+
+<tr>
+<td>!noon</td>
+<td>bg=0.5,0.5,0.5</td>
+<td>clicked in contextmenu</td>
+</tr>
+
+<tr>
+<td>!night</td>
+<td>bg=0,0,0&amp;foo=2</td>
+<td>clicked in contextmenu</td>
+</tr>
+</tbody>
+</table><blockquote><t>When interacting with an object with more than one <tt>!</tt>-macro, the XR Browser should offer a contextmenu to execute a macro.</t>
+</blockquote><t>In a similar way, when <strong>any</strong> <tt>!</tt>-macro is present on the sceneroot, the XR Browser should offer a context-menu to execute those macro's.</t>
+</section>
+
+<section anchor="event-bubble-flow"><name>Event Bubble-flow</name>
+<t>click object with (<tt>!clickme</tt>:<tt>AR</tt> or <tt>!clickme</tt>: <tt>!reset</tt> e.g.)</t>
+
+<artwork>  ◻
+  │  
+  └── does current object contain this property-key (`AR` or `!reset` e.g.)?
+         └── no: is there any (root)object containing property `AR`
+           └── yes: evaluate its (roundrobin) XR macro-value(s) (and exit)
+           └── no: trigger URL: #AR 
+</artwork>
+<t>click object with (<tt>!clickme</tt>:<tt>#AR|#VR</tt> e.g.)</t>
+
+<artwork>  ◻
+  │  
+  └── apply the roundrobin (rotate the options, value `#AR` becomes `#VR` upon next click)
+      └── is there any object with property-key (`#AR` e.g.)?
+         └── no: just update the URL to `#AR`
+           └── yes: apply its value to the scene, and update the URL to `#AR`
+
+click object with (`!clickme`:`!foo|!bar|!flop` e.g.)
+</artwork>
+<t>◻
+  │<br />
+  └── apply the roundrobin (rotate the options, value <tt>!foo</tt> becomes <tt>!bar</tt> upon next click)
+      └── is there any object with property-key (<tt>!foo</tt> e.g.)?
+         └── no: do nothing
+           └── yes: apply its value to the scene
+```</t>
+<blockquote><t>Note that only macro's can trigger roundrobin values or contextmenu's, as well as roundrobin values never ending up in the toplevel URL.</t>
+</blockquote></section>
+</section>
+
+<section anchor="security-considerations"><name>Security Considerations</name>
+</section>
+
+<section anchor="iana-considerations"><name>IANA Considerations</name>
+<t>This document has no IANA actions.</t>
+</section>
+
+<section anchor="acknowledgments"><name>Acknowledgments</name>
+
+<ul spacing="compact">
+<li><eref target="https://nlnet.nl">NLNET</eref></li>
+<li><eref target="https://futureoftext.org">Future of Text</eref></li>
+<li><eref target="https://visual-meta.info">visual-meta.info</eref></li>
+</ul>
+</section>
+
+<section anchor="appendix-definitions"><name>Appendix: Definitions</name>
+<table>
+<thead>
+<tr>
+<th>definition</th>
+<th>explanation</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>scene</td>
+<td>a (local/remote) 3D scene or 3D file (index.gltf e.g.)</td>
+</tr>
+
+<tr>
+<td>3D object</td>
+<td>an object inside a scene characterized by vertex-, face- and customproperty data.</td>
+</tr>
+
+<tr>
+<td>XR fragments</td>
+<td>URI Fragment with spatial hints like <tt>#pos=0,0,0&amp;t=1,100</tt> e.g.</td>
+</tr>
+
+<tr>
+<td>query</td>
+<td>an URI Fragment-operator which queries object(s) from a scene like <tt>#q=cube</tt></td>
+</tr>
+
+<tr>
+<td>FPS</td>
+<td>frames per second in spatial experiences (games,VR,AR e.g.), should be as high as possible</td>
+</tr>
+
+<tr>
+<td><tt>◻</tt></td>
+<td>ascii representation of an 3D object/mesh</td>
+</tr>
+
+<tr>
+<td>(un)obtrusive</td>
+<td>obtrusive: wrapping human text/thought in XML/HTML/JSON obfuscates human text into a salad of machine-symbols and words</td>
+</tr>
+</tbody>
+</table></section>
+
+</middle>
+
+</rfc>

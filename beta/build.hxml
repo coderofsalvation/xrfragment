@@ -1,0 +1,81 @@
+-dce full
+-cp src
+xrfragment
+-D shallow-expose
+-js dist/xrfragment.js
+
+--next
+-dce full
+-cp src
+Test
+-D shallow-expose
+-m Test
+-js test/generated/test.js
+
+--next
+-dce full
+-cp src
+xrfragment
+-lua dist/xrfragment.lua
+
+--next
+-dce full
+-cp src
+xrfragment
+-python dist/xrfragment.py
+
+#--next
+#-dce full
+#-cp src
+#xrfragment
+#-cpp dist/xrfragment.cpp
+
+#--next
+#-dce full
+#-cp src
+#xrfragment
+#-php dist/xrfragment.php
+#
+#--next
+#-dce full
+#-cp src
+#xrfragment
+#-java dist/xrfragment.java
+
+--next
+-dce full
+-cp src
+Test
+-m Test
+-python test/generated/test.py
+
+#--next
+#
+#-dce full
+#-cp src
+#
+#
+#--next
+#
+#-dce full
+#-cp src
+#
+#xrfragment.Query
+#-cppia dist/xrfragment.cppia
+#
+#--next
+#
+#-dce full
+#-cp src
+#
+#xrfragment.Query
+#-cs dist/xrfragment.csharp
+#
+#
+#--next
+#
+#-dce full
+#-cp src
+#
+#xrfragment.Query
+#-java xrfragment.jdk

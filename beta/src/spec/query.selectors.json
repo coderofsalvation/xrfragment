@@ -1,0 +1,15 @@
+[
+  {"fn":"query","data":"tag:bar",  "expect":{ "fn":"testProperty","input":["tag","bar"],"out":true}},
+  {"fn":"query","data":"tag:bar -tag:foo", "expect":{ "fn":"testProperty","input":["tag","foo"],"out":false}},
+  {"fn":"query","data":"tag:bar -tag:foo tag:foo", "expect":{ "fn":"testProperty","input":["tag","foo"],"out":true}},
+  {"fn":"query","data":"tag:bar -tag:bar tag:bar", "expect":{ "fn":"testProperty","input":["tag","bar"],"out":true}},
+  {"fn":"query","data":"tag:foo -tag:foo tag:foo", "expect":{ "fn":"testProperty","input":["tag","foo"],"out":true},"label":"tag:foo"},
+  {"fn":"query","data":"tag:foo -tag:foo bar:5 tag:foo", "expect":{ "fn":"testProperty","input":["tag","foo"],"out":true},"label":"tag:foo"},
+  {"fn":"query","data":"tag:foo -tag:foo bar:>5 tag:foo", "expect":{ "fn":"testProperty","input":["tag","foo"],"out":true},"label":"tag:foo"},
+  {"fn":"query","data":"tag:foo -tag:foo bar:>5 tag:foo", "expect":{ "fn":"testProperty","input":["tag","foo"],"out":true},"label":"tag:foo"},
+  {"fn":"query","data":"tag:foo -tag:foo tag:foo", "expect":{ "fn":"testProperty","input":["tag","foo"],"out":true},"label":"tag:foo"},
+  {"fn":"query","data":"tag:foo -tag:foo tag:foo", "expect":{ "fn":"testProperty","input":["id","foo"],"out":true},"label":"id:foo"},
+  {"fn":"query","data":"tag:foo -foo foo", "expect":{ "fn":"testProperty","input":["id","foo"],"out":true},"label":"id:foo?"},
+  {"fn":"query","data":"/foo",         "expect":{ "fn":"testQueryRoot","input":["foo"],"out":true},"label":"foo should be root-only"},
+  {"fn":"query","data":"/foo foo",         "expect":{ "fn":"testQueryRoot","input":["foo"],"out":false},"label":"foo should recursively selected"}
+]
