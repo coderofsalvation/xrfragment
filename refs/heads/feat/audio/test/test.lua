@@ -1,0 +1,1 @@
+#XR = require("../dist/xrfragment")
