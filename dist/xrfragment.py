@@ -1293,14 +1293,15 @@ class xrfragment_Parser:
         Frag.h["src"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_URL)
         Frag.h["href"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.T_URL) | xrfragment_XRF.T_PREDEFINED_VIEW)
         Frag.h["tag"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
-        Frag.h["pos"] = (((((xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.T_STRING_OBJ) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
+        Frag.h["pos"] = ((((xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.T_STRING_OBJ) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
         Frag.h["q"] = ((xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING) | xrfragment_XRF.METADATA)
-        Frag.h["scale"] = ((((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA)
-        Frag.h["rot"] = (((((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
-        Frag.h["mov"] = ((((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA)
-        Frag.h["show"] = ((((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_INT) | xrfragment_XRF.METADATA)
+        Frag.h["scale"] = (((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA)
+        Frag.h["rot"] = ((((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
+        Frag.h["mov"] = (((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA)
+        Frag.h["show"] = (((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_INT) | xrfragment_XRF.METADATA)
         Frag.h["env"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_STRING) | xrfragment_XRF.METADATA)
-        Frag.h["t"] = (((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
+        Frag.h["t"] = ((((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_FLOAT) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.T_STRING) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
+        Frag.h["tv"] = ((((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_FLOAT) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
         Frag.h["gravity"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA)
         Frag.h["physics"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA)
         Frag.h["fov"] = ((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_INT) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
@@ -1318,10 +1319,6 @@ class xrfragment_Parser:
             v = xrfragment_XRF(key,(xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR))
             v.validate(key)
             setattr(store,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),v)
-            return True
-        if ((len(key.split(".")) > 1) and ((len(value.split(".")) > 1))):
-            value1 = xrfragment_XRF(key,(((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_STRING) | xrfragment_XRF.PROP_BIND))
-            setattr(store,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),value1)
             return True
         v = xrfragment_XRF(key,Frag.h.get(key,None))
         if (key in Frag.h):
@@ -1562,19 +1559,19 @@ class xrfragment_URI:
 
 class xrfragment_XRF:
     _hx_class_name = "xrfragment.XRF"
-    __slots__ = ("fragment", "flags", "x", "y", "z", "color", "string", "int", "float", "args", "query", "noXRF")
-    _hx_fields = ["fragment", "flags", "x", "y", "z", "color", "string", "int", "float", "args", "query", "noXRF"]
+    __slots__ = ("fragment", "flags", "x", "y", "z", "w", "color", "string", "int", "float", "query", "noXRF")
+    _hx_fields = ["fragment", "flags", "x", "y", "z", "w", "color", "string", "int", "float", "query", "noXRF"]
     _hx_methods = ["is", "validate", "guessType"]
     _hx_statics = ["ASSET", "PROP_BIND", "QUERY_OPERATOR", "PROMPT", "ROUNDROBIN", "NAVIGATOR", "METADATA", "PV_OVERRIDE", "PV_EXECUTE", "T_COLOR", "T_INT", "T_FLOAT", "T_VECTOR2", "T_VECTOR3", "T_URL", "T_PREDEFINED_VIEW", "T_STRING", "T_STRING_OBJ", "T_STRING_OBJ_PROP", "isColor", "isInt", "isFloat", "isVector", "isUrl", "isUrlOrPretypedView", "isString", "set", "unset"]
 
     def __init__(self,_fragment,_flags):
         self.noXRF = None
         self.query = None
-        self.args = None
         self.float = None
         self.int = None
         self.string = None
         self.color = None
+        self.w = None
         self.z = None
         self.y = None
         self.x = None
@@ -1582,44 +1579,33 @@ class xrfragment_XRF:
         self.flags = _flags
 
     def _hx_is(self,flag):
+        if (not Std.isOfType(self.flags,Int)):
+            self.flags = 0
         return (((self.flags & flag)) != 0)
 
     def validate(self,value):
         self.guessType(self,value)
-        if (len(value.split("|")) > 1):
-            self.args = list()
-            args = value.split("|")
-            _g = 0
-            _g1 = len(args)
-            while (_g < _g1):
-                i = _g
-                _g = (_g + 1)
-                x = xrfragment_XRF(self.fragment,self.flags)
-                self.guessType(x,(args[i] if i >= 0 and i < len(args) else None))
-                _this = self.args
-                _this.append(x)
         if (self.fragment == "q"):
             self.query = xrfragment_Query(value).get()
         ok = True
-        if (not Std.isOfType(self.args,list)):
-            if (self._hx_is(xrfragment_XRF.T_VECTOR3) and (not (((Std.isOfType(self.x,Float) and Std.isOfType(self.y,Float)) and Std.isOfType(self.z,Float))))):
-                ok = False
-            if (self._hx_is(xrfragment_XRF.T_VECTOR2) and (not ((Std.isOfType(self.x,Float) and Std.isOfType(self.y,Float))))):
-                ok = False
-            if (self._hx_is(xrfragment_XRF.T_INT) and (not Std.isOfType(self.int,Int))):
-                ok = False
+        if (((not self._hx_is(xrfragment_XRF.T_FLOAT)) and self._hx_is(xrfragment_XRF.T_VECTOR2)) and (not ((Std.isOfType(self.x,Float) and Std.isOfType(self.y,Float))))):
+            ok = False
+        if (((not self._hx_is(xrfragment_XRF.T_VECTOR2)) and self._hx_is(xrfragment_XRF.T_VECTOR3)) and (not (((Std.isOfType(self.x,Float) and Std.isOfType(self.y,Float)) and Std.isOfType(self.z,Float))))):
+            ok = False
         return ok
 
     def guessType(self,v,_hx_str):
         v.string = _hx_str
         if (len(_hx_str.split(",")) > 1):
-            xyz = _hx_str.split(",")
-            if (len(xyz) > 0):
-                v.x = Std.parseFloat((xyz[0] if 0 < len(xyz) else None))
-            if (len(xyz) > 1):
-                v.y = Std.parseFloat((xyz[1] if 1 < len(xyz) else None))
-            if (len(xyz) > 2):
-                v.z = Std.parseFloat((xyz[2] if 2 < len(xyz) else None))
+            xyzw = _hx_str.split(",")
+            if (len(xyzw) > 0):
+                v.x = Std.parseFloat((xyzw[0] if 0 < len(xyzw) else None))
+            if (len(xyzw) > 1):
+                v.y = Std.parseFloat((xyzw[1] if 1 < len(xyzw) else None))
+            if (len(xyzw) > 2):
+                v.z = Std.parseFloat((xyzw[2] if 2 < len(xyzw) else None))
+            if (len(xyzw) > 3):
+                v.w = Std.parseFloat((xyzw[3] if 3 < len(xyzw) else None))
         _this = xrfragment_XRF.isColor
         _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
         if (_this.matchObj is not None):
@@ -1627,11 +1613,13 @@ class xrfragment_XRF:
         _this = xrfragment_XRF.isFloat
         _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
         if (_this.matchObj is not None):
-            v.float = Std.parseFloat(_hx_str)
+            v.x = Std.parseFloat(_hx_str)
+            v.float = v.x
         _this = xrfragment_XRF.isInt
         _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
         if (_this.matchObj is not None):
             v.int = Std.parseInt(_hx_str)
+            v.x = v.int
 
     @staticmethod
     def set(flag,flags):
@@ -1671,8 +1659,8 @@ xrfragment_XRF.T_STRING = 1048576
 xrfragment_XRF.T_STRING_OBJ = 2097152
 xrfragment_XRF.T_STRING_OBJ_PROP = 4194304
 xrfragment_XRF.isColor = EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","")
-xrfragment_XRF.isInt = EReg("^[0-9]+$","")
-xrfragment_XRF.isFloat = EReg("^[0-9]+\\.[0-9]+$","")
+xrfragment_XRF.isInt = EReg("^[-0-9]+$","")
+xrfragment_XRF.isFloat = EReg("^[-0-9]+\\.[0-9]+$","")
 xrfragment_XRF.isVector = EReg("([,]+|\\w)","")
 xrfragment_XRF.isUrl = EReg("(://)?\\..*","")
 xrfragment_XRF.isUrlOrPretypedView = EReg("(^#|://)?\\..*","")

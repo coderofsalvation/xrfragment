@@ -218,14 +218,15 @@ xrfragment_Parser.parse = function(key,value,store) {
 	Frag_h["src"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL;
 	Frag_h["href"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.T_PREDEFINED_VIEW;
 	Frag_h["tag"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING_OBJ | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
+	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING_OBJ | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
 	Frag_h["q"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.METADATA;
-	Frag_h["scale"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
-	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
-	Frag_h["mov"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
-	Frag_h["show"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_INT | xrfragment_XRF.METADATA;
+	Frag_h["scale"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
+	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
+	Frag_h["mov"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
+	Frag_h["show"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_INT | xrfragment_XRF.METADATA;
 	Frag_h["env"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.METADATA;
-	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
+	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_FLOAT | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.T_STRING | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
+	Frag_h["tv"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_FLOAT | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
 	Frag_h["gravity"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
 	Frag_h["physics"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
 	Frag_h["fov"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_INT | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
@@ -245,19 +246,15 @@ xrfragment_Parser.parse = function(key,value,store) {
 		store[key] = v;
 		return true;
 	}
-	if(key.split(".").length > 1 && value.split(".").length > 1) {
-		store[key] = new xrfragment_XRF(key,xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.PROP_BIND);
-		return true;
-	}
 	var v = new xrfragment_XRF(key,Frag_h[key]);
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		if(!v.validate(value)) {
-			console.log("src/xrfragment/Parser.hx:83:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:80:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 		store[key] = v;
 		if(xrfragment_Parser.debug) {
-			console.log("src/xrfragment/Parser.hx:87:","✔ " + key + ": " + v.string);
+			console.log("src/xrfragment/Parser.hx:84:","✔ " + key + ": " + v.string);
 		}
 	} else {
 		if(typeof(value) == "string") {
@@ -490,68 +487,53 @@ xrfragment_XRF.unset = function(flag,flags) {
 };
 xrfragment_XRF.prototype = {
 	is: function(flag) {
+		var v = this.flags;
+		if(!(typeof(v) == "number" && ((v | 0) === v))) {
+			this.flags = 0;
+		}
 		return (this.flags & flag) != 0;
 	}
 	,validate: function(value) {
 		this.guessType(this,value);
-		if(value.split("|").length > 1) {
-			this.args = [];
-			var args = value.split("|");
-			var _g = 0;
-			var _g1 = args.length;
-			while(_g < _g1) {
-				var i = _g++;
-				var x = new xrfragment_XRF(this.fragment,this.flags);
-				this.guessType(x,args[i]);
-				this.args.push(x);
-			}
-		}
 		if(this.fragment == "q") {
 			this.query = new xrfragment_Query(value).get();
 		}
 		var ok = true;
-		if(!((this.args) instanceof Array)) {
-			if(this.is(xrfragment_XRF.T_VECTOR3) && !(typeof(this.x) == "number" && typeof(this.y) == "number" && typeof(this.z) == "number")) {
-				ok = false;
-			}
-			if(this.is(xrfragment_XRF.T_VECTOR2) && !(typeof(this.x) == "number" && typeof(this.y) == "number")) {
-				ok = false;
-			}
-			var tmp;
-			if(this.is(xrfragment_XRF.T_INT)) {
-				var v = this.int;
-				tmp = !(typeof(v) == "number" && ((v | 0) === v));
-			} else {
-				tmp = false;
-			}
-			if(tmp) {
-				ok = false;
-			}
+		if(!this.is(xrfragment_XRF.T_FLOAT) && this.is(xrfragment_XRF.T_VECTOR2) && !(typeof(this.x) == "number" && typeof(this.y) == "number")) {
+			ok = false;
+		}
+		if(!this.is(xrfragment_XRF.T_VECTOR2) && this.is(xrfragment_XRF.T_VECTOR3) && !(typeof(this.x) == "number" && typeof(this.y) == "number" && typeof(this.z) == "number")) {
+			ok = false;
 		}
 		return ok;
 	}
 	,guessType: function(v,str) {
 		v.string = str;
 		if(str.split(",").length > 1) {
-			var xyz = str.split(",");
-			if(xyz.length > 0) {
-				v.x = parseFloat(xyz[0]);
+			var xyzw = str.split(",");
+			if(xyzw.length > 0) {
+				v.x = parseFloat(xyzw[0]);
 			}
-			if(xyz.length > 1) {
-				v.y = parseFloat(xyz[1]);
+			if(xyzw.length > 1) {
+				v.y = parseFloat(xyzw[1]);
 			}
-			if(xyz.length > 2) {
-				v.z = parseFloat(xyz[2]);
+			if(xyzw.length > 2) {
+				v.z = parseFloat(xyzw[2]);
+			}
+			if(xyzw.length > 3) {
+				v.w = parseFloat(xyzw[3]);
 			}
 		}
 		if(xrfragment_XRF.isColor.match(str)) {
 			v.color = str;
 		}
 		if(xrfragment_XRF.isFloat.match(str)) {
-			v.float = parseFloat(str);
+			v.x = parseFloat(str);
+			v.float = v.x;
 		}
 		if(xrfragment_XRF.isInt.match(str)) {
 			v.int = Std.parseInt(str);
+			v.x = v.int;
 		}
 	}
 };
@@ -583,8 +565,8 @@ xrfragment_XRF.T_STRING = 1048576;
 xrfragment_XRF.T_STRING_OBJ = 2097152;
 xrfragment_XRF.T_STRING_OBJ_PROP = 4194304;
 xrfragment_XRF.isColor = new EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","");
-xrfragment_XRF.isInt = new EReg("^[0-9]+$","");
-xrfragment_XRF.isFloat = new EReg("^[0-9]+\\.[0-9]+$","");
+xrfragment_XRF.isInt = new EReg("^[-0-9]+$","");
+xrfragment_XRF.isFloat = new EReg("^[-0-9]+\\.[0-9]+$","");
 xrfragment_XRF.isVector = new EReg("([,]+|\\w)","");
 xrfragment_XRF.isUrl = new EReg("(://)?\\..*","");
 xrfragment_XRF.isUrlOrPretypedView = new EReg("(^#|://)?\\..*","");

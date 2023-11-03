@@ -218,14 +218,15 @@ xrfragment_Parser.parse = function(key,value,store) {
 	Frag_h["src"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL;
 	Frag_h["href"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.T_PREDEFINED_VIEW;
 	Frag_h["tag"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING_OBJ | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
+	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING_OBJ | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
 	Frag_h["q"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.METADATA;
-	Frag_h["scale"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
-	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
-	Frag_h["mov"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
-	Frag_h["show"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_INT | xrfragment_XRF.METADATA;
+	Frag_h["scale"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
+	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
+	Frag_h["mov"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
+	Frag_h["show"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_INT | xrfragment_XRF.METADATA;
 	Frag_h["env"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.METADATA;
-	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
+	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_FLOAT | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.T_STRING | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
+	Frag_h["tv"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_FLOAT | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
 	Frag_h["gravity"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
 	Frag_h["physics"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
 	Frag_h["fov"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_INT | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
@@ -245,19 +246,15 @@ xrfragment_Parser.parse = function(key,value,store) {
 		store[key] = v;
 		return true;
 	}
-	if(key.split(".").length > 1 && value.split(".").length > 1) {
-		store[key] = new xrfragment_XRF(key,xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.PROP_BIND);
-		return true;
-	}
 	var v = new xrfragment_XRF(key,Frag_h[key]);
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		if(!v.validate(value)) {
-			console.log("src/xrfragment/Parser.hx:83:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:80:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 		store[key] = v;
 		if(xrfragment_Parser.debug) {
-			console.log("src/xrfragment/Parser.hx:87:","✔ " + key + ": " + v.string);
+			console.log("src/xrfragment/Parser.hx:84:","✔ " + key + ": " + v.string);
 		}
 	} else {
 		if(typeof(value) == "string") {
@@ -490,68 +487,53 @@ xrfragment_XRF.unset = function(flag,flags) {
 };
 xrfragment_XRF.prototype = {
 	is: function(flag) {
+		var v = this.flags;
+		if(!(typeof(v) == "number" && ((v | 0) === v))) {
+			this.flags = 0;
+		}
 		return (this.flags & flag) != 0;
 	}
 	,validate: function(value) {
 		this.guessType(this,value);
-		if(value.split("|").length > 1) {
-			this.args = [];
-			var args = value.split("|");
-			var _g = 0;
-			var _g1 = args.length;
-			while(_g < _g1) {
-				var i = _g++;
-				var x = new xrfragment_XRF(this.fragment,this.flags);
-				this.guessType(x,args[i]);
-				this.args.push(x);
-			}
-		}
 		if(this.fragment == "q") {
 			this.query = new xrfragment_Query(value).get();
 		}
 		var ok = true;
-		if(!((this.args) instanceof Array)) {
-			if(this.is(xrfragment_XRF.T_VECTOR3) && !(typeof(this.x) == "number" && typeof(this.y) == "number" && typeof(this.z) == "number")) {
-				ok = false;
-			}
-			if(this.is(xrfragment_XRF.T_VECTOR2) && !(typeof(this.x) == "number" && typeof(this.y) == "number")) {
-				ok = false;
-			}
-			var tmp;
-			if(this.is(xrfragment_XRF.T_INT)) {
-				var v = this.int;
-				tmp = !(typeof(v) == "number" && ((v | 0) === v));
-			} else {
-				tmp = false;
-			}
-			if(tmp) {
-				ok = false;
-			}
+		if(!this.is(xrfragment_XRF.T_FLOAT) && this.is(xrfragment_XRF.T_VECTOR2) && !(typeof(this.x) == "number" && typeof(this.y) == "number")) {
+			ok = false;
+		}
+		if(!this.is(xrfragment_XRF.T_VECTOR2) && this.is(xrfragment_XRF.T_VECTOR3) && !(typeof(this.x) == "number" && typeof(this.y) == "number" && typeof(this.z) == "number")) {
+			ok = false;
 		}
 		return ok;
 	}
 	,guessType: function(v,str) {
 		v.string = str;
 		if(str.split(",").length > 1) {
-			var xyz = str.split(",");
-			if(xyz.length > 0) {
-				v.x = parseFloat(xyz[0]);
+			var xyzw = str.split(",");
+			if(xyzw.length > 0) {
+				v.x = parseFloat(xyzw[0]);
 			}
-			if(xyz.length > 1) {
-				v.y = parseFloat(xyz[1]);
+			if(xyzw.length > 1) {
+				v.y = parseFloat(xyzw[1]);
 			}
-			if(xyz.length > 2) {
-				v.z = parseFloat(xyz[2]);
+			if(xyzw.length > 2) {
+				v.z = parseFloat(xyzw[2]);
+			}
+			if(xyzw.length > 3) {
+				v.w = parseFloat(xyzw[3]);
 			}
 		}
 		if(xrfragment_XRF.isColor.match(str)) {
 			v.color = str;
 		}
 		if(xrfragment_XRF.isFloat.match(str)) {
-			v.float = parseFloat(str);
+			v.x = parseFloat(str);
+			v.float = v.x;
 		}
 		if(xrfragment_XRF.isInt.match(str)) {
 			v.int = Std.parseInt(str);
+			v.x = v.int;
 		}
 	}
 };
@@ -583,8 +565,8 @@ xrfragment_XRF.T_STRING = 1048576;
 xrfragment_XRF.T_STRING_OBJ = 2097152;
 xrfragment_XRF.T_STRING_OBJ_PROP = 4194304;
 xrfragment_XRF.isColor = new EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","");
-xrfragment_XRF.isInt = new EReg("^[0-9]+$","");
-xrfragment_XRF.isFloat = new EReg("^[0-9]+\\.[0-9]+$","");
+xrfragment_XRF.isInt = new EReg("^[-0-9]+$","");
+xrfragment_XRF.isFloat = new EReg("^[-0-9]+\\.[0-9]+$","");
 xrfragment_XRF.isVector = new EReg("([,]+|\\w)","");
 xrfragment_XRF.isUrl = new EReg("(://)?\\..*","");
 xrfragment_XRF.isUrlOrPretypedView = new EReg("(^#|://)?\\..*","");
@@ -599,6 +581,7 @@ var xrf = {}
 xrf.init = function(opts){
   opts = opts || {}
   xrf.Parser.debug = xrf.debug 
+  xrf.detectCameraRig(opts)
   for ( let i in opts    ) xrf[i] = opts[i]
   xrf.emit('init',opts)
   return xrf
@@ -607,6 +590,20 @@ xrf.init = function(opts){
 xrf.query = function(){
   // framework implementations can override this function, see src/3rd/js/three/index.sj 
   alert("queries are not implemented (yet) for this particular framework")
+}
+
+xrf.detectCameraRig = function(opts){
+  if( opts.camera ){ // detect rig (if any)
+    let getCam  = ((cam) => () => cam)(opts.camera)
+    let offsetY = 0 
+    while( opts.camera.parent.type != "Scene" ){
+      offsetY += opts.camera.position.y
+      opts.camera = opts.camera.parent
+      opts.camera.getCam = getCam
+      opts.camera.updateProjectionMatrix = () => opts.camera.getCam().updateProjectionMatrix()
+    }
+    opts.camera.offsetY = offsetY
+  }
 }
 
 xrf.roundrobin = (frag, store) => {
@@ -642,14 +639,20 @@ for ( let i in xrfragment ) xrf[i] = xrfragment[i]
  *  xrf.emit('foo',123).then(...).catch(...).finally(...)
  */
 
-xrf.addEventListener = function(eventName, callback) {
-    if( !this._listeners ) this._listeners = []
-    if (!this._listeners[eventName]) {
-        // create a new array for this event name if it doesn't exist yet
-        this._listeners[eventName] = [];
-    }
-    // add the callback to the listeners array for this event name
-    this._listeners[eventName].push(callback);
+xrf.addEventListener = function(eventName, callback, scene) {
+  if( !this._listeners ) this._listeners = []
+  if (!this._listeners[eventName]) {
+      // create a new array for this event name if it doesn't exist yet
+      this._listeners[eventName] = [];
+  }
+  if( scene ) callback.scene = scene
+  // add the callback to the listeners array for this event name
+  this._listeners[eventName].push(callback);
+  return () => {
+    console.log("size = "+this._listeners[eventName].length)
+    this._listeners[eventName] = this._listeners[eventName].filter( (c) => c != callback )
+    console.log("size = "+this._listeners[eventName].length)
+  }
 };
 
 xrf.emit = function(eventName, data){
@@ -750,7 +753,6 @@ XRWG.generate = (opts) => {
   // sort by n
   XRWG.sort( (a,b) => a.nodes.length - b.nodes.length )
   XRWG = XRWG.reverse() // the cleankey/get functions e.g. will persist
-  console.dir(XRWG)
 }
 // the hashbus (QueryString eventBus) is mentioned in the spec 
 //
@@ -762,7 +764,7 @@ let pub = function( url, model, flags ){  // evaluate fragments in url
   if( !url.match(/#/) ) url = `#${url}`
   model = model || xrf.model
   let { THREE, camera } = xrf
-  let frag = xrf.URI.parse( url, flags != undefined ? flags : xrf.XRF.NAVIGATOR )
+  let frag = xrf.URI.parse( url, flags )
   let opts = {frag, mesh:xrf.camera, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE, hashbus: xrf.hashbus }
   xrf.emit('hashbus',opts)
   .then( () => {
@@ -798,9 +800,42 @@ pub.fragment = (k, opts ) => { // evaluate one fragment
   })
 }
 
+pub.XRWG = (opts) => {
+  let {frag,scene,model,renderer} = opts 
+
+  // if this query was triggered by an src-value, lets filter it
+  const isSRC = opts.embedded && opts.embedded.fragment == 'src'
+  if( !isSRC ){                             // spec : https://xrfragment.org/#src
+    for ( let i in frag  ) {
+      let v = frag[i]
+      let id = v.string || v.fragment
+      if( id == '#' || !id ) return
+      let match = xrf.XRWG.match(id)
+
+      if( v.is( xrf.XRF.PV_EXECUTE ) ){
+        scene.XRF_PV_ORIGIN = v.string
+        // evaluate aliases 
+        match.map( (w) => {
+          if( w.key == `#${id}` ){
+            if(  w.value && w.value[0] == '#' ){
+              // if value is alias, execute fragment value 
+              xrf.hashbus.pub( w.value, xrf.model, xrf.XRF.METADATA | xrf.XRF.PV_OVERRIDE | xrf.XRF.NAVIGATOR )
+            }
+          }
+        })
+        xrf.emit('dynamicKey',{ ...opts,v,frag,id,match,scene })
+      }else{
+        xrf.emit('dynamicKeyValue',{ ...opts,v,frag,id,match,scene })
+      }
+    }
+  }
+}
+
+
 xrf.hashbus = { pub }
 xrf.frag   = {}
 xrf.model  = {}
+xrf.mixers = []
 
 xrf.init = ((init) => function(opts){
   let scene = new opts.THREE.Group()
@@ -809,21 +844,26 @@ xrf.init = ((init) => function(opts){
   init(opts)
   if( opts.loaders ) Object.values(opts.loaders).map( xrf.patchLoader )
 
-  xrf.patchRenderer(opts.renderer)
+  xrf.patchRenderer(opts)
   xrf.navigator.init()
   // return xrfragment lib as 'xrf' query functor (like jquery)
   for ( let i in xrf ) xrf.query[i] = xrf[i] 
   return xrf.query
 })(xrf.init)
 
-xrf.patchRenderer = function(renderer){
+xrf.patchRenderer = function(opts){
+  let {renderer,camera} = opts
   renderer.xr.addEventListener( 'sessionstart', () => xrf.baseReferenceSpace = renderer.xr.getReferenceSpace() );
   renderer.xr.enabled = true;
+  xrf.clock = new xrf.THREE.Clock()
   renderer.render = ((render) => function(scene,camera){
-    if( xrf.model && xrf.model.render ) 
-      xrf.model.render(scene,camera)
+    // update clock
+    let time = xrf.clock.getDelta()
+    // allow entities to do stuff during render (onBeforeRender and onAfterRender don't always fire)
+    xrf.emit('render',{scene,camera,time}) // allow fragments to do something at renderframe
     render(scene,camera)
   })(renderer.render.bind(renderer))
+
 }
 
 xrf.patchLoader = function(loader){
@@ -847,30 +887,11 @@ xrf.parseModel = function(model,url){
   let file               = xrf.getFile(url)
   model.file             = file
   // eval embedded XR fragments
-  model.scene.traverse( (mesh) => xrf.hashbus.pub.mesh(mesh,model) )
-  // add animations
-  model.clock            = new xrf.THREE.Clock();
-  model.mixer            = new xrf.THREE.AnimationMixer(model.scene)
-  model.animations.map( (anim) => { 
-    anim.action = model.mixer.clipAction( anim )
-    //anim.action.setLoop(0)
-    anim.action.play() 
+  model.scene.traverse( (mesh) => {
+    xrf.hashbus.pub.mesh(mesh,model) 
   })
-
-  let tmp = new xrf.THREE.Vector3()
-  model.render           = function(){
-    let time = model.clock.getDelta()
-    model.mixer.update( time )
-
-    // update focusline 
-    xrf.focusLine.material.color.r  = (1.0 + Math.sin( model.clock.getElapsedTime()*10  ))/2
-    xrf.focusLine.material.dashSize = 0.2 + 0.02*Math.sin( model.clock.getElapsedTime()  )
-    xrf.focusLine.material.gapSize  = 0.1 + 0.02*Math.sin( model.clock.getElapsedTime() *3  )
-    xrf.focusLine.material.opacity  = (0.25 + 0.15*Math.sin( model.clock.getElapsedTime() * 3 )) * xrf.focusLine.opacity;
-    if( xrf.focusLine.opacity > 0.0 ) xrf.focusLine.opacity -= time*0.2
-    if( xrf.focusLine.opacity < 0.0 ) xrf.focusLine.opacity = 0
-  }
-
+  model.animations.map( (a) => console.log("anim: "+a.name) )
+  xrf.emit('parseModel',{model,url,file})
 }
 
 xrf.getLastModel = ()           => xrf.model.last 
@@ -895,6 +916,13 @@ xrf.reset = () => {
   xrf.audio = []
   xrf.add( xrf.interactive )
   xrf.layers = 0
+  xrf.emit('reset',{})
+  // remove mixers
+  xrf.mixers.map( (m) => {
+    m.stop()
+    delete m
+  })
+  xrf.mixers = []
 }
 
 xrf.parseUrl = (url) => {
@@ -1043,9 +1071,9 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
 
     }
 
-    add(obj){
-      Group.prototype.add.call( this, obj )
-      this.objects = ([]).concat( this.children )
+    add(obj, unparent){
+      if( unparent ) Group.prototype.add.call( this, obj )
+      this.objects.push(obj)
     }
 
   }
@@ -1087,12 +1115,13 @@ xrf.navigator.to = (url,flags,loader,data) => {
       // spec: 1. generate the XRWG
       xrf.XRWG.generate({model,scene:model.scene})
       // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
-      xrf.frag.defaultPredefinedView({model,scene:model.scene})
+      xrf.frag.defaultPredefinedViews({model,scene:model.scene})
       // spec: 2. init metadata
-      let frag = hashbus.pub( url, model )           // and eval URI XR fragments 
       // spec: predefined view(s) from URL (https://xrfragment.org/#predefined_view)
       setTimeout( () => { // give external objects some slack 
-        xrf.frag.updatePredefinedView({model,scene:model.scene,frag})
+        let frag = hashbus.pub( url, model) // and eval URI XR fragments 
+        hashbus.pub.XRWG({model,scene:model.scene,frag})
+        console.dir(frag)
       },2000)
       xrf.add( model.scene )
       xrf.navigator.updateHash(hash)
@@ -1139,12 +1168,6 @@ xrf.navigator.pushState = (file,hash) => {
   window.history.pushState({},`${file}#${hash}`, document.location.pathname + `?${file}#${hash}` )
   xrf.emit('pushState', {file, hash} )
 }
-xrf.addEventListener('bg', (opts) => {
-  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-  console.log("└ bg "+v.x+","+v.y+","+v.z);
-  if( scene.background ) delete scene.background
-  scene.background = new THREE.Color( v.x, v.y, v.z )
-})
 xrf.addEventListener('env', (opts) => {
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   if( frag.env && !scene.environment ){
@@ -1160,176 +1183,6 @@ xrf.addEventListener('env', (opts) => {
   }
 
 })
-xrf.addEventListener('fog', (opts) => {
-  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-  let v = frag.fog
-  console.log("└ fog "+v.x+","+v.y);
-  if( v.x == 0 && v.y == 0 ){  
-    if( scene.fog ) delete scene.fog
-    scene.fog = null;
-  }else scene.fog = new THREE.Fog( scene.background, v.x, v.y );
-})
-xrf.macros = {}
-
-xrf.addEventListener('mesh', (opts) => {
-  let { frag, mesh, model, camera, scene, renderer, THREE, hashbus} = opts
-
-  for( let k in frag ){
-    let id = mesh.name+"_"+k
-    let fragment = frag[k]
-
-    if( k.match(/^!/) ){
-      if( mesh.material) mesh.material = mesh.material.clone()
-      if( mesh.isSRC || scene.isSRC ) return; // dont allow recursion for now
-
-      if( xrf.macros[k] ) return // already initialized  
-
-      console.log("└ initing xrmacro: "+k)
-      xrf.macros[k] = fragment
-      fragment.args = fragment.string.split("|")
-
-      fragment.trigger = (e) => {
-        xrf
-        .emit('macro',{click:true,mesh,xrf:frag}) // let all listeners agree
-        .then( () => {
-              rrFrag = fragment.args[ xrf.roundrobin( fragment,model) ]
-              console.log("└ xrmacro: "+rrFrag)
-              if( xrf.macros[ rrFrag ] ){
-                xrf.macros[ rrFrag ].trigger()
-              } else {
-                xrf.navigator.to( rrFrag,null,0)
-              }
-        }) 
-      }
-
-      let selected = (state) => () => {
-        if( mesh.selected == state ) return // nothing changed 
-        if( mesh.material ){
-          if( mesh.material.uniforms ) mesh.material.uniforms.selected.value = state 
-          else mesh.material.color.r = mesh.material.color.g = mesh.material.color.b = state ? 2.0 : 1.0
-        }
-        // update mouse cursor
-        if( !renderer.domElement.lastCursor )
-          renderer.domElement.lastCursor = renderer.domElement.style.cursor
-        renderer.domElement.style.cursor = state ? 'pointer' : renderer.domElement.lastCursor 
-        xrf
-        .emit('macro',{selected:state,mesh,xrf:frag}) // let all listeners agree
-        .then( () => mesh.selected = state )
-      }
-
-      mesh.addEventListener('click', fragment.trigger )
-      mesh.addEventListener('mousemove', selected(true) )
-      mesh.addEventListener('nocollide', selected(false) )
-
-      // lazy add mesh to interactive group (because we're inside a recursive traverse)
-      setTimeout( (mesh) => {
-        const world = { 
-          pos: new THREE.Vector3(), 
-          scale: new THREE.Vector3(),
-          quat: new THREE.Quaternion()
-        }
-        mesh.getWorldPosition(world.pos)
-        mesh.getWorldScale(world.scale)
-        mesh.getWorldQuaternion(world.quat);
-        mesh.position.copy(world.pos)
-        mesh.scale.copy(world.scale)
-        mesh.setRotationFromQuaternion(world.quat);
-        xrf.interactive.add(mesh)
-        xrf.emit('interactionReady', {mesh,xrf:fragment, clickHandler: fragment.trigger})
-      }, 10, mesh )
-    }
-  }
-})
-xrf.addEventListener('mov', (opts) => {
-  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-  if( frag.mov && frag.q ){
-
-    // let wait for the queried objects (as we're inside promise which traverses the graph)
-    setTimeout( (v) => {
-      frag.q.getObjects().map( (o) => {
-        o.position.add( new THREE.Vector3( v.x, v.y, v.z ) )
-      })
-    },10, frag.mov )
-  }
-})
-xrf.addEventListener('pos', (opts) => {
-  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-  if( frag.pos && frag.q ){
-    // apply roundrobin (if any)
-    if( v.args ) v = v.args[ xrf.roundrobin(v,model) ]
-
-    frag.q.getObjects().map( (o) => {
-      // if object has no parent (name == 'Scene') use absolute positioning, otherwise relative to parent
-      o.position.x = o.parent.name == 'Scene' ? v.x : o.positionOriginal.x + v.x
-      o.position.y = o.parent.name == 'Scene' ? v.z : o.positionOriginal.y + v.z
-      o.position.z = o.parent.name == 'Scene' ? v.y : o.positionOriginal.z + v.y
-    })
-  }
-})
-xrf.addEventListener('rot', (opts) => {
-  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-  if( frag.rot && frag.q ){
-    // apply roundrobin (if any)
-    if( v.args ) v = v.args[ xrf.roundrobin(v,model) ]
-
-    if( frag.q ){ // only operate on queried object(s)
-      frag.q.getObjects().map( (o) => {
-        o.rotation.set( 
-          v.x * Math.PI / 180,
-          v.y * Math.PI / 180,
-          v.z * Math.PI / 180
-        )
-      })
-    }
-  }
-})
-xrf.addEventListener('scale', (opts) => {
-  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-  if( frag.scale && frag.q ){
-    // apply roundrobin (if any)
-    if( v.args ) v = v.args[ xrf.roundrobin(v,model) ]
-
-    frag.q.getObjects().map( (o) => {
-      o.scale.x = v.x
-      o.scale.y = v.y
-      o.scale.z = v.z
-    })
-  }
-})
-xrf.addEventListener('show', (opts) => {
-  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-  if( frag.show && frag.q ){
-    let show = frag.show
-
-    // apply roundrobin (if any)
-    if( show.args ) v = show.args[ xrf.roundrobin(show,model) ]
-    else v = show.int
-
-    // let wait for the queried objects (as we're inside promise which traverses the graph)
-    setTimeout( (v) => {
-      frag.q.getObjects().map( (o) => {
-        o.visible = v.int == 1;
-      })
-    }, 20, v)
-  }
-})
-xrf.frag.clip = function(v, opts){
-  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-
-  if( v.x == 0 ) v.x = 1;  // THREE.js .near restriction
-  console.log("└ clip "+v.x+","+v.y);
-
-  camera.near = v.x
-  camera.far  = v.y
-  camera.updateProjectionMatrix();
-}
-xrf.frag.fov = function(v, opts){
-  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-
-  console.log("└ fov "+v.int);
-  camera.fov = v.int;
-  camera.updateProjectionMatrix();
-}
 /**
  * 
  * navigation, portals & mutations
@@ -1366,60 +1219,7 @@ xrf.frag.href = function(v, opts){
 
   if( mesh.userData.XRF.href.exec ) return // mesh already initialized
 
-  const world = { 
-    pos: new THREE.Vector3(), 
-    scale: new THREE.Vector3(),
-    quat: new THREE.Quaternion()
-  }
-  // detect equirectangular image
-  let texture = mesh.material && mesh.material.map ? mesh.material.map : null
-  if( texture && texture.source.data.height == texture.source.data.width/2 ){
-    texture.mapping = THREE.ClampToEdgeWrapping
-    texture.needsUpdate = true
-
-    // poor man's equi-portal
-    mesh.material = new THREE.ShaderMaterial( {
-      side: THREE.DoubleSide,
-      uniforms: {
-        pano: { value: texture },
-        selected: { value: false },
-      },
-      vertexShader: `
-         vec3 portalPosition;
-         varying vec3 vWorldPosition;
-         varying float vDistanceToCenter;
-         varying float vDistance;
-         void main() {
-           vDistanceToCenter = clamp(length(position - vec3(0.0, 0.0, 0.0)), 0.0, 1.0);
-           portalPosition = (modelMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
-           vDistance = length(portalPosition - cameraPosition);
-           vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
-           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-         }
-      `,
-      fragmentShader: `
-        #define RECIPROCAL_PI2 0.15915494
-        uniform sampler2D pano;
-        uniform bool selected;
-        varying float vDistanceToCenter;
-        varying float vDistance;
-        varying vec3 vWorldPosition;
-        void main() {
-          vec3 direction = normalize(vWorldPosition - cameraPosition );
-          vec2 sampleUV;
-          sampleUV.y = -clamp(direction.y * 0.5  + 0.5, 0.0, 1.0);
-          sampleUV.x = atan(direction.z, -direction.x) * -RECIPROCAL_PI2;
-          sampleUV.x += 0.33; // adjust focus to AFRAME's a-scene.components.screenshot.capture()
-          vec4 color = texture2D(pano, sampleUV);
-          // Convert color to grayscale (lazy lite approach to not having to match tonemapping/shaderstacking of THREE.js)
-          float luminance = 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
-          vec4 grayscale_color = selected ? color : vec4(vec3(luminance) + vec3(0.33), color.a);
-          gl_FragColor = grayscale_color;
-        }
-      `,
-    });
-    mesh.material.needsUpdate = true
-  }else if( mesh.material){ mesh.material = mesh.material.clone() }
+  if( mesh.material ) mesh.material = mesh.material.clone() // we need this so we can individually highlight meshes
 
   let click = mesh.userData.XRF.href.exec = (e) => {
 
@@ -1463,12 +1263,6 @@ xrf.frag.href = function(v, opts){
 
   // lazy add mesh (because we're inside a recursive traverse)
   setTimeout( (mesh) => {
-    mesh.getWorldPosition(world.pos)
-    mesh.getWorldScale(world.scale)
-    mesh.getWorldQuaternion(world.quat);
-    mesh.position.copy(world.pos)
-    mesh.scale.copy(world.scale)
-    mesh.setRotationFromQuaternion(world.quat);
     xrf.interactive.add(mesh)
     xrf.emit('interactionReady', {mesh,xrf:v,clickHandler: mesh.userData.XRF.href.exec })
   }, 0, mesh )
@@ -1491,131 +1285,6 @@ xrf.frag.pos = function(v, opts){
   camera.position.y = v.y
   camera.position.z = v.z
 }
-xrf.frag.defaultPredefinedView = (opts) => {
-  let {scene,model} = opts;
-  let frag = {}
-  xrf.Parser.parse("#","",frag)
-  xrf.frag.updatePredefinedView({frag,model,scene})
-}
-
-xrf.frag.updatePredefinedView = (opts) => {
-  let {frag,scene,model,renderer} = opts 
-
-  // spec: https://xrfragment.org/#Selection%20of%20interest
-  const selectionOfInterest = (frag,scene,mesh) => {
-    let id = frag.string
-    let oldSelection
-    if(!id) return id // important: ignore empty strings 
-    // Selection of Interest if predefined_view matches object name
-    if( mesh.visible && mesh.material){
-      xrf.emit('focus',{...opts,frag})
-      .then( () => {
-        const color    = new THREE.Color();
-        const colors   = []
-        let from       = new THREE.Vector3()
-
-        let getCenterPoint = (mesh) => {
-            var geometry = mesh.geometry;
-            geometry.computeBoundingBox();
-            var center = new THREE.Vector3();
-            geometry.boundingBox.getCenter( center );
-            mesh.localToWorld( center );
-            return center;
-        }         
-
-        xrf.camera.updateMatrixWorld(true); // always keeps me diving into the docs :]
-        xrf.camera.getWorldPosition(from)
-        from.y -= 0.5 // originate from the heart chakra! :p
-        const points = [from, getCenterPoint(mesh) ]
-        const geometry = new THREE.BufferGeometry().setFromPoints( points );
-        let line = new THREE.Line( geometry, xrf.focusLine.material );
-        line.isXRF = true
-        line.computeLineDistances();
-        xrf.focusLine.lines.push(line)
-        xrf.focusLine.points.push(from)
-        xrf.focusLine.opacity = 1
-        scene.add(line)
-      })
-    }
-  }
-
-  //// spec: https://xrfragment.org/#predefined_view
-  //const predefinedView = (frag,scene,mesh) => {
-  //  let id   = frag.string || frag.fragment
-  //  id       = `#${id}`
-  //  if( id == '##' ) id = '#'; // default predefined view
-  //  if( !id ) return           // prevent empty matches
-  //  if( mesh.userData[id] ){   // get alias
-  //    frag = xrf.URI.parse( mesh.userData[id], xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-  //    xrf.emit('predefinedView',{...opts,frag})
-  //    .then( () => {
-  //      for ( let k in frag ){
-  //        let opts = {frag, model, camera: xrf.camera, scene: xrf.scene, renderer: xrf.renderer, THREE: xrf.THREE }
-  //        if( frag[k].is( xrf.XRF.PV_EXECUTE ) && scene.XRF_PV_ORIGIN != k ){  // cyclic detection
-  //          highlightInScene(frag[k],scene)                                    // recurse predefined views
-  //        }
-  //      }
-  //    })
-  //  }
-  //}
-
-  const highlightInScene = (v,scene) => {
-    if( !scene ) return 
-    let remove = []
-    let id = v.string || v.fragment
-    if( id == '#' ) return
-    let match = xrf.XRWG.match(id)
-    console.dir({id,match,XRWG:xrf.XRWG})
-    // erase previous lines
-    xrf.focusLine.lines.map( (line) => scene.remove(line) )
-    xrf.focusLine.points = []
-    xrf.focusLine.lines  = []
-
-    scene.traverse( (n) => n.selection ? remove.push(n) : false )
-    remove.map(     (n) => scene.remove(n.selection) )
-    // create new selections
-    match.map( (w) => {
-      if( w.key == `#${id}` ){
-        if(  w.value && w.value[0] == '#' ){
-          // if value is alias, execute fragment value 
-          xrf.hashbus.pub( w.value, xrf.model, xrf.XRF.METADATA | xrf.XRF.PV_OVERRIDE | xrf.XRF.NAVIGATOR )
-        }
-      }
-      w.nodes.map( (mesh) => selectionOfInterest( v, scene, mesh ) )
-    })
-  }
-
-  // if this query was triggered by an src-value, lets filter it
-  const isSRC = opts.embedded && opts.embedded.fragment == 'src'
-  if( isSRC ){                             // spec : https://xrfragment.org/#src
-    console.log("filtering predefined view of src")
-    console.dir(frag)
-  }else{
-    console.log("updatePredefinedView")
-    console.dir(frag)
-    for ( let i in frag  ) {
-      let v = frag[i]
-      if( v.is( xrf.XRF.PV_EXECUTE ) ){
-        scene.XRF_PV_ORIGIN = v.string
-        // wait for nested instances to arrive at the scene ?
-        highlightInScene(v,scene)
-      }
-    }
-  }
-}
-
-// react to enduser typing url
-xrf.addEventListener('hash', (opts) => {
-  let frag = xrf.URI.parse( opts.hash, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-  xrf.frag.updatePredefinedView({frag,scene:xrf.scene})
-}) 
-
-// clicking href url with predefined view 
-xrf.addEventListener('href', (opts) => {
-  if( !opts.click || opts.xrf.string[0] != '#' ) return 
-  let frag = xrf.URI.parse( opts.xrf.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-  xrf.frag.updatePredefinedView({frag,scene:xrf.scene,href:opts.xrf})
-}) 
 // spec: https://xrfragment.org/#queries
 
 xrf.frag.q = function(v, opts){
@@ -1673,16 +1342,18 @@ xrf.frag.src = function(v, opts){
   opts.embedded = v // indicate embedded XR fragment
   let { mesh, model, camera, scene, renderer, THREE, hashbus, frag} = opts
 
-  console.log("   └ instancing src")
   let src;
   let url      = v.string
   let vfrag    = xrfragment.URI.parse(url)
   opts.isPlane = mesh.geometry && mesh.geometry.attributes.uv && mesh.geometry.attributes.uv.count == 4 
 
-  const addScene = (scene,url,frag) => {
+  const addModel = (model,url,frag) => {
+    let scene = model.scene
     src = xrf.frag.src.filterScene(scene,{...opts,frag})
     xrf.frag.src.scale( src, opts, url )
     xrf.frag.src.eval( src, opts, url )
+    // allow 't'-fragment to setup separate animmixer
+    xrf.emit('parseModel', {...opts, scene:src, model}) 
     enableSourcePortation(src)
     mesh.add(src)
     mesh.traverse( (n) => n.isSRC = n.isXRF = true )
@@ -1713,25 +1384,27 @@ xrf.frag.src = function(v, opts){
       let mimetype = res.headers.get('Content-type')
       if( url.replace(/#.*/,'').match(/\.(gltf|glb)$/)    ) mimetype = 'gltf'
       //if( url.match(/\.(fbx|stl|obj)$/) ) mimetype = 
-      console.log("src mimetype: "+mimetype)
-      opts = { ...opts, src, frag }
+      opts = { ...opts, src, frag, mimetype }
       return xrf.frag.src.type[ mimetype ] ? xrf.frag.src.type[ mimetype ](url,opts) : xrf.frag.src.type.unknown(url,opts)
     })
     .then( (model) => {
-      if( model && model.scene ) addScene(model.scene, url, frag )
+      if( model && model.scene ) addModel(model, url, frag )
     })
     .finally( () => { })
     .catch( console.error )
   }
 
-  if( url[0] == "#" ) addScene(scene,url,vfrag)    // current file 
-  else externalSRC(url,vfrag)                      // external file
+  if( url[0] == "#" ){ 
+    let modelClone = {...model, scene: model.scene.clone()}
+    modelClone.scenes = [modelClone.scene]
+    modelClone.animations = modelClone.animations.map( (a) => a.clone() )
+    addModel(modelClone,url,vfrag)    // current file 
+  }else externalSRC(url,vfrag)        // external file
 }
 
 xrf.frag.src.eval = function(scene, opts, url){
     let { mesh, model, camera, renderer, THREE, hashbus} = opts
     if( url ){
-      console.log(mesh.name+" url="+url)
       //let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
       //let frag = xrfragment.URI.parse(url)
       //// scale URI XR Fragments (queries) inside src-value 
@@ -1774,7 +1447,6 @@ xrf.frag.src.scale = function(scene, opts, url){
     }else{
       // spec 4 of https://xrfragment.org/#src
       // spec 2 of https://xrfragment.org/#scaling%20of%20instanced%20objects
-      console.log("normal scale: "+url)
       scene.scale.multiply( mesh.scale ) 
     }
     scene.isXRF = model.scene.isSRC = true
@@ -1793,13 +1465,13 @@ xrf.frag.src.filterScene = (scene,opts) => {
         }
         hashbus.pub.fragment(i, Object.assign(opts,{frag, model,scene}))
       }
-    }else src = scene.clone(true)
+    }
     if( src.children.length == 1 ) obj.position.set(0,0,0);
   }
 
   // filtering of objects using query
   if( frag.q ){
-    src = scene.clone(true);
+    src = scene
     xrf.frag.q.filter(src,frag)
   }
   src.traverse( (m) => {
@@ -1821,60 +1493,284 @@ xrf.frag.src.type = {}
 
 xrf.frag.src.type['unknown'] = function( url, opts ){
   return new Promise( (resolve,reject) => {
-    reject(`${url} mimetype not found or supported (yet)`)
+    reject(`${url} mimetype '${opts.mimetype}' not found or supported (yet)`)
   })
 }
 xrf.frag.t = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-  console.log(`   └ setting animation loop to ${v.x} ${v.y} ${v.z}` )
+  if( !model.mixer ) return 
   if( !model.animations || model.animations[0] == undefined ) return console.warn('no animation in scene')
 
-  model.mixer.t = v
-  let duration  = model.animations[0].duration
-  let frames    = model.animations[0].tracks[0].times.length
-  let mixer     = model.mixer
-  mixer.loop    = mixer.loop || {frameStart:0,frameStop:99999999,speed: 1}
-  let fps       = frames / duration 
+  xrf.mixers.map ( (mixer) => {
+    mixer.t = v
+    
+    // update speed
+    mixer.timeScale     = mixer.loop.speed = v.x
+    mixer.loop.speedAbs = Math.abs(v.x)
 
-  mixer.loop.speed    = v.x 
-  mixer.loop.speedAbs = Math.abs(v.x)
-  mixer.loop.frameStart = v.y || mixer.loop.frameStart
-  mixer.loop.frameStop  = v.z || mixer.loop.frameStop
-  // always recalculate time using frameStart/Stop 
-  mixer.loop.timeStart = mixer.loop.frameStart / (fps * mixer.loop.speedAbs)
-  mixer.loop.timeStop  = mixer.loop.frameStop  / (fps * mixer.loop.speedAbs)
-  
-  // update speed
-  mixer.timeScale = mixer.loop.speed
+    if( v.y != undefined || v.z != undefined ) mixer.updateLoop( v )
 
-  let updateTime = (time) => {
-    mixer.setTime(time)
-    mixer.time = Math.abs(mixer.time)
-    mixer.update(0)      // (forgetting) this little buddy costed me lots of time :]
-    // (re)trigger audio
-    xrf.audio.map( (a) => {
-      a.play() 
-      a.currentTime = time
+    // play animations
+    mixer.play( v )
+  })
+}
+
+xrf.frag.t.default = {
+  x:0,  // (play from) offset (in seconds)  
+  y:0   // optional: (stop at) offset (in seconds)
+}
+
+// setup animation mixer for global scene & src scenes
+xrf.addEventListener('parseModel', (opts) => {
+  let {model} = opts
+  let mixer   = model.mixer = new xrf.THREE.AnimationMixer(model.scene)
+  mixer.model = model
+  mixer.loop      = {}
+  mixer.i         = xrf.mixers.length
+
+  model.animations.map( (anim) => { 
+    anim.action = mixer.clipAction( anim, model.scene )
+  })
+
+  mixer.checkZombies = (animations) => {
+    if( mixer.zombieCheck ) return // fire only once
+    animations.map( (anim) => {  
+      // collect zombie animations and warn user
+      let zombies = anim.tracks.map( (t) => {
+        let name = t.name.replace(/\..*/,'')
+        return !model.scene.getObjectByName(name) ? {anim:anim.name,obj:t.name} : undefined 
+      })
+      if( zombies.length > 0 ){
+        zombies
+        .filter( (z) => z ) // filter out undefined
+        .map( (z) => console.warn(`gltf: object '${z.obj}' not found (anim: '${z.anim}'`) )
+        console.warn(`TIP: remove dots in objectnames in blender (which adds dots when duplicating)`)
+      } 
     })
+    mixer.zombieCheck = true
   }
 
-  if( v.y > 0 || v.z > 0 ) updateTime( mixer.loop.timeStart )
+  mixer.play  = (t) => {
+    mixer.isPlaying = t.x != 0
+    mixer.updateLoop(t)
+    xrf.emit( mixer.isPlaying === false ? 'stop' : 'play',{isPlaying: mixer.isPlaying})
+  }
+
+  mixer.stop = () => {
+    mixer.play(false)
+  }
+
+  mixer.updateLoop = (t) => {
+    mixer.loop.timeStart = t.y != undefined ? t.y : mixer.loop.timeStart
+    mixer.loop.timeStop  = t.z != undefined ? t.z : mixer.loop.timeStop
+    mixer.model.animations.map( (anim) => { 
+      if( mixer.loop.timeStart != undefined ){
+        //if( anim.action ) delete anim.action 
+        //anim.action = mixer.clipAction( anim )
+        anim.action.time = mixer.loop.timeStart
+        anim.action.setLoop( THREE.LoopOnce, )
+        anim.action.timeScale = mixer.timeScale
+        anim.action.enabled = true
+        if( t.x != 0 ) anim.action.play() 
+      }
+    })
+    mixer.setTime(mixer.loop.timeStart)
+    mixer.time = Math.abs( mixer.loop.timeStart )
+    mixer.update(0)
+    mixer.checkZombies( model.animations)
+  }
 
   // update loop when needed 
   if( !mixer.update.patched ){
     let update = mixer.update
     mixer.update = function(time){
       mixer.time = Math.abs(mixer.time)
-      if( time == 0 ) return update.call(mixer,time)
+      if( time == 0 ) return update.call(this,time)
 
-      if( mixer.loop.speed > 0.0 && mixer.time > mixer.loop.timeStop * mixer.loop.speedAbs ){ 
-        setTimeout( (time) => updateTime(time),0,mixer.loop.timeStart) // prevent recursion
+      // loop jump
+      if( mixer.loop.speed > 0.0 && mixer.time > mixer.loop.timeStop ){ 
+        setTimeout( (time,anims) => mixer.updateLoop(time), 0, mixer.loop.timeStart ) // prevent recursion
       }
-      return update.call( mixer, time )
+      return update.call( this, time )
     }
     mixer.update.patched = true
   }
+
+  // calculate total duration/frame based on longest animation
+  mixer.duration  = 0
+  if( model.animations.length ){
+    model.animations.map( (a) => mixer.duration = ( a.duration > mixer.duration ) ? a.duration : mixer.duration )
+  }
+
+  xrf.mixers.push(mixer)
+})
+
+if( document.location.hash.match(/t=/) ){
+  let url = document.location.href
+  let playAfterUserGesture = () => {
+    xrf.hashbus.pub(url) // re-post t fragment on the hashbus again
+    window.removeEventListener('click',playAfterUserGesture)
+    window.removeEventListener('touchstart',playAfterUserGesture)
+  }
+  window.addEventListener('click', playAfterUserGesture )
+  window.addEventListener('touchstart', playAfterUserGesture )
 }
+
+xrf.addEventListener('render', (opts) => {
+  let model = xrf.model
+  let {time} = opts
+  if( !model ) return 
+  if( xrf.mixers.length ){
+    xrf.mixers.map( (m) => m.isPlaying ? m.update( time ) : false )
+
+    // update active camera in case selected by dynamicKey in URI 
+    if( xrf.model.camera && model.mixer.isPlaying ){
+
+      let cam = xrf.camera.getCam() 
+      // cam.fov = model.cameras[0].fov (why is blender not exporting radians?)
+      cam.far = model.cameras[0].far
+      cam.near = model.cameras[0].near
+
+      let rig = xrf.camera
+      rig.position.copy( model.cameras[0].position )
+      rig.position.y -= rig.offsetY // VR/AR compensate camera rig
+      //rig.rotation.copy( model.cameras[0].rotation )
+
+      rig.updateProjectionMatrix()
+    }
+  }
+})
+
+xrf.addEventListener('dynamicKey', (opts) => {
+  // select active camera if any
+  let {id,match,v} = opts
+  console.dir(opts)
+  match.map( (w) => {
+    w.nodes.map( (node) => {
+      if( node.isCamera ){ 
+        console.log("setting camera to "+node.name)
+        xrf.model.camera = node 
+      }
+    })
+  })
+})
+xrf.frag.defaultPredefinedViews = (opts) => {
+  let {scene,model} = opts;
+  scene.traverse( (n) => {
+    if( n.userData && n.userData['#'] ){
+      let frag = xrf.URI.parse( n.userData['#'] )
+      xrf.hashbus.pub( n.userData['#'] )          // evaluate static XR fragments
+      xrf.hashbus.pub.XRWG({frag,model,scene})    // evaluate dynamic XR fragment using XRWG (see spec)
+    }
+  })
+}
+
+// react to enduser typing url
+xrf.addEventListener('hash', (opts) => {
+  let frag = xrf.URI.parse( opts.hash )
+  xrf.hashbus.pub.XRWG({frag,scene:xrf.scene})
+}) 
+
+// clicking href url with predefined view 
+xrf.addEventListener('href', (opts) => {
+  if( !opts.click || opts.xrf.string[0] != '#' ) return 
+  let frag = xrf.URI.parse( opts.xrf.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
+  xrf.hashbus.pub.XRWG({frag,scene:xrf.scene,href:opts.xrf})
+}) 
+xrf.addEventListener('dynamicKeyValue', (opts) => {
+  let {scene,match,v} = opts
+  let objname         = v.fragment
+  let autoscroll      = v.z > 0 || v.w > 0 
+
+  scene.traverse( (mesh) => {
+    if( mesh.name == objname ){
+      if( !mesh.geometry ) return console.warn(`mesh '${objname}' has no uvcoordinates to offset`)
+      let uv = mesh.geometry.getAttribute("uv")
+      if( !uv.old ) uv.old = uv.clone()
+
+      for( let i = 0; i < uv.count; i++ ){
+        uv.setXY(i, uv.old.getX(i) + v.x, uv.old.getY(i) + v.y )
+      }
+
+      if( autoscroll ){
+        if( mesh.removeUVListener ) mesh.removeUVListener()
+        mesh.removeUVListener = xrf.addEventListener('render', (opts) => {
+          let {time} = opts
+          for( let i = 0; i < uv.count; i++ ){
+            uv.setXY(i, uv.getX(i) + v.z * time, uv.getY(i) + v.w * time)
+          }
+          uv.needsUpdate = true
+        })
+      }
+      
+      uv.needsUpdate = true
+    }
+  })
+})
+xrf.addEventListener('dynamicKey', (opts) => {
+  let {scene,id,match,v} = opts
+  if( !scene ) return 
+  let remove = []
+  // erase previous lines
+  xrf.focusLine.lines.map( (line) => line.parent.remove(line) )
+  xrf.focusLine.points = []
+  xrf.focusLine.lines  = []
+
+  //scene.traverse( (n) => n.selection ? remove.push(n) : false )
+  //remove.map(     (n) => scene.remove(n.selection) )
+  // drawlines
+  match.map( (w) => {
+    w.nodes.map( (mesh) => xrf.drawLineToMesh({ ...opts, mesh}) )
+  })
+})
+
+xrf.drawLineToMesh = (opts) => {
+  let {scene,mesh,frag,id} = opts
+  let oldSelection
+  // Selection of Interest if predefined_view matches object name
+  if( mesh.visible && mesh.material){
+    xrf.emit('focus',{...opts,frag})
+    .then( () => {
+      const color    = new THREE.Color();
+      const colors   = []
+      let from       = new THREE.Vector3()
+
+      let getCenterPoint = (mesh) => {
+        var geometry = mesh.geometry;
+        geometry.computeBoundingBox();
+        var center = new THREE.Vector3();
+        geometry.boundingBox.getCenter( center );
+        mesh.localToWorld( center );
+        return center;
+      }         
+
+      xrf.camera.getCam().updateMatrixWorld(true); // always keeps me diving into the docs :]
+      xrf.camera.getCam().getWorldPosition(from)
+      from.y = 0.5 // originate from the heart chakra! :p
+      const points = [from, getCenterPoint(mesh) ]
+      const geometry = new THREE.BufferGeometry().setFromPoints( points );
+      let line = new THREE.Line( geometry, xrf.focusLine.material );
+      line.isXRF = true
+      line.computeLineDistances();
+      xrf.focusLine.lines.push(line)
+      xrf.focusLine.points.push(from)
+      xrf.focusLine.opacity = 1
+      scene.add(line)
+    })
+  }
+}
+
+xrf.addEventListener('render', (opts) => {
+  // update focusline 
+  let {time,model} = opts
+  if( !xrf.clock ) return 
+  xrf.focusLine.material.color.r  = (1.0 + Math.sin( xrf.clock.getElapsedTime()*10  ))/2
+  xrf.focusLine.material.dashSize = 0.2 + 0.02*Math.sin( xrf.clock.getElapsedTime()  )
+  xrf.focusLine.material.gapSize  = 0.1 + 0.02*Math.sin( xrf.clock.getElapsedTime() *3  )
+  xrf.focusLine.material.opacity  = (0.25 + 0.15*Math.sin( xrf.clock.getElapsedTime() * 3 )) * xrf.focusLine.opacity;
+  if( xrf.focusLine.opacity > 0.0 ) xrf.focusLine.opacity -= time*0.2
+  if( xrf.focusLine.opacity < 0.0 ) xrf.focusLine.opacity = 0
+})
 /*
  * mimetype: audio/aac 
  * mimetype: audio/mpeg 
@@ -1884,26 +1780,62 @@ xrf.frag.t = function(v, opts){
  */
 
 let loadAudio = (mimetype) => function(url,opts){
-  let {mesh} = opts
+  let {mesh,src,camera} = opts
   let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
+  let frag = xrf.URI.parse( url )
 
-  // global audio
-  if( mesh.position.x == 0 && mesh.position.y == 0 && mesh.position.z == 0 ){
-    let audio = window.document.createElement('audio')
-    // init fallback formats
-    let fallback  = ['mp3','ogg','wav','weba','aac']
-    let addSource = (ext) => {
-      const src     = window.document.createElement('source')
-      src.setAttribute("src", url)
-      src.setAttribute("type",mimetype)
-      audio.appendChild(src)
-    }
-    fallback
-    .filter( (e) => e != ext )
-    .map( addSource )
-    document.body.appendChild(audio)
-    xrf.audio.push(audio)
+  /* WebAudio: setup context via THREEjs */
+  if( !camera.listener ){
+    camera.listener = new THREE.AudioListener();
+	  camera.getCam().add( camera.listener );
   }
+
+  let isPositionalAudio = !(mesh.position.x == 0 && mesh.position.y == 0 && mesh.position.z == 0)
+  const audioLoader = new THREE.AudioLoader();
+  let sound = isPositionalAudio ? new THREE.PositionalAudio( camera.listener) 
+                                : new THREE.Audio( camera.listener )
+
+  audioLoader.load( url.replace(/#.*/,''), function( buffer ) {
+
+    sound.setBuffer( buffer );
+    sound.setLoop(false);
+    sound.setVolume(1.0);
+    if( isPositionalAudio ){
+      sound.setRefDistance( mesh.scale.x);
+      sound.setRolloffFactor(20.0)
+      //sound.setDirectionalCone( 360, 360, 0.01 );
+    }
+
+    sound.playXRF = (t) => {
+
+      if( sound.isPlaying && t.y != undefined ) sound.stop()
+      if( sound.isPlaying && t.y == undefined ) sound.pause()
+
+      let hardcodedLoop = frag.t != undefined
+      t = hardcodedLoop ? { ...frag.t, x: t.x} : t // override with hardcoded metadata except playstate (x)
+      if( t && t.x != 0 ){
+        // *TODO* https://stackoverflow.com/questions/12484052/how-can-i-reverse-playback-in-web-audio-api-but-keep-a-forward-version-as-well 
+        t.x = Math.abs(t.x)
+        sound.setPlaybackRate( t.x ) // WebAudio does not support negative playback
+        // setting loop
+        if( t.z ) sound.setLoop( true )
+        // apply embedded audio/video samplerate/fps or global mixer fps
+        let loopStart = hardcodedLoop ? t.y : t.y * buffer.sampleRate;
+        let loopEnd   = hardcodedLoop ? t.z : t.z * buffer.sampleRate;
+        let timeStart = loopStart > 0 ? loopStart : (t.y == undefined ? xrf.model.mixer.time : t.y)
+
+        if( t.z > 0 ) sound.setLoopEnd(   loopEnd   )
+        if( t.y != undefined ){ 
+          console.dir({loopStart,t})
+          sound.setLoopStart( loopStart )
+          sound.offset = loopStart 
+        }
+        sound.play()
+      }
+    }
+    mesh.add(sound)
+    xrf.audio.push(sound)
+  });
 }
 
 let audioMimeTypes = [
@@ -1911,11 +1843,15 @@ let audioMimeTypes = [
   'audio/mpeg',
   'audio/weba',
   'audio/aac',
-  'audio/ogg',
   'application/ogg'
 ]
 audioMimeTypes.map( (mimetype) =>  xrf.frag.src.type[ mimetype ] = loadAudio(mimetype) )
 
+// listen to t XR fragment changes
+xrf.addEventListener('t', (opts) => {
+  let t = opts.frag.t
+  xrf.audio.map( (a) => a.playXRF(t) )
+})
 /*
  * mimetype: model/gltf+json
  */
@@ -1948,38 +1884,100 @@ xrf.frag.src.type['gltf'] = function( url, opts ){
 xrf.frag.src.type['image/png'] = function(url,opts){
   let {mesh} = opts
   let restrictTo3DBoundingBox = mesh.geometry
-  const texture = new THREE.TextureLoader().load( url );
-	texture.colorSpace = THREE.SRGBColorSpace;
 
-  //const geometry = new THREE.BoxGeometry();
-  const material = new THREE.MeshBasicMaterial({ 
-    map: texture, 
-    transparent: url.match(/(png|gif)/) ? true : false,
-    side: THREE.DoubleSide,
-    color: 0xFFFFFF,
-    opacity:1
-  });
+  let renderEquirect = (texture) => {
+    console.dir(texture)
+    texture.mapping = THREE.EquirectangularReflectionMapping
+    texture.needsUpdate = true
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.magFilter =  THREE.NearestFilter 
+    texture.minFilter =  THREE.NearestFilter 
 
-  // stretch image by pinning uv-coordinates to corners 
-  if( mesh.geometry ){
-    if( mesh.geometry.attributes.uv ){ // buffergeometries 
-      let uv = mesh.geometry.attributes.uv;
-      //       i  u  v
-      uv.setXY(0, 0, 0 )
-      uv.setXY(1, 1, 0 )
-      uv.setXY(2, 0, 1 )
-      uv.setXY(3, 1, 1 )
-    }else {
-      console.warn("xrfragment: uv's of ${url} might be off for non-buffer-geometries *TODO*")
-      //if( geometry.faceVertexUvs ){
-      // *TODO* force uv's of dynamically created geometries (in threejs)
-      //}
+    // poor man's equi-portal
+    mesh.material = new THREE.ShaderMaterial( {
+      side: THREE.DoubleSide,
+      uniforms: {
+        pano: { value: texture },
+        selected: { value: false },
+      },
+      vertexShader: `
+         vec3 portalPosition;
+         varying vec3 vWorldPosition;
+         varying float vDistanceToCenter;
+         varying float vDistance;
+         void main() {
+           vDistanceToCenter = clamp(length(position - vec3(0.0, 0.0, 0.0)), 0.0, 1.0);
+           portalPosition = (modelMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+           vDistance = length(portalPosition - cameraPosition);
+           vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+         }
+      `,
+      fragmentShader: `
+        #define RECIPROCAL_PI2 0.15915494
+        uniform sampler2D pano;
+        uniform bool selected;
+        varying float vDistanceToCenter;
+        varying float vDistance;
+        varying vec3 vWorldPosition;
+        void main() {
+          vec3 direction = normalize(vWorldPosition - cameraPosition );
+          vec2 sampleUV;
+          sampleUV.y = clamp(direction.y * 0.5  + 0.5, 0.0, 1.0);
+          sampleUV.x = atan(direction.z, -direction.x) * -RECIPROCAL_PI2;
+          sampleUV.x += 0.33; // adjust focus to AFRAME's a-scene.components.screenshot.capture()
+          vec4 color = texture2D(pano, sampleUV);
+          vec4 selected_color = selected ? color*vec4(1.5) : color;
+          gl_FragColor = selected_color; 
+        }
+      `,
+    });
+    mesh.material.needsUpdate = true
+  }
+
+  let renderImage = (texture) => {
+    let img = {w: texture.source.data.width, h: texture.source.data.height}
+
+    // stretch image by pinning uv-coordinates to corners 
+    if( mesh.geometry ){
+      if( mesh.geometry.attributes.uv ){ // buffergeometries 
+        let uv = mesh.geometry.attributes.uv;
+      }else {
+        console.warn("xrfragment: uv's of ${url} might be off for non-buffer-geometries *TODO*")
+        //if( geometry.faceVertexUvs ){
+        // *TODO* force uv's of dynamically created geometries (in threejs)
+        //}
+      }
+    }
+    //const geometry = new THREE.BoxGeometry();
+    mesh.material = new THREE.MeshBasicMaterial({ 
+      map: texture, 
+      transparent: url.match(/(png|gif)/) ? true : false,
+      side: THREE.DoubleSide,
+      color: 0xFFFFFF,
+      opacity:1
+    });
+  } 
+
+  let onLoad = (texture) => {
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    // detect equirectangular image
+    if( texture && texture.source.data.height == texture.source.data.width/2 ){
+      renderEquirect(texture)
+    }else{
+      renderImage(texture)
     }
   }
-  mesh.material = material
+
+  new THREE.TextureLoader().load( url, onLoad, null, console.error );
+
 }
+
 xrf.frag.src.type['image/gif'] = xrf.frag.src.type['image/png']
-xrf.frag.src.type['image/jpg'] = xrf.frag.src.type['image/png']
+xrf.frag.src.type['image/jpeg'] = xrf.frag.src.type['image/png']
 
 window.AFRAME.registerComponent('xrf', {
   schema: {
@@ -1987,9 +1985,6 @@ window.AFRAME.registerComponent('xrf', {
   init: function () {
     if( !AFRAME.XRF ){
       document.querySelector('a-scene').addEventListener('loaded', () => {
-
-        //window.addEventListener('popstate', clear )
-        //window.addEventListener('pushstate', clear )
 
         // enable XR fragments
         let aScene = document.querySelector('a-scene')
@@ -2006,15 +2001,6 @@ window.AFRAME.registerComponent('xrf', {
         })
         if( !XRF.camera ) throw 'xrfragment: no camera detected, please declare <a-entity camera..> ABOVE entities with xrf-attributes'
 
-        // override the camera-related XR Fragments so the camera-rig is affected
-        let camOverride = (xrf,v,opts) => {
-          opts.camera = document.querySelector('[camera]').object3D.parent
-          xrf(v,opts)
-        }
-
-        xrf.pos  = camOverride
-        xrf.href = camOverride 
-
         // in order to set the rotation programmatically
         // we need to disable look-controls
         xrf.rot  = (xrf,v,opts) => {
@@ -2022,7 +2008,6 @@ window.AFRAME.registerComponent('xrf', {
           if( frag.q ) return // camera was not targeted for rotation 
           let look = document.querySelector('[look-controls]')
           if( look ) look.removeAttribute("look-controls")
- //         camOverride(xrf,v,opts)
           // *TODO* make look-controls compatible, because simply
           // adding the look-controls will revert to the old rotation (cached somehow?)
           //setTimeout( () => look.setAttribute("look-controls",""), 100 )
@@ -2038,28 +2023,24 @@ window.AFRAME.registerComponent('xrf', {
           el.setAttribute("pressable", '')       // detect hand-controller click
           // add click
           el.addEventListener("click",          clickHandler )
-          el.addEventListener("pressedstarted", clickHandler )
-  //      this.el.addEventListener("buttondown",    console.dir )
-  //      this.el.addEventListener("touchstart",    console.dir )
-  //      this.el.addEventListener("triggerdown",   console.dir )
-  //      this.el.addEventListener("gripdown",      console.dir )
-  //      this.el.addEventListener("abuttondown",   console.dir )
-  //      this.el.addEventListener("pinchended",    console.dir )
-
+          //el.addEventListener("pressedstarted", clickHandler )
           $('a-scene').appendChild(el)
         }
         xrf.addEventListener('interactionReady', AFRAME.XRF.clickableMeshToEntity )
 
         // cleanup xrf-get objects when resetting scene
-        xrf.reset = ((reset) => () => {
-          reset()
+        xrf.addEventListener('reset', (opts) => {
           console.log("aframe reset")
           let els = [...document.querySelectorAll('[xrf-get]')]
           els.map( (el) => document.querySelector('a-scene').removeChild(el) )
-        })(XRF.reset)
+        })
 
-        // undo lookup-control shenanigans (which blocks updating camerarig position in VR)
-        aScene.addEventListener('enter-vr', () => document.querySelector('[camera]').object3D.parent.matrixAutoUpdate = true )
+        aScene.addEventListener('enter-vr', () => {
+          // undo lookup-control shenanigans (which blocks updating camerarig position in VR)
+          document.querySelector('[camera]').object3D.parent.matrixAutoUpdate = true 
+          document.querySelector('[camera]').removeAttribute("look-controls")
+          document.querySelector('[camera]').removeAttribute("wasd-controls")
+        })
 
         AFRAME.XRF.navigator.to(this.data)
                            .then( (model) => {
@@ -2219,25 +2200,29 @@ AFRAME.registerComponent('xrf-gaze',{
   init:function(data){
     this.immersive = false;
     let enabled    = () => AFRAME.utils.device.isMobile()
-    let setVisible = () => document.querySelector('[cursor]').setAttribute('visible', enabled() )
+    let setVisible = () => {
+      let cursor = document.querySelector('[cursor]')
+      if( cursor ) cursor.setAttribute('visible', enabled() ) 
+    }
+
     this.setGazer(enabled())
-    if( enabled() ) setVisible();
+    setVisible();
 
     document.querySelector("a-scene").addEventListener('exit-vr', () => {
       this.immersive = false;
       setVisible()
     })
+
     document.querySelector("a-scene").addEventListener('enter-vr', () => {
       this.immersive = true;
       setVisible()
       if( !document.querySelector("#cursor") ) return
     })
 
-
     let highlightMesh = (state) => (e) => {
       if( !e.target.object3D ) return 
       let obj = e.target.object3D.children[0]
-      if( obj.userData && obj.userData.XRF && obj.userData.XRF.href )
+      if( obj && obj.userData && obj.userData.XRF && obj.userData.XRF.href )
         obj.userData.XRF.href.selected( state )()
     }
     this.el.addEventListener("mouseenter", highlightMesh(true) )
@@ -2247,7 +2232,8 @@ AFRAME.registerComponent('xrf-gaze',{
 window.AFRAME.registerComponent('xrf-get', {
   schema: {
     name: {type: 'string'},
-    clone: {type: 'boolean', default:false}
+    clone: {type: 'boolean', default:false},
+    reparent: {type: 'boolean', default:false}
   },
 
   init: function () {
@@ -2266,17 +2252,26 @@ window.AFRAME.registerComponent('xrf-get', {
             console.error("mesh with name '"+meshname+"' not found in model")
             return;
           }
-          // convert to worldcoordinates
-          mesh.getWorldPosition(mesh.position)
-          mesh.getWorldScale(mesh.scale)
-          mesh.getWorldQuaternion(mesh.quaternion)
+          // we don't want to re-parent gltf-meshes
           mesh.isXRF = true    // mark for deletion by xrf
+          if( this.data.reparent ){ 
+            const world = { 
+              pos: new THREE.Vector3(), 
+              scale: new THREE.Vector3(),
+              quat: new THREE.Quaternion()
+            }
+            mesh.getWorldPosition(world.pos)
+            mesh.getWorldScale(world.scale)
+            mesh.getWorldQuaternion(world.quat);
+            mesh.position.copy(world.pos)
+            mesh.scale.copy(world.scale)
+            mesh.setRotationFromQuaternion(world.quat);
+          }else{
+            // add() will reparent the mesh so lets create a dummy
+            this.el.object3D.add = (a) => a 
+          }
           this.el.setObject3D('mesh',mesh)
-          // normalize position
-          //this.el.object3D.position.copy( mesh.position )
-          //mesh.position.fromArray([0,0,0])
           if( !this.el.id ) this.el.setAttribute("id",`xrf-${mesh.name}`)
-
         }
       },500)
 

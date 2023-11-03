@@ -133,15 +133,17 @@ StringTools.trim = function(s) {
 var Test = function() { };
 Test.__name__ = true;
 Test.main = function() {
-	Test.test([{ fn : "url", expect : { fn : "equal.xyz", input : "pos", out : false}, label : "equal.xyz: should trigger incompatible type)", data : "http://foo.com?foo=1#pos=1.2,2.2"},{ fn : "url", expect : { fn : "equal.xyz", input : "pos", out : "1.2,2.2,3"}, label : "equal.xyz", data : "http://foo.com?foo=1#pos=1.2,2.2,3"},{ fn : "url", expect : { fn : "equal.xy", input : "t", out : "1,100"}, label : "a equal.xy", data : "http://foo.com?foo=1#t=1,100"},{ fn : "url", expect : { fn : "testParsed", input : "prio", out : false}, label : "should trigger incompatible type", data : "http://foo.com?foo=1#prio=foo"},{ fn : "url", expect : { fn : "equal.multi", input : "pos", out : "c|d|1,2,3"}, label : "b equal.multi", data : "http://foo.com?foo=1#pos=c|d|1,2,3"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "t", out : true}, label : "browser URI can override t (defined in asset)", data : "http://foo.com?foo=1#t=2,500"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "q", out : false}, label : "browser URI cannot override q (defined in asset)", data : "http://foo.com?foo=1#q=-bar"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "scale", out : false}, label : "scale does not have NAVIGATOR set", data : "http://foo.com?foo=1#scale=2,2,2"},{ fn : "url", expect : { fn : "testEmbedOverride", input : "scale", out : true}, label : "embedded (src) URI can override scale", data : "http://foo.com?foo=1#scale=2,2,2"},{ fn : "url", expect : { fn : "testPredefinedView", input : "mypredefinedview", out : true}, label : "test predefined view executed", data : "http://foo.com?foo=1#mypredefinedview"},{ fn : "url", expect : { fn : "testPredefinedView", input : "another", out : true}, label : "test predefined view executed (multiple)", data : "http://foo.com?foo=1#mypredefinedview&another"},{ fn : "url", expect : { fn : "testPredefinedView", input : "mypredefinedview", out : true}, label : "test predefined view executed (multiple)", data : "http://foo.com?foo=1#mypredefinedview&another"},{ fn : "url", expect : { fn : "testPropertyAssign", input : "cube.position.x", out : true}, label : "test data assign", data : "#cube.position.x=music.position.x"},{ fn : "url", expect : { fn : "testPropertyAssign", input : "cube.position.x", out : true}, label : "test one-way data bind", data : "#cube.position.x=@music.position.x"},{ fn : "url", expect : { fn : "testParsed", input : "mycustom", out : true}, label : "test custom property", data : "http://foo.com?foo=1#mycustom=foo"}]);
-	Test.test([{ fn : "query", expect : { fn : "testProperty", input : ["tag","bar"], out : true}, data : "tag:bar"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : false}, data : "tag:bar -tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, data : "tag:bar -tag:foo tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","bar"], out : true}, data : "tag:bar -tag:bar tag:bar"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, label : "tag:foo", data : "tag:foo -tag:foo tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, label : "tag:foo", data : "tag:foo -tag:foo bar:5 tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, label : "tag:foo", data : "tag:foo -tag:foo bar:>5 tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, label : "tag:foo", data : "tag:foo -tag:foo bar:>5 tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, label : "tag:foo", data : "tag:foo -tag:foo tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["id","foo"], out : true}, label : "id:foo", data : "tag:foo -tag:foo tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["id","foo"], out : true}, label : "id:foo?", data : "tag:foo -foo foo"},{ fn : "query", expect : { fn : "testQueryRoot", input : ["foo"], out : true}, label : "foo should be root-only", data : "/foo"},{ fn : "query", expect : { fn : "testQueryRoot", input : ["foo"], out : false}, label : "foo should recursively selected", data : "/foo foo"}]);
-	Test.test([]);
-	Test.test([{ fn : "query", expect : { fn : "testProperty", input : ["price","10"], out : true}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","10"], out : false}, data : "price:>=15"},{ fn : "query", expect : { fn : "testProperty", input : ["price","4"], out : false}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","0"], out : false}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","2"], out : true}, data : "price:>=2"},{ fn : "query", expect : { fn : "testProperty", input : ["price","1"], out : false}, label : "price=1", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["price","0"], out : true}, label : "price=0", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["price","6"], out : true}, label : "price=6", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, data : "tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : false}, data : "-tag:foo"},{ fn : "query", expect : { fn : "testPropertyExclude", input : ["tag","foo"], out : true}, label : "testExclude", data : "-tag:foo"},{ fn : "query", expect : { fn : "test", input : [{ price : 5}], out : true}, data : ".foo price:5 -tag:foo"},{ fn : "query", expect : { fn : "test", input : [{ tag : "foo", price : 5}], out : false}, data : ".foo price:5 -tag:foo"}]);
+	Test.test("url.json",[{ fn : "url", expect : { fn : "equal.xyz", input : "pos", out : false}, label : "equal.xyz: should trigger incompatible type)", data : "http://foo.com?foo=1#pos=1.2,2.2"},{ fn : "url", expect : { fn : "equal.xyz", input : "pos", out : "1.2,2.2,3"}, label : "equal.xyz", data : "http://foo.com?foo=1#pos=1.2,2.2,3"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "q", out : false}, label : "browser URI cannot override q (defined in asset)", data : "http://foo.com?foo=1#q=-bar"},{ fn : "url", expect : { fn : "testPredefinedView", input : "mypredefinedview", out : true}, label : "test predefined view executed", data : "http://foo.com?foo=1#mypredefinedview"},{ fn : "url", expect : { fn : "testPredefinedView", input : "another", out : true}, label : "test predefined view executed (multiple)", data : "http://foo.com?foo=1#mypredefinedview&another"},{ fn : "url", expect : { fn : "testPredefinedView", input : "mypredefinedview", out : true}, label : "test predefined view executed (multiple)", data : "http://foo.com?foo=1#mypredefinedview&another"},{ fn : "url", expect : { fn : "testParsed", input : "mycustom", out : true}, label : "test custom property", data : "http://foo.com?foo=1#mycustom=foo"}]);
+	Test.test("t.json",[{ fn : "url", expect : { fn : "equal.x", input : "t", out : "1"}, label : "a equal.x", data : "http://foo.com?foo=1#t=1"},{ fn : "url", expect : { fn : "equal.x", input : "t", out : "-1"}, label : "a equal.x", data : "http://foo.com?foo=1#t=-1"},{ fn : "url", expect : { fn : "equal.x", input : "t", out : "-1.02"}, label : "a equal.x", data : "http://foo.com?foo=1#t=-1.02"},{ fn : "url", expect : { fn : "equal.xy", input : "t", out : "1,2"}, label : "a equal.xy", data : "http://foo.com?foo=1#t=1,2,3"},{ fn : "url", expect : { fn : "equal.xyz", input : "t", out : "1,2,3"}, label : "a equal.xyz", data : "http://foo.com?foo=1#t=1,2,3"},{ fn : "url", expect : { fn : "equal.xyz", input : "t", out : "1,-2,3"}, label : "a equal.xyz", data : "http://foo.com?foo=1#t=1,-2,3"},{ fn : "url", expect : { fn : "equal.xy", input : "t", out : "1,100"}, label : "a equal.xy", data : "http://foo.com?foo=1#t=1,100"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "t", out : true}, label : "browser URI can override t (defined in asset)", data : "http://foo.com?foo=1#t=2,500"}]);
+	Test.test("q.selectors.json",[{ fn : "query", expect : { fn : "testProperty", input : ["tag","bar"], out : true}, data : "tag:bar"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : false}, data : "tag:bar -tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, data : "tag:bar -tag:foo tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","bar"], out : true}, data : "tag:bar -tag:bar tag:bar"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, label : "tag:foo", data : "tag:foo -tag:foo tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, label : "tag:foo", data : "tag:foo -tag:foo bar:5 tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, label : "tag:foo", data : "tag:foo -tag:foo bar:>5 tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, label : "tag:foo", data : "tag:foo -tag:foo bar:>5 tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, label : "tag:foo", data : "tag:foo -tag:foo tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["id","foo"], out : true}, label : "id:foo", data : "tag:foo -tag:foo tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["id","foo"], out : true}, label : "id:foo?", data : "tag:foo -foo foo"},{ fn : "query", expect : { fn : "testQueryRoot", input : ["foo"], out : true}, label : "foo should be root-only", data : "/foo"},{ fn : "query", expect : { fn : "testQueryRoot", input : ["foo"], out : false}, label : "foo should recursively selected", data : "/foo foo"}]);
+	Test.test("q.root.json",[]);
+	Test.test("q.rules.json",[{ fn : "query", expect : { fn : "testProperty", input : ["price","10"], out : true}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","10"], out : false}, data : "price:>=15"},{ fn : "query", expect : { fn : "testProperty", input : ["price","4"], out : false}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","0"], out : false}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","2"], out : true}, data : "price:>=2"},{ fn : "query", expect : { fn : "testProperty", input : ["price","1"], out : false}, label : "price=1", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["price","0"], out : true}, label : "price=0", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["price","6"], out : true}, label : "price=6", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, data : "tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : false}, data : "-tag:foo"},{ fn : "query", expect : { fn : "testPropertyExclude", input : ["tag","foo"], out : true}, label : "testExclude", data : "-tag:foo"},{ fn : "query", expect : { fn : "test", input : [{ price : 5}], out : true}, data : ".foo price:5 -tag:foo"},{ fn : "query", expect : { fn : "test", input : [{ tag : "foo", price : 5}], out : false}, data : ".foo price:5 -tag:foo"}]);
 	if(Test.errors > 1) {
-		console.log("src/Test.hx:23:","\n-----\n[ ❌] " + Test.errors + " errors :/");
+		console.log("src/Test.hx:24:","\n-----\n[ ❌] " + Test.errors + " errors :/");
 	}
 };
-Test.test = function(spec) {
+Test.test = function(topic,spec) {
+	console.log("src/Test.hx:28:","\n[.] running " + topic);
 	var Query = xrfragment_Query;
 	var _g = 0;
 	var _g1 = spec.length;
@@ -188,23 +190,32 @@ Test.test = function(spec) {
 		if(item.expect.fn == "equal.string") {
 			valid = res[item.expect.input] && item.expect.out == res[item.expect.input].string;
 		}
+		if(item.expect.fn == "equal.x") {
+			valid = Test.equalX(res,item);
+		}
 		if(item.expect.fn == "equal.xy") {
 			valid = Test.equalXY(res,item);
 		}
 		if(item.expect.fn == "equal.xyz") {
 			valid = Test.equalXYZ(res,item);
 		}
-		if(item.expect.fn == "equal.multi") {
-			valid = Test.equalMulti(res,item);
-		}
 		if(item.expect.fn == "testQueryRoot") {
 			valid = item.expect.out == q.get()[item.expect.input[0]].root;
 		}
 		var ok = valid ? "[ ✔ ] " : "[ ❌] ";
-		console.log("src/Test.hx:49:",ok + Std.string(item.fn) + ": '" + Std.string(item.data) + "'" + (item.label ? "    (" + (item.label ? item.label : item.expect.fn) + ")" : ""));
+		console.log("src/Test.hx:51:",ok + Std.string(item.fn) + ": '" + Std.string(item.data) + "'" + (item.label ? "    (" + (item.label ? item.label : item.expect.fn) + ")" : ""));
 		if(!valid) {
 			Test.errors += 1;
 		}
+	}
+};
+Test.equalX = function(res,item) {
+	if(!item.expect.out && !res[item.expect.input]) {
+		return true;
+	} else if(res[item.expect.input]) {
+		return item.expect.out == Std.string(res[item.expect.input].x);
+	} else {
+		return false;
 	}
 };
 Test.equalXY = function(res,item) {
@@ -221,25 +232,6 @@ Test.equalXYZ = function(res,item) {
 		return true;
 	} else if(res[item.expect.input]) {
 		return item.expect.out == Std.string(res[item.expect.input].x) + "," + Std.string(res[item.expect.input].y) + "," + Std.string(res[item.expect.input].z);
-	} else {
-		return false;
-	}
-};
-Test.equalMulti = function(res,item) {
-	var target = res[item.expect.input];
-	var str = "";
-	if(!target) {
-		return false;
-	}
-	var _g = 0;
-	var _g1 = target.args.length;
-	while(_g < _g1) {
-		var i = _g++;
-		str = str + "|" + target.args[i].string;
-	}
-	str = HxOverrides.substr(str,1,null);
-	if(item.expect.out) {
-		return str == item.expect.out;
 	} else {
 		return false;
 	}
@@ -332,14 +324,15 @@ xrfragment_Parser.parse = function(key,value,store) {
 	Frag_h["src"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL;
 	Frag_h["href"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.T_PREDEFINED_VIEW;
 	Frag_h["tag"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING_OBJ | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
+	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING_OBJ | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
 	Frag_h["q"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.METADATA;
-	Frag_h["scale"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
-	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
-	Frag_h["mov"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
-	Frag_h["show"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_INT | xrfragment_XRF.METADATA;
+	Frag_h["scale"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
+	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
+	Frag_h["mov"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
+	Frag_h["show"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_INT | xrfragment_XRF.METADATA;
 	Frag_h["env"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.METADATA;
-	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
+	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_FLOAT | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.T_STRING | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
+	Frag_h["tv"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_FLOAT | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
 	Frag_h["gravity"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
 	Frag_h["physics"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
 	Frag_h["fov"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_INT | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
@@ -362,12 +355,12 @@ xrfragment_Parser.parse = function(key,value,store) {
 	var v = new xrfragment_XRF(key,Frag_h[key]);
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		if(!v.validate(value)) {
-			console.log("src/xrfragment/Parser.hx:79:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:80:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 		store[key] = v;
 		if(xrfragment_Parser.debug) {
-			console.log("src/xrfragment/Parser.hx:83:","✔ " + key + ": " + v.string);
+			console.log("src/xrfragment/Parser.hx:84:","✔ " + key + ": " + v.string);
 		}
 	} else {
 		if(typeof(value) == "string") {
@@ -600,68 +593,53 @@ xrfragment_XRF.unset = function(flag,flags) {
 };
 xrfragment_XRF.prototype = {
 	is: function(flag) {
+		var v = this.flags;
+		if(!(typeof(v) == "number" && ((v | 0) === v))) {
+			this.flags = 0;
+		}
 		return (this.flags & flag) != 0;
 	}
 	,validate: function(value) {
 		this.guessType(this,value);
-		if(value.split("|").length > 1) {
-			this.args = [];
-			var args = value.split("|");
-			var _g = 0;
-			var _g1 = args.length;
-			while(_g < _g1) {
-				var i = _g++;
-				var x = new xrfragment_XRF(this.fragment,this.flags);
-				this.guessType(x,args[i]);
-				this.args.push(x);
-			}
-		}
 		if(this.fragment == "q") {
 			this.query = new xrfragment_Query(value).get();
 		}
 		var ok = true;
-		if(!((this.args) instanceof Array)) {
-			if(this.is(xrfragment_XRF.T_VECTOR3) && !(typeof(this.x) == "number" && typeof(this.y) == "number" && typeof(this.z) == "number")) {
-				ok = false;
-			}
-			if(this.is(xrfragment_XRF.T_VECTOR2) && !(typeof(this.x) == "number" && typeof(this.y) == "number")) {
-				ok = false;
-			}
-			var tmp;
-			if(this.is(xrfragment_XRF.T_INT)) {
-				var v = this.int;
-				tmp = !(typeof(v) == "number" && ((v | 0) === v));
-			} else {
-				tmp = false;
-			}
-			if(tmp) {
-				ok = false;
-			}
+		if(!this.is(xrfragment_XRF.T_FLOAT) && this.is(xrfragment_XRF.T_VECTOR2) && !(typeof(this.x) == "number" && typeof(this.y) == "number")) {
+			ok = false;
+		}
+		if(!this.is(xrfragment_XRF.T_VECTOR2) && this.is(xrfragment_XRF.T_VECTOR3) && !(typeof(this.x) == "number" && typeof(this.y) == "number" && typeof(this.z) == "number")) {
+			ok = false;
 		}
 		return ok;
 	}
 	,guessType: function(v,str) {
 		v.string = str;
 		if(str.split(",").length > 1) {
-			var xyz = str.split(",");
-			if(xyz.length > 0) {
-				v.x = parseFloat(xyz[0]);
+			var xyzw = str.split(",");
+			if(xyzw.length > 0) {
+				v.x = parseFloat(xyzw[0]);
 			}
-			if(xyz.length > 1) {
-				v.y = parseFloat(xyz[1]);
+			if(xyzw.length > 1) {
+				v.y = parseFloat(xyzw[1]);
 			}
-			if(xyz.length > 2) {
-				v.z = parseFloat(xyz[2]);
+			if(xyzw.length > 2) {
+				v.z = parseFloat(xyzw[2]);
+			}
+			if(xyzw.length > 3) {
+				v.w = parseFloat(xyzw[3]);
 			}
 		}
 		if(xrfragment_XRF.isColor.match(str)) {
 			v.color = str;
 		}
 		if(xrfragment_XRF.isFloat.match(str)) {
-			v.float = parseFloat(str);
+			v.x = parseFloat(str);
+			v.float = v.x;
 		}
 		if(xrfragment_XRF.isInt.match(str)) {
 			v.int = Std.parseInt(str);
+			v.x = v.int;
 		}
 	}
 };
@@ -694,8 +672,8 @@ xrfragment_XRF.T_STRING = 1048576;
 xrfragment_XRF.T_STRING_OBJ = 2097152;
 xrfragment_XRF.T_STRING_OBJ_PROP = 4194304;
 xrfragment_XRF.isColor = new EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","");
-xrfragment_XRF.isInt = new EReg("^[0-9]+$","");
-xrfragment_XRF.isFloat = new EReg("^[0-9]+\\.[0-9]+$","");
+xrfragment_XRF.isInt = new EReg("^[-0-9]+$","");
+xrfragment_XRF.isFloat = new EReg("^[-0-9]+\\.[0-9]+$","");
 xrfragment_XRF.isVector = new EReg("([,]+|\\w)","");
 xrfragment_XRF.isUrl = new EReg("(://)?\\..*","");
 xrfragment_XRF.isUrlOrPretypedView = new EReg("(^#|://)?\\..*","");

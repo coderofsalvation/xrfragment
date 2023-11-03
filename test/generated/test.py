@@ -381,19 +381,21 @@ class StringTools:
 class Test:
     _hx_class_name = "Test"
     __slots__ = ()
-    _hx_statics = ["errors", "main", "test", "equalXY", "equalXYZ", "equalMulti"]
+    _hx_statics = ["errors", "main", "test", "equalX", "equalXY", "equalXYZ"]
 
     @staticmethod
     def main():
-        Test.test([_hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xyz", 'input': "pos", 'out': False}), 'label': "equal.xyz: should trigger incompatible type)", 'data': "http://foo.com?foo=1#pos=1.2,2.2"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xyz", 'input': "pos", 'out': "1.2,2.2,3"}), 'label': "equal.xyz", 'data': "http://foo.com?foo=1#pos=1.2,2.2,3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xy", 'input': "t", 'out': "1,100"}), 'label': "a equal.xy", 'data': "http://foo.com?foo=1#t=1,100"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testParsed", 'input': "prio", 'out': False}), 'label': "should trigger incompatible type", 'data': "http://foo.com?foo=1#prio=foo"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.multi", 'input': "pos", 'out': "c|d|1,2,3"}), 'label': "b equal.multi", 'data': "http://foo.com?foo=1#pos=c|d|1,2,3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testBrowserOverride", 'input': "t", 'out': True}), 'label': "browser URI can override t (defined in asset)", 'data': "http://foo.com?foo=1#t=2,500"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testBrowserOverride", 'input': "q", 'out': False}), 'label': "browser URI cannot override q (defined in asset)", 'data': "http://foo.com?foo=1#q=-bar"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testBrowserOverride", 'input': "scale", 'out': False}), 'label': "scale does not have NAVIGATOR set", 'data': "http://foo.com?foo=1#scale=2,2,2"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testEmbedOverride", 'input': "scale", 'out': True}), 'label': "embedded (src) URI can override scale", 'data': "http://foo.com?foo=1#scale=2,2,2"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testPredefinedView", 'input': "mypredefinedview", 'out': True}), 'label': "test predefined view executed", 'data': "http://foo.com?foo=1#mypredefinedview"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testPredefinedView", 'input': "another", 'out': True}), 'label': "test predefined view executed (multiple)", 'data': "http://foo.com?foo=1#mypredefinedview&another"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testPredefinedView", 'input': "mypredefinedview", 'out': True}), 'label': "test predefined view executed (multiple)", 'data': "http://foo.com?foo=1#mypredefinedview&another"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testPropertyAssign", 'input': "cube.position.x", 'out': True}), 'label': "test data assign", 'data': "#cube.position.x=music.position.x"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testPropertyAssign", 'input': "cube.position.x", 'out': True}), 'label': "test one-way data bind", 'data': "#cube.position.x=@music.position.x"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testParsed", 'input': "mycustom", 'out': True}), 'label': "test custom property", 'data': "http://foo.com?foo=1#mycustom=foo"})])
-        Test.test([_hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "bar"], 'out': True}), 'data': "tag:bar"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': False}), 'data': "tag:bar -tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': True}), 'data': "tag:bar -tag:foo tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "bar"], 'out': True}), 'data': "tag:bar -tag:bar tag:bar"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': True}), 'label': "tag:foo", 'data': "tag:foo -tag:foo tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': True}), 'label': "tag:foo", 'data': "tag:foo -tag:foo bar:5 tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': True}), 'label': "tag:foo", 'data': "tag:foo -tag:foo bar:>5 tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': True}), 'label': "tag:foo", 'data': "tag:foo -tag:foo bar:>5 tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': True}), 'label': "tag:foo", 'data': "tag:foo -tag:foo tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["id", "foo"], 'out': True}), 'label': "id:foo", 'data': "tag:foo -tag:foo tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["id", "foo"], 'out': True}), 'label': "id:foo?", 'data': "tag:foo -foo foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testQueryRoot", 'input': ["foo"], 'out': True}), 'label': "foo should be root-only", 'data': "/foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testQueryRoot", 'input': ["foo"], 'out': False}), 'label': "foo should recursively selected", 'data': "/foo foo"})])
-        Test.test([])
-        Test.test([_hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "10"], 'out': True}), 'data': "price:>=5"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "10"], 'out': False}), 'data': "price:>=15"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "4"], 'out': False}), 'data': "price:>=5"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "0"], 'out': False}), 'data': "price:>=5"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "2"], 'out': True}), 'data': "price:>=2"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "1"], 'out': False}), 'label': "price=1", 'data': "price:>=5 price:0"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "0"], 'out': True}), 'label': "price=0", 'data': "price:>=5 price:0"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "6"], 'out': True}), 'label': "price=6", 'data': "price:>=5 price:0"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': True}), 'data': "tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': False}), 'data': "-tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testPropertyExclude", 'input': ["tag", "foo"], 'out': True}), 'label': "testExclude", 'data': "-tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "test", 'input': [_hx_AnonObject({'price': 5})], 'out': True}), 'data': ".foo price:5 -tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "test", 'input': [_hx_AnonObject({'tag': "foo", 'price': 5})], 'out': False}), 'data': ".foo price:5 -tag:foo"})])
+        Test.test("url.json",[_hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xyz", 'input': "pos", 'out': False}), 'label': "equal.xyz: should trigger incompatible type)", 'data': "http://foo.com?foo=1#pos=1.2,2.2"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xyz", 'input': "pos", 'out': "1.2,2.2,3"}), 'label': "equal.xyz", 'data': "http://foo.com?foo=1#pos=1.2,2.2,3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testBrowserOverride", 'input': "q", 'out': False}), 'label': "browser URI cannot override q (defined in asset)", 'data': "http://foo.com?foo=1#q=-bar"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testPredefinedView", 'input': "mypredefinedview", 'out': True}), 'label': "test predefined view executed", 'data': "http://foo.com?foo=1#mypredefinedview"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testPredefinedView", 'input': "another", 'out': True}), 'label': "test predefined view executed (multiple)", 'data': "http://foo.com?foo=1#mypredefinedview&another"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testPredefinedView", 'input': "mypredefinedview", 'out': True}), 'label': "test predefined view executed (multiple)", 'data': "http://foo.com?foo=1#mypredefinedview&another"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testParsed", 'input': "mycustom", 'out': True}), 'label': "test custom property", 'data': "http://foo.com?foo=1#mycustom=foo"})])
+        Test.test("t.json",[_hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.x", 'input': "t", 'out': "1"}), 'label': "a equal.x", 'data': "http://foo.com?foo=1#t=1"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.x", 'input': "t", 'out': "-1"}), 'label': "a equal.x", 'data': "http://foo.com?foo=1#t=-1"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.x", 'input': "t", 'out': "-1.02"}), 'label': "a equal.x", 'data': "http://foo.com?foo=1#t=-1.02"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xy", 'input': "t", 'out': "1,2"}), 'label': "a equal.xy", 'data': "http://foo.com?foo=1#t=1,2,3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xyz", 'input': "t", 'out': "1,2,3"}), 'label': "a equal.xyz", 'data': "http://foo.com?foo=1#t=1,2,3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xyz", 'input': "t", 'out': "1,-2,3"}), 'label': "a equal.xyz", 'data': "http://foo.com?foo=1#t=1,-2,3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xy", 'input': "t", 'out': "1,100"}), 'label': "a equal.xy", 'data': "http://foo.com?foo=1#t=1,100"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testBrowserOverride", 'input': "t", 'out': True}), 'label': "browser URI can override t (defined in asset)", 'data': "http://foo.com?foo=1#t=2,500"})])
+        Test.test("q.selectors.json",[_hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "bar"], 'out': True}), 'data': "tag:bar"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': False}), 'data': "tag:bar -tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': True}), 'data': "tag:bar -tag:foo tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "bar"], 'out': True}), 'data': "tag:bar -tag:bar tag:bar"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': True}), 'label': "tag:foo", 'data': "tag:foo -tag:foo tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': True}), 'label': "tag:foo", 'data': "tag:foo -tag:foo bar:5 tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': True}), 'label': "tag:foo", 'data': "tag:foo -tag:foo bar:>5 tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': True}), 'label': "tag:foo", 'data': "tag:foo -tag:foo bar:>5 tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': True}), 'label': "tag:foo", 'data': "tag:foo -tag:foo tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["id", "foo"], 'out': True}), 'label': "id:foo", 'data': "tag:foo -tag:foo tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["id", "foo"], 'out': True}), 'label': "id:foo?", 'data': "tag:foo -foo foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testQueryRoot", 'input': ["foo"], 'out': True}), 'label': "foo should be root-only", 'data': "/foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testQueryRoot", 'input': ["foo"], 'out': False}), 'label': "foo should recursively selected", 'data': "/foo foo"})])
+        Test.test("q.root.json",[])
+        Test.test("q.rules.json",[_hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "10"], 'out': True}), 'data': "price:>=5"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "10"], 'out': False}), 'data': "price:>=15"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "4"], 'out': False}), 'data': "price:>=5"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "0"], 'out': False}), 'data': "price:>=5"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "2"], 'out': True}), 'data': "price:>=2"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "1"], 'out': False}), 'label': "price=1", 'data': "price:>=5 price:0"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "0"], 'out': True}), 'label': "price=0", 'data': "price:>=5 price:0"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "6"], 'out': True}), 'label': "price=6", 'data': "price:>=5 price:0"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': True}), 'data': "tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': False}), 'data': "-tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "testPropertyExclude", 'input': ["tag", "foo"], 'out': True}), 'label': "testExclude", 'data': "-tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "test", 'input': [_hx_AnonObject({'price': 5})], 'out': True}), 'data': ".foo price:5 -tag:foo"}), _hx_AnonObject({'fn': "query", 'expect': _hx_AnonObject({'fn': "test", 'input': [_hx_AnonObject({'tag': "foo", 'price': 5})], 'out': False}), 'data': ".foo price:5 -tag:foo"})])
         if (Test.errors > 1):
             print(str((("\n-----\n[ ❌] " + Std.string(Test.errors)) + " errors :/")))
 
     @staticmethod
-    def test(spec):
+    def test(topic,spec):
+        print(str(("\n[.] running " + ("null" if topic is None else topic))))
         Query = xrfragment_Query
         _g = 0
         _g1 = len(spec)
@@ -426,12 +428,12 @@ class Test:
                 valid = (Reflect.field(Reflect.field(item,"expect"),"out") == python_Boot.hasField(xrfragment_URI.parse(Reflect.field(item,"data"),xrfragment_XRF.METADATA),Reflect.field(Reflect.field(item,"expect"),"input")))
             if (Reflect.field(Reflect.field(item,"expect"),"fn") == "equal.string"):
                 valid = (Reflect.field(res,Reflect.field(Reflect.field(item,"expect"),"input")) and (HxOverrides.eq(Reflect.field(Reflect.field(item,"expect"),"out"),Reflect.field(Reflect.field(res,Reflect.field(Reflect.field(item,"expect"),"input")),"string"))))
+            if (Reflect.field(Reflect.field(item,"expect"),"fn") == "equal.x"):
+                valid = Test.equalX(res,item)
             if (Reflect.field(Reflect.field(item,"expect"),"fn") == "equal.xy"):
                 valid = Test.equalXY(res,item)
             if (Reflect.field(Reflect.field(item,"expect"),"fn") == "equal.xyz"):
                 valid = Test.equalXYZ(res,item)
-            if (Reflect.field(Reflect.field(item,"expect"),"fn") == "equal.multi"):
-                valid = Test.equalMulti(res,item)
             if (Reflect.field(Reflect.field(item,"expect"),"fn") == "testQueryRoot"):
                 valid = (Reflect.field(Reflect.field(item,"expect"),"out") == HxOverrides.arrayGet(q.get(), HxOverrides.arrayGet(Reflect.field(Reflect.field(item,"expect"),"input"), 0)).root)
             ok = ("[ ✔ ] " if valid else "[ ❌] ")
@@ -441,6 +443,15 @@ class Test:
                 _hx_local_1 = _hx_local_0.errors
                 _hx_local_0.errors = (_hx_local_1 + 1)
                 _hx_local_0.errors
+
+    @staticmethod
+    def equalX(res,item):
+        if ((not Reflect.field(Reflect.field(item,"expect"),"out")) and (not Reflect.field(res,Reflect.field(Reflect.field(item,"expect"),"input")))):
+            return True
+        elif Reflect.field(res,Reflect.field(Reflect.field(item,"expect"),"input")):
+            return (Reflect.field(Reflect.field(item,"expect"),"out") == Std.string(Reflect.field(Reflect.field(res,Reflect.field(Reflect.field(item,"expect"),"input")),"x")))
+        else:
+            return False
 
     @staticmethod
     def equalXY(res,item):
@@ -457,24 +468,6 @@ class Test:
             return True
         elif Reflect.field(res,Reflect.field(Reflect.field(item,"expect"),"input")):
             return (Reflect.field(Reflect.field(item,"expect"),"out") == (((((Std.string(Reflect.field(Reflect.field(res,Reflect.field(Reflect.field(item,"expect"),"input")),"x")) + ",") + Std.string(Reflect.field(Reflect.field(res,Reflect.field(Reflect.field(item,"expect"),"input")),"y"))) + ",") + Std.string(Reflect.field(Reflect.field(res,Reflect.field(Reflect.field(item,"expect"),"input")),"z")))))
-        else:
-            return False
-
-    @staticmethod
-    def equalMulti(res,item):
-        target = Reflect.field(res,Reflect.field(Reflect.field(item,"expect"),"input"))
-        _hx_str = ""
-        if (not target):
-            return False
-        _g = 0
-        _g1 = Reflect.field(Reflect.field(target,"args"),"length")
-        while (_g < _g1):
-            i = _g
-            _g = (_g + 1)
-            _hx_str = ((("null" if _hx_str is None else _hx_str) + "|") + HxOverrides.stringOrNull(HxOverrides.arrayGet(Reflect.field(target,"args"), i).string))
-        _hx_str = HxString.substr(_hx_str,1,None)
-        if Reflect.field(Reflect.field(item,"expect"),"out"):
-            return (_hx_str == Reflect.field(Reflect.field(item,"expect"),"out"))
         else:
             return False
 
@@ -1085,11 +1078,7 @@ class python_HaxeIterator:
 class python_internal_ArrayImpl:
     _hx_class_name = "python.internal.ArrayImpl"
     __slots__ = ()
-    _hx_statics = ["get_length", "concat", "copy", "iterator", "keyValueIterator", "indexOf", "lastIndexOf", "join", "toString", "pop", "push", "unshift", "remove", "contains", "shift", "slice", "sort", "splice", "map", "filter", "insert", "reverse", "_get"]
-
-    @staticmethod
-    def get_length(x):
-        return len(x)
+    _hx_statics = ["concat", "copy", "iterator", "keyValueIterator", "indexOf", "lastIndexOf", "join", "toString", "pop", "push", "unshift", "remove", "contains", "shift", "slice", "sort", "splice", "map", "filter", "insert", "reverse", "_get"]
 
     @staticmethod
     def concat(a1,a2):
@@ -1225,7 +1214,7 @@ class python_internal_ArrayImpl:
 class HxOverrides:
     _hx_class_name = "HxOverrides"
     __slots__ = ()
-    _hx_statics = ["eq", "stringOrNull", "push", "length", "arrayGet"]
+    _hx_statics = ["eq", "stringOrNull", "push", "arrayGet"]
 
     @staticmethod
     def eq(a,b):
@@ -1247,14 +1236,6 @@ class HxOverrides:
             _this.append(e)
             return len(_this)
         return x.push(e)
-
-    @staticmethod
-    def length(x):
-        if isinstance(x,str):
-            return len(x)
-        elif isinstance(x,list):
-            return len(x)
-        return x.length
 
     @staticmethod
     def arrayGet(a,i):
@@ -1286,7 +1267,7 @@ class python_internal_MethodClosure:
 class HxString:
     _hx_class_name = "HxString"
     __slots__ = ()
-    _hx_statics = ["split", "charCodeAt", "charAt", "lastIndexOf", "toUpperCase", "toLowerCase", "indexOf", "indexOfImpl", "toString", "get_length", "substring", "substr"]
+    _hx_statics = ["split", "charCodeAt", "charAt", "lastIndexOf", "toUpperCase", "toLowerCase", "indexOf", "indexOfImpl", "toString", "substring", "substr"]
 
     @staticmethod
     def split(s,d):
@@ -1366,10 +1347,6 @@ class HxString:
         return s
 
     @staticmethod
-    def get_length(s):
-        return len(s)
-
-    @staticmethod
     def substring(s,startIndex,endIndex = None):
         if (startIndex < 0):
             startIndex = 0
@@ -1410,14 +1387,15 @@ class xrfragment_Parser:
         Frag.h["src"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_URL)
         Frag.h["href"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.T_URL) | xrfragment_XRF.T_PREDEFINED_VIEW)
         Frag.h["tag"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
-        Frag.h["pos"] = (((((xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.T_STRING_OBJ) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
+        Frag.h["pos"] = ((((xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.T_STRING_OBJ) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
         Frag.h["q"] = ((xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING) | xrfragment_XRF.METADATA)
-        Frag.h["scale"] = ((((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA)
-        Frag.h["rot"] = (((((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
-        Frag.h["mov"] = ((((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA)
-        Frag.h["show"] = ((((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_INT) | xrfragment_XRF.METADATA)
+        Frag.h["scale"] = (((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA)
+        Frag.h["rot"] = ((((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
+        Frag.h["mov"] = (((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA)
+        Frag.h["show"] = (((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_INT) | xrfragment_XRF.METADATA)
         Frag.h["env"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_STRING) | xrfragment_XRF.METADATA)
-        Frag.h["t"] = (((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.ROUNDROBIN) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
+        Frag.h["t"] = ((((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_FLOAT) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.T_STRING) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
+        Frag.h["tv"] = ((((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_FLOAT) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
         Frag.h["gravity"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA)
         Frag.h["physics"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA)
         Frag.h["fov"] = ((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_INT) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
@@ -1675,19 +1653,19 @@ class xrfragment_URI:
 
 class xrfragment_XRF:
     _hx_class_name = "xrfragment.XRF"
-    __slots__ = ("fragment", "flags", "x", "y", "z", "color", "string", "int", "float", "args", "query", "noXRF")
-    _hx_fields = ["fragment", "flags", "x", "y", "z", "color", "string", "int", "float", "args", "query", "noXRF"]
+    __slots__ = ("fragment", "flags", "x", "y", "z", "w", "color", "string", "int", "float", "query", "noXRF")
+    _hx_fields = ["fragment", "flags", "x", "y", "z", "w", "color", "string", "int", "float", "query", "noXRF"]
     _hx_methods = ["is", "validate", "guessType"]
     _hx_statics = ["ASSET", "PROP_BIND", "QUERY_OPERATOR", "PROMPT", "ROUNDROBIN", "NAVIGATOR", "METADATA", "PV_OVERRIDE", "PV_EXECUTE", "T_COLOR", "T_INT", "T_FLOAT", "T_VECTOR2", "T_VECTOR3", "T_URL", "T_PREDEFINED_VIEW", "T_STRING", "T_STRING_OBJ", "T_STRING_OBJ_PROP", "isColor", "isInt", "isFloat", "isVector", "isUrl", "isUrlOrPretypedView", "isString", "set", "unset"]
 
     def __init__(self,_fragment,_flags):
         self.noXRF = None
         self.query = None
-        self.args = None
         self.float = None
         self.int = None
         self.string = None
         self.color = None
+        self.w = None
         self.z = None
         self.y = None
         self.x = None
@@ -1695,44 +1673,33 @@ class xrfragment_XRF:
         self.flags = _flags
 
     def _hx_is(self,flag):
+        if (not Std.isOfType(self.flags,Int)):
+            self.flags = 0
         return (((self.flags & flag)) != 0)
 
     def validate(self,value):
         self.guessType(self,value)
-        if (len(value.split("|")) > 1):
-            self.args = list()
-            args = value.split("|")
-            _g = 0
-            _g1 = len(args)
-            while (_g < _g1):
-                i = _g
-                _g = (_g + 1)
-                x = xrfragment_XRF(self.fragment,self.flags)
-                self.guessType(x,(args[i] if i >= 0 and i < len(args) else None))
-                _this = self.args
-                _this.append(x)
         if (self.fragment == "q"):
             self.query = xrfragment_Query(value).get()
         ok = True
-        if (not Std.isOfType(self.args,list)):
-            if (self._hx_is(xrfragment_XRF.T_VECTOR3) and (not (((Std.isOfType(self.x,Float) and Std.isOfType(self.y,Float)) and Std.isOfType(self.z,Float))))):
-                ok = False
-            if (self._hx_is(xrfragment_XRF.T_VECTOR2) and (not ((Std.isOfType(self.x,Float) and Std.isOfType(self.y,Float))))):
-                ok = False
-            if (self._hx_is(xrfragment_XRF.T_INT) and (not Std.isOfType(self.int,Int))):
-                ok = False
+        if (((not self._hx_is(xrfragment_XRF.T_FLOAT)) and self._hx_is(xrfragment_XRF.T_VECTOR2)) and (not ((Std.isOfType(self.x,Float) and Std.isOfType(self.y,Float))))):
+            ok = False
+        if (((not self._hx_is(xrfragment_XRF.T_VECTOR2)) and self._hx_is(xrfragment_XRF.T_VECTOR3)) and (not (((Std.isOfType(self.x,Float) and Std.isOfType(self.y,Float)) and Std.isOfType(self.z,Float))))):
+            ok = False
         return ok
 
     def guessType(self,v,_hx_str):
         v.string = _hx_str
         if (len(_hx_str.split(",")) > 1):
-            xyz = _hx_str.split(",")
-            if (len(xyz) > 0):
-                v.x = Std.parseFloat((xyz[0] if 0 < len(xyz) else None))
-            if (len(xyz) > 1):
-                v.y = Std.parseFloat((xyz[1] if 1 < len(xyz) else None))
-            if (len(xyz) > 2):
-                v.z = Std.parseFloat((xyz[2] if 2 < len(xyz) else None))
+            xyzw = _hx_str.split(",")
+            if (len(xyzw) > 0):
+                v.x = Std.parseFloat((xyzw[0] if 0 < len(xyzw) else None))
+            if (len(xyzw) > 1):
+                v.y = Std.parseFloat((xyzw[1] if 1 < len(xyzw) else None))
+            if (len(xyzw) > 2):
+                v.z = Std.parseFloat((xyzw[2] if 2 < len(xyzw) else None))
+            if (len(xyzw) > 3):
+                v.w = Std.parseFloat((xyzw[3] if 3 < len(xyzw) else None))
         _this = xrfragment_XRF.isColor
         _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
         if (_this.matchObj is not None):
@@ -1740,11 +1707,13 @@ class xrfragment_XRF:
         _this = xrfragment_XRF.isFloat
         _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
         if (_this.matchObj is not None):
-            v.float = Std.parseFloat(_hx_str)
+            v.x = Std.parseFloat(_hx_str)
+            v.float = v.x
         _this = xrfragment_XRF.isInt
         _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
         if (_this.matchObj is not None):
             v.int = Std.parseInt(_hx_str)
+            v.x = v.int
 
     @staticmethod
     def set(flag,flags):
@@ -1785,8 +1754,8 @@ xrfragment_XRF.T_STRING = 1048576
 xrfragment_XRF.T_STRING_OBJ = 2097152
 xrfragment_XRF.T_STRING_OBJ_PROP = 4194304
 xrfragment_XRF.isColor = EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","")
-xrfragment_XRF.isInt = EReg("^[0-9]+$","")
-xrfragment_XRF.isFloat = EReg("^[0-9]+\\.[0-9]+$","")
+xrfragment_XRF.isInt = EReg("^[-0-9]+$","")
+xrfragment_XRF.isFloat = EReg("^[-0-9]+\\.[0-9]+$","")
 xrfragment_XRF.isVector = EReg("([,]+|\\w)","")
 xrfragment_XRF.isUrl = EReg("(://)?\\..*","")
 xrfragment_XRF.isUrlOrPretypedView = EReg("(^#|://)?\\..*","")
