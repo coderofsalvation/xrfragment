@@ -9,7 +9,6 @@ xrf.frag.src.type['image/png'] = function(url,opts){
   let restrictTo3DBoundingBox = mesh.geometry
 
   let renderEquirect = (texture) => {
-    console.dir(texture)
     texture.mapping = THREE.EquirectangularReflectionMapping
     texture.needsUpdate = true
     texture.wrapS = THREE.RepeatWrapping;

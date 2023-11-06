@@ -61,8 +61,9 @@ let loadAudio = (mimetype) => function(url,opts){
       }
     }
     mesh.add(sound)
-    xrf.audio.push(sound)
   });
+
+  mesh.audio = sound
 }
 
 let audioMimeTypes = [
@@ -78,5 +79,5 @@ audioMimeTypes.map( (mimetype) =>  xrf.frag.src.type[ mimetype ] = loadAudio(mim
 // listen to t XR fragment changes
 xrf.addEventListener('t', (opts) => {
   let t = opts.frag.t
-  xrf.audio.map( (a) => a.playXRF(t) )
+  xrf.scene.traverse( (n) => n.audio && n.audio.playXRF ? n.audio.playXRF(t) : false )
 })
