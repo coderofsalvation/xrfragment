@@ -29,17 +29,18 @@
  */
 
 xrf.frag.href = function(v, opts){
-  opts.embedded = v // indicate embedded XR fragment
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
 
   if( mesh.userData.XRF.href.exec ) return // mesh already initialized
 
-  if( mesh.material ) mesh.material = mesh.material.clone() // we need this so we can individually highlight meshes
+  // derived properties
+  const isLocal = v.string[0] == '#'
+  const isPlane = mesh.geometry && mesh.geometry.attributes.uv && mesh.geometry.attributes.uv.count == 4 
+  const hasSrc  = mesh.userData.src != undefined
 
   let click = mesh.userData.XRF.href.exec = (e) => {
 
-    let isLocal = v.string[0] == '#'
-    let lastPos = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
+    let lastPos   = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
 
     xrf
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
@@ -76,9 +77,12 @@ xrf.frag.href = function(v, opts){
   mesh.addEventListener('mousemove', selected(true) )
   mesh.addEventListener('mouseleave', selected(false) )
 
+  if( isLocal && isPlane && !hasSrc ) xrf.portalNonEuclidian(v,opts)
+
   // lazy add mesh (because we're inside a recursive traverse)
   setTimeout( (mesh) => {
     xrf.interactive.add(mesh)
+    if( mesh.material ) mesh.material = mesh.material.clone() // clone, so we can individually highlight meshes
     xrf.emit('interactionReady', {mesh,xrf:v,clickHandler: mesh.userData.XRF.href.exec })
   }, 0, mesh )
 }

@@ -13,9 +13,17 @@ let loadVideo = (mimetype) => function(url,opts){
     let mat     = new xrf.THREE.MeshBasicMaterial()
     mat.map = texture
     mesh.material = mat
+    // set range
+    video.addEventListener('timeupdate', function timeupdate() {
+      if (video.t && video.currentTime < video.t.y || video.currentTime >= video.y.z ) {
+          vid.currentTime = video.t.y
+      }
+    },false)
   })
+
   video.src = url
   video.playXRF = (t) => {
+    video.t = t
     if( t.x == 0 ) video.pause()
     else{
       video.playbackRate = Math.abs( t.x ) // html5 video does not support reverseplay :/

@@ -53,6 +53,7 @@ xrf.parseModel = function(model,url){
   model.file             = file
   // eval embedded XR fragments
   model.scene.traverse( (mesh) => {
+    mesh.renderOrder = 2 // render after stencil buffers
     xrf.hashbus.pub.mesh(mesh,model) 
   })
   model.animations.map( (a) => console.log("anim: "+a.name) )
