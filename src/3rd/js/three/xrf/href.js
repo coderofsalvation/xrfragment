@@ -41,7 +41,6 @@ xrf.frag.href = function(v, opts){
   let click = mesh.userData.XRF.href.exec = (e) => {
 
     let lastPos   = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
-
     xrf
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
@@ -60,7 +59,12 @@ xrf.frag.href = function(v, opts){
       let newState = o.name == mesh.name ? state : false
       if( o.material ){
         if( o.material.uniforms ) o.material.uniforms.selected.value = newState 
-        if( o.material.emissive ) o.material.emissive.r = o.material.emissive.g = o.material.emissive.b = newState ? 2.0 : 1.0
+        //if( o.material.emissive ) o.material.emissive.r = o.material.emissive.g = o.material.emissive.b = newState ? 2.0 : 1.0
+        if( o.material.emissive ){ 
+          if( !o.material.emissive.original ) o.material.emissive.original = o.material.emissive.clone()
+          o.material.emissive.r = o.material.emissive.g = o.material.emissive.b = 
+            newState ? o.material.emissive.original.r + 0.2 : o.material.emissive.original.r
+        }
       }
     })
     // update mouse cursor
@@ -75,9 +79,10 @@ xrf.frag.href = function(v, opts){
 
   mesh.addEventListener('click', click )
   mesh.addEventListener('mousemove', selected(true) )
+  mesh.addEventListener('mouseenter', selected(true) )
   mesh.addEventListener('mouseleave', selected(false) )
 
-  if( isLocal && isPlane && !hasSrc ) xrf.portalNonEuclidian(v,opts)
+  if( isLocal && isPlane && !hasSrc && !mesh.material.map ) xrf.portalNonEuclidian(v,opts)
 
   // lazy add mesh (because we're inside a recursive traverse)
   setTimeout( (mesh) => {

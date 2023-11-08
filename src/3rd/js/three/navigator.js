@@ -4,6 +4,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
 
   let hashbus = xrf.hashbus
+  xrf.emit('navigate', {url,loader,data})
 
   return new Promise( (resolve,reject) => {
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
@@ -43,6 +44,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
       },2000)
       xrf.add( model.scene )
       xrf.navigator.updateHash(hash)
+      xrf.emit('navigateLoaded',{url,model})
       resolve(model)
     }
 

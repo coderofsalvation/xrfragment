@@ -7,14 +7,15 @@
  */
 
 let loadAudio = (mimetype) => function(url,opts){
-  let {mesh,src,camera} = opts
+  let {mesh,src,camera,THREE} = opts
   let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
   let frag = xrf.URI.parse( url )
 
   /* WebAudio: setup context via THREEjs */
   if( !camera.listener ){
     camera.listener = new THREE.AudioListener();
-	  camera.getCam().add( camera.listener );
+    // *FIXME* camera vs camerarig conflict
+	  (camera.getCam ? camera.getCam() : camera).add( camera.listener );
   }
 
   let isPositionalAudio = !(mesh.position.x == 0 && mesh.position.y == 0 && mesh.position.z == 0)

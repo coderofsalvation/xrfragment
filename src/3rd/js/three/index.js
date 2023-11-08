@@ -25,7 +25,7 @@ xrf.patchRenderer = function(opts){
     // update clock
     let time = xrf.clock.getDelta()
     // allow entities to do stuff during render (onBeforeRender and onAfterRender don't always fire)
-    xrf.emit('render',{scene,camera,time}) // allow fragments to do something at renderframe
+    xrf.emit('render',{scene,camera,time,render}) // allow fragments to do something at renderframe
     render(scene,camera)
   })(renderer.render.bind(renderer))
 
@@ -53,7 +53,6 @@ xrf.parseModel = function(model,url){
   model.file             = file
   // eval embedded XR fragments
   model.scene.traverse( (mesh) => {
-    mesh.renderOrder = 2 // render after stencil buffers
     xrf.hashbus.pub.mesh(mesh,model) 
   })
   model.animations.map( (a) => console.log("anim: "+a.name) )
@@ -83,10 +82,7 @@ xrf.reset = () => {
   xrf.layers = 0
   xrf.emit('reset',{})
   // remove mixers
-  xrf.mixers.map( (m) => {
-    m.stop()
-    delete m
-  })
+  xrf.mixers.map( (m) => m.stop())
   xrf.mixers = []
 }
 

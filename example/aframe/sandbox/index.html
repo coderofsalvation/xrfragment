@@ -30,7 +30,7 @@
     <textarea style="display:none"></textarea>
     <canvas id="qrcode" style="display:none" width="300" height="300"></canvas>
 
-    <a-scene light="defaultLightsEnabled: false">
+    <a-scene renderer="colorManagement: true; highRefreshRate:true" light="defaultLightsEnabled: false">
       <a-entity id="player" wasd-controls look-controls>
         <a-entity camera="fov:90" position="0 1.6 0" id="camera"></a-entity>
         <a-entity id="left-hand"  laser-controls="hand: left" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: #floor">
@@ -57,34 +57,23 @@
         window.embed  = embed
         window.notify('loading '+document.location.search.substr(1))
 
+        // reroute console messages to snackbar notifications
         console.log = ( (log) => function(str){
+          if( str.match(/URL:/) ) str += "<br><br>(use back-button to go back)"
           if( String(str).match(/:.*#/) ) window.notify(str)
           log(str)
         })(console.log)
-
-
 
         let XRF = window.AFRAME.XRF
         setupConsole( $('textarea') )
         setupUrlBar( $('input#uri'), XRF )
 
-        // example listener, to prompt surfing to external asset 
-        XRF.addEventListener('href',(e) => {
-          if( e.click ){
-            const { mesh, model, camera, scene, renderer, THREE} = e.XRF
-            const url       = e.xrf.string
-            const isExtern  = url[0] != '#'
-            const notIsHome = url != $('#home').getAttribute("xrf") 
-            const promise   = e.promise() // promisify event
-            document.querySelector('#model').setAttribute('href',url.replace(/.*\?/,'') )
-            if( !renderer.xr.isPresenting ){
-              if( isExtern && notIsHome ){
-                if( !confirm("teleport to "+url+" ?") ) return promise.reject('teleport rejected')
-              }
-            }
-            promise.resolve()
-          }
-        })
+        // on localhost enable debugging mode for developer convenience
+        let loc = document.location
+        if( loc.host.match(/^localhost/) ){
+          $('a-scene').setAttribute('stats')
+          XRF.debug = 1
+        }
 
         // add screenshot component with camera to capture bigger size equirects
         // document.querySelector('a-scene').components.screenshot.capture('perspective')

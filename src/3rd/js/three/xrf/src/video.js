@@ -2,6 +2,7 @@
 let loadVideo = (mimetype) => function(url,opts){
   let {mesh,src,camera} = opts
   let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
+  const THREE = xrf.THREE
   let frag = xrf.URI.parse( url )
 
   let video = mesh.video = document.createElement('video')

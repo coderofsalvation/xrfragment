@@ -1,5 +1,5 @@
 /* 
- * (promise-able) EVENTS
+ * (promise-able) EVENTS (optionally continue after listeners are finished using .then)
  *
  * example:
  *
@@ -24,14 +24,23 @@ xrf.addEventListener = function(eventName, callback, scene) {
   // add the callback to the listeners array for this event name
   this._listeners[eventName].push(callback);
   return () => {
-    console.log("size = "+this._listeners[eventName].length)
     this._listeners[eventName] = this._listeners[eventName].filter( (c) => c != callback )
-    console.log("size = "+this._listeners[eventName].length)
   }
 };
 
 xrf.emit = function(eventName, data){
   if( typeof data != 'object' ) throw 'emit() requires passing objects'
+  if( xrf.debug && ( eventName != "render" || xrf.debug == eventName ) ){
+    let label = String(`xrf.emit('${eventName}')`).padEnd(35," ");
+    label +=  data.mesh && data.mesh.name ? '#'+data.mesh.name : ''
+    console.groupCollapsed(label)
+    console.info(data)
+    console.groupEnd(label)
+    if( xrf.debug > 1 ) debugger
+  }
+  // forward to THREEjs eventbus if any
+  if( data.scene ) data.scene.dispatchEvent( eventName, data )
+  if( data.mesh  ) data.mesh.dispatchEvent( eventName, data )
   return xrf.emit.promise(eventName,data)
 }
 
@@ -46,15 +55,21 @@ xrf.emit.normal = function(eventName, data) {
 };
 
 xrf.emit.promise = function(e, opts){ 
-  opts.XRF = xrf // always pass root XRF obj
   return new Promise( (resolve, reject) => {
     opts.promise = () => {
-      opts.promise.halted = true
-      return { resolve, reject }
+      opts.promises = opts.promises || []
+      opts.promises.push(0)
+      return { 
+        resolve: ((index) => () => {
+          opts.promises[index] = 1 
+          let succesful = opts.promises.reduce( (a,b) => a+b )
+          if( succesful == opts.promises.length ) resolve(opts)
+        })(opts.promises.length-1),
+        reject: console.error
+      }
     }
     xrf.emit.normal(e, opts)     
-    delete opts.XRF
-    if( !opts.promise.halted ) resolve()
+    if( !opts.promises ) resolve(opts)
     delete opts.promise
   })
 }

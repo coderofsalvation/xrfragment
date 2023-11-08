@@ -26,7 +26,7 @@ pub.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) insid
     for( let k in frag ){
       let opts = {frag, mesh, model, camera: xrf.camera, scene: model.scene, renderer: xrf.renderer, THREE: xrf.THREE, hashbus: xrf.hashbus }
       mesh.userData.XRF = frag // allow fragment impl to access XRF obj already
-      xrf.emit('mesh',opts)
+      xrf.emit('frag2mesh',opts)
       .then( () => pub.fragment(k,opts) )
     }
   }
@@ -39,8 +39,8 @@ pub.fragment = (k, opts ) => { // evaluate one fragment
   xrf.emit(k,opts)
   .then( () => {
     let func = xrf.frag[k] || function(){} 
-    if(  xrf[k] ) xrf[k]( func, frag, opts)
-    else                  func( frag, opts)
+    if( typeof xrf[k] == 'function' ) xrf[k]( func, frag, opts)
+    else func( frag, opts)
   })
 }
 

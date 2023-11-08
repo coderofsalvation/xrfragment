@@ -3,6 +3,11 @@ window.AFRAME.registerComponent('xrf', {
   },
   init: function () {
     if( !AFRAME.XRF ){
+
+      // start with black
+      document.querySelector('[camera]').setAttribute('xrf-fade','')
+      AFRAME.fade = document.querySelector('[camera]').components['xrf-fade']
+
       document.querySelector('a-scene').addEventListener('loaded', () => {
 
         // enable XR fragments
@@ -12,13 +17,34 @@ window.AFRAME.registerComponent('xrf', {
           camera:    aScene.camera,
           scene:     aScene.object3D,
           renderer:  aScene.renderer,
-          debug: true,
           loaders: { 
             gltf: THREE.GLTFLoader, // which 3D assets (exts) to check for XR fragments?
             glb: THREE.GLTFLoader
           }
         })
         if( !XRF.camera ) throw 'xrfragment: no camera detected, please declare <a-entity camera..> ABOVE entities with xrf-attributes'
+
+        xrf.addEventListener('navigateLoaded', () => setTimeout( () => AFRAME.fade.out(),500)  )
+        xrf.addEventListener('href', (opts) => {
+          if( opts.click){ 
+            console.dir(opts)
+            let p = opts.promise()
+            if( opts.xrf.string[0] == '#' ){ // local teleport // local teleport // local teleport // local teleport
+              let fastFadeMs = 200
+              AFRAME.fade.in(fastFadeMs)
+              setTimeout( () => {
+                p.resolve()
+                AFRAME.fade.out(fastFadeMs)
+              }, fastFadeMs)
+            }else{
+              AFRAME.fade.in()
+              setTimeout( () => {
+                p.resolve()
+                setTimeout( () => AFRAME.fade.out(), 1000 ) // allow one second to load textures e.g.
+              }, AFRAME.fade.data.fadetime )
+            }
+          }
+        })
 
         // in order to set the rotation programmatically
         // we need to disable look-controls
@@ -40,9 +66,11 @@ window.AFRAME.registerComponent('xrf', {
           el.setAttribute("xrf-get",mesh.name )  // turn into AFRAME entity
           el.setAttribute("class","ray")         // expose to raycaster 
           el.setAttribute("pressable", '')       // detect hand-controller click
-          // add click
+          // respond to cursor via laser-controls (https://aframe.io/docs/1.4.0/components/laser-controls.html)
           el.addEventListener("click",          clickHandler )
-          //el.addEventListener("pressedstarted", clickHandler )
+          el.addEventListener("mouseenter", mesh.userData.XRF.href.selected(true) )
+          el.addEventListener("mouseleave", mesh.userData.XRF.href.selected(false) )
+          el.addEventListener("pressedstarted", clickHandler )
           $('a-scene').appendChild(el)
         }
         xrf.addEventListener('interactionReady', AFRAME.XRF.clickableMeshToEntity )

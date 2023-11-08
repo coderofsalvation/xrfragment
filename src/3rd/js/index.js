@@ -4,7 +4,8 @@
 var xrf = {}
 
 xrf.init = function(opts){
-  opts = opts || {}
+  opts      = opts || {}
+  xrf.debug = parseInt( ( document.location.hash.match(/debug=([0-9])/) || [0,'0'] )[1] )
   xrf.Parser.debug = xrf.debug 
   xrf.detectCameraRig(opts)
   for ( let i in opts    ) xrf[i] = opts[i]

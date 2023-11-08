@@ -5,7 +5,7 @@
  */
 
 xrf.frag.src.type['image/png'] = function(url,opts){
-  let {mesh} = opts
+  let {mesh,THREE} = opts
   let restrictTo3DBoundingBox = mesh.geometry
 
   let renderEquirect = (texture) => {
@@ -73,7 +73,7 @@ xrf.frag.src.type['image/png'] = function(url,opts){
       }
     }
     //const geometry = new THREE.BoxGeometry();
-    mesh.material = new THREE.MeshBasicMaterial({ 
+    mesh.material = new xrf.THREE.MeshBasicMaterial({ 
       map: texture, 
       transparent: url.match(/(png|gif)/) ? true : false,
       side: THREE.DoubleSide,

@@ -267,7 +267,7 @@ export function notify(scope){
       if( str.match(/error/g)   ) opts.status = "danger"
       if( str.match(/warning/g) ) opts.status = "warning"
     }
-    opts = Object.assign({ message: str , status, timeout:2000 },opts)
+    opts = Object.assign({ message: str , status, timeout:4000 },opts)
     SnackBar( opts )
   }
 }

@@ -17,6 +17,7 @@ xrf.addEventListener('dynamicKey', (opts) => {
 
 xrf.drawLineToMesh = (opts) => {
   let {scene,mesh,frag,id} = opts
+  const THREE = xrf.THREE
   let oldSelection
   // Selection of Interest if predefined_view matches object name
   if( mesh.visible && mesh.material){
@@ -35,8 +36,9 @@ xrf.drawLineToMesh = (opts) => {
         return center;
       }         
 
-      xrf.camera.getCam().updateMatrixWorld(true); // always keeps me diving into the docs :]
-      xrf.camera.getCam().getWorldPosition(from)
+      let cam = xrf.camera.getCam ? xrf.camera.getCam() : xrf.camera // *FIXME* camerarig/rig are conflicting
+      cam.updateMatrixWorld(true); // always keeps me diving into the docs :]
+      cam.getWorldPosition(from)
       from.y = 0.5 // originate from the heart chakra! :p
       const points = [from, getCenterPoint(mesh) ]
       const geometry = new THREE.BufferGeometry().setFromPoints( points );

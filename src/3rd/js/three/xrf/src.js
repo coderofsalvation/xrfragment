@@ -1,7 +1,6 @@
 // *TODO* use webgl instancing
 
 xrf.frag.src = function(v, opts){
-
   opts.embedded = v // indicate embedded XR fragment
   let { mesh, model, camera, scene, renderer, THREE, hashbus, frag} = opts
 
