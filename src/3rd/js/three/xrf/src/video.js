@@ -43,5 +43,5 @@ videoMimeTypes.map( (mimetype) =>  xrf.frag.src.type[ mimetype ] = loadVideo(mim
 // listen to t XR fragment changes
 xrf.addEventListener('t', (opts) => {
   let t = opts.frag.t
-  xrf.scene.traverse( (n) => n.video ? n.video.playXRF(t) : false )
+  xrf.scene.traverse( (n) => n.video && (n.video.playXRF(t)) )
 })

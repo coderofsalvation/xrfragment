@@ -3,12 +3,10 @@ xrf.addEventListener('dynamicKey', (opts) => {
   if( !scene ) return 
   let remove = []
   // erase previous lines
-  xrf.focusLine.lines.map( (line) => line.parent.remove(line) )
+  xrf.focusLine.lines.map( (line) => line.parent && (line.parent.remove(line))  )
   xrf.focusLine.points = []
   xrf.focusLine.lines  = []
 
-  //scene.traverse( (n) => n.selection ? remove.push(n) : false )
-  //remove.map(     (n) => scene.remove(n.selection) )
   // drawlines
   match.map( (w) => {
     w.nodes.map( (mesh) => xrf.drawLineToMesh({ ...opts, mesh}) )

@@ -74,10 +74,10 @@ xrf.reset = () => {
     return true
   };
   let nodes = []
-  xrf.scene.traverse( (n)     => n.audio ? n.audio.remove() : false )
-  xrf.scene.traverse( (child) => child.isXRF ? nodes.push(child) : false )
+  xrf.scene.traverse( (n)     => n.audio && (n.audio.remove()) )
+  xrf.scene.traverse( (child) => child.isXRF && (nodes.push(child)) )
   nodes.map( disposeObject ) // leave non-XRF objects intact
-  xrf.interactive = xrf.InteractiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
+  xrf.interactive = xrf.interactiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
   xrf.add( xrf.interactive )
   xrf.layers = 0
   xrf.emit('reset',{})

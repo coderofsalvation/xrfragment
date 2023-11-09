@@ -123,7 +123,7 @@ xrf.addEventListener('render', (opts) => {
   let {time} = opts
   if( !model ) return 
   if( xrf.mixers.length ){
-    xrf.mixers.map( (m) => m.isPlaying ? m.update( time ) : false )
+    xrf.mixers.map( (m) => m.isPlaying && (m.update( time )) )
 
     // update active camera in case selected by dynamicKey in URI 
     if( xrf.model.camera && model.mixer.isPlaying ){

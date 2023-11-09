@@ -1,6 +1,6 @@
 // wrapper to survive in/outside modules
 
-xrf.InteractiveGroup = function(THREE,renderer,camera){
+xrf.interactiveGroup = function(THREE,renderer,camera){
 
   let {
     Group,
@@ -13,7 +13,7 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
   const _event = { type: '', data: _pointer };
   let object   = {selected:false}
 
-  class InteractiveGroup extends Group {
+  class interactive extends Group {
 
     constructor( renderer, camera ) {
 
@@ -71,9 +71,9 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
       element.addEventListener( 'pointerup', onPointerEvent );
       element.addEventListener( 'pointermove', onPointerEvent );
       element.addEventListener( 'mousedown', onPointerEvent );
-      element.addEventListener( 'mouseup', onPointerEvent );
       element.addEventListener( 'mousemove', onPointerEvent );
       element.addEventListener( 'click', onPointerEvent );
+      element.addEventListener( 'mouseup', onPointerEvent );
 
       // WebXR Controller Events
       // TODO: Dispatch pointerevents too
@@ -138,5 +138,5 @@ xrf.InteractiveGroup = function(THREE,renderer,camera){
 
   }
 
-  return new InteractiveGroup(renderer,camera)
+  return new interactive(renderer,camera)
 }

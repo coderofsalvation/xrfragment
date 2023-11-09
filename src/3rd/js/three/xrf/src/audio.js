@@ -80,5 +80,5 @@ audioMimeTypes.map( (mimetype) =>  xrf.frag.src.type[ mimetype ] = loadAudio(mim
 // listen to t XR fragment changes
 xrf.addEventListener('t', (opts) => {
   let t = opts.frag.t
-  xrf.scene.traverse( (n) => n.audio && n.audio.playXRF ? n.audio.playXRF(t) : false )
+  xrf.scene.traverse( (n) => n.audio && n.audio.playXRF && (n.audio.playXRF(t)) )
 })
