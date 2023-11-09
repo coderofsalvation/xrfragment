@@ -27,16 +27,20 @@ window.AFRAME.registerComponent('xrf', {
         xrf.addEventListener('navigateLoaded', () => setTimeout( () => AFRAME.fade.out(),500)  )
         xrf.addEventListener('href', (opts) => {
           if( opts.click){ 
-            console.dir(opts)
-            let p = opts.promise()
-            if( opts.xrf.string[0] == '#' ){ // local teleport // local teleport // local teleport // local teleport
+            let p       = opts.promise()
+            let url     = opts.xrf.string
+            let isLocal = url.match(/^#/)
+            let hasPos  = url.match(/pos=/)
+            if( isLocal && hasPos ){
+              // local teleports only
               let fastFadeMs = 200
               AFRAME.fade.in(fastFadeMs)
               setTimeout( () => {
                 p.resolve()
                 AFRAME.fade.out(fastFadeMs)
               }, fastFadeMs)
-            }else{
+            }
+            if( !isLocal ){
               AFRAME.fade.in()
               setTimeout( () => {
                 p.resolve()
