@@ -1,7 +1,8 @@
-#!/bin/sh
+!/bin/sh
 set -e
 
 try(){ set +e; "$@" 2>/dev/null; set -e; }
+trace(){ set -x; "$@"; set +x; }
 
 install(){
   which haxe || { 
@@ -51,38 +52,44 @@ server(){
 }
 
 build(){
-  try rm dist/* 
-  haxe build.hxml
-  ok=$?
-  sed -i 's|.*nonlocal .*||g' dist/xrfragment.py
-  echo build OK
-  build_js
-}
 
-build_js(){
-  # prepend license to vanilla lib
-  #echo "// https://xrfragment.org\n// SPDX-License-Identifier: MPL-2.0\n$(cat dist/xrfragment.js)" > dist/xrfragment.js
-  # add js module
-  cat dist/xrfragment.js             > dist/xrfragment.module.js
-  echo "export default xrfragment;" >> dist/xrfragment.module.js
-  # add THREE 
-  cat dist/xrfragment.js                  \
-      src/3rd/js/*.js                     \
-      src/3rd/js/three/*.js               \
-      src/3rd/js/three/xrmacro/env.js     \
-      src/3rd/js/three/xrf/*.js           \
-      src/3rd/js/three/xrf/dynamic/*.js   \
-      src/3rd/js/three/xrf/src/*.js    > dist/xrfragment.three.js
-  # add THREE module
-  cat dist/xrfragment.three.js        > dist/xrfragment.three.module.js
-  echo "export default xrf;"  >> dist/xrfragment.three.module.js
-  # add AFRAME 
-  cat dist/xrfragment.three.js \
-      src/3rd/js/aframe/*.js          > dist/xrfragment.aframe.js
-  # convert ESM to normal browser js
-  sed 's/export //g' example/assets/js/utils.js > dist/utils.js
-  ls -la dist | grep js
-  exit $ok
+  parser(){
+    try rm dist/* 
+    trace haxe build.hxml
+    ok=$?
+    sed -i 's|.*nonlocal .*||g' dist/xrfragment.py
+    ls -lah dist/*
+    echo -e "[OK] parser build\n"
+  }
+
+  js(){
+    # prepend license to vanilla lib
+    #echo "// https://xrfragment.org\n// SPDX-License-Identifier: MPL-2.0\n$(cat dist/xrfragment.js)" > dist/xrfragment.js
+    # add js module
+    cat dist/xrfragment.js             > dist/xrfragment.module.js
+    echo "export default xrfragment;" >> dist/xrfragment.module.js
+    # add THREE 
+    cat dist/xrfragment.js                  \
+        src/3rd/js/*.js                     \
+        src/3rd/js/three/*.js               \
+        src/3rd/js/three/xrmacro/env.js     \
+        src/3rd/js/three/xrf/*.js           \
+        src/3rd/js/three/xrf/dynamic/*.js   \
+        src/3rd/js/three/xrf/src/*.js    > dist/xrfragment.three.js
+    # add THREE module
+    cat dist/xrfragment.three.js        > dist/xrfragment.three.module.js
+    echo "export default xrf;"  >> dist/xrfragment.three.module.js
+    # add AFRAME 
+    cat dist/xrfragment.three.js \
+        src/3rd/js/aframe/*.js          > dist/xrfragment.aframe.js
+    # convert ESM to normal browser js
+    sed 's/export //g' example/assets/js/utils.js > dist/utils.js
+    ls -la dist | grep js
+    exit $ok
+  }
+
+  test -z $1 && { parser && js; }
+  test -z $1 || "$@"
 }
 
 test -z $1 && build 
