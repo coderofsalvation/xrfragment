@@ -91,7 +91,7 @@ build(){
     # convert ESM to normal browser js
     sed 's/export //g' example/assets/js/utils.js > dist/utils.js
     # add license headers
-    for i in dist/*.js; do echo -e "${license_js}$(cat $i)" > $i; done 
+    #for i in dist/*.js; do echo -e "${license_js}$(cat $i)" > $i; done 
     ls -la dist | grep js
     exit $ok
   }
