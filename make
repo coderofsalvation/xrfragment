@@ -59,17 +59,11 @@ build(){
     ok=$?
     sed -i 's|.*nonlocal .*||g' dist/xrfragment.py
     ls -lah dist/*
-    exit
     echo -e "[OK] parser build\n"
+    return $ok
   }
 
   js(){
-    license_js="/*"
-    license_js="${license_js}\n * generated at $(date)"
-    license_js="${license_js}\n * https://xrfragment.org"
-    license_js="${license_js}\n * SPDX-License-Identifier: MPL-2.0"
-    license_js="${license_js}\n */\n"
-
     # add js module
     cat dist/xrfragment.js            >> dist/xrfragment.module.js
     echo "export default xrfragment;" >> dist/xrfragment.module.js
@@ -91,9 +85,19 @@ build(){
     # convert ESM to normal browser js
     sed 's/export //g' example/assets/js/utils.js > dist/utils.js
     # add license headers
-    #for i in dist/*.js; do echo -e "${license_js}$(cat $i)" > $i; done 
-    ls -la dist | grep js
-    exit $ok
+    for file in dist/xrfragment.{aframe,module,three,three.module}.js; do
+      awk 'BEGIN{ 
+        print "/*"
+        print " * generated at $(date)"
+        print " * https://xrfragment.org"
+        print " * SPDX-License-Identifier: MPL-2.0"
+        print " */"
+        system("cat '$file'")
+      }' > /tmp/tmp.js 
+      mv /tmp/tmp.js $file
+    done
+    ls -la dist | grep js 
+    return $ok
   }
 
   test -z $1 && { parser && js; }
