@@ -1,4 +1,4 @@
-!/bin/sh
+#!/bin/sh
 set -e
 
 try(){ set +e; "$@" 2>/dev/null; set -e; }
@@ -74,6 +74,7 @@ build(){
         src/3rd/js/three/*.js               \
         src/3rd/js/three/xrmacro/env.js     \
         src/3rd/js/three/xrf/*.js           \
+        src/3rd/js/three/util/*.js          \
         src/3rd/js/three/xrf/dynamic/*.js   \
         src/3rd/js/three/xrf/src/*.js    > dist/xrfragment.three.js
     # add THREE module
