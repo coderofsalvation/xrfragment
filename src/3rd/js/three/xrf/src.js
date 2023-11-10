@@ -7,6 +7,7 @@ xrf.frag.src = function(v, opts){
   let src;
   let url      = v.string
   let vfrag    = xrfragment.URI.parse(url)
+  console.dir({url,vfrag})
   opts.isPlane = mesh.geometry && mesh.geometry.attributes.uv && mesh.geometry.attributes.uv.count == 4 
 
   const addModel = (model,url,frag) => {
@@ -15,10 +16,11 @@ xrf.frag.src = function(v, opts){
     xrf.frag.src.scale( src, opts, url )
     xrf.frag.src.eval( src, opts, url )
     // allow 't'-fragment to setup separate animmixer
-    xrf.emit('parseModel', {...opts, scene:src, model}) 
     enableSourcePortation(src)
-    mesh.add(src)
-    mesh.traverse( (n) => n.isSRC = n.isXRF = true )
+    model.scene = src
+    mesh.add(model.scene)
+    mesh.traverse( (n) => n.isSRC = n.isXRF = true ) // mark everything SRC
+    xrf.emit('parseModel', {...opts, scene:src, model}) 
     if( mesh.material ) mesh.material.visible = false
   }
 
@@ -118,7 +120,7 @@ xrf.frag.src.filterScene = (scene,opts) => {
   let { mesh, model, camera, renderer, THREE, hashbus, frag} = opts
   let obj, src
   // cherrypicking of object(s)
-  if( !frag.q ){
+  if( !frag.filter ){
     src = new THREE.Group()
     if( Object.keys(frag).length > 0 ){
       for( var i in frag ){
@@ -132,9 +134,10 @@ xrf.frag.src.filterScene = (scene,opts) => {
   }
 
   // filtering of objects using query
-  if( frag.q ){
+  if( frag.filter ){
+    console.warn("TODO: filter scene");
     src = scene
-    xrf.frag.q.filter(src,frag)
+    xrf.filter.scene(src,frag)
   }
   src.traverse( (m) => {
     if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 

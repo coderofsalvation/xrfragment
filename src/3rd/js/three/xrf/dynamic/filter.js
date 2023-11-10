@@ -1,12 +1,15 @@
+/* 
+ * TODO: refactor/fix this (queries are being refactored to filters)
+ */
 // spec: https://xrfragment.org/#queries
 
-xrf.frag.q = function(v, opts){
+xrf.filter = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   console.log("   └ running query ")
   let qobjs = Object.keys(v.query)
 
   // convience function for other fragments (which apply to the query)
-  frag.q.getObjects = () => {
+  frag.filter.getObjects = () => {
     let objs = []
     scene.traverse( (o) => {
       for ( let name in v.query ) {
@@ -21,20 +24,20 @@ xrf.frag.q = function(v, opts){
                  return o
                })
   }
-  xrf.frag.q.filter(scene,frag) // spec : https://xrfragment.org/#queries
+  xrf.filter.scene(scene,frag) // spec : https://xrfragment.org/#queries
 }
 
-xrf.frag.q.filter = function(scene,frag){
+xrf.filter.scene = function(scene,frag){
   // spec: https://xrfragment.org/#queries
   let q        = frag.q.query 
   scene.traverse( (mesh) => {
     for ( let i in q ) {
-      let isMeshId       = q[i].id    != undefined 
-      let isMeshProperty = q[i].rules != undefined && q[i].rules.length && !isMeshId
+      let isMeshId       = q[i].id     != undefined 
+      let isMeshProperty = q[i].filter != undefined && !isMeshId
       if( q[i].root && mesh.isSRC ) continue;  // ignore nested object for root-items (queryseletor '/foo' e.g.)
       if( isMeshId       && 
           (i == mesh.name || xrf.hasTag(i,mesh.userData.tag))) mesh.visible = q[i].id 
-      if( isMeshProperty && mesh.userData[i]                 ) mesh.visible = (new xrf.Query(frag.q.string)).testProperty(i,mesh.userData[i])
+      //if( isMeshProperty && mesh.userData[i]                 ) mesh.visible = (new xrf.Query(frag.q.string)).testProperty(i,mesh.userData[i])
     }
   })
 }

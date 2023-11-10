@@ -27,8 +27,8 @@ install(){
 
 tests(){
   {
-    which python3 && python3 test/generated/test.py src/spec/*.json | awk '{ print "py: "$0 } END{ print "\n"}'
     which node    && node test/generated/test.js    src/spec/*.json | awk '{ print "js: "$0 } END{ print "\n"}'
+    which python3 && python3 test/generated/test.py src/spec/*.json | awk '{ print "py: "$0 } END{ print "\n"}'
   } | awk '$2 ~ /src/ { $2=sprintf("%-30s",$2); print $0; next; } 1' | tee /tmp/log.txt
   grep error /tmp/log.txt && exit 1 || exit 0
 }
@@ -55,7 +55,7 @@ build(){
 
   parser(){
     try rm dist/* 
-    trace haxe build.hxml
+    haxe build.hxml
     ok=$?
     sed -i 's|.*nonlocal .*||g' dist/xrfragment.py
     ls -lah dist/*

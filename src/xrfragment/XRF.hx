@@ -15,7 +15,7 @@ class XRF {
 	// scope types (powers of 2)
 	public static var ASSET:Int               = 1;       // fragment is immutable
 	public static var PROP_BIND:Int           = 2;       // fragment binds/controls one property with another 
-	public static var QUERY_OPERATOR:Int      = 4;       // fragment will be applied to result of queryselecto
+	public static var QUERY_OPERATOR:Int      = 4;       // fragment will be applied to result of filterselecto
 	public static var PROMPT:Int              = 8;       // ask user whether this fragment value can be changed
 	public static var ROUNDROBIN:Int          = 16;      // evaluation of this (multi) value can be roundrobined
 	public static var NAVIGATOR:Int           = 32;      // fragment can be overridden by (manual) browser URI change
@@ -55,7 +55,7 @@ class XRF {
   public var string:String;                                                //  |string|      |                   | #q=-sun               |
   public var int:Int;                                                      //  |int   |      | [-]x[xxxxx]       | #price:>=100          |
   public var float:Float;                                                  //  |float |      | [-]x[.xxxx] (ieee)| #prio=-20             |
-  public var query:Query;
+  public var filter:Filter;
   public var noXRF:Bool;
                                                                            //
   public function new(_fragment:String,_flags:Int){
@@ -78,8 +78,6 @@ class XRF {
 
   public function validate(value:String) : Bool{
     guessType(this, value);                                             //  1. extract the type
-    // special case: query has its own DSL (*TODO* allow fragments to have custom validators)
-    if( fragment == "q" ) query = (new Query(value)).get();
     // validate
     var ok:Bool = true;
     if( !is(T_FLOAT)   && is(T_VECTOR2) && !(Std.isOfType(x,Float) && Std.isOfType(y,Float)) ) ok = false;
@@ -90,23 +88,27 @@ class XRF {
   @:keep
   public function guessType(v:XRF, str:String):Void {
     v.string = str;
-    if( str.split(",").length > 1){                                      //  1. `,` assumes 1D/2D/3D vector-values like x[,y[,z]]
-      var xyzw:Array<String> = str.split(",");                            //  1. parseFloat(..) and parseInt(..) is applied to vector/float and int values 
-      if( xyzw.length > 0 ) v.x = Std.parseFloat(xyzw[0]);                 //  1. anything else will be treated as string-value 
-      if( xyzw.length > 1 ) v.y = Std.parseFloat(xyzw[1]);                 //  1. incompatible value-types will be dropped / not used
-      if( xyzw.length > 2 ) v.z = Std.parseFloat(xyzw[2]);                 //  
-      if( xyzw.length > 3 ) v.w = Std.parseFloat(xyzw[3]);                 //  
-    }                                                                    //  > the xrfragment specification should stay simple enough
-                                                                         //  > for anyone to write a parser using either regexes or grammar/lexers
-    if( isColor.match(str) ) v.color = str;                         //  > therefore expressions/comprehensions are not supported (max wildcard/comparison operators for queries e.g.)
-    if( isFloat.match(str) ){
-      v.x = Std.parseFloat(str);
-      v.float = v.x;
-    }
-    if( isInt.match(str)   ){
-      v.int = Std.parseInt(str);
-      v.x   = cast(v.int);
-    }
+    if( !Std.isOfType(str,String) ) return;
+    if( str.length > 0 ){
+      if( str.split(",").length > 1){                                      //  1. `,` assumes 1D/2D/3D vector-values like x[,y[,z]]
+        var xyzw:Array<String> = str.split(",");                           //  1. parseFloat(..) and parseInt(..) is applied to vector/float and int values 
+        if( xyzw.length > 0 ) v.x = Std.parseFloat(xyzw[0]);               //  1. anything else will be treated as string-value 
+        if( xyzw.length > 1 ) v.y = Std.parseFloat(xyzw[1]);               //  1. incompatible value-types will be dropped / not used
+        if( xyzw.length > 2 ) v.z = Std.parseFloat(xyzw[2]);               //  
+        if( xyzw.length > 3 ) v.w = Std.parseFloat(xyzw[3]);               //  
+      }                                                                    //  > the xrfragment specification should stay simple enough
+                                                                           //  > for anyone to write a parser using either regexes or grammar/lexers
+      if( isColor.match(str) ) v.color = str;                         //  > therefore expressions/comprehensions are not supported (max wildcard/comparison operators for queries e.g.)
+      if( isFloat.match(str) ){
+        v.x = Std.parseFloat(str);
+        v.float = v.x;
+      }
+      if( isInt.match(str)   ){
+        v.int = Std.parseInt(str);
+        v.x   = cast(v.int);
+      }
+      filter = (new Filter(v.fragment+"="+v.string)).get();
+    }else filter = (new Filter(v.fragment)).get();
   }
 
 }

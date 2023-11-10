@@ -7,8 +7,9 @@ import xrfragment.XRF;
 @:expose                                                                   // <- makes the class reachable from plain JavaScript
 @:keep                                                                     // <- avoids accidental removal by dead code elimination
 class Parser {
-    public static var error:String = "";
-    public static var debug:Bool = false;
+    public static var error:String  = "";
+    public static var debug:Bool    = false;
+    public static var keyClean:EReg = ~/(\*$|^-)/g;
 
     @:keep
     public static function parse(key:String,value:String,store:haxe.DynamicAccess<Dynamic>):Bool {
@@ -16,33 +17,17 @@ class Parser {
       var Frag:Map<String, Int> = new Map<String, Int>();
 
       Frag.set("#",             XRF.ASSET | XRF.T_PREDEFINED_VIEW | XRF.PV_EXECUTE );
-      Frag.set("prio",          XRF.ASSET | XRF.T_INT             );
       Frag.set("src",           XRF.ASSET | XRF.T_URL             );
-
-      // category: href navigation / portals / teleporting
       Frag.set("href",          XRF.ASSET | XRF.T_URL | XRF.T_PREDEFINED_VIEW                  );
       Frag.set("tag",           XRF.ASSET | XRF.T_STRING          );
 
-      // category: query selector / object manipulation
+      // spatial category: query selector / object manipulation
       Frag.set("pos",           XRF.PV_OVERRIDE  | XRF.T_VECTOR3 | XRF.T_STRING_OBJ | XRF.METADATA | XRF.NAVIGATOR );
-      Frag.set("q",             XRF.PV_OVERRIDE | XRF.T_STRING | XRF.METADATA                   );
-      Frag.set("scale",         XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE  | XRF.T_VECTOR3 | XRF.METADATA );
       Frag.set("rot",           XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE  | XRF.T_VECTOR3 | XRF.METADATA | XRF.NAVIGATOR );
-      Frag.set("mov",           XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE  | XRF.T_VECTOR3 | XRF.METADATA );
-      Frag.set("show",          XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE  | XRF.T_INT     | XRF.METADATA );
-      Frag.set("env",           XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_STRING | XRF.METADATA );
 
       // category: animation
       Frag.set("t",             XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_FLOAT | XRF.T_VECTOR2 | XRF.T_STRING  | XRF.NAVIGATOR | XRF.METADATA);
       Frag.set("tv",            XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_FLOAT | XRF.T_VECTOR2 | XRF.T_VECTOR3 | XRF.NAVIGATOR | XRF.METADATA);
-      Frag.set("gravity",       XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR3 | XRF.METADATA );
-      Frag.set("physics",       XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR3 | XRF.METADATA );
-
-      // category: device / viewport settings
-      Frag.set("fov",           XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_INT     | XRF.NAVIGATOR | XRF.METADATA );
-      Frag.set("clip",          XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR2 | XRF.NAVIGATOR | XRF.METADATA );
-      Frag.set("fog",           XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR2 | XRF.NAVIGATOR | XRF.METADATA );
-      Frag.set("bg",            XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_VECTOR3 | XRF.NAVIGATOR | XRF.METADATA );
 
       // category: author / metadata
       Frag.set("namespace",     XRF.ASSET | XRF.T_STRING                                  );
@@ -64,12 +49,12 @@ class Parser {
       //  1. requirement: receive arguments: key (string), value (string), store (writable associative array/object)
 
 			// dynamic fragments cases: predefined views & assign/binds
-      var isPVDynamic:Bool = value.length == 0 && key.length > 0 && !Frag.exists(key);
+      var isPVDynamic:Bool = key.length > 0 && !Frag.exists(key);
       var isPVDefault:Bool = value.length == 0 && key.length > 0 && key == "#";
 			if( isPVDynamic ){ //|| isPVDefault ){      //  1. add keys without values to store as [predefined view](predefined_view)
 				var v:XRF  = new XRF(key, XRF.PV_EXECUTE | XRF.NAVIGATOR );
-        v.validate(key); // will fail but will parse multiple args for us (separated by |)
-				store.set(key, v );
+        v.validate(value); // will fail but will parse multiple args for us (separated by |)
+				store.set( keyClean.replace(key,''), v );
 				return true;
 			}
 
@@ -85,9 +70,8 @@ class Parser {
       }else{                                                               //  1. expose (but mark) non-offical fragments too 
         if( Std.isOfType(value, String) ) v.guessType(v,value);
         v.noXRF = true;
-        store.set(key,v);
+        store.set( keyClean.replace(key,'') ,v);
       }
-
       return true;
     }
 

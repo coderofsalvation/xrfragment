@@ -33,11 +33,6 @@ xrf.frag.href = function(v, opts){
 
   if( mesh.userData.XRF.href.exec ) return // mesh already initialized
 
-  // derived properties
-  const isLocal = v.string[0] == '#'
-  const isPlane = mesh.geometry && mesh.geometry.attributes.uv && mesh.geometry.attributes.uv.count == 4 
-  const hasSrc  = mesh.userData.src != undefined
-
   let click = mesh.userData.XRF.href.exec = (e) => {
 
     let lastPos   = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
@@ -81,8 +76,6 @@ xrf.frag.href = function(v, opts){
   mesh.addEventListener('mousemove', selected(true) )
   mesh.addEventListener('mouseenter', selected(true) )
   mesh.addEventListener('mouseleave', selected(false) )
-
-  if( isLocal && isPlane && !hasSrc && !mesh.material.map ) xrf.portalNonEuclidian(v,opts)
 
   // lazy add mesh (because we're inside a recursive traverse)
   setTimeout( (mesh) => {

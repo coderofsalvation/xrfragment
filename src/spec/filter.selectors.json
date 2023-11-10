@@ -1,0 +1,11 @@
+[
+  {"fn":"url","data":"http://foo.com?foo=1#foo*&-sometag&-someid&myid", "expect":{ "fn":"testParsed",    "input":"myid","out":true},"label":"myid exists"},
+  {"fn":"url","data":"http://foo.com?foo=1#tag=bar",  "expect":{ "fn":"testParsed",    "input":"tag",  "out":true},"label":"tag exists"},
+  {"fn":"url","data":"http://foo.com?foo=1#-tag=bar", "expect":{ "fn":"testParsed",    "input":"tag",  "out":true},"label":"tag exists"},
+  {"fn":"url","data":"http://foo.com?foo=1#price=>2", "expect":{ "fn":"testParsed",    "input":"price","out":true},"label":"query test"},
+  {"fn":"query","data":"tag=bar",  "expect":{ "fn":"testProperty","input":["tag","bar"],"out":true}},
+  {"fn":"query","data":"-tag=foo", "expect":{ "fn":"testProperty","input":["tag","foo"],"out":false}},
+  {"fn":"query","data":"price=>2", "expect":{ "fn":"testProperty","input":["price","1"],"out":false}},
+  {"fn":"query","data":"price=<2", "expect":{ "fn":"testProperty","input":["price","5"],"out":false}},
+  {"fn":"query","data":"price=<2", "expect":{ "fn":"testProperty","input":["price","1"],"out":true}}
+]
