@@ -4,11 +4,19 @@ xrf.frag.src = function(v, opts){
   opts.embedded = v // indicate embedded XR fragment
   let { mesh, model, camera, scene, renderer, THREE, hashbus, frag} = opts
 
+  const hasMaterialName   = mesh.material && mesh.material.name.length > 0 
+  const hasTexture        = mesh.material && mesh.material.map 
+  const isPlane           = mesh.geometry && mesh.geometry.attributes.uv && mesh.geometry.attributes.uv.count == 4 
+  const hasLocalSRC       = mesh.userData.src  != undefined && mesh.userData.src[0] == '#'
+
   let src;
   let url      = v.string
   let vfrag    = xrfragment.URI.parse(url)
-  console.dir({url,vfrag})
-  opts.isPlane = mesh.geometry && mesh.geometry.attributes.uv && mesh.geometry.attributes.uv.count == 4 
+
+  // handle non-euclidian planes
+  if( mesh.geometry && !hasMaterialName && !hasTexture && hasLocalSRC && isPlane ){
+    return xrf.portalNonEuclidian(opts)
+  }
 
   const addModel = (model,url,frag) => {
     let scene = model.scene
