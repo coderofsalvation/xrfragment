@@ -10,6 +10,8 @@ xrf.portalNonEuclidian = function(opts){
   mesh.material.stencilRef   = xrf.portalNonEuclidian.stencilRef;
   mesh.material.stencilFunc  = THREE.AlwaysStencilFunc;
   mesh.material.stencilZPass = THREE.ReplaceStencilOp;
+  mesh.material.stencilFail  = THREE.ReplaceStencilOp;
+  mesh.material.stencilZFail = THREE.ReplaceStencilOp;
   //mesh.material.side         = THREE.DoubleSide  // *TODO* this requires flipping normals based on camera orientation
   mesh.portal = {
     pos: mesh.position.clone(),
@@ -23,19 +25,21 @@ xrf.portalNonEuclidian = function(opts){
   // allow objects to flip between original and stencil position (which puts them behind stencilplane)
   const addStencilFeature = (n) => { 
     if( n.stencil ) return n // run once
-    n.stencil = ( (pos ) => (sRef,newPos) => {
-        n.position.copy( sRef == 0 ? pos : newPos )
+    n.stencil = ( (pos,scale) => (sRef,newPos, newScale) => {
+        n.position.copy( sRef == 0 ? pos   : newPos )
+        if( sRef > 0 ) n.scale.multiply( newScale )
+        else           n.scale.copy( scale )
         xrf.portalNonEuclidian.selectStencil(n, sRef )
         n.updateMatrixWorld(true)
       }
-    )( n.position.clone() )
+    )( n.position.clone(), n.scale.clone() )
     return n
   }
 
-  // collect related objects from XRWG to render inside stencilplane
-  let world      = scene.getObjectByName( mesh.userData.src.substr(1) ) // strip #
-  if( !world ) return console.warn(`no objects were found (src:${mesh.userData.src}) for (portal)object name '${mesh.name}'`)
-  let stencilObjects = [mesh,world]
+  // collect related objects to render inside stencilplane
+  let stencilObject           = scene.getObjectByName( mesh.userData.src.substr(1) ) // strip #
+  if( !stencilObject ) return console.warn(`no objects were found (src:${mesh.userData.src}) for (portal)object name '${mesh.name}'`)
+  let stencilObjects = [mesh,stencilObject]
   stencilObjects = stencilObjects
                 .filter( (n) => !n.portal ) // filter out (self)references to portals (prevent recursion)
                 .map(addStencilFeature)
@@ -68,11 +72,12 @@ xrf.portalNonEuclidian = function(opts){
     if( mesh.portal && mesh.portal.needUpdate ){  
       let {scene,camera,time,render} = opts
       let stencilRef                 = mesh.portal.stencilRef
-      let stencilPos                 = mesh.portal.posWorld
+      let newPos                     = mesh.portal.posWorld
+      let newScale                   = mesh.scale 
 
       mesh.visible = true
 
-      mesh.portal.stencilObjects.traverse( (n) => showPortal(n,false) && n.stencil && n.stencil(stencilRef,stencilPos) )
+      mesh.portal.stencilObjects.traverse( (n) => showPortal(n,false) && n.stencil && n.stencil(stencilRef,newPos,newScale) )
       renderer.autoClear        = false 
       renderer.clearDepth()
       render( mesh.portal.stencilObjects, camera )
