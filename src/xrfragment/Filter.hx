@@ -56,7 +56,7 @@ class Filter {
   private var isExclude:EReg     = ~/^-/;               //  1. detect excluders like `-foo`,`-foo=1`,`-.foo`,`-/foo` (reference regex= `/^-/` )
   private var isRoot:EReg        = ~/^[-]?\//;          //  1. detect root selectors like `/foo` (reference regex= `/^[-]?\//` )
   private var isNumber:EReg      = ~/^[0-9\.]+$/;       //  1. detect number values like `foo=1` (reference regex= `/^[0-9\.]+$/` )
-  private var isDeepSelect:EReg = ~/\*$/;         //  1. detect nested keys like 'foo*'    (reference regex= `/\*$/` )
+  private var isDeepSelect:EReg = ~/(^-|\*$)/;          //  1. detect nested keys like 'foo*'    (reference regex= `/\*$/` )
   private var isSelectorExclude:EReg  = ~/^-/;          //  1. detect exclude keys like `-foo`   (reference regex= `/^-/` )
 
   public function new(str:String){
@@ -64,11 +64,11 @@ class Filter {
   }
 
   public function toObject() : Dynamic {
-    return this.q;
+    return Reflect.copy(this.q);
   }
 
   public function get() : Dynamic {
-    return this.q;
+    return Reflect.copy(this.q);
   }
 
   public function parse(str:String) : Dynamic {
@@ -90,24 +90,21 @@ class Filter {
         if( str.indexOf(">")  != -1 ) oper = ">";          // 1. then scan for `>` operator
         if( str.indexOf("<")  != -1 ) oper = "<";          // 1. then scan for `<` operator
         if( isExclude.match(k) ){
-          oper = "=!";
           k = k.substr(1);      //  1. then strip key-operator: convert "-foo" into "foo" 
-        }else v = v.substr(oper.length); // 1. then strip value operator: change value ">=foo" into "foo" 
+        }
+        v = v.substr(oper.length); // 1. then strip value operator: change value ">=foo" into "foo" 
         if( oper.length == 0 ) oper = "=";
         var rule:haxe.DynamicAccess<Dynamic> = {};
         if( isNumber.match(v) ) rule[ oper ] = Std.parseFloat(v);
         else rule[oper] = v;
-        filter['filter'] = rule;                            //  1. add filter rule 
-        q.set( k, filter );
-        return;
+        q.set('expr',rule);
       }else{ // 1. <b>ELSE </b> we are dealing with an object
-        filter[ "id"       ] = isExclude.match(str)    ? false: true;  //  1. therefore we we set `id` to `true` or `false` (false=excluder `-`)
-        filter[ "root"     ] = isRoot.match(str)       ? true:  false; //  1. and we set `root` to `true` or `false` (true=`/` root selector is present)
-        filter[ "deep"     ] = isDeepSelect.match(str) ? true:  false; //  1. and we set `deep` to `true` or `false` (for objectnames with * suffix) 
-        if( isExclude.match(str) ) str = str.substr(1); // convert '-foo' into 'foo'
-        if( isRoot.match(str)    ) str = str.substr(1); //  1. we convert key '/foo' into 'foo'
-        q.set( str ,filter );                           //  1. finally we add the key/value to the store (`store.foo = {id:false,root:true}` e.g.)
+        q.set("root", isRoot.match(str)       ? true  : false ); //  1. and we set `root` to `true` or `false` (true=`/` root selector is present)
       }
+      q.set("show", isExclude.match(str)    ? false : true  ); //  1. therefore we we set `show` to `true` or `false` (false=excluder `-`)
+      q.set("deep", isDeepSelect.match(k) ? true  : false ); //  1. set `deep` (for objectnames with * suffix or negative selectors) 
+      q.set("key", isDeepSelect.replace(k,'') );
+      q.set("value",v);
     }
     for( i in 0...token.length ) process( token[i] );
     return this.q = q;
@@ -151,22 +148,18 @@ class Filter {
     }
 
     // conditional rules
-    for ( k in Reflect.fields(q) ){
-      var f:Dynamic = Reflect.field(q,k);
-      if( f.filter == null  ) continue;
+    if( Reflect.field(q,'expr') ){
+      var f:Dynamic =  Reflect.field(q,'expr');
 
-      //if( Std.isOfType(value, String) ) contiggnue;
-      if( exclude ){
-        if( Reflect.field(f.filter,'!=') != null && testprop( Std.string(value) == Std.string(Reflect.field(f.filter,'!='))) && exclude ) qualify += 1;
+      if( !Reflect.field(q,'show') ){
+        if( Reflect.field(f,'!=') != null && testprop( Std.string(value) == Std.string(Reflect.field(f,'!='))) && exclude ) qualify += 1;
       }else{
-        if( Reflect.field(f.filter,'*')  != null && testprop( Std.parseFloat(value) != null                                   ) ) qualify += 1;
-        if( Reflect.field(f.filter,'>')  != null && testprop( Std.parseFloat(value) >  Std.parseFloat(Reflect.field(f.filter,'>' )) ) ) qualify += 1;
-        if( Reflect.field(f.filter,'<')  != null && testprop( Std.parseFloat(value) <  Std.parseFloat(Reflect.field(f.filter,'<' )) ) ) qualify += 1;
-        if( Reflect.field(f.filter,'>=') != null && testprop( Std.parseFloat(value) >= Std.parseFloat(Reflect.field(f.filter,'>=')) ) ) qualify += 1;
-        if( Reflect.field(f.filter,'<=') != null && testprop( Std.parseFloat(value) <= Std.parseFloat(Reflect.field(f.filter,'<=')) ) ) qualify += 1;
-        if( Reflect.field(f.filter,'=')  != null && (
-          testprop( value == Reflect.field(f.filter,'='))                   ||
-          testprop( Std.parseFloat(value) == Std.parseFloat(Reflect.field(f.filter,'=')))
+        if( Reflect.field(f,'*')  != null && testprop( Std.parseFloat(value) != null                                   ) ) qualify += 1;
+        if( Reflect.field(f,'>')  != null && testprop( Std.parseFloat(value) >  Std.parseFloat(Reflect.field(f,'>' )) ) ) qualify += 1;
+        if( Reflect.field(f,'<')  != null && testprop( Std.parseFloat(value) <  Std.parseFloat(Reflect.field(f,'<' )) ) ) qualify += 1;
+        if( Reflect.field(f,'=')  != null && (
+          testprop( value == Reflect.field(f,'='))                   ||
+          testprop( Std.parseFloat(value) == Std.parseFloat(Reflect.field(f,'=')))
         )) qualify += 1;
       }
     }

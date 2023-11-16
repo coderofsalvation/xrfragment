@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="./../../assets/css/axist.min.css" />
     <link type="text/css" rel="stylesheet" href="./../../assets/css/style.css"/>
     <script async src="./../../assets/js/alpine.min.js" defer></script>
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js"></script>
     <script src="./../../../dist/xrfragment.aframe.js"></script>
     <script src="./../../assets/js/qr.js"></script>
@@ -42,7 +42,7 @@
         <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: #floor"></a-entity>
       </a-entity>
 
-      <a-entity id="home"  xrf="index.gltf"></a-entity>
+      <a-entity id="home"  xrf="index.glb"></a-entity>
       <a-plane  id="floor" position="0 0 0" rotation="-90 0 0" width="100" height="100" material="visible:false"></a-plane>
     </a-scene>
 

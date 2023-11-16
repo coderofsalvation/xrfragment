@@ -55,8 +55,7 @@ build(){
 
   parser(){
     try rm dist/* 
-    haxe build.hxml
-    ok=$?
+    haxe build.hxml || exit 1
     sed -i 's|.*nonlocal .*||g' dist/xrfragment.py
     ls -lah dist/*
     echo -e "[OK] parser build\n"

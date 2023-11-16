@@ -1,18 +1,7 @@
 xrf.portalNonEuclidian = function(opts){
   let { frag, mesh, model, camera, scene, renderer} = opts
 
-  // turn plane into stencilplane 
-  mesh.material = new xrf.THREE.MeshBasicMaterial({ color: 'white' });
-  mesh.material.depthWrite   = true;
-  mesh.material.depthTest    = false;
-  mesh.material.colorWrite   = false;
-  mesh.material.stencilWrite = true;
-  mesh.material.stencilRef   = xrf.portalNonEuclidian.stencilRef;
-  mesh.material.stencilFunc  = THREE.AlwaysStencilFunc;
-  mesh.material.stencilZPass = THREE.ReplaceStencilOp;
-  mesh.material.stencilFail  = THREE.ReplaceStencilOp;
-  mesh.material.stencilZFail = THREE.ReplaceStencilOp;
-  //mesh.material.side         = THREE.DoubleSide  // *TODO* this requires flipping normals based on camera orientation
+
   mesh.portal = {
     pos: mesh.position.clone(),
     posWorld: new xrf.THREE.Vector3(),
@@ -20,7 +9,11 @@ xrf.portalNonEuclidian = function(opts){
     needUpdate: false
   }
 
-  mesh.getWorldPosition(mesh.portal.posWorld)
+  // turn mesh into stencilplane 
+  xrf
+  .portalNonEuclidian
+  .setMaterial(mesh)
+  .getWorldPosition(mesh.portal.posWorld)
 
   // allow objects to flip between original and stencil position (which puts them behind stencilplane)
   const addStencilFeature = (n) => { 
@@ -100,5 +93,20 @@ xrf.portalNonEuclidian.selectStencil = (n, stencilRef, nested) => {
   }
   if( n.children && !nested ) n.traverse( (m) => !m.portal && (xrf.portalNonEuclidian.selectStencil(m,stencilRef,true)) )
 }
+  
+xrf.portalNonEuclidian.setMaterial = function(mesh){
+  mesh.material = new xrf.THREE.MeshBasicMaterial({ color: 'white' });
+  mesh.material.depthWrite   = true;
+  mesh.material.depthTest    = false;
+  mesh.material.colorWrite   = false;
+  mesh.material.stencilWrite = true;
+  mesh.material.stencilRef   = xrf.portalNonEuclidian.stencilRef;
+  mesh.material.stencilFunc  = THREE.AlwaysStencilFunc;
+  mesh.material.stencilZPass = THREE.ReplaceStencilOp;
+  mesh.material.stencilFail  = THREE.ReplaceStencilOp;
+  mesh.material.stencilZFail = THREE.ReplaceStencilOp;
+  return mesh
+}
+
 
 xrf.portalNonEuclidian.stencilRef = 1

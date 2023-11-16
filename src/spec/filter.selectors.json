@@ -5,6 +5,8 @@
   {"fn":"url","data":"http://foo.com?foo=1#price=>2", "expect":{ "fn":"testParsed",    "input":"price","out":true},"label":"query test"},
   {"fn":"query","data":"tag=bar",  "expect":{ "fn":"testProperty","input":["tag","bar"],"out":true}},
   {"fn":"query","data":"-tag=foo", "expect":{ "fn":"testProperty","input":["tag","foo"],"out":false}},
+  {"fn":"query","data":"-tag*=foo", "expect":{ "fn":"testProperty","input":["tag","foo"],"out":false}},
+  {"fn":"query","data":"-tag=>2", "expect":{ "fn":"testProperty","input":["tag","3"],"out":false}},
   {"fn":"query","data":"price=>2", "expect":{ "fn":"testProperty","input":["price","1"],"out":false}},
   {"fn":"query","data":"price=<2", "expect":{ "fn":"testProperty","input":["price","5"],"out":false}},
   {"fn":"query","data":"price=<2", "expect":{ "fn":"testProperty","input":["price","1"],"out":true}}

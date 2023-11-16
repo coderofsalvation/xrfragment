@@ -20,15 +20,14 @@ xrf.frag.src = function(v, opts){
 
   const addModel = (model,url,frag) => {
     let scene = model.scene
-    src = xrf.frag.src.filterScene(scene,{...opts,frag})
-    xrf.frag.src.scale( src, opts, url )
-    xrf.frag.src.eval( src, opts, url )
+    xrf.frag.src.filterScene(scene,{...opts,frag})
+    xrf.frag.src.scale( scene, opts, url )
+    xrf.frag.src.eval( scene, opts, url )
     // allow 't'-fragment to setup separate animmixer
-    enableSourcePortation(src)
-    model.scene = src
+    //enableSourcePortation(scene)
     mesh.add(model.scene)
     mesh.traverse( (n) => n.isSRC = n.isXRF = true ) // mark everything SRC
-    xrf.emit('parseModel', {...opts, scene:src, model}) 
+    xrf.emit('parseModel', {...opts, scene, model}) 
     if( mesh.material ) mesh.material.visible = false
   }
 
@@ -67,11 +66,13 @@ xrf.frag.src = function(v, opts){
   }
 
   if( url[0] == "#" ){ 
-    let modelClone = {...model, scene: model.scene.clone()}
-    modelClone.scenes = [modelClone.scene]
-    modelClone.animations = modelClone.animations.map( (a) => a.clone() )
-    addModel(modelClone,url,vfrag)    // current file 
-  }else externalSRC(url,vfrag)        // external file
+    let _model = {
+      animations: model.animations,
+      scene: scene.clone()
+    }
+    _model.scenes = [_model.scene]
+    addModel(_model,url,vfrag)    // current file 
+  }else externalSRC(url,vfrag)   // external file
 }
 
 xrf.frag.src.eval = function(scene, opts, url){
@@ -126,8 +127,11 @@ xrf.frag.src.scale = function(scene, opts, url){
 
 xrf.frag.src.filterScene = (scene,opts) => {
   let { mesh, model, camera, renderer, THREE, hashbus, frag} = opts
-  let obj, src
-  // cherrypicking of object(s)
+
+  xrf.filter.scene({scene,frag})
+  if( scene.children.length == 1 ) scene.children[0].position.set(0,0,0)
+ 
+  /*
   if( !frag.filter ){
     src = new THREE.Group()
     if( Object.keys(frag).length > 0 ){
@@ -142,8 +146,7 @@ xrf.frag.src.filterScene = (scene,opts) => {
   }
 
   // filtering of objects using query
-  if( frag.filter ){
-    console.warn("TODO: filter scene");
+  if( Object.keys(frag).length > 1 ){
     src = scene
     xrf.filter.scene(src,frag)
   }
@@ -151,7 +154,8 @@ xrf.frag.src.filterScene = (scene,opts) => {
     if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 
     hashbus.pub.mesh(m,{scene,recursive:true})                       // cool idea: recursion-depth based distance between face & src
   })
-  return src
+  */
+  return scene
 }
 
 /*

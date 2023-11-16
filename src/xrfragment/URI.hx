@@ -40,7 +40,7 @@ class URI {
         if (splitByEqual.length > 1) {
           value = StringTools.urlDecode(regexPlus.split(splitByEqual[1]).join(" "));
         }
-				var ok:Bool = Parser.parse(key,value,store);                       //  1. for every recognized fragment key/value-pair call [Parser.parse](#%E2%86%AA%20Parser.parse%28k%2Cv%2Cstore%29)
+				var ok:Bool = Parser.parse(key,value,store,i);                     //  1. for every recognized fragment key/value-pair call [Parser.parse](#%E2%86%AA%20Parser.parse%28k%2Cv%2Cstore%29)
       }
       if( filter != null && filter != 0 ){
         for (key in store.keys()) {

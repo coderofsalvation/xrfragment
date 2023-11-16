@@ -47,6 +47,7 @@ class XRF {
   // value holder(s)                                                       //  |------|------|--------|----------------------------------|
   public var fragment:String;
   public var flags:Int;
+  public var index:Int;
   public var x:Float;                                                      //  |vector| x,y,z| comma-separated    | #pos=1,2,3           |
   public var y:Float;
   public var z:Float;
@@ -58,9 +59,10 @@ class XRF {
   public var filter:Filter;
   public var noXRF:Bool;
                                                                            //
-  public function new(_fragment:String,_flags:Int){
+  public function new(_fragment:String,_flags:Int,?_index:Int){
     fragment = _fragment;
     flags    = _flags;
+    index    = _index;
   }
 
   public function is(flag:Int):Bool {
@@ -107,8 +109,8 @@ class XRF {
         v.int = Std.parseInt(str);
         v.x   = cast(v.int);
       }
-      filter = (new Filter(v.fragment+"="+v.string)).get();
-    }else filter = (new Filter(v.fragment)).get();
+      v.filter = new Filter(v.fragment+"="+v.string);
+    }else v.filter = new Filter(v.fragment);
   }
 
 }

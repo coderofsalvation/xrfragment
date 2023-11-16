@@ -18,6 +18,6 @@ console.assert = ((assert) => (a,b) => {
 let frags = xrf.URI.parse('://foo.com/1.gltf#pos=1.0,2.0,3.0&q=-.foo&t=1,100',true)
 console.assert( frags.t, {frags, reason:'URI.parse(): t needs to be set'})
 
-let q = new xrf.Query();
-console.assert( new xrf.Query(), {reason: 'new Query() should be available'})
+let frag = xrf.URI.parse("#foo=1")
+console.assert( frag, {reason: 'xrf.URI.parse() should be available'})
 

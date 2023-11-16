@@ -12,7 +12,7 @@ class Parser {
     public static var keyClean:EReg = ~/(\*$|^-)/g;
 
     @:keep
-    public static function parse(key:String,value:String,store:haxe.DynamicAccess<Dynamic>):Bool {
+    public static function parse(key:String,value:String,store:haxe.DynamicAccess<Dynamic>,?index:Int):Bool {
       // here we define allowed characteristics & datatypes for each fragment (stored as bitmasked int for performance purposes)
       var Frag:Map<String, Int> = new Map<String, Int>();
 
@@ -52,14 +52,14 @@ class Parser {
       var isPVDynamic:Bool = key.length > 0 && !Frag.exists(key);
       var isPVDefault:Bool = value.length == 0 && key.length > 0 && key == "#";
 			if( isPVDynamic ){ //|| isPVDefault ){      //  1. add keys without values to store as [predefined view](predefined_view)
-				var v:XRF  = new XRF(key, XRF.PV_EXECUTE | XRF.NAVIGATOR );
+				var v:XRF  = new XRF(key, XRF.PV_EXECUTE | XRF.NAVIGATOR, index );
         v.validate(value); // will fail but will parse multiple args for us (separated by |)
 				store.set( keyClean.replace(key,''), v );
 				return true;
 			}
 
 			// regular fragments:
-      var v:XRF = new XRF(key, Frag.get(key));
+      var v:XRF = new XRF(key, Frag.get(key), index);
       if( Frag.exists(key) ){                                              //  1. check if fragment is official XR Fragment
         if( !v.validate(value) ){                                          //  1. guess the type of the value (string,int,float,x,y,z,color,args,query)
           trace("⚠ fragment '"+key+"' has incompatible value ("+value+")");//  1. don't add to store if value-type is incorrect
