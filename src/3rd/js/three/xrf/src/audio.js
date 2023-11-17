@@ -54,7 +54,6 @@ let loadAudio = (mimetype) => function(url,opts){
 
         if( t.z > 0 ) sound.setLoopEnd(   loopEnd   )
         if( t.y != undefined ){ 
-          console.dir({loopStart,t})
           sound.setLoopStart( loopStart )
           sound.offset = loopStart 
         }

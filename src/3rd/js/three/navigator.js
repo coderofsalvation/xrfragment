@@ -40,7 +40,6 @@ xrf.navigator.to = (url,flags,loader,data) => {
       setTimeout( () => { // give external objects some slack 
         let frag = hashbus.pub( url, model) // and eval URI XR fragments 
         hashbus.pub.XRWG({model,scene:model.scene,frag})
-        console.dir(frag)
       },2000)
       xrf.add( model.scene )
       xrf.navigator.updateHash(hash)

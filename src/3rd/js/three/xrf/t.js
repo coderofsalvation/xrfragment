@@ -151,7 +151,6 @@ xrf.addEventListener('render', (opts) => {
 xrf.addEventListener('dynamicKey', (opts) => {
   // select active camera if any
   let {id,match,v} = opts
-  console.dir(opts)
   match.map( (w) => {
     w.nodes.map( (node) => {
       if( node.isCamera ){ 

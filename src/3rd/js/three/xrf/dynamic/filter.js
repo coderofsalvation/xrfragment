@@ -1,6 +1,17 @@
 /* 
  * TODO: refactor/fix this (queries are being refactored to filters)
  */
+
+
+xrf.addEventListener('dynamicKey', (opts) => {
+  let {scene,id,match,v} = opts
+  if( v.filter ){
+    let frags = {}
+    frags[ v.fragment ] = v
+    xrf.filter.scene({frag:frags,scene})
+  }
+})
+
 // spec: https://xrfragment.org/#filters
 xrf.filter = function(query, cb){
   let result = []
@@ -14,8 +25,8 @@ xrf.filter.scene = function(opts){
   let {scene,frag} = opts
 
   xrf.filter 
-  .sort(frag)            // get (sorted) filters from XR Fragments
-  .process(frag,scene)   // show/hide things
+  .sort(frag)               // get (sorted) filters from XR Fragments
+  .process(frag,scene,opts) // show/hide things
 
   scene.visible = true   // always enable scene
 
@@ -41,11 +52,12 @@ xrf.filter.process = function(frag,scene,opts){
 
   // spec 2: https://xrfragment.org/doc/RFC_XR_Macros.html#embedding-xr-content-using-src
   // reparent scene based on objectname in case it matches a (non-negating) selector 
-  if( !firstFilter.value && firstFilter.show === true ){
+  if( opts.reparent && !firstFilter.value && firstFilter.show === true ){
     let obj 
     scene.traverse( (n) => hasName(n, firstFilter.key,firstFilter) && (obj = n) )
     if(obj){
       while( scene.children.length > 0 ) scene.children[0].removeFromParent()
+      obj.position.set(0,0,0)
       scene.add( obj )
     }
   }

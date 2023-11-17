@@ -108,8 +108,7 @@ xrf.frag.src.scale = function(scene, opts, url){
 xrf.frag.src.filterScene = (scene,opts) => {
   let { mesh, model, camera, renderer, THREE, hashbus, frag} = opts
 
-  xrf.filter.scene({scene,frag})
-  if( scene.children.length == 1 ) scene.children[0].position.set(0,0,0)
+  xrf.filter.scene({scene,frag,reparent:true})
  
   scene.traverse( (m) => {
     if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 

@@ -39,14 +39,13 @@ window.AFRAME.registerComponent('xrf', {
                 p.resolve()
                 AFRAME.fade.out(fastFadeMs)
               }, fastFadeMs)
-            }
-            if( !isLocal ){
+            }else if( !isLocal ){
               AFRAME.fade.in()
               setTimeout( () => {
                 p.resolve()
                 setTimeout( () => AFRAME.fade.out(), 1000 ) // allow one second to load textures e.g.
               }, AFRAME.fade.data.fadetime )
-            }
+            }else p.resolve()
           }
         })
 
@@ -81,7 +80,6 @@ window.AFRAME.registerComponent('xrf', {
 
         // cleanup xrf-get objects when resetting scene
         xrf.addEventListener('reset', (opts) => {
-          console.log("aframe reset")
           let els = [...document.querySelectorAll('[xrf-get]')]
           els.map( (el) => document.querySelector('a-scene').removeChild(el) )
         })
