@@ -1,3 +1,5 @@
+// spec 8: https://xrfragment.org/doc/RFC_XR_Macros.html#embedding-xr-content-using-src
+
 xrf.portalNonEuclidian = function(opts){
   let { frag, mesh, model, camera, scene, renderer} = opts
 

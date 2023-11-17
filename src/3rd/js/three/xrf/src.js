@@ -22,8 +22,6 @@ xrf.frag.src = function(v, opts){
     let scene = model.scene
     xrf.frag.src.filterScene(scene,{...opts,frag})
     xrf.frag.src.scale( scene, opts, url )
-    xrf.frag.src.eval( scene, opts, url )
-    // allow 't'-fragment to setup separate animmixer
     //enableSourcePortation(scene)
     mesh.add(model.scene)
     mesh.traverse( (n) => n.isSRC = n.isXRF = true ) // mark everything SRC
@@ -32,6 +30,7 @@ xrf.frag.src = function(v, opts){
   }
 
   const enableSourcePortation = (src) => {
+    // show sourceportation clickable plane
     if( vfrag.href || v.string[0] == '#' ) return
     let scale = new THREE.Vector3()
     let size  = new THREE.Vector3()
@@ -45,7 +44,6 @@ xrf.frag.src = function(v, opts){
     mat.opacity = 0
     const cube = new THREE.Mesh( geo, mat )
     console.log("todo: sourceportate")
-    //mesh.add(cube)
   }
 
   const externalSRC = (url,frag,src) => {
@@ -75,20 +73,6 @@ xrf.frag.src = function(v, opts){
   }else externalSRC(url,vfrag)   // external file
 }
 
-xrf.frag.src.eval = function(scene, opts, url){
-    let { mesh, model, camera, renderer, THREE, hashbus} = opts
-    if( url ){
-      //let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
-      //let frag = xrfragment.URI.parse(url)
-      //// scale URI XR Fragments (queries) inside src-value 
-      //for( var i in frag ){
-      //  hashbus.pub.fragment(i, Object.assign(opts,{frag, model:{scene},scene}))
-      //}
-      //hashbus.pub( '#', {scene} )                    // execute the default projection '#' (if exist)
-      //hashbus.pub( url, {scene} )                    // and eval URI XR fragments 
-    }
-}
-
 // scale embedded XR fragments https://xrfragment.org/#scaling%20of%20instanced%20objects
 xrf.frag.src.scale = function(scene, opts, url){
     let { mesh, model, camera, renderer, THREE} = opts
@@ -97,7 +81,8 @@ xrf.frag.src.scale = function(scene, opts, url){
     let cleanScene = scene.clone()
     if( !cleanScene ) debugger
     let remove = []
-    cleanScene.traverse( (n) => !n.visible && n.children.length == 0 && (remove.push(n)) )
+    const notVisible = (n) => !n.visible || (n.material && !n.material.visible)
+    cleanScene.traverse( (n) => notVisible(n) && n.children.length == 0 && (remove.push(n)) )
     remove.map( (n) => n.removeFromParent() )
 
     let restrictTo3DBoundingBox = mesh.geometry
