@@ -28,7 +28,7 @@ xrf.frag.src = function(v, opts){
     mesh.add(model.scene)
     mesh.traverse( (n) => n.isSRC = n.isXRF = true ) // mark everything SRC
     xrf.emit('parseModel', {...opts, scene, model}) 
-    if( mesh.material ) mesh.material.visible = false
+    if( mesh.material ) mesh.material.visible = false // hide placeholder object
   }
 
   const enableSourcePortation = (src) => {
@@ -93,6 +93,13 @@ xrf.frag.src.eval = function(scene, opts, url){
 xrf.frag.src.scale = function(scene, opts, url){
     let { mesh, model, camera, renderer, THREE} = opts
 
+    // remove invisible objects (hidden by selectors) which might corrupt boundingbox size-detection 
+    let cleanScene = scene.clone()
+    if( !cleanScene ) debugger
+    let remove = []
+    cleanScene.traverse( (n) => !n.visible && n.children.length == 0 && (remove.push(n)) )
+    remove.map( (n) => n.removeFromParent() )
+
     let restrictTo3DBoundingBox = mesh.geometry
     if( restrictTo3DBoundingBox ){ 
       // spec 3 of https://xrfragment.org/#src
@@ -100,23 +107,11 @@ xrf.frag.src.scale = function(scene, opts, url){
       // normalize instanced objectsize to boundingbox
       let sizeFrom  = new THREE.Vector3()
       let sizeTo    = new THREE.Vector3()
-
       let empty = new THREE.Object3D()
-
-// *TODO* exclude invisible objects from boundingbox size-detection
-//
-//      THREE.Box3.prototype.expandByObject = (function(expandByObject){
-//        return function(object,precise){
-//          return expandByObject.call(this, object.visible ? object : empty, precise)
-//        }
-//      })(THREE.Box3.prototype.expandByObject)
-
       new THREE.Box3().setFromObject(mesh).getSize(sizeTo)
-      new THREE.Box3().setFromObject(scene).getSize(sizeFrom)
+      new THREE.Box3().setFromObject(cleanScene).getSize(sizeFrom)
       let ratio = sizeFrom.divide(sizeTo)
       scene.scale.multiplyScalar( 1.0 / Math.max(ratio.x, ratio.y, ratio.z));
- //     let factor = getMax(sizeTo) < getMax(sizeFrom) ? getMax(sizeTo) / getMax(sizeFrom) : getMax(sizeFrom) / getMax(sizeTo)
- //     scene.scale.multiplyScalar( factor )
     }else{
       // spec 4 of https://xrfragment.org/#src
       // spec 2 of https://xrfragment.org/#scaling%20of%20instanced%20objects
@@ -131,30 +126,10 @@ xrf.frag.src.filterScene = (scene,opts) => {
   xrf.filter.scene({scene,frag})
   if( scene.children.length == 1 ) scene.children[0].position.set(0,0,0)
  
-  /*
-  if( !frag.filter ){
-    src = new THREE.Group()
-    if( Object.keys(frag).length > 0 ){
-      for( var i in frag ){
-        if( scene.getObjectByName(i) ){
-          src.add( obj = scene.getObjectByName(i).clone(true) )
-        }
-        hashbus.pub.fragment(i, Object.assign(opts,{frag, model,scene}))
-      }
-    }
-    if( src.children.length == 1 ) obj.position.set(0,0,0);
-  }
-
-  // filtering of objects using query
-  if( Object.keys(frag).length > 1 ){
-    src = scene
-    xrf.filter.scene(src,frag)
-  }
-  src.traverse( (m) => {
+  scene.traverse( (m) => {
     if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 
     hashbus.pub.mesh(m,{scene,recursive:true})                       // cool idea: recursion-depth based distance between face & src
   })
-  */
   return scene
 }
 

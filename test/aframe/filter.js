@@ -28,7 +28,7 @@ filterScene = (URI) => {
 scene = filterScene("#b")
 test = () => !scene.getObjectByName("a") && 
               scene.getObjectByName("b").visible && 
-             !scene.getObjectByName("c")
+             !scene.getObjectByName("c").visible
 console.assert( test(), {scene,reason:`objectname: #b => a = removed b = visible c = removed`})
 
 scene = filterScene("#b*")
@@ -68,6 +68,7 @@ test = () =>  scene.getObjectByName("a").visible &&
 console.assert( test(), {scene,reason:`objectname: #-b&b => a = visible b = visible c = invisible`})
 
 scene = filterScene("#score") 
+console.dir(scene)
 test = () => !scene.getObjectByName("a") && 
              scene.getObjectByName("b").visible && 
              !scene.getObjectByName("c").visible
@@ -80,13 +81,13 @@ test = () => !scene.getObjectByName("a") &&
 console.assert( test(), {scene,reason:`objectname: #score=>1 => a = removed b = visible c = invisible`})
 
 scene = filterScene("#score=>3") 
-test = () => !scene.getObjectByName("a").visible && 
+test = () => !scene.getObjectByName("a") && 
              !scene.getObjectByName("b").visible && 
              !scene.getObjectByName("c").visible
 console.assert( test(), {scene,reason:`objectname: #score=>3 => a = invisible b = visible c = invisible`})
 
 scene = filterScene("#score*=>1") 
-test = () => !scene.getObjectByName("a").visible && 
+test = () => !scene.getObjectByName("a") && 
               scene.getObjectByName("b").visible && 
               scene.getObjectByName("c").visible
 console.assert( test(), {scene,reason:`objectname: #score*=>1 => a = invisible b = visible c = visible`})

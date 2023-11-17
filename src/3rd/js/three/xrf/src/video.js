@@ -16,7 +16,7 @@ let loadVideo = (mimetype) => function(url,opts){
     mesh.material = mat
     // set range
     video.addEventListener('timeupdate', function timeupdate() {
-      if (video.t && video.currentTime < video.t.y || video.currentTime >= video.y.z ) {
+      if (video.t && video.currentTime < video.t.y || video.currentTime >= video.t.z ) {
           vid.currentTime = video.t.y
       }
     },false)

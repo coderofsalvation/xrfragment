@@ -12,7 +12,9 @@ xrf.filter.scene = function(opts){
   xrf.filter 
   .sort(frag)            // get (sorted) filters from XR Fragments
   .process(frag,scene)   // show/hide things
-  
+
+  scene.visible = true   // always enable scene
+
   return scene
 }
 
@@ -25,22 +27,27 @@ xrf.filter.sort = function(frag){
 }
 
 xrf.filter.process = function(frag,scene,opts){
-  // include all when query starts with negative objectnames/tags are included
-  let firstFilter = frag.filters[0].filter.get()
-  let  showAll = firstFilter.show === false 
-  let  showers = frag.filters.filter( (v) => v.filter.get().show === true ) 
-  if( !showAll ) scene.traverse( (n) => n.visible = false )
+  const hasName      = (m,name,filter)        => m.name == name 
+  const hasNameOrTag = (m,name_or_tag,filter) => hasName(m,name_or_tag) || m.userData[filter.key]
+  const cleanupKey   = (k) => k.replace(/[-\*]/g,'')
 
-  // reparent if first selector is positive and has no value
-  if( firstFilter.show === true ){
-    let obj = scene.getObjectByName( firstFilter.key )
-    while( scene.children.length > 0 ) scene.children[0].removeFromParent()
-    if(obj) scene.add(obj)
+  let firstFilter = frag.filters[0].filter.get()
+  let  showers    = frag.filters.filter( (v) => v.filter.get().show === true ) 
+
+  // reparent scene based on object in case it matches a primary (non-negating) selector 
+  if( !firstFilter.value && firstFilter.show === true ){
+    let obj 
+    scene.traverse( (n) => hasName(n, firstFilter.key,firstFilter) && (obj = n) )
+    if(obj){
+      while( scene.children.length > 0 ) scene.children[0].removeFromParent()
+      scene.add( obj )
+    }
   }
- 
+
+  // then show/hide things based on secondary selectors
   frag.filters.map( (v) => {
     const filter  = v.filter.get()
-    const name_or_tag = v.fragment.replace(/[-\*]/g,'')
+    const name_or_tag = cleanupKey(v.fragment)
     let seen = {}
 
     const setVisibleUnseen = (m,visible) => {
@@ -50,7 +57,6 @@ xrf.filter.process = function(frag,scene,opts){
     }
 
     scene.traverse( (m) => {
-      const isMatch = m.name == name_or_tag || m.userData[filter.key]
 
       // filter on value(expression) #foo=>3 e.g.
       if( filter.value && m.userData[filter.key] ){
@@ -63,12 +69,13 @@ xrf.filter.process = function(frag,scene,opts){
       }
 
       // include/exclude object(s) when id/tag matches (#foo or #-foo e.g.) 
-      if( isMatch ){
+      if( hasNameOrTag(m,name_or_tag,filter) ){
         m.visible   = filter.show
         if( filter.deep ) m.traverse( (n) => n.visible = m.visible )
       }
     })
   })
+
   return xrf.filter
 }
 
