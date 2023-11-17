@@ -4,6 +4,7 @@ xrf.frag.t = function(v, opts){
   if( !model.animations || model.animations[0] == undefined ) return console.warn('no animation in scene')
 
   xrf.mixers.map ( (mixer) => {
+    
     mixer.t = v
     
     // update speed
@@ -27,12 +28,15 @@ xrf.addEventListener('parseModel', (opts) => {
   let {model} = opts
   let mixer   = model.mixer = new xrf.THREE.AnimationMixer(model.scene)
   mixer.model = model
-  mixer.loop      = {}
+  mixer.loop      = {timeStart:0,timeStop:0}
   mixer.i         = xrf.mixers.length
+  mixer.actions   = []
 
   model.animations.map( (anim) => { 
-    anim.action = mixer.clipAction( anim, model.scene )
+    anim.optimize()
+    mixer.actions.push( mixer.clipAction( anim, model.scene ) )
   })
+
 
   mixer.checkZombies = (animations) => {
     if( mixer.zombieCheck ) return // fire only once
@@ -40,9 +44,10 @@ xrf.addEventListener('parseModel', (opts) => {
       // collect zombie animations and warn user
       let zombies = anim.tracks.map( (t) => {
         let name = t.name.replace(/\..*/,'')
-        return !model.scene.getObjectByName(name) ? {anim:anim.name,obj:t.name} : undefined 
+        let obj  = model.scene.getObjectByName(name)
+        return !model.scene.getObjectByName(name) ? {anim:anim.name,obj:name} : undefined 
       })
-      if( zombies.length > 0 ){
+      if( zombies.length > 0 && mixer.i == 0 ){ // only warn for zombies in main scene (because src-scenes might be filtered anyways)
         zombies
         .filter( (z) => z ) // filter out undefined
         .map( (z) => console.warn(`gltf: object '${z.obj}' not found (anim: '${z.anim}'`) )
@@ -65,15 +70,15 @@ xrf.addEventListener('parseModel', (opts) => {
   mixer.updateLoop = (t) => {
     mixer.loop.timeStart = t.y != undefined ? t.y : mixer.loop.timeStart
     mixer.loop.timeStop  = t.z != undefined ? t.z : mixer.loop.timeStop
-    mixer.model.animations.map( (anim) => { 
+    mixer.actions.map( (action) => { 
       if( mixer.loop.timeStart != undefined ){
-        //if( anim.action ) delete anim.action 
-        //anim.action = mixer.clipAction( anim )
-        anim.action.time = mixer.loop.timeStart
-        anim.action.setLoop( THREE.LoopOnce, )
-        anim.action.timeScale = mixer.timeScale
-        anim.action.enabled = true
-        if( t.x != 0 ) anim.action.play() 
+        action.time = mixer.loop.timeStart
+        action.setLoop( THREE.LoopOnce, )
+        action.timeScale = mixer.timeScale
+        action.enabled = true
+        if( t.x != 0 ){ 
+          action.play() 
+        }
       }
     })
     mixer.setTime(mixer.loop.timeStart)
@@ -90,7 +95,7 @@ xrf.addEventListener('parseModel', (opts) => {
       if( time == 0 ) return update.call(this,time)
 
       // loop jump
-      if( mixer.loop.speed > 0.0 && mixer.time > mixer.loop.timeStop ){ 
+      if( mixer.loop.speed > 0.0 && (mixer.loop.timeStop > 0 && mixer.time > mixer.loop.timeStop) ){ 
         setTimeout( (time,anims) => mixer.updateLoop(time), 0, mixer.loop.timeStart ) // prevent recursion
       }
       return update.call( this, time )

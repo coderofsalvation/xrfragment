@@ -8,7 +8,7 @@
 
 
 console.assert = ((assert) => (a,b) => {
-  console.log('♥ test: '+b.reason)
+  console.log("\x1b[34m♥ \x1b[36;49mtest: "+b.reason+"\x1B[m")
   assert.call( console, a, b )
 })(console.assert)
 

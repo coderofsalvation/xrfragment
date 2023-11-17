@@ -1,4 +1,4 @@
-// test the XR Fragments parser-filters with THREEjs scenes 
+// test the XR Fragments parser-filters with THREEjs scns 
 THREE = AFRAME.THREE
 
 createScene = (noadd) => {
@@ -6,6 +6,7 @@ createScene = (noadd) => {
   for ( let i in obj ){
     obj[i] = new THREE.Object3D()
     obj[i].name = i
+    obj[i].material = {visible:true, clone: () => ({visible:true}) }
   }
   let {a,b,c} = obj
   let scene = new THREE.Scene()
@@ -15,6 +16,11 @@ createScene = (noadd) => {
     scene.add(a)
   }
   b.userData.score = 2
+  b.userData.tag = "foo bar"
+  c.userData.tag = "flop flap"
+  a.userData.price = 1
+  b.userData.price = 5
+  c.userData.price = 10
   return {a,b,c,scene}
 }
 
@@ -22,84 +28,78 @@ filterScene = (URI) => {
   frag = xrf.URI.parse(URI)
   var {a,b,c,scene} = createScene()
   xrf.filter.scene({scene,frag})
+
+  scene.visible = (objname, expected, checkMaterial) => {
+    let o = scene.getObjectByName(objname)
+    if( !o ) return false === expected 
+    let is = checkMaterial ? o.material.visible : o.visible 
+    if( is !== expected ) console.dir(o)
+    return is === expected
+  }
+
   return scene
 }
 
-scene = filterScene("#b")
-test = () => !scene.getObjectByName("a") && 
-              scene.getObjectByName("b").visible && 
-             !scene.getObjectByName("c").visible
-console.assert( test(), {scene,reason:`objectname: #b => a = removed b = visible c = removed`})
+scn       = filterScene("#b")
+test      = () => !scn.visible("a") && scn.visible("b",true) && scn.visible("c",true) 
+console.assert( test(), {scn,reason:`objectname: #b `})
 
-scene = filterScene("#b*")
-test = () => !scene.getObjectByName("a") && 
-              scene.getObjectByName("b").visible && 
-              scene.getObjectByName("c").visible
-console.assert( test(), {scene,reason:`objectname: #b* => a = removed b = visible c = visible`})
+scn = filterScene("#-b")
+test = () =>  scn.visible("a",true) && scn.visible("b",false) && scn.visible("c",false)
+console.assert( test(), {scn,reason:`objectname: #-b `})
 
-scene = filterScene("#-b")
-test = () =>  scene.getObjectByName("a").visible && 
-             !scene.getObjectByName("b").visible && 
-             !scene.getObjectByName("c").visible
-console.assert( test(), {scene,reason:`objectname: #-b => a = visible b = invisible c = invisible`})
+scn = filterScene("#a&-b")
+test = () =>  scn.visible("a",true) && scn.visible("b",false) && scn.visible("c",false)
+console.assert( test(), {scn,reason:`objectname: #a&-b `})
 
-scene = filterScene("#a&-b")
-test = () =>  scene.getObjectByName("a").visible && 
-             !scene.getObjectByName("b").visible && 
-             !scene.getObjectByName("c").visible
-console.assert( test(), {scene,reason:`objectname: #a&-b => a = visible b = invisible c = invisible`})
+scn = filterScene("#-b&b") 
+test = () => scn.visible("a",false) && scn.visible("b",true) && scn.visible("c",true)
+console.assert( test(), {scn,reason:`objectname: #-b&b `})
 
-scene = filterScene("#-b&b") 
-test = () => !scene.getObjectByName("a") && 
-              scene.getObjectByName("b").visible && 
-             !scene.getObjectByName("c").visible
-console.assert( test(), {scene,reason:`objectname: #-b&b => a = removed b = invisible c = invisible (last duplicate wins)`})
+scn = filterScene("#-c") 
+test = () =>  scn.visible("a",true) && scn.visible("b",true) && scn.visible("c",false)
+console.assert( test(), {scn,reason:`objectname: #-c `})
 
-scene = filterScene("#-c") 
-test = () =>  scene.getObjectByName("a").visible && 
-              scene.getObjectByName("b").visible && 
-             !scene.getObjectByName("c").visible
-console.assert( test(), {scene,reason:`objectname: #-b&b => a = visible b = visible c = invisible`})
+scn = filterScene("#score") 
+test = () => scn.visible("a",true) && scn.visible("b",true) && scn.visible("c",true)
+console.assert( test(), {scn,reason:`propertyfilter: #score `})
 
-scene = filterScene("#-b*") 
-test = () =>  scene.getObjectByName("a").visible && 
-             !scene.getObjectByName("b").visible && 
-             !scene.getObjectByName("c").visible
-console.assert( test(), {scene,reason:`objectname: #-b&b => a = visible b = visible c = invisible`})
+scn = filterScene("#score=>1") 
+test = () => scn.visible("a",true) && scn.visible("b",true) && scn.visible("c",true)
+console.assert( test(), {scn,reason:`propertyfilter: #score`})
 
-scene = filterScene("#score") 
-console.dir(scene)
-test = () => !scene.getObjectByName("a") && 
-             scene.getObjectByName("b").visible && 
-             !scene.getObjectByName("c").visible
-console.assert( test(), {scene,reason:`objectname: #score => a = removed b = visible c = invisible`})
+scn = filterScene("#score=2") 
+test = () => scn.visible("a",true) && scn.visible("b",true) && scn.visible("c",true)
+console.assert( test(), {scn,reason:`propertyfilter: #score`})
 
-scene = filterScene("#score=>1") 
-test = () => !scene.getObjectByName("a") && 
-             scene.getObjectByName("b").visible && 
-             !scene.getObjectByName("c").visible
-console.assert( test(), {scene,reason:`objectname: #score=>1 => a = removed b = visible c = invisible`})
+scn = filterScene("#score=>3") 
+test = () => scn.visible("a",true) && scn.visible("b",false) && scn.visible("c",false)
+console.assert( test(), {scn,reason:`propertyfilter: #score`})
 
-scene = filterScene("#score=>3") 
-test = () => !scene.getObjectByName("a") && 
-             !scene.getObjectByName("b").visible && 
-             !scene.getObjectByName("c").visible
-console.assert( test(), {scene,reason:`objectname: #score=>3 => a = invisible b = visible c = invisible`})
+scn = filterScene("#-score=>1") 
+test = () => scn.visible("a",true) && scn.visible("b",false) && scn.visible("c",false)
+console.assert( test(), {scn,reason:`propertyfilter: #-score`})
 
-scene = filterScene("#score*=>1") 
-test = () => !scene.getObjectByName("a") && 
-              scene.getObjectByName("b").visible && 
-              scene.getObjectByName("c").visible
-console.assert( test(), {scene,reason:`objectname: #score*=>1 => a = invisible b = visible c = visible`})
+scn = filterScene("#-score=>1&c") 
+test = () => scn.visible("a",true) && scn.visible("b",true) && scn.visible("b",false,true) && scn.visible("c",true)
+console.assert( test(), {scn,reason:`propertyfilter: #-score`})
 
-scene = filterScene("#-score*=>1") 
-test = () =>  scene.getObjectByName("a").visible && 
-             !scene.getObjectByName("b").visible && 
-             !scene.getObjectByName("c").visible
-console.assert( test(), {scene,reason:`objectname: #-score*=>1 => a = visible b = invisible c = invisible`})
+scn = filterScene("#-foo")
+test = () => scn.visible("a",true) && scn.visible("b",false) && scn.visible("b",false)
+console.assert( test(), {scn,reason:`tagfilter: #-foo `})
 
-scene = filterScene("#-score*=>1&c") 
-test = () =>  scene.getObjectByName("a").visible && 
-             !scene.getObjectByName("b").visible && 
-              scene.getObjectByName("c").visible
-console.assert( test(), {scene,reason:`objectname: #-score*=>1 => a = visible b = invisible c = visible`})
+scn = filterScene("#-c&flop")
+test = () => scn.visible("a",true) && scn.visible("b",true) && scn.visible("c",true)
+console.assert( test(), {scn,reason:`tagfilter: #-c&flop`})
+
+scn = filterScene("#-b&-foo&bar&flop")
+test = () => scn.visible("a",true) && scn.visible("b",true) && scn.visible("c",true)
+console.assert( test(), {scn,reason:`tagfilter: #-b&-foo&bar&flop`})
+
+scn = filterScene("#-b&-foo&bar&flop&-bar&flop")
+test = () => scn.visible("a",true) && scn.visible("b",false,true) && scn.visible("c",true)
+console.assert( test(), {scn,reason:`tagfilter: #-b&-foo&bar&flop&-bar&flop"`})
+
+scn = filterScene("#-price&price=>4")
+test = () => scn.visible("a",false,true) && scn.visible("b",true) && scn.visible("c",true)
+console.assert( test(), {scn,reason:`tagfilter: #-price&price=>4"`})
