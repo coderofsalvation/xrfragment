@@ -4,73 +4,83 @@ xrf.frag.src = function(v, opts){
   opts.embedded = v // indicate embedded XR fragment
   let { mesh, model, camera, scene, renderer, THREE, hashbus, frag} = opts
 
-  const hasMaterialName   = mesh.material && mesh.material.name.length > 0 
+  let url      = v.string
+  let srcFrag  = opts.srcFrag = xrfragment.URI.parse(url)
+  opts.isLocal = v.string[0] == '#'
+
+  if( opts.isLocal ){
+        xrf.frag.src.localSRC(url,srcFrag,opts)     // local
+  }else xrf.frag.src.externalSRC(url,srcFrag,opts)  // external file
+}
+
+xrf.frag.src.addModel = (model,url,frag,opts) => {
+  let {mesh} = opts
+  let scene = model.scene
+  xrf.frag.src.filterScene(scene,{...opts,frag})     // filter scene
+  mesh.traverse( (n) => n.isSRC = n.isXRF = true )   // mark everything isSRC & isXRF
+  if( mesh.material ) mesh.material.visible = false  // hide placeholder object
+  //enableSourcePortation(scene)
+  if( xrf.frag.src.renderAsPortal(mesh) ){
+    if( !opts.isLocal ) xrf.scene.add(scene)
+    return xrf.portalNonEuclidian({...opts,model,scene:model.scene})
+  }else{
+    xrf.frag.src.scale( scene, opts, url )           // scale scene
+    mesh.add(scene)
+  }
+  xrf.emit('parseModel', {...opts, scene, model}) 
+}
+
+xrf.frag.src.renderAsPortal = (mesh) => {
   const hasTexture        = mesh.material && mesh.material.map 
   const isPlane           = mesh.geometry && mesh.geometry.attributes.uv && mesh.geometry.attributes.uv.count == 4 
-  const hasLocalSRC       = mesh.userData.src  != undefined && mesh.userData.src[0] == '#'
+  const hasMaterialName   = mesh.material && mesh.material.name.length > 0 
+  return mesh.geometry && !hasMaterialName && !hasTexture && isPlane
+}
 
-  let src;
-  let url      = v.string
-  let vfrag    = xrfragment.URI.parse(url)
+xrf.frag.src.enableSourcePortation = (src) => {
+  // show sourceportation clickable plane
+  if( srcFrag.href || v.string[0] == '#' ) return
+  let scale = new THREE.Vector3()
+  let size  = new THREE.Vector3()
+  mesh.getWorldScale(scale)
+  new THREE.Box3().setFromObject(src).getSize(size)
+  const geo    = new THREE.SphereGeometry( Math.max(size.x, size.y, size.z) / scale.x, 10, 10 )
+  const mat    = new THREE.MeshBasicMaterial()
+  mat.transparent = true
+  mat.roughness = 0.05
+  mat.metalness = 1
+  mat.opacity = 0
+  const cube = new THREE.Mesh( geo, mat )
+  console.log("todo: sourceportate")
+  return xrf.frag.src
+}
 
-  // handle non-euclidian planes
-  if( mesh.geometry && !hasMaterialName && !hasTexture && hasLocalSRC && isPlane ){
-    return xrf.portalNonEuclidian(opts)
+xrf.frag.src.externalSRC = (url,frag,opts) => {
+  fetch(url, { method: 'HEAD' })
+  .then( (res) => {
+    console.log(`loading src ${url}`)
+    let mimetype = res.headers.get('Content-type')
+    if( url.replace(/#.*/,'').match(/\.(gltf|glb)$/)    ) mimetype = 'gltf'
+    //if( url.match(/\.(fbx|stl|obj)$/) ) mimetype = 
+    opts = { ...opts, frag, mimetype }
+    return xrf.frag.src.type[ mimetype ] ? xrf.frag.src.type[ mimetype ](url,opts) : xrf.frag.src.type.unknown(url,opts)
+  })
+  .then( (model) => {
+    if( model && model.scene ) xrf.frag.src.addModel(model, url, frag, opts )
+  })
+  .finally( () => { })
+  .catch( console.error )
+  return xrf.frag.src
+}
+
+xrf.frag.src.localSRC = (url,frag,opts) => {
+  let {model,scene} = opts
+  let _model = {
+    animations: model.animations,
+    scene: scene.clone()
   }
-
-  const addModel = (model,url,frag) => {
-    let scene = model.scene
-    xrf.frag.src.filterScene(scene,{...opts,frag})
-    xrf.frag.src.scale( scene, opts, url )
-    //enableSourcePortation(scene)
-    mesh.add(model.scene)
-    mesh.traverse( (n) => n.isSRC = n.isXRF = true ) // mark everything SRC
-    xrf.emit('parseModel', {...opts, scene, model}) 
-    if( mesh.material ) mesh.material.visible = false // hide placeholder object
-  }
-
-  const enableSourcePortation = (src) => {
-    // show sourceportation clickable plane
-    if( vfrag.href || v.string[0] == '#' ) return
-    let scale = new THREE.Vector3()
-    let size  = new THREE.Vector3()
-    mesh.getWorldScale(scale)
-    new THREE.Box3().setFromObject(src).getSize(size)
-    const geo    = new THREE.SphereGeometry( Math.max(size.x, size.y, size.z) / scale.x, 10, 10 )
-    const mat    = new THREE.MeshBasicMaterial()
-    mat.transparent = true
-    mat.roughness = 0.05
-    mat.metalness = 1
-    mat.opacity = 0
-    const cube = new THREE.Mesh( geo, mat )
-    console.log("todo: sourceportate")
-  }
-
-  const externalSRC = (url,frag,src) => {
-    fetch(url, { method: 'HEAD' })
-    .then( (res) => {
-      console.log(`loading src ${url}`)
-      let mimetype = res.headers.get('Content-type')
-      if( url.replace(/#.*/,'').match(/\.(gltf|glb)$/)    ) mimetype = 'gltf'
-      //if( url.match(/\.(fbx|stl|obj)$/) ) mimetype = 
-      opts = { ...opts, src, frag, mimetype }
-      return xrf.frag.src.type[ mimetype ] ? xrf.frag.src.type[ mimetype ](url,opts) : xrf.frag.src.type.unknown(url,opts)
-    })
-    .then( (model) => {
-      if( model && model.scene ) addModel(model, url, frag )
-    })
-    .finally( () => { })
-    .catch( console.error )
-  }
-
-  if( url[0] == "#" ){ 
-    let _model = {
-      animations: model.animations,
-      scene: scene.clone()
-    }
-    _model.scenes = [_model.scene]
-    addModel(_model,url,vfrag)    // current file 
-  }else externalSRC(url,vfrag)   // external file
+  _model.scenes = [_model.scene]
+  xrf.frag.src.addModel(_model,url,frag, opts)    // current file 
 }
 
 // scale embedded XR fragments https://xrfragment.org/#scaling%20of%20instanced%20objects

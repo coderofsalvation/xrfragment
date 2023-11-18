@@ -53,7 +53,7 @@ test = () =>  scn.visible("a",true) && scn.visible("b",false) && scn.visible("c"
 console.assert( test(), {scn,reason:`objectname: #a&-b `})
 
 scn = filterScene("#-b&b") 
-test = () => scn.visible("a",false) && scn.visible("b",true) && scn.visible("c",true)
+test = () => scn.visible("a",true) && scn.visible("b",true) && scn.visible("c",true)
 console.assert( test(), {scn,reason:`objectname: #-b&b `})
 
 scn = filterScene("#-c") 
@@ -66,23 +66,23 @@ console.assert( test(), {scn,reason:`propertyfilter: #score `})
 
 scn = filterScene("#score=>1") 
 test = () => scn.visible("a",true) && scn.visible("b",true) && scn.visible("c",true)
-console.assert( test(), {scn,reason:`propertyfilter: #score`})
+console.assert( test(), {scn,reason:`propertyfilter: #score>=1`})
 
 scn = filterScene("#score=2") 
 test = () => scn.visible("a",true) && scn.visible("b",true) && scn.visible("c",true)
-console.assert( test(), {scn,reason:`propertyfilter: #score`})
+console.assert( test(), {scn,reason:`propertyfilter: #score=2`})
 
 scn = filterScene("#score=>3") 
 test = () => scn.visible("a",true) && scn.visible("b",false) && scn.visible("c",false)
-console.assert( test(), {scn,reason:`propertyfilter: #score`})
+console.assert( test(), {scn,reason:`propertyfilter: #score=>3`})
 
 scn = filterScene("#-score=>1") 
 test = () => scn.visible("a",true) && scn.visible("b",false) && scn.visible("c",false)
-console.assert( test(), {scn,reason:`propertyfilter: #-score`})
+console.assert( test(), {scn,reason:`propertyfilter: #-score=>1`})
 
 scn = filterScene("#-score=>1&c") 
 test = () => scn.visible("a",true) && scn.visible("b",true) && scn.visible("b",false,true) && scn.visible("c",true)
-console.assert( test(), {scn,reason:`propertyfilter: #-score`})
+console.assert( test(), {scn,reason:`propertyfilter: #-score=>1&c`})
 
 scn = filterScene("#-foo")
 test = () => scn.visible("a",true) && scn.visible("b",false) && scn.visible("b",false)
@@ -100,6 +100,6 @@ scn = filterScene("#-b&-foo&bar&flop&-bar&flop")
 test = () => scn.visible("a",true) && scn.visible("b",false,true) && scn.visible("c",true)
 console.assert( test(), {scn,reason:`tagfilter: #-b&-foo&bar&flop&-bar&flop"`})
 
-scn = filterScene("#-price&price=>4")
+scn = filterScene("#-price&price=>5")
 test = () => scn.visible("a",false,true) && scn.visible("b",true) && scn.visible("c",true)
-console.assert( test(), {scn,reason:`tagfilter: #-price&price=>4"`})
+console.assert( test(), {scn,reason:`tagfilter: #-price&price=>5"`})

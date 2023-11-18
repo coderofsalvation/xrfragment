@@ -49,6 +49,7 @@ xrf.frag.href = function(v, opts){
   }
 
   let selected = mesh.userData.XRF.href.selected = (state) => () => {
+    console.log("select "+mesh.name)
     if( mesh.selected == state ) return // nothing changed 
     xrf.interactive.objects.map( (o) => {
       let newState = o.name == mesh.name ? state : false
@@ -58,7 +59,7 @@ xrf.frag.href = function(v, opts){
         if( o.material.emissive ){ 
           if( !o.material.emissive.original ) o.material.emissive.original = o.material.emissive.clone()
           o.material.emissive.r = o.material.emissive.g = o.material.emissive.b = 
-            newState ? o.material.emissive.original.r + 0.2 : o.material.emissive.original.r
+            newState ? o.material.emissive.original.r + 0.5 : o.material.emissive.original.r
         }
       }
     })
@@ -77,10 +78,11 @@ xrf.frag.href = function(v, opts){
   mesh.addEventListener('mouseenter', selected(true) )
   mesh.addEventListener('mouseleave', selected(false) )
 
+  if( mesh.material ) mesh.material = mesh.material.clone() // clone, so we can individually highlight meshes
+
   // lazy add mesh (because we're inside a recursive traverse)
   setTimeout( (mesh) => {
     xrf.interactive.add(mesh)
-    if( mesh.material ) mesh.material = mesh.material.clone() // clone, so we can individually highlight meshes
     xrf.emit('interactionReady', {mesh,xrf:v,clickHandler: mesh.userData.XRF.href.exec })
   }, 0, mesh )
 }

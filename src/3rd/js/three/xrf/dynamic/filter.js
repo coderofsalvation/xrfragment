@@ -47,13 +47,14 @@ xrf.filter.process = function(frag,scene,opts){
                                                  String(m.userData['tag']).match( new RegExp("(^| )"+name_or_tag) )
   const cleanupKey   = (k) => k.replace(/[-\*]/g,'')
 
-  let firstFilter = frag.filters[0].filter.get()
+  let firstFilter = frag.filters.length ? frag.filters[0].filter.get() : false 
   let  showers    = frag.filters.filter( (v) => v.filter.get().show === true ) 
 
   // spec 2: https://xrfragment.org/doc/RFC_XR_Macros.html#embedding-xr-content-using-src
   // reparent scene based on objectname in case it matches a (non-negating) selector 
-  if( opts.reparent && !firstFilter.value && firstFilter.show === true ){
+  if( opts.reparent && firstFilter && !firstFilter.value && firstFilter.show === true ){
     let obj 
+    frag.target = firstFilter
     scene.traverse( (n) => hasName(n, firstFilter.key,firstFilter) && (obj = n) )
     if(obj){
       while( scene.children.length > 0 ) scene.children[0].removeFromParent()
