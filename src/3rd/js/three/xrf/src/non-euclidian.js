@@ -102,7 +102,7 @@ xrf.portalNonEuclidian = function(opts){
 
         // trigger href upon camera collide
         if( mesh.userData.XRF.href ){
-          raycaster.far = 0.3
+          raycaster.far = 0.35
           let cam = xrf.camera.getCam ? xrf.camera.getCam() : camera
           cam.getWorldPosition(cameraPosition)
           cam.getWorldDirection(cameraDirection)
@@ -110,7 +110,7 @@ xrf.portalNonEuclidian = function(opts){
           intersects = raycaster.intersectObjects([mesh], false)
           if (intersects.length > 0 && !mesh.portal.teleporting ){
             mesh.portal.teleporting = true
-            mesh.userData.XRF.href.exec()
+            mesh.userData.XRF.href.exec({nocommit:true})
             setTimeout( () => mesh.portal.teleporting = false, 500) // dont flip back and forth
           }
         }

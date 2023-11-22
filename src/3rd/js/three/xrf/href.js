@@ -41,15 +41,14 @@ xrf.frag.href = function(v, opts){
     .then( () => {
       const flags = v.string[0] == '#' ? xrf.XRF.PV_OVERRIDE : undefined
       let toFrag = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-      // always keep a trail of last positions before we navigate
-      if( !document.location.hash.match(lastPos) ) xrf.navigator.to(`#${lastPos}`)
+      // always commit current location (keep a trail of last positions before we navigate)
+      if( !e.nocommit && !document.location.hash.match(lastPos) ) xrf.navigator.to(`#${lastPos}`)
       xrf.navigator.to(v.string)    // let's surf to HREF!
     }) 
     .catch( console.error )
   }
 
   let selected = mesh.userData.XRF.href.selected = (state) => () => {
-    console.log("select "+mesh.name)
     if( mesh.selected == state ) return // nothing changed 
     xrf.interactive.objects.map( (o) => {
       let newState = o.name == mesh.name ? state : false

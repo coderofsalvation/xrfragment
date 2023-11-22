@@ -8,6 +8,8 @@ window.AFRAME.registerComponent('xrf', {
       document.querySelector('[camera]').setAttribute('xrf-fade','')
       AFRAME.fade = document.querySelector('[camera]').components['xrf-fade']
 
+      if( document.location.host.match(/localhost/) ) document.querySelector('a-scene').setAttribute("stats",'')
+
       document.querySelector('a-scene').addEventListener('loaded', () => {
 
         // enable XR fragments

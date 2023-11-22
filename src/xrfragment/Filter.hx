@@ -52,11 +52,11 @@ class Filter {
 
   private var str:String = "";
   private var q:haxe.DynamicAccess<Dynamic> = {};       //  1. create an associative array/object to store filter-arguments as objects
-  private var isProp:EReg        = ~/^.*=[><=]?/;      //  1. detect object id's & properties `foo=1` and `foo` (reference regex= `~/^.*=[><=]?/`  )
+  private var isProp:EReg        = ~/^.*=[><=]?/;       //  1. detect object id's & properties `foo=1` and `foo` (reference regex= `~/^.*=[><=]?/`  )
   private var isExclude:EReg     = ~/^-/;               //  1. detect excluders like `-foo`,`-foo=1`,`-.foo`,`-/foo` (reference regex= `/^-/` )
   private var isRoot:EReg        = ~/^[-]?\//;          //  1. detect root selectors like `/foo` (reference regex= `/^[-]?\//` )
   private var isNumber:EReg      = ~/^[0-9\.]+$/;       //  1. detect number values like `foo=1` (reference regex= `/^[0-9\.]+$/` )
-  private var operators:EReg     = ~/(^-|\*$)/;         //  1. detect operators so you can easily strip keys (reference regex= `/(^-|\*$)/` )
+  private var operators:EReg     = ~/(^-|\*$|\/)/;      //  1. detect operators so you can easily strip keys (reference regex= `/(^-|\*$)/` )
   private var isSelectorExclude:EReg  = ~/^-/;          //  1. detect exclude keys like `-foo`   (reference regex= `/^-/` )
 
   public function new(str:String){

@@ -290,7 +290,7 @@ For example, to render a portal with a preview-version of the scene, create an 3
 1. set the position of the camera accordingly to the vector3 values of `#pos`
 1. `rot` sets the rotation of the camera (only for non-VR/AR headsets)
 1. `t` sets the playbackspeed and animation-range of the current scene animation(s) or `src`-mediacontent (video/audioframes e.g., use `t=0,7,7` to 'STOP' at frame 7 e.g.) 
-1. in case an `href` does not mention any `pos`-coordinate, `pos=0,0,0` will be assumed
+1. after scene load: in case an `href` does not mention any `pos`-coordinate, `pos=0,0,0` will be assumed 
 
 Here's an ascii representation of a 3D scene-graph which contains 3D objects `◻` and their metadata:
 
@@ -374,11 +374,12 @@ Resizing will be happen accordingly to its placeholder object `aquariumcube`, se
 7. <b>external</b> `src` values should respect the fallback link mechanism (see [broken links](#broken-links)
 8. when the placeholder object is a 2D plane, but the mimetype is 3D, then render the spatial content on that plane via a stencil buffer. 
 9. src-values are non-recursive: when linking to an external object (`src: foo.fbx#bar`), then `src`-metadata on object `bar` should be ignored. 
-10. clicking on external `src`-values always allow sourceportation: teleporting to the origin URI to which the object belongs.
+10. an external `src`-value should always allow a sourceportation icon within 3 meter: teleporting to the origin URI to which the object belongs.
 11. when only one object was cherrypicked (`#cube` e.g.), set its position to `0,0,0`
-12. equirectangular detection: when the width of an image is twice the height (aspect 2:1), an equirectangular projection is assumed.
-13. when the enduser clicks an href with `#t=1,0,0` (play) will be applied to all src mediacontent with a timeline (mp4/mp3 e.g.)
+12. when the enduser clicks an href with `#t=1,0,0` (play) will be applied to all src mediacontent with a timeline (mp4/mp3 e.g.)
+13. a non-euclidian portal can be rendered for flat 3D objects (using stencil buffer e.g.) in case ofspatial `src`-values (an object `#world3` or URL `world3.fbx` e.g.).
 
+* `model/gltf-binary`
 * `model/gltf+json`
 * `image/png`
 * `image/jpg`
@@ -388,7 +389,7 @@ Resizing will be happen accordingly to its placeholder object `aquariumcube`, se
 [» example 3D asset](https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/src.gltf#L192)<br>
 [» discussion](https://github.com/coderofsalvation/xrfragment/issues/4)<br>
 
-# Navigating content (internal/outbound href portals)
+# Navigating content href portals
 
 navigation, portals & mutations
 
@@ -404,11 +405,11 @@ navigation, portals & mutations
 
 4. URL navigation should always be reflected in the client (in case of javascript: see [[here](https://github.com/coderofsalvation/xrfragment/blob/dev/src/3rd/js/three/navigator.js) for an example navigator).
 
-5. In XR mode, the navigator back/forward-buttons should be always visible (using a wearable e.g., see [[here](https://github.com/coderofsalvation/xrfragment/blob/dev/example/aframe/sandbox/index.html#L26-L29) for an example wearable)
+7. In XR mode, the navigator back/forward-buttons should be always visible (using a wearable e.g., see [[here](https://github.com/coderofsalvation/xrfragment/blob/dev/example/aframe/sandbox/index.html#L26-L29) for an example wearable)
 
-6. in case of navigating to a new [[pos)ition, ''first'' navigate to the ''current position'' so that the ''back-button'' of the ''browser-history'' always refers to the previous position (see [[here](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/href.js#L97))
+8. in case of navigating to a new [[pos)ition, ''first'' navigate to the ''current position'' so that the ''back-button'' of the ''browser-history'' always refers to the previous position (see [[here](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/href.js#L97))
 
-7. portal-rendering: a 2:1 ratio texture-material indicates an equirectangular projection
+9. ignore previous rule in special cases, like clicking an `href` using camera-portal collision (the back-button would cause a teleport-loop)
 
 [» example implementation](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/href.js)<br>
 [» example 3D asset](https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/href.gltf#L192)<br>
@@ -498,7 +499,7 @@ It's simple but powerful syntax which allows filtering the scene using searcheng
 
 1. filters are a way to traverse a scene, and filter objects based on their name, tag- or property-values.
 
-* see [an (outdated) example video here](https://coderofsalvation.github.io/xrfragment.media/queries.mp4) which used a dedicated `q=` variable (now deprecated)
+* see [an (outdated) example video here](https://coderofsalvation.github.io/xrfragment.media/queries.mp4) which used a dedicated `q=` variable (now deprecated and usable directly)
 
 ## including/excluding
 
@@ -509,7 +510,7 @@ It's simple but powerful syntax which allows filtering the scene using searcheng
 | `=>` `=<`| compare float or int number (`#price=>4` e.g.)                                                                                |
 | `/`      | reference to root-scene.<br>Useful in case of (preventing) showing/hiding objects in nested scenes (instanced by `src`) (*)   |
 
-> \* = `#q=-/cube` hides object `cube` only in the root-scene (not nested `cube` objects)<br> `#q=-cube` hides both object `cube` in the root-scene <b>AND</b> nested `skybox` objects |
+> \* = `#-/cube` hides object `cube` only in the root-scene (not nested `cube` objects)<br> `#-cube` hides both object `cube` in the root-scene <b>AND</b> nested `skybox` objects |
 
 [» example implementation](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/q.js)
 [» example 3D asset](https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/filter.gltf#L192)
@@ -861,12 +862,12 @@ For example:
   │                                                        │
   │  index.gltf                                            │
   │    │                                                   │
-  │    │ #: #q=-offlinetext                                │
+  │    │ #: #-offlinetext                                │
   │    │                                                   │
   │    ├── ◻ buttonA                                       │
   │    │      └ href:     http://foo.io/campagne.fbx       │
   │    │      └ href@404: ipfs://foo.io/campagne.fbx       │
-  │    │      └ href@400: #q=clienterrortext               │
+  │    │      └ href@400: #clienterrortext               │
   │    │      └ ◻ offlinetext                              │
   │    │                                                   │
   │    └── ◻ embeddedObject                          <--------- the meshdata inside embeddedObject will (not)
@@ -890,9 +891,9 @@ Consider 3D scenes linking to eachother using these `href` values:
 These links would all show visible links to math-tagged objects in the scene.<br>
 To filter out non-related objects one could take it a step further using filters:
 
-* `href: schoolA.edu/projects.gltf#math&q=-topics math`
-* `href: schoolB.edu/projects.gltf#math&q=-courses math`
-* `href: university.edu/projects.gltf#math&q=-theme math`
+* `href: schoolA.edu/projects.gltf#math&-topics math`
+* `href: schoolB.edu/projects.gltf#math&-courses math`
+* `href: university.edu/projects.gltf#math&-theme math`
 
 > This would hide all object tagged with `topic`, `courses` or `theme` (including math) so that later only objects tagged with `math` will be visible 
 
@@ -944,7 +945,7 @@ This document has no IANA actions.
 |placeholder object    | a 3D object which with src-metadata (which will be replaced by the src-data.) |  
 |src                   | (HTML-piggybacked) metadata of a 3D object which instances content                                                                   |
 |href                  | (HTML-piggybacked) metadata of a 3D object which links to content                                                                    |
-|filter                | URI Fragment(s) which show/hide object(s) in a scene based on name/tag/property (`#q=cube&-price=>3`)                                          |
+|filter                | URI Fragment(s) which show/hide object(s) in a scene based on name/tag/property (`#cube&-price=>3`)                                          |
 |visual-meta           | [visual-meta](https://visual.meta.info) data appended to text/books/papers which is indirectly visible/editable in XR.               |
 |requestless metadata  | metadata which never spawns new requests (unlike RDF/HTML, which can cause framerate-dropping, hence not used a lot in games)        |
 |FPS                   | frames per second in spatial experiences (games,VR,AR e.g.), should be as high as possible                                           |
@@ -952,6 +953,7 @@ This document has no IANA actions.
 |extrospective         | outward sensemaking ("I'm fairly sure John is a person who lives in oklahoma")                                                       |
 |`◻`                   | ascii representation of an 3D object/mesh                                                                                            |
 |(un)obtrusive         | obtrusive: wrapping human text/thought in XML/HTML/JSON obfuscates human text into a salad of machine-symbols and words              |
+|flat 3D object        | a 3D object of which all verticies share a plane                                                                                       |
 |BibTeX                | simple tagging/citing/referencing standard for plaintext                                                                             |
 |BibTag                | a BibTeX tag                                                                                                                         |
 |(hashtag)bibs         | an easy to speak/type/scan tagging SDL ([see here](https://github.com/coderofsalvation/hashtagbibs) which expands to BibTex/JSON/XML |

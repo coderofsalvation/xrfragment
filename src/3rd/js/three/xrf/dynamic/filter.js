@@ -7,7 +7,7 @@ xrf.addEventListener('dynamicKey', (opts) => {
   let {scene,id,match,v} = opts
   if( v.filter ){
     let frags = {}
-    frags[ v.fragment ] = v
+    frags[ v.filter.key ] = v
     xrf.filter.scene({frag:frags,scene})
   }
 })
@@ -23,7 +23,7 @@ xrf.filter = function(query, cb){
 
 xrf.filter.scene = function(opts){
   let {scene,frag} = opts
-
+console.dir(opts)
   xrf.filter 
   .sort(frag)               // get (sorted) filters from XR Fragments
   .process(frag,scene,opts) // show/hide things
@@ -91,6 +91,9 @@ xrf.filter.process = function(frag,scene,opts){
     let processed = {}
 
     scene.traverse( (m) => {
+
+      if( filter.root && m.isSRC ) return // ignore src nodes when root is specific (#/VR #/AR e.g.)
+
       // filter on value(expression) #foo=>3 e.g.
       if( filter.value && m.userData[filter.key] ){
         const visible = v.filter.testProperty(filter.key, m.userData[filter.key], filter.show === false )

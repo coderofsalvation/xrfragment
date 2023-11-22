@@ -62,12 +62,15 @@ pub.XRWG = (opts) => {
         match.map( (w) => {
           if( w.key == `#${id}` ){
             if(  w.value && w.value[0] == '#' ){
+              frag = xrf.URI.parse( w.value )
+              v    = Object.values(frag)[0]
               // if value is alias, execute fragment value 
               xrf.hashbus.pub( w.value, xrf.model, xrf.XRF.METADATA | xrf.XRF.PV_OVERRIDE | xrf.XRF.NAVIGATOR )
+              xrf.emit('dynamicKey',{ ...opts,v,frag,id,match,scene })
             }
           }
         })
-        xrf.emit('dynamicKey',{ ...opts,v,frag,id,match,scene })
+        if( !match.length ) xrf.emit('dynamicKey',{ ...opts,v,frag,id,match,scene })
       }else{
         xrf.emit('dynamicKeyValue',{ ...opts,v,frag,id,match,scene })
       }

@@ -9,7 +9,7 @@ import xrfragment.XRF;
 class Parser {
     public static var error:String  = "";
     public static var debug:Bool    = false;
-    public static var keyClean:EReg = ~/(\*$|^-)/g;
+    public static var keyClean:EReg = ~/(\*$|^-|\/)/g;
 
     @:keep
     public static function parse(key:String,value:String,store:haxe.DynamicAccess<Dynamic>,?index:Int):Bool {
@@ -65,7 +65,7 @@ class Parser {
           trace("⚠ fragment '"+key+"' has incompatible value ("+value+")");//  1. don't add to store if value-type is incorrect
           return false;
         }
-        store.set(key, v );                                                //  1. if valid, add to store
+        store.set( keyClean.replace(key,''), v);                                                //  1. if valid, add to store
         if( debug ) trace("✔ "+key+": "+v.string);
       }else{                                                               //  1. expose (but mark) non-offical fragments too 
         if( Std.isOfType(value, String) ) v.guessType(v,value);
