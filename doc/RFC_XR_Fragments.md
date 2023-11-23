@@ -512,6 +512,8 @@ It's simple but powerful syntax which allows filtering the scene using searcheng
 
 > \* = `#-/cube` hides object `cube` only in the root-scene (not nested `cube` objects)<br> `#-cube` hides both object `cube` in the root-scene <b>AND</b> nested `skybox` objects |
 
+Nested selection is always implied (there's no `*` `>`/`<` css-like operators on purpose) which keeps XR Fragments easy to implement, and still allows fine-grained control chaining nested selectors (`#-sky&house&-table` e.g.).
+
 [» example implementation](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/q.js)
 [» example 3D asset](https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/filter.gltf#L192)
 [» discussion](https://github.com/coderofsalvation/xrfragment/issues/3)

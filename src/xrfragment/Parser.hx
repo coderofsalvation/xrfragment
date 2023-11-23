@@ -9,7 +9,7 @@ import xrfragment.XRF;
 class Parser {
     public static var error:String  = "";
     public static var debug:Bool    = false;
-    public static var keyClean:EReg = ~/(\*$|^-|\/)/g;
+    public static var keyClean:EReg = ~/(^-)?(\/)?/;       //  1. detect - and / operators so you can easily strip keys (reference regex= ~/(^-)?(\/)?/; )
 
     @:keep
     public static function parse(key:String,value:String,store:haxe.DynamicAccess<Dynamic>,?index:Int):Bool {
@@ -53,7 +53,7 @@ class Parser {
       var isPVDefault:Bool = value.length == 0 && key.length > 0 && key == "#";
 			if( isPVDynamic ){ //|| isPVDefault ){      //  1. add keys without values to store as [predefined view](predefined_view)
 				var v:XRF  = new XRF(key, XRF.PV_EXECUTE | XRF.NAVIGATOR, index );
-        v.validate(value); // will fail but will parse multiple args for us (separated by |)
+        v.validate(value); // ignore failures (empty values are allowed)
 				store.set( keyClean.replace(key,''), v );
 				return true;
 			}

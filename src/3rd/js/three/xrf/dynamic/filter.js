@@ -23,7 +23,7 @@ xrf.filter = function(query, cb){
 
 xrf.filter.scene = function(opts){
   let {scene,frag} = opts
-console.dir(opts)
+
   xrf.filter 
   .sort(frag)               // get (sorted) filters from XR Fragments
   .process(frag,scene,opts) // show/hide things
@@ -45,7 +45,7 @@ xrf.filter.process = function(frag,scene,opts){
   const hasName      = (m,name,filter)        => m.name == name 
   const hasNameOrTag = (m,name_or_tag,filter) => hasName(m,name_or_tag) || 
                                                  String(m.userData['tag']).match( new RegExp("(^| )"+name_or_tag) )
-  const cleanupKey   = (k) => k.replace(/[-\*]/g,'')
+  const cleanupKey   = (k) => k.replace(/[-\*\/]/g,'')
 
   let firstFilter = frag.filters.length ? frag.filters[0].filter.get() : false 
   let  showers    = frag.filters.filter( (v) => v.filter.get().show === true ) 
@@ -84,6 +84,12 @@ xrf.filter.process = function(frag,scene,opts){
     if( processed ) processed[n.uuid] == true 
   }
 
+  const insideSRC = (m) => {
+    let src = false 
+    m.traverseAncestors( (n) => n.isSRC ? src = true : false ) 
+    return src
+  }
+
   // then show/hide things based on secondary selectors
   frag.filters.map( (v) => {
     const filter  = v.filter.get()
@@ -91,19 +97,21 @@ xrf.filter.process = function(frag,scene,opts){
     let processed = {}
 
     scene.traverse( (m) => {
-
-      if( filter.root && m.isSRC ) return // ignore src nodes when root is specific (#/VR #/AR e.g.)
-
-      // filter on value(expression) #foo=>3 e.g.
+      // filter on value(expression) #foo=>3 e.g. *TODO* do this in XRWG
       if( filter.value && m.userData[filter.key] ){
+        if( filter.root && insideSRC(m) ) return 
         const visible = v.filter.testProperty(filter.key, m.userData[filter.key], filter.show === false )
         setVisible(m,visible,processed)
         return
       }
-      // include/exclude object(s) when id/tag matches (#foo or #-foo e.g.) 
-      if( hasNameOrTag(m,name_or_tag,filter) ){
-        setVisible(m,filter.show)
-      }
+    })
+    // include/exclude object(s) when id/tag matches (#foo or #-foo e.g.) 
+    let matches = xrf.XRWG.match(name_or_tag)
+    matches.map( (match) => {
+      match.nodes.map( (node) => {
+        if( filter.root && insideSRC(node) ) return 
+        setVisible(node,filter.show)
+      })
     })
   })
 

@@ -18,6 +18,7 @@ createScene = (noadd) => {
   b.userData.score = 2
   b.userData.tag = "foo bar"
   c.userData.tag = "flop flap"
+  a.userData.tag = "VR"
   a.userData.price = 1
   b.userData.price = 5
   c.userData.price = 10
@@ -103,3 +104,7 @@ console.assert( test(), {scn,reason:`tagfilter: #-b&-foo&bar&flop&-bar&flop"`})
 scn = filterScene("#-price&price=>5")
 test = () => scn.visible("a",false,true) && scn.visible("b",true) && scn.visible("c",true)
 console.assert( test(), {scn,reason:`tagfilter: #-price&price=>5"`})
+
+scn = filterScene("#-/VR&b")
+test = () => scn.visible("a",false,true) && scn.visible("b",true) && scn.visible("c",true)
+console.assert( test(), {scn,reason:`tagfilter: #-/VR&b"`})

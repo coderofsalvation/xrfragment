@@ -15,11 +15,11 @@ let loadVideo = (mimetype) => function(url,opts){
     mat.map = texture
     mesh.material = mat
     // set range
-    video.addEventListener('timeupdate', function timeupdate() {
-      if (video.t && video.currentTime < video.t.y || video.currentTime >= video.t.z ) {
-          vid.currentTime = video.t.y
-      }
-    },false)
+    //video.addEventListener('timeupdate', function timeupdate() {
+    //  if (frag.t && video.currentTime < frag.t.y || video.currentTime >= frag.t.z ) {
+    //      video.currentTime = frag.t.y
+    //  }
+    //},false)
   })
 
   video.src = url

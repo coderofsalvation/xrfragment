@@ -17,8 +17,8 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
   let {mesh} = opts
   let scene = model.scene
   xrf.frag.src.filterScene(scene,{...opts,frag})     // filter scene
-  mesh.traverse( (n) => n.isSRC = n.isXRF = true )   // mark everything isSRC & isXRF
   if( mesh.material ) mesh.material.visible = false  // hide placeholder object
+  mesh.traverse( (n) => n.isSRC = n.isXRF = true )   // mark everything isSRC & isXRF
   //enableSourcePortation(scene)
   if( xrf.frag.src.renderAsPortal(mesh) ){
     if( !opts.isLocal ) xrf.scene.add(scene)
