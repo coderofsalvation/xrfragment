@@ -98,7 +98,7 @@ class Filter {
         else rule[oper] = v;
         q.set('expr',rule);
       }else{ // 1. <b>ELSE </b> we are dealing with an object
-        q.set("root", isRoot.match(str)       ? true  : false ); //  1. and we set `root` to `true` or `false` (true=`/` root selector is present)
+        q.set("root", isRoot.match(str)     ? true  : false ); //  1. and we set `root` to `true` or `false` (true=`/` root selector is present)
       }
       q.set("show", isExclude.match(str)    ? false : true  ); //  1. therefore we we set `show` to `true` or `false` (false=excluder `-`)
       q.set("key", operators.replace(k,'') );

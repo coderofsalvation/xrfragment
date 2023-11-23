@@ -31,7 +31,7 @@ class Test {
       var valid:Bool     = false;
       var item:Dynamic = spec[i];
       f   = new Filter(item.data);
-      res = URI.parse(item.data,0);
+      res = URI.parse(item.data,null);
       if( item.expect.fn == "test"                ) valid = item.expect.out == f.test( item.expect.input[0] );
       if( item.expect.fn == "testProperty"        ) valid = item.expect.out == f.testProperty( item.expect.input[0], item.expect.input[1] );
       if( item.expect.fn == "testPropertyInt"     ) valid = item.expect.out == f.testProperty( item.expect.input[0], item.expect.input[1] );
@@ -45,7 +45,7 @@ class Test {
       if( item.expect.fn == "equal.x"             ) valid = equalX(res,item);
       if( item.expect.fn == "equal.xy"            ) valid = equalXY(res,item);
       if( item.expect.fn == "equal.xyz"           ) valid = equalXYZ(res,item);
-      if( item.expect.fn == "testFilterRoot"       ) valid = item.expect.out == f.get()[ item.expect.input[0] ].root;
+      if( item.expect.fn == "testFilterRoot"      ) valid = res.exists(item.expect.input[0]) && res.get(item.expect.input[0]).filter.get().root == item.expect.out;
       var ok:String = valid ? "[ ✔ ] " : "[ ❌] ";
       trace( ok + item.fn + ": '" + item.data + "'" + (item.label ? "    (" + (item.label?item.label:item.expect.fn) +")" : ""));
 			if( !valid ) errors += 1;
