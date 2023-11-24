@@ -48,7 +48,6 @@ pub.fragment = (k, opts ) => { // evaluate one fragment
 
 pub.XRWG = (opts) => {
   let {frag,scene,model,renderer} = opts 
-  console.dir(opts)
 
   // if this query was triggered by an src-value, lets filter it
   const isSRC = opts.embedded && opts.embedded.fragment == 'src'

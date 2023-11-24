@@ -9,7 +9,6 @@ import xrfragment.XRF;
 class Parser {
     public static var error:String  = "";
     public static var debug:Bool    = false;
-    public static var keyClean:EReg = ~/(^-)?(\/)?/;       //  1. detect - and / operators so you can easily strip keys (reference regex= ~/(^-)?(\/)?/; )
 
     @:keep
     public static function parse(key:String,value:String,store:haxe.DynamicAccess<Dynamic>,?index:Int):Bool {
@@ -22,7 +21,7 @@ class Parser {
       Frag.set("tag",           XRF.ASSET | XRF.T_STRING          );
 
       // spatial category: query selector / object manipulation
-      Frag.set("pos",           XRF.PV_OVERRIDE  | XRF.T_VECTOR3 | XRF.T_STRING_OBJ | XRF.METADATA | XRF.NAVIGATOR );
+      Frag.set("pos",           XRF.PV_OVERRIDE    | XRF.T_VECTOR3 | XRF.T_STRING | XRF.T_STRING_OBJ | XRF.METADATA | XRF.NAVIGATOR );
       Frag.set("rot",           XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE  | XRF.T_VECTOR3 | XRF.METADATA | XRF.NAVIGATOR );
 
       // category: animation
@@ -48,13 +47,15 @@ class Parser {
 
       //  1. requirement: receive arguments: key (string), value (string), store (writable associative array/object)
 
+      var keyStripped:String = XRF.operators.replace( key, '' );
+
 			// dynamic fragments cases: predefined views & assign/binds
       var isPVDynamic:Bool = key.length > 0 && !Frag.exists(key);
       var isPVDefault:Bool = value.length == 0 && key.length > 0 && key == "#";
 			if( isPVDynamic ){ //|| isPVDefault ){      //  1. add keys without values to store as [predefined view](predefined_view)
 				var v:XRF  = new XRF(key, XRF.PV_EXECUTE | XRF.NAVIGATOR, index );
         v.validate(value); // ignore failures (empty values are allowed)
-				store.set( keyClean.replace(key,''), v );
+				store.set( keyStripped, v );
 				return true;
 			}
 
@@ -65,12 +66,12 @@ class Parser {
           trace("⚠ fragment '"+key+"' has incompatible value ("+value+")");//  1. don't add to store if value-type is incorrect
           return false;
         }
-        store.set( keyClean.replace(key,''), v);                                                //  1. if valid, add to store
+        store.set( keyStripped, v);                                                //  1. if valid, add to store
         if( debug ) trace("✔ "+key+": "+v.string);
       }else{                                                               //  1. expose (but mark) non-offical fragments too 
         if( Std.isOfType(value, String) ) v.guessType(v,value);
         v.noXRF = true;
-        store.set( keyClean.replace(key,'') ,v);
+        store.set( keyStripped ,v);
       }
       return true;
     }

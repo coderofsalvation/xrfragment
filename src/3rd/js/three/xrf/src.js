@@ -18,7 +18,6 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
   let scene = model.scene
   xrf.frag.src.filterScene(scene,{...opts,frag})     // filter scene
   if( mesh.material ) mesh.material.visible = false  // hide placeholder object
-  mesh.traverse( (n) => n.isSRC = n.isXRF = true )   // mark everything isSRC & isXRF
   //enableSourcePortation(scene)
   if( xrf.frag.src.renderAsPortal(mesh) ){
     if( !opts.isLocal ) xrf.scene.add(scene)
@@ -27,14 +26,15 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
     xrf.frag.src.scale( scene, opts, url )           // scale scene
     mesh.add(scene)
   }
+  // flag everything isSRC & isXRF
+  mesh.traverse( (n) => { n.isSRC = n.isXRF = n[ opts.isLocal ? 'isSRCLocal' : 'isSRCExternal' ] = true })
   xrf.emit('parseModel', {...opts, scene, model}) 
 }
 
 xrf.frag.src.renderAsPortal = (mesh) => {
-  const hasTexture        = mesh.material && mesh.material.map 
+  // *TODO* should support better isFlat(mesh) check
   const isPlane           = mesh.geometry && mesh.geometry.attributes.uv && mesh.geometry.attributes.uv.count == 4 
-  const hasMaterialName   = mesh.material && mesh.material.name.length > 0 
-  return mesh.geometry && !hasMaterialName && !hasTexture && isPlane
+  return xrf.hasNoMaterial(mesh) && isPlane
 }
 
 xrf.frag.src.enableSourcePortation = (src) => {

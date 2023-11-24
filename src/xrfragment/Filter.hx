@@ -2,6 +2,7 @@
 // Copyright (c) 2023 Leon van Kammen/NLNET 
 package xrfragment;
 
+import xrfragment.XRF;
 //return untyped __js__("window.location.search");
 
 #if js
@@ -52,12 +53,6 @@ class Filter {
 
   private var str:String = "";
   private var q:haxe.DynamicAccess<Dynamic> = {};       //  1. create an associative array/object to store filter-arguments as objects
-  private var isProp:EReg        = ~/^.*=[><=]?/;       //  1. detect object id's & properties `foo=1` and `foo` (reference regex= `~/^.*=[><=]?/`  )
-  private var isExclude:EReg     = ~/^-/;               //  1. detect excluders like `-foo`,`-foo=1`,`-.foo`,`-/foo` (reference regex= `/^-/` )
-  private var isRoot:EReg        = ~/^[-]?\//;          //  1. detect root selectors like `/foo` (reference regex= `/^[-]?\//` )
-  private var isNumber:EReg      = ~/^[0-9\.]+$/;       //  1. detect number values like `foo=1` (reference regex= `/^[0-9\.]+$/` )
-  private var operators:EReg     = ~/(^-)?(\/)?/;       //  1. detect operators so you can easily strip keys (reference regex= `/(^-|\*$)/` )
-  private var isSelectorExclude:EReg  = ~/^-/;          //  1. detect exclude keys like `-foo`   (reference regex= `/^-/` )
 
   public function new(str:String){
     if( str != null  ) this.parse(str);
@@ -84,24 +79,23 @@ class Filter {
       var filter:haxe.DynamicAccess<Dynamic> = {};
       if( q.get(prefix+k) ) filter = q.get(prefix+k);
 
-      if( isProp.match(str) ){                             // 1. <b>WHEN</b></b> when a `=` key/value is detected: 
+      if( XRF.isProp.match(str) ){                             // 1. <b>WHEN</b></b> when a `=` key/value is detected: 
         var oper:String = "";
         if( str.indexOf(">")  != -1 ) oper = ">";          // 1. then scan for `>` operator
         if( str.indexOf("<")  != -1 ) oper = "<";          // 1. then scan for `<` operator
-        if( isExclude.match(k) ){
+        if( XRF.isExclude.match(k) ){
           k = k.substr(1);                                 // 1. then strip operators from key: convert "-foo" into "foo" 
         }
         v = v.substr(oper.length);                         // 1. then strip operators from value: change value ">=foo" into "foo" 
         if( oper.length == 0 ) oper = "=";                 // 1. when no operators detected, assume operator '='
         var rule:haxe.DynamicAccess<Dynamic> = {};
-        if( isNumber.match(v) ) rule[ oper ] = Std.parseFloat(v);
+        if( XRF.isNumber.match(v) ) rule[ oper ] = Std.parseFloat(v);
         else rule[oper] = v;
         q.set('expr',rule);
-      }else{ // 1. <b>ELSE </b> we are dealing with an object
-        q.set("root", isRoot.match(str)     ? true  : false ); //  1. and we set `root` to `true` or `false` (true=`/` root selector is present)
       }
-      q.set("show", isExclude.match(str)    ? false : true  ); //  1. therefore we we set `show` to `true` or `false` (false=excluder `-`)
-      q.set("key", operators.replace(k,'') );
+      q.set("deep", XRF.isDeep.match(str)     ? k.split("*").length-1 : 0 ); //  1. and we set `deep` to >0 or based on * occurences (true=`*` deep selector is present)
+      q.set("show", XRF.isExclude.match(str)    ? false : true  ); //  1. therefore we we set `show` to `true` or `false` (false=excluder `-`)
+      q.set("key", XRF.operators.replace(k,'') );
       q.set("value",v);
     }
     for( i in 0...token.length ) process( token[i] );
@@ -153,8 +147,8 @@ class Filter {
         if( Reflect.field(f,'!=') != null && testprop( Std.string(value) == Std.string(Reflect.field(f,'!='))) && exclude ) qualify += 1;
       }else{
         if( Reflect.field(f,'*')  != null && testprop( Std.parseFloat(value) != null                                   ) ) qualify += 1;
-        if( Reflect.field(f,'>')  != null && testprop( Std.parseFloat(value) >  Std.parseFloat(Reflect.field(f,'>' )) ) ) qualify += 1;
-        if( Reflect.field(f,'<')  != null && testprop( Std.parseFloat(value) <  Std.parseFloat(Reflect.field(f,'<' )) ) ) qualify += 1;
+        if( Reflect.field(f,'>')  != null && testprop( Std.parseFloat(value) >= Std.parseFloat(Reflect.field(f,'>' )) ) ) qualify += 1;
+        if( Reflect.field(f,'<')  != null && testprop( Std.parseFloat(value) <= Std.parseFloat(Reflect.field(f,'<' )) ) ) qualify += 1;
         if( Reflect.field(f,'=')  != null && (
           testprop( value == Reflect.field(f,'='))                   ||
           testprop( Std.parseFloat(value) == Std.parseFloat(Reflect.field(f,'=')))

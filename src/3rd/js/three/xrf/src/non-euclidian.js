@@ -85,8 +85,8 @@ xrf.portalNonEuclidian = function(opts){
         let stencilObject              = mesh.portal.stencilObject
         let newScale                   = mesh.scale 
         let cameraDirection            = mesh.portal.cameraDirection
-        let cameraPosition            = mesh.portal.cameraPosition
-        let raycaster            = mesh.portal.raycaster
+        let cameraPosition             = mesh.portal.cameraPosition
+        let raycaster                  = mesh.portal.raycaster
 
         // init
         if( !opts.isLocal ) stencilObject.visible = true 
@@ -149,13 +149,18 @@ xrf.portalNonEuclidian.setMaterial = function(mesh){
   mesh.material.colorWrite   = false;
   mesh.material.stencilWrite = true;
   mesh.material.stencilRef   = xrf.portalNonEuclidian.stencilRef;
-  mesh.renderOrder           = xrf.portalNonEuclidian.stencilRef;
+  mesh.renderOrder           = 0;//xrf.portalNonEuclidian.stencilRef;
   mesh.material.stencilFunc  = THREE.AlwaysStencilFunc;
   mesh.material.stencilZPass = THREE.ReplaceStencilOp;
   //mesh.material.stencilFail  = THREE.ReplaceStencilOp;
   //mesh.material.stencilZFail = THREE.ReplaceStencilOp;
   return mesh
 }
+
+xrf.addEventListener('parseModel',(opts) => {
+  const scene = opts.model.scene
+  scene.traverse( (n) => n.renderOrder = 10 ) // rendering everything *after* the stencil buffers
+})
 
 
 xrf.portalNonEuclidian.stencilRef = 1

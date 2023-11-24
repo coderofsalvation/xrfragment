@@ -36,13 +36,18 @@ class XRF {
 	public static var T_STRING_OBJ_PROP:Int   = 4194304;
 
   // regexes
-  public static var isColor:EReg  = ~/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/; //  1. hex colors are detected using regex `/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/`
-  public static var isInt:EReg    = ~/^[-0-9]+$/;                           //  1. integers are detected using regex `/^[0-9]+$/`
-  public static var isFloat:EReg  = ~/^[-0-9]+\.[0-9]+$/;                   //  1. floats are detected using regex `/^[0-9]+\.[0-9]+$/`
-  public static var isVector:EReg = ~/([,]+|\w)/;                          //  1. vectors are detected using regex `/[,]/` (but can also be an string referring to an entity-ID in the asset)
-  public static var isUrl:EReg    = ~/(:\/\/)?\..*/;                       //  1. url/file */` 
+  public static var isColor:EReg   = ~/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/; //  1. hex colors are detected using regex `/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/`
+  public static var isInt:EReg     = ~/^[-0-9]+$/;                          //  1. integers are detected using regex `/^[0-9]+$/`
+  public static var isFloat:EReg   = ~/^[-0-9]+\.[0-9]+$/;                  //  1. floats are detected using regex `/^[0-9]+\.[0-9]+$/`
+  public static var isVector:EReg  = ~/([,]+|\w)/;                          //  1. vectors are detected using regex `/[,]/` (but can also be an string referring to an entity-ID in the asset)
+  public static var isUrl:EReg     = ~/(:\/\/)?\..*/;                       //  1. url/file */` 
   public static var isUrlOrPretypedView:EReg = ~/(^#|:\/\/)?\..*/;                       //  1. url/file */` 
-  public static var isString:EReg = ~/.*/;                                 //  1. anything else is string  `/.*/`
+  public static var isString:EReg  = ~/.*/;                                 //  1. anything else is string  `/.*/`
+  public static var operators:EReg = ~/(^-|[\*]+)/;                         //  1. detect operators so you can easily strip keys (reference regex= `~/(^-)?(\/)?(\*)?/` )
+  public static var isProp:EReg    = ~/^.*=[><=]?/;                         //  1. detect object id's & properties `foo=1` and `foo` (reference regex= `~/^.*=[><=]?/`  )
+  public static var isExclude:EReg = ~/^-/;                                 //  1. detect excluders like `-foo`,`-foo=1`,`-.foo`,`-/foo` (reference regex= `/^-/` )
+  public static var isDeep:EReg    = ~/\*/;                                 //  1. detect deep selectors like `foo*` (reference regex= `/\*$/` )
+  public static var isNumber:EReg  = ~/^[0-9\.]+$/;                         //  1. detect number values like `foo=1` (reference regex= `/^[0-9\.]+$/` )
 
   // value holder(s)                                                       //  |------|------|--------|----------------------------------|
   public var fragment:String;
@@ -83,7 +88,7 @@ class XRF {
     // validate
     var ok:Bool = true;
     if( !is(T_FLOAT)   && is(T_VECTOR2) && !(Std.isOfType(x,Float) && Std.isOfType(y,Float)) ) ok = false;
-    if( !is(T_VECTOR2) && is(T_VECTOR3) && !(Std.isOfType(x,Float) && Std.isOfType(y,Float) && Std.isOfType(z,Float)) ) ok = false;
+    if( !(is(T_VECTOR2) || is(T_STRING)) && is(T_VECTOR3) && !(Std.isOfType(x,Float) && Std.isOfType(y,Float) && Std.isOfType(z,Float)) ) ok = false;
     return ok;
   }
 

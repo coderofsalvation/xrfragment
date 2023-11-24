@@ -279,7 +279,7 @@ For example, to render a portal with a preview-version of the scene, create an 3
 
 | fragment | type | functionality |
 |----------|--------|------------------------------|
-| <b>#pos</b>=0,0,0 | vector3 | (re)position camera    |
+| <b>#pos</b>=0,0,0 | vector3 or string| (re)position camera based on coordinates directly, or indirectly using objectname (its worldposition)   |
 | <b>#t</b>=0,100 | vector3 | set playback speed, and (re)position looprange of scene-animation or `src`-mediacontent  |
 | <b>#rot</b>=0,90,0 | vector3 | rotate camera    |
 
@@ -366,7 +366,7 @@ Resizing will be happen accordingly to its placeholder object `aquariumcube`, se
 
 1. local/remote content is instanced by the `src` (filter) value (and attaches it to the placeholder mesh containing the `src` property) 
 2. by default all objects are loaded into the instanced src (scene) object (but not shown yet)
-2. <b>local</b> `src` values (`#...` e.g.) starting with a non-negating filter (`#cube` e.g.) will make that object (with name `cube`) the new root of the scene at position 0,0,0
+2. <b>local</b> `src` values (`#...` e.g.) starting with a non-negating filter (`#cube` e.g.) will (deep)reparent that object (with name `cube`) as the new root of the scene at position 0,0,0
 3. <b>local</b> `src` values should respect (negative) filters (`#-foo&price=>3`)
 4. the instanced scene (from a `src` value) should be <b>scaled accordingly</b> to its placeholder object or <b>scaled relatively</b> based on the scale-property (of a geometry-less placeholder, an 'empty'-object in blender e.g.). For more info see Chapter Scaling.
 5. <b>external</b> `src` values should be served with appropriate mimetype (so the XR Fragment-compatible browser will now how to render it). The bare minimum supported mimetypes are:
@@ -414,6 +414,14 @@ navigation, portals & mutations
 [» example implementation](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/href.js)<br>
 [» example 3D asset](https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/href.gltf#L192)<br>
 [» discussion](https://github.com/coderofsalvation/xrfragment/issues/1)<br>
+
+## Walking surfaces 
+
+XR Fragment-compatible viewers can infer this data based scanning the scene for:
+
+1. materialless (nameless & textureless) mesh-objects (without `src` and `href`)
+
+> optionally the viewer can offer thumbstick, mouse or joystick teleport-tools for non-roomscale VR/AR setups.
 
 ## UX spec
 
@@ -503,16 +511,19 @@ It's simple but powerful syntax which allows filtering the scene using searcheng
 
 ## including/excluding
 
+By default, selectors work like photoshop-layers: they scan for matching layer(name/properties) within the scene-graph.
+Each matched object (not their children) will be toggled (in)visible when selecting.
+
 | operator | info                                                                                                                          |
 |----------|-------------------------------------------------------------------------------------------------------------------------------|
 | `-`      | hides object(s) (`#-myobject&-objects` e.g.                                                                                   |
 | `=`      | indicates an object-embedded custom property key/value (`#price=4&category=foo` e.g.)                                         |
 | `=>` `=<`| compare float or int number (`#price=>4` e.g.)                                                                                |
-| `/`      | reference to root-scene.<br>Useful in case of (preventing) showing/hiding objects in nested scenes (instanced by `src`) (*)   |
+| `*`      | deepselect: automatically select children of selected object, including local (nonremote) embedded objects (starting with `#`)|
 
-> \* = `#-/cube` hides object `cube` only in the root-scene (not nested `cube` objects)<br> `#-cube` hides both object `cube` in the root-scene <b>AND</b> nested `skybox` objects |
+> NOTE 1: after an external embedded object has been instanced (`src: https://y.com/bar.fbx#room` e.g.), filters do not affect them anymore (reason: local tag/name collisions can be mitigated easily, but not in case of remote content).
 
-Nested selection is always implied (there's no `*` `>`/`<` css-like operators on purpose) which keeps XR Fragments easy to implement, and still allows fine-grained control chaining nested selectors (`#-sky&house&-table` e.g.).
+> NOTE 2: depending on the used 3D framework, toggling objects (in)visible should happen by enabling/disableing writing to the colorbuffer (to allow children being still visible while their parents are invisible).
 
 [» example implementation](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/q.js)
 [» example 3D asset](https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/filter.gltf#L192)
@@ -929,6 +940,15 @@ This document has no IANA actions.
 * [NLNET](https://nlnet.nl)
 * [Future of Text](https://futureoftext.org)
 * [visual-meta.info](https://visual-meta.info)
+* Michiel Leenaars
+* Gerben van der Broeke
+* Mauve
+* Jens Finkhäuser
+* Marc Belmont
+* Tim Gerritsen
+* Frode Hegland
+* Brandel Zackernuk
+* Mark Anderson
 
 # Appendix: Definitions 
 

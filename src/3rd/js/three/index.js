@@ -100,3 +100,9 @@ xrf.add = (object) => {
   object.isXRF = true // mark for easy deletion when replacing scene
   xrf.scene.add(object)
 }
+
+xrf.hasNoMaterial = (mesh) => {
+  const hasTexture        = mesh.material && mesh.material.map 
+  const hasMaterialName   = mesh.material && mesh.material.name.length > 0 
+  return mesh.geometry && !hasMaterialName && !hasTexture
+}

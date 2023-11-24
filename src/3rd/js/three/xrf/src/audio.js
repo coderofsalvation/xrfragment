@@ -11,6 +11,8 @@ let loadAudio = (mimetype) => function(url,opts){
   let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
   let frag = xrf.URI.parse( url )
 
+  return
+
   /* WebAudio: setup context via THREEjs */
   if( !camera.listener ){
     camera.listener = new THREE.AudioListener();

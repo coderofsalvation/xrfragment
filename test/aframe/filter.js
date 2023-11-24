@@ -2,33 +2,40 @@
 THREE = AFRAME.THREE
 
 createScene = (noadd) => {
-  let obj  = {a:{},b:{},c:{}}
+  let obj  = {a:{},b:{},c:{},d:{},extembed:{}}
   for ( let i in obj ){
     obj[i] = new THREE.Object3D()
     obj[i].name = i
     obj[i].material = {visible:true, clone: () => ({visible:true}) }
   }
-  let {a,b,c} = obj
-  let scene = new THREE.Scene()
+  let {a,b,c,d,extembed} = obj
+  let scene = xrf.scene = new THREE.Scene()
   if( !noadd ){
     a.add(b)
     b.add(c)
     scene.add(a)
+    extembed.add(d)
+    scene.add(extembed)
   }
   b.userData.score = 2
-  b.userData.tag = "foo bar"
-  c.userData.tag = "flop flap"
   a.userData.tag = "VR"
+  b.userData.tag = "foo hide"
+  c.userData.tag = "flop flap VR"
   a.userData.price = 1
   b.userData.price = 5
   c.userData.price = 10
-  return {a,b,c,scene}
+  b.isSRC = "local"
+  d.userData.tag = "VR"
+  extembed.isSRC = true 
+  extembed.isSRCExternal = true 
+  return {a,b,c,d,extembed,scene}
 }
 
-filterScene = (URI) => {
+filterScene = (URI,opts) => {
+  opts = opts || {}
   frag = xrf.URI.parse(URI)
-  var {a,b,c,scene} = createScene()
-  xrf.filter.scene({scene,frag})
+  var {a,b,c,d,extembed,scene} = createScene()
+  xrf.filter.scene({...opts,scene,frag})
 
   scene.visible = (objname, expected, checkMaterial) => {
     let o = scene.getObjectByName(objname)
@@ -42,69 +49,46 @@ filterScene = (URI) => {
 }
 
 scn       = filterScene("#b")
-test      = () => !scn.visible("a") && scn.visible("b",true) && scn.visible("c",true) 
+test      = () => scn.visible("a",true,true) && scn.visible("b",true) && scn.visible("c",true) 
 console.assert( test(), {scn,reason:`objectname: #b `})
 
-scn = filterScene("#-b")
-test = () =>  scn.visible("a",true) && scn.visible("b",false) && scn.visible("c",false)
-console.assert( test(), {scn,reason:`objectname: #-b `})
+scn       = filterScene("#-b")
+test      = () => scn.visible("a",true,true) && scn.visible("b",false,true) && scn.visible("c",true) && scn.visible("c",true,true)
+console.assert( test(), {scn,reason:`objectname: #-b`})
 
-scn = filterScene("#a&-b")
-test = () =>  scn.visible("a",true) && scn.visible("b",false) && scn.visible("c",false)
-console.assert( test(), {scn,reason:`objectname: #a&-b `})
+scn       = filterScene("#-b*")
+test      = () => scn.visible("a",true,true) && scn.visible("b",false,true) && scn.visible("c",false,true) 
+console.assert( test(), {scn,reason:`objectname: #b*`})
 
-scn = filterScene("#-b&b") 
+scn       = filterScene("#b",{reparent:true})
+test      = () => scn.visible("a",false) && scn.visible("b",true) && scn.visible("c",true) 
+console.assert( test(), {scn,reason:`objectname: #b (reparent scene)`})
+
+scn = filterScene("#-b&b*") 
 test = () => scn.visible("a",true) && scn.visible("b",true) && scn.visible("c",true)
 console.assert( test(), {scn,reason:`objectname: #-b&b `})
 
-scn = filterScene("#-c") 
-test = () =>  scn.visible("a",true) && scn.visible("b",true) && scn.visible("c",false)
-console.assert( test(), {scn,reason:`objectname: #-c `})
-
-scn = filterScene("#score") 
-test = () => scn.visible("a",true) && scn.visible("b",true) && scn.visible("c",true)
+scn = filterScene("#-a&score*") 
+test = () => scn.visible("a",false,true) && scn.visible("b",true,true) && scn.visible("c",true,true)
 console.assert( test(), {scn,reason:`propertyfilter: #score `})
 
-scn = filterScene("#score=>1") 
-test = () => scn.visible("a",true) && scn.visible("b",true) && scn.visible("c",true)
-console.assert( test(), {scn,reason:`propertyfilter: #score>=1`})
-
-scn = filterScene("#score=2") 
-test = () => scn.visible("a",true) && scn.visible("b",true) && scn.visible("c",true)
+scn = filterScene("#-a&score*=2") 
+test = () => scn.visible("a",false,true) && scn.visible("b",true) && scn.visible("c",true)
 console.assert( test(), {scn,reason:`propertyfilter: #score=2`})
 
-scn = filterScene("#score=>3") 
-test = () => scn.visible("a",true) && scn.visible("b",false) && scn.visible("c",false)
-console.assert( test(), {scn,reason:`propertyfilter: #score=>3`})
-
-scn = filterScene("#-score=>1") 
-test = () => scn.visible("a",true) && scn.visible("b",false) && scn.visible("c",false)
-console.assert( test(), {scn,reason:`propertyfilter: #-score=>1`})
-
-scn = filterScene("#-score=>1&c") 
-test = () => scn.visible("a",true) && scn.visible("b",true) && scn.visible("b",false,true) && scn.visible("c",true)
-console.assert( test(), {scn,reason:`propertyfilter: #-score=>1&c`})
-
-scn = filterScene("#-foo")
-test = () => scn.visible("a",true) && scn.visible("b",false) && scn.visible("b",false)
-console.assert( test(), {scn,reason:`tagfilter: #-foo `})
-
-scn = filterScene("#-c&flop")
-test = () => scn.visible("a",true) && scn.visible("b",true) && scn.visible("c",true)
-console.assert( test(), {scn,reason:`tagfilter: #-c&flop`})
-
-scn = filterScene("#-b&-foo&bar&flop")
-test = () => scn.visible("a",true) && scn.visible("b",true) && scn.visible("c",true)
-console.assert( test(), {scn,reason:`tagfilter: #-b&-foo&bar&flop`})
-
-scn = filterScene("#-b&-foo&bar&flop&-bar&flop")
-test = () => scn.visible("a",true) && scn.visible("b",false,true) && scn.visible("c",true)
-console.assert( test(), {scn,reason:`tagfilter: #-b&-foo&bar&flop&-bar&flop"`})
-
-scn = filterScene("#-price&price=>5")
-test = () => scn.visible("a",false,true) && scn.visible("b",true) && scn.visible("c",true)
+scn = filterScene("#-price*&price=>5")
+test = () => scn.visible("a",false,true) && scn.visible("b",true,true) && scn.visible("c",true,true)
 console.assert( test(), {scn,reason:`tagfilter: #-price&price=>5"`})
 
-scn = filterScene("#-/VR&b")
-test = () => scn.visible("a",false,true) && scn.visible("b",true) && scn.visible("c",true)
-console.assert( test(), {scn,reason:`tagfilter: #-/VR&b"`})
+scn = filterScene("#-hide*")
+test = () => scn.visible("a",true,true) && scn.visible("b",false,true) && scn.visible("c",false,true)
+console.assert( test(), {scn,reason:`tagfilter: #-hide*"`})
+
+scn  = filterScene("#-VR")
+test = () => scn.visible("a",false,true) && scn.visible("b",true,true) && scn.visible("c",false,true) && scn.visible("extembed",true,true) && scn.visible("d",true,true)
+console.assert( test(), {scn,reason:`tagfilter: #-VR"`})
+
+scn  = filterScene("#-VR*")
+test = () => scn.visible("a",false,true) && scn.visible("b",false,true) && scn.visible("c",false,true) && scn.visible("extembed",true,true) && scn.visible("d",true,true)
+console.assert( test(), {scn,reason:`tagfilter: #-VR*"`})
+

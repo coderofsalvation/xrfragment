@@ -26,7 +26,18 @@ window.AFRAME.registerComponent('xrf', {
         })
         if( !XRF.camera ) throw 'xrfragment: no camera detected, please declare <a-entity camera..> ABOVE entities with xrf-attributes'
 
-        xrf.addEventListener('navigateLoaded', () => setTimeout( () => AFRAME.fade.out(),500)  )
+        xrf.addEventListener('navigateLoaded', () => {
+          setTimeout( () => AFRAME.fade.out(),500) 
+
+          // *TODO* this does not really belong here perhaps
+          let blinkControls = document.querySelector('[blink-controls]')
+          if( blinkControls ){
+            blinkControls = blinkControls.components['blink-controls']
+            blinkControls.defaultCollisionMeshes = xrf.getCollisionMeshes()
+            blinkControls.update()
+          }
+        })
+
         xrf.addEventListener('href', (opts) => {
           if( opts.click){ 
             let p       = opts.promise()

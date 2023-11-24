@@ -16,6 +16,7 @@ class Test {
 
   static public function main():Void {
     test( "url.json",         Spec.load("src/spec/url.json") );
+    test( "pos.json",         Spec.load("src/spec/pos.json") );
     test( "t.json",           Spec.load("src/spec/t.json") );
     test( "filter.selectors.json", Spec.load("src/spec/filter.selectors.json") );
     //test( Spec.load("src/spec/tmp.json") );
@@ -46,6 +47,7 @@ class Test {
       if( item.expect.fn == "equal.xy"            ) valid = equalXY(res,item);
       if( item.expect.fn == "equal.xyz"           ) valid = equalXYZ(res,item);
       if( item.expect.fn == "testFilterRoot"      ) valid = res.exists(item.expect.input[0]) && res.get(item.expect.input[0]).filter.get().root == item.expect.out;
+      if( item.expect.fn == "testFilterDeep"      ) valid = res.exists(item.expect.input[0]) && res.get(item.expect.input[0]).filter.get().deep == item.expect.out;
       var ok:String = valid ? "[ ✔ ] " : "[ ❌] ";
       trace( ok + item.fn + ": '" + item.data + "'" + (item.label ? "    (" + (item.label?item.label:item.expect.fn) +")" : ""));
 			if( !valid ) errors += 1;

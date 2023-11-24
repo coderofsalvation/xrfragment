@@ -1,0 +1,6 @@
+[
+  {"fn":"url","data":"http://foo.com?foo=1#pos=1.2,2.2", "expect":{ "fn":"equal.string",    "input":"pos","out":"1.2,2.2"},"label":"equal.string"},
+  {"fn":"url","data":"http://foo.com?foo=1#pos=1.2,2.2,3", "expect":{ "fn":"equal.xyz",    "input":"pos","out":"1.2,2.2,3"},"label":"equal.xyz"},
+  {"fn":"url","data":"http://foo.com?foo=1#pos=1,2,3", "expect":{ "fn":"equal.xyz", "input":"pos","out":"1,2,3"},"label":"pos equal.xyz"},
+  {"fn":"url","data":"http://foo.com?foo=1#pos=world2", "expect":{ "fn":"equal.string", "input":"pos","out":"world2"},"label":"pos equal.xyz"}
+]

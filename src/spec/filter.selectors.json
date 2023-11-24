@@ -10,8 +10,6 @@
   {"fn":"filter","data":"price=>2", "expect":{ "fn":"testProperty","input":["price","1"],"out":false}},
   {"fn":"filter","data":"price=<2", "expect":{ "fn":"testProperty","input":["price","5"],"out":false}},
   {"fn":"filter","data":"price=<2", "expect":{ "fn":"testProperty","input":["price","1"],"out":true}},
-  {"fn":"url","data":"#/foo",    "expect":{ "fn":"testFilterRoot","input":["foo"],"out":true},"label":"foo should be root-only"},
-  {"fn":"url","data":"#/foo&foo","expect":{ "fn":"testFilterRoot","input":["foo"],"out":false},"label":"foo should recursively selected"},
-  {"fn":"url","data":"#/foo&foo&/bar", "expect":{ "fn":"testFilterRoot","input":["foo"],"out":false},"label":"bar should be root-only"},
-  {"fn":"url","data":"#-/foo", "expect":{ "fn":"testFilterRoot","input":["foo"],"out":true},"label":"foo should be root-only"}
+  {"fn":"url","data":"#foo*", "expect":{ "fn":"testFilterDeep","input":["foo"],"out":1},"label":"foo should be deep"},
+  {"fn":"url","data":"#foo**", "expect":{ "fn":"testFilterDeep","input":["foo"],"out":2},"label":"foo should be deep incl. embeds"}
 ]

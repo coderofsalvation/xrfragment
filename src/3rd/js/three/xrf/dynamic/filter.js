@@ -42,13 +42,28 @@ xrf.filter.sort = function(frag){
 }
 
 xrf.filter.process = function(frag,scene,opts){
+  const cleanupKey   = (k) => k.replace(/[-\*\/]/g,'')
+  let firstFilter    = frag.filters.length ? frag.filters[0].filter.get() : false 
   const hasName      = (m,name,filter)        => m.name == name 
   const hasNameOrTag = (m,name_or_tag,filter) => hasName(m,name_or_tag) || 
                                                  String(m.userData['tag']).match( new RegExp("(^| )"+name_or_tag) )
-  const cleanupKey   = (k) => k.replace(/[-\*\/]/g,'')
-
-  let firstFilter = frag.filters.length ? frag.filters[0].filter.get() : false 
-  let  showers    = frag.filters.filter( (v) => v.filter.get().show === true ) 
+  // utility functions
+  const getOrCloneMaterial = (o) => {
+    if( o.material ){
+      if( o.material.isXRF ) return o.material
+      o.material = o.material.clone()
+      o.material.isXRF = true
+      return o.material
+    }
+    return {}
+  }
+  const setVisible = (n,visible,filter,processed) => {
+    if( processed && processed[n.uuid] ) return 
+    getOrCloneMaterial(n).visible = visible
+    console.log(n.name+" => "+(visible?"show":"hide"))
+    if( filter.deep ) n.traverse( (m) => getOrCloneMaterial(m).visible = visible )
+    if( processed ) processed[n.uuid] == true 
+  }
 
   // spec 2: https://xrfragment.org/doc/RFC_XR_Macros.html#embedding-xr-content-using-src
   // reparent scene based on objectname in case it matches a (non-negating) selector 
@@ -63,56 +78,35 @@ xrf.filter.process = function(frag,scene,opts){
     }
   }
 
-  const setVisible = (n,visible,processed) => {
-    if( processed && processed[n.uuid] ) return 
-    n.visible = visible
-    n.traverse( (n) => n.visible = visible )
-
-    // for hidden parents, clone material and set material to invisible
-    // otherwise n will not be rendered
-    if( visible ){
-      n.traverseAncestors( (parent) => {
-        if( !parent.visible ){
-          parent.visible = true
-          if( parent.material && !parent.material.isXRF ){
-            parent.material = parent.material.clone()
-            parent.material.visible = false
-          }
-        }
-      })
-    }
-    if( processed ) processed[n.uuid] == true 
-  }
-
-  const insideSRC = (m) => {
-    let src = false 
-    m.traverseAncestors( (n) => n.isSRC ? src = true : false ) 
-    return src
-  }
-
   // then show/hide things based on secondary selectors
+  // we don't use the XRWG (everything) because we process only the given (sub)scene
   frag.filters.map( (v) => {
     const filter  = v.filter.get()
     const name_or_tag = cleanupKey(v.fragment)
     let processed = {}
+    let extembeds = {}
 
+    // hide external objects temporarely
     scene.traverse( (m) => {
-      // filter on value(expression) #foo=>3 e.g. *TODO* do this in XRWG
-      if( filter.value && m.userData[filter.key] ){
-        if( filter.root && insideSRC(m) ) return 
-        const visible = v.filter.testProperty(filter.key, m.userData[filter.key], filter.show === false )
-        setVisible(m,visible,processed)
-        return
+      if( m.isSRCExternal ){
+        m.traverse( (n) => (extembeds[ n.uuid ] = m) && (n.visible = false) )
       }
     })
-    // include/exclude object(s) when id/tag matches (#foo or #-foo e.g.) 
-    let matches = xrf.XRWG.match(name_or_tag)
-    matches.map( (match) => {
-      match.nodes.map( (node) => {
-        if( filter.root && insideSRC(node) ) return 
-        setVisible(node,filter.show)
-      })
+
+    scene.traverseVisible( (m) => {
+      // filter on value(expression) #foo=>3 e.g. *TODO* do this in XRWG
+      if( filter.value && m.userData[filter.key] ){
+        const visible = v.filter.testProperty(filter.key, m.userData[filter.key], filter.show === false )
+        setVisible(m,visible,filter,processed)
+        return
+      }
+      if( hasNameOrTag(m,name_or_tag,filter ) ){
+        setVisible(m,filter.show,filter)
+      }
     })
+
+    // show external objects again 
+    for ( let i in extembeds ) extembeds[i].visible = true
   })
 
   return xrf.filter
