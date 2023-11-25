@@ -20,8 +20,11 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
   if( mesh.material ) mesh.material.visible = false  // hide placeholder object
   //enableSourcePortation(scene)
   if( xrf.frag.src.renderAsPortal(mesh) ){
-    if( !opts.isLocal ) xrf.scene.add(scene)
-    return xrf.portalNonEuclidian({...opts,model,scene:model.scene})
+    // only add remote objects, because 
+    // local scene-objects are already added to scene
+    xrf.portalNonEuclidian({...opts,model,scene:model.scene})
+    if( !opts.isLocal && !mesh.portal.isLens ) xrf.scene.add(scene) 
+    return
   }else{
     xrf.frag.src.scale( scene, opts, url )           // scale scene
     mesh.add(scene)

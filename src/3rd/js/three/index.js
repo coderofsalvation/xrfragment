@@ -24,7 +24,6 @@ xrf.patchRenderer = function(opts){
   renderer.render = ((render) => function(scene,camera){
     // update clock
     let time = xrf.clock.getDelta()
-    // allow entities to do stuff during render (onBeforeRender and onAfterRender don't always fire)
     xrf.emit('render',{scene,camera,time,render}) // allow fragments to do something at renderframe
     render(scene,camera)
     xrf.emit('renderPost',{scene,camera,time,render,renderer}) // allow fragments to do something after renderframe

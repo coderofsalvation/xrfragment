@@ -60,7 +60,6 @@ xrf.filter.process = function(frag,scene,opts){
   const setVisible = (n,visible,filter,processed) => {
     if( processed && processed[n.uuid] ) return 
     getOrCloneMaterial(n).visible = visible
-    console.log(n.name+" => "+(visible?"show":"hide"))
     if( filter.deep ) n.traverse( (m) => getOrCloneMaterial(m).visible = visible )
     if( processed ) processed[n.uuid] == true 
   }

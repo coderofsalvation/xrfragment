@@ -3,7 +3,6 @@
 xrf.portalNonEuclidian = function(opts){
   let { frag, mesh, model, camera, scene, renderer} = opts
 
-
   mesh.portal = {
     pos: mesh.position.clone(),
     posWorld: new xrf.THREE.Vector3(),
@@ -13,18 +12,22 @@ xrf.portalNonEuclidian = function(opts){
     stencilObject: false,
     cameraDirection: new THREE.Vector3(),
     cameraPosition: new THREE.Vector3(),
-    raycaster: new THREE.Raycaster()
+    raycaster: new THREE.Raycaster(),
+    isLocal: opts.isLocal,
+    isLens: false
   }
 
   // allow objects to flip between original and stencil position (which puts them behind stencilplane)
   const addStencilFeature = (n) => { 
     if( n.stencil ) return n // run once
     n.stencil = ( (pos,scale) => (sRef,newPos, newScale) => {
-        n.position.copy( sRef == 0 ? pos   : newPos )
-        if( sRef > 0 ) n.scale.multiply( newScale )
-        else           n.scale.copy( scale )
+        if( !mesh.portal.isLens ){
+          n.position.copy( sRef == 0 ? pos   : newPos )
+          if( sRef > 0 ) n.scale.multiply( newScale )
+          else           n.scale.copy( scale )
+          n.updateMatrixWorld(true)
+        }
         xrf.portalNonEuclidian.selectStencil(n, sRef )
-        n.updateMatrixWorld(true)
       }
     )( n.position.clone(), n.scale.clone() )
     return n
@@ -32,14 +35,22 @@ xrf.portalNonEuclidian = function(opts){
 
   this.setupStencilObjects = (scene,opts) => {
     // collect related objects to render inside stencilplane
-    let stencilObject         = opts.srcFrag.target ? scene.getObjectByName( opts.srcFrag.target.key ) : scene // strip #
+    let stencilObject         = scene 
+    if( opts.srcFrag.target ){
+      stencilObject = scene.getObjectByName( opts.srcFrag.target.key ) 
+      // scan if object is child of portal (then project lens)
+      mesh.traverse( (n) => n.name == opts.srcFrag.target.key && (stencilObject = n) && (mesh.portal.isLens = true) ) 
+    }
     if( !stencilObject ) return console.warn(`no objects were found (src:${mesh.userData.src}) for (portal)object name '${mesh.name}'`)
-    if( !opts.isLocal )  stencilObject.visible = false 
-    let stencilObjects = [mesh,stencilObject]
+    mesh.portal.stencilObject = stencilObject 
+
+    // spec: if src points to child, act as lens
+    if( !mesh.portal.isLocal || mesh.portal.isLens )  stencilObject.visible = false 
+
+    let stencilObjects = [stencilObject]
     stencilObjects = stencilObjects
                      .filter( (n) => !n.portal ) // filter out (self)references to portals (prevent recursion)
                      .map(addStencilFeature)
-    mesh.portal.stencilObject = stencilObject 
 
     //// add missing lights to make sure things get lit properly 
     xrf.scene.traverse( (n) => n.isLight && 
@@ -70,16 +81,8 @@ xrf.portalNonEuclidian = function(opts){
 
   this.setupListeners = () => {
 
-    mesh.onBeforeRender = function(renderer, scene, camera, geometry, material, group ){
-    }
-
     mesh.onAfterRender = function(renderer, scene, camera, geometry, material, group ){
-      mesh.portal.needUpdate = true
-    }
-
-    xrf.addEventListener('renderPost', (opts) => {
-      if( mesh.portal && mesh.portal.needUpdate && mesh.portal.stencilObjects ){  
-        let {scene,camera,time,render} = opts
+      if( mesh.portal && mesh.portal.stencilObjects ){  
         let stencilRef                 = mesh.portal.stencilRef
         let newPos                     = mesh.portal.posWorld
         let stencilObject              = mesh.portal.stencilObject
@@ -89,15 +92,14 @@ xrf.portalNonEuclidian = function(opts){
         let raycaster                  = mesh.portal.raycaster
 
         // init
-        if( !opts.isLocal ) stencilObject.visible = true 
+        if( !mesh.portal.isLocal || mesh.portal.isLens ) stencilObject.visible = true 
         mesh.portal.stencilObjects.traverse( (n) => showPortal(n,false) && n.stencil && n.stencil(stencilRef,newPos,newScale) )
         renderer.autoClear             = false 
-        renderer.clearDepth()
         // render
-        render( mesh.portal.stencilObjects, camera )
+        renderer.render( mesh.portal.stencilObjects, camera )
         // de-init 
         mesh.portal.stencilObjects.traverse( (n) =>  showPortal(n,true) && n.stencil && (n.stencil(0)) )
-        if( !opts.isLocal ) stencilObject.visible = false 
+        if( !mesh.portal.isLocal || mesh.portal.isLens ) stencilObject.visible = false 
 
 
         // trigger href upon camera collide
@@ -114,10 +116,8 @@ xrf.portalNonEuclidian = function(opts){
             setTimeout( () => mesh.portal.teleporting = false, 500) // dont flip back and forth
           }
         }
-
-        mesh.portal.needUpdate = false
       }
-    })
+    }
     return this
   }
 
@@ -126,6 +126,7 @@ xrf.portalNonEuclidian = function(opts){
   .portalNonEuclidian
   .setMaterial(mesh)
   .getWorldPosition(mesh.portal.posWorld)
+  mesh.portal.posWorld.y +=0.2
 
   this
   .setupListeners()
@@ -143,23 +144,23 @@ xrf.portalNonEuclidian.selectStencil = (n, stencilRef, nested) => {
 }
   
 xrf.portalNonEuclidian.setMaterial = function(mesh){
-  mesh.material = new xrf.THREE.MeshBasicMaterial({ color: 'white' });
+  mesh.material = new xrf.THREE.MeshBasicMaterial({ color: 'orange' });
   mesh.material.depthWrite   = false;
-  mesh.material.depthTest    = false;
   mesh.material.colorWrite   = false;
   mesh.material.stencilWrite = true;
   mesh.material.stencilRef   = xrf.portalNonEuclidian.stencilRef;
-  mesh.renderOrder           = 0;//xrf.portalNonEuclidian.stencilRef;
-  mesh.material.stencilFunc  = THREE.AlwaysStencilFunc;
-  mesh.material.stencilZPass = THREE.ReplaceStencilOp;
-  //mesh.material.stencilFail  = THREE.ReplaceStencilOp;
-  //mesh.material.stencilZFail = THREE.ReplaceStencilOp;
+  mesh.renderOrder           = 10;//xrf.portalNonEuclidian.stencilRef;
+  mesh.material.stencilFunc  = xrf.THREE.AlwaysStencilFunc;
+  mesh.material.stencilZPass = xrf.THREE.ReplaceStencilOp;
+  mesh.material.stencilZFail = xrf.THREE.ReplaceStencilOp;
+    //n.material.depthFunc    = stencilRef > 0 ? xrf.THREE.AlwaysDepth : xrf.THREE.LessEqualDepth
+  //mesh.material.depthTest    = false;
   return mesh
 }
 
 xrf.addEventListener('parseModel',(opts) => {
   const scene = opts.model.scene
-  scene.traverse( (n) => n.renderOrder = 10 ) // rendering everything *after* the stencil buffers
+  scene.traverse( (n) => n.renderOrder = 0 ) // rendering everything *after* the stencil buffers
 })
 
 
