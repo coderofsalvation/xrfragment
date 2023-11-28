@@ -64,15 +64,14 @@ window.AFRAME.registerComponent('xrf', {
 
         // in order to set the rotation programmatically
         // we need to disable look-controls
-        xrf.rot  = (xrf,v,opts) => {
-          let {frag,renderer} = opts;
-          if( frag.q ) return // camera was not targeted for rotation 
-          let look = document.querySelector('[look-controls]')
-          if( look ) look.removeAttribute("look-controls")
-          // *TODO* make look-controls compatible, because simply
-          // adding the look-controls will revert to the old rotation (cached somehow?)
-          //setTimeout( () => look.setAttribute("look-controls",""), 100 )
-        }
+        //xrf.rot  = (xrf,v,opts) => {
+        //  let {frag,renderer} = opts;
+        //  //let look = document.querySelector('[look-controls]')
+        //  //if( look ) look.removeAttribute("look-controls")
+        //  // *TODO* make look-controls compatible, because simply
+        //  // adding the look-controls will revert to the old rotation (cached somehow?)
+        //  //setTimeout( () => look.setAttribute("look-controls",""), 100 )
+        //}
 
         // convert href's to a-entity's so AFRAME
         // raycaster can find & execute it

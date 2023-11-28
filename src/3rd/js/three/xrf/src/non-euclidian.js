@@ -38,7 +38,7 @@ xrf.portalNonEuclidian = function(opts){
     let stencilObject         = scene 
     if( opts.srcFrag.target ){
       stencilObject = scene.getObjectByName( opts.srcFrag.target.key ) 
-      // scan if object is child of portal (then project lens)
+      // spec: if src-object is child of portal (then portal is lens, and should include all children )
       mesh.traverse( (n) => n.name == opts.srcFrag.target.key && (stencilObject = n) && (mesh.portal.isLens = true) ) 
     }
     if( !stencilObject ) return console.warn(`no objects were found (src:${mesh.userData.src}) for (portal)object name '${mesh.name}'`)
@@ -69,6 +69,10 @@ xrf.portalNonEuclidian = function(opts){
     setTimeout( (mesh) => {
       if( mesh.material ) mesh.material = mesh.material.clone() // clone, so we can individually highlight meshes
     }, 0, mesh )
+  
+    
+    // spec: increase height of portal(object) floor so it won't get rendererd under the current floor
+    mesh.portal.posWorld.y +=0.1
 
     return this
   }
@@ -90,6 +94,10 @@ xrf.portalNonEuclidian = function(opts){
         let cameraDirection            = mesh.portal.cameraDirection
         let cameraPosition             = mesh.portal.cameraPosition
         let raycaster                  = mesh.portal.raycaster
+        let cam = xrf.camera.getCam ? xrf.camera.getCam() : camera
+        cam.getWorldPosition(cameraPosition)
+        if( cameraPosition.distanceTo(newPos) > 20.0 ) return // dont render far portals 
+        cam.getWorldDirection(cameraDirection)
 
         // init
         if( !mesh.portal.isLocal || mesh.portal.isLens ) stencilObject.visible = true 
@@ -105,9 +113,6 @@ xrf.portalNonEuclidian = function(opts){
         // trigger href upon camera collide
         if( mesh.userData.XRF.href ){
           raycaster.far = 0.35
-          let cam = xrf.camera.getCam ? xrf.camera.getCam() : camera
-          cam.getWorldPosition(cameraPosition)
-          cam.getWorldDirection(cameraDirection)
           raycaster.set(cameraPosition, cameraDirection )
           intersects = raycaster.intersectObjects([mesh], false)
           if (intersects.length > 0 && !mesh.portal.teleporting ){
@@ -126,7 +131,6 @@ xrf.portalNonEuclidian = function(opts){
   .portalNonEuclidian
   .setMaterial(mesh)
   .getWorldPosition(mesh.portal.posWorld)
-  mesh.portal.posWorld.y +=0.2
 
   this
   .setupListeners()

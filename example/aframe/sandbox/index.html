@@ -31,8 +31,8 @@
     <canvas id="qrcode" style="display:none" width="300" height="300"></canvas>
 
     <a-scene renderer="colorManagement: true; highRefreshRate:true" light="defaultLightsEnabled: false">
-      <a-entity id="player" wasd-controls look-controls>
-        <a-entity camera="fov:90" position="0 1.6 0" id="camera"></a-entity>
+      <a-entity id="player">
+        <a-entity camera="fov:90" position="0 1.6 0" wasd-controls look-controls id="camera"></a-entity>
         <a-entity id="left-hand"  laser-controls="hand: left" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: #floor">
           <a-entity rotation="-35 0 0" position="0 0.1 0" id="navigator"> 
             <a-entity id="back" xrf-button="label: <; width:0.05; action: history.back()"    position="-0.025 0 0" class="ray"></a-entity>
