@@ -41,6 +41,7 @@ xrf.portalNonEuclidian = function(opts){
       // spec: if src-object is child of portal (then portal is lens, and should include all children )
       mesh.traverse( (n) => n.name == opts.srcFrag.target.key && (stencilObject = n) && (mesh.portal.isLens = true) ) 
     }
+
     if( !stencilObject ) return console.warn(`no objects were found (src:${mesh.userData.src}) for (portal)object name '${mesh.name}'`)
     mesh.portal.stencilObject = stencilObject 
 
@@ -86,6 +87,12 @@ xrf.portalNonEuclidian = function(opts){
   this.setupListeners = () => {
 
     mesh.onAfterRender = function(renderer, scene, camera, geometry, material, group ){
+      mesh.portal.needUpdate = true
+    }
+
+    xrf.addEventListener('renderPost', (opts) => {
+      let {scene,camera,time,render,renderer} = opts
+
       if( mesh.portal && mesh.portal.stencilObjects ){  
         let stencilRef                 = mesh.portal.stencilRef
         let newPos                     = mesh.portal.posWorld
@@ -103,9 +110,16 @@ xrf.portalNonEuclidian = function(opts){
         if( !mesh.portal.isLocal || mesh.portal.isLens ) stencilObject.visible = true 
         mesh.portal.stencilObjects.traverse( (n) => showPortal(n,false) && n.stencil && n.stencil(stencilRef,newPos,newScale) )
         renderer.autoClear             = false 
+        renderer.autoClearDepth        = false 
+        renderer.autoClearColor        = false 
+        renderer.autoClearStencil      = false 
         // render
-        renderer.render( mesh.portal.stencilObjects, camera )
+        render( mesh.portal.stencilObjects, camera )
         // de-init 
+        renderer.autoClear             = true 
+        renderer.autoClearDepth        = true 
+        renderer.autoClearColor        = true 
+        renderer.autoClearStencil      = true 
         mesh.portal.stencilObjects.traverse( (n) =>  showPortal(n,true) && n.stencil && (n.stencil(0)) )
         if( !mesh.portal.isLocal || mesh.portal.isLens ) stencilObject.visible = false 
 
@@ -122,7 +136,8 @@ xrf.portalNonEuclidian = function(opts){
           }
         }
       }
-    }
+      mesh.portal.needUpdate = false
+    })
     return this
   }
 
@@ -153,7 +168,7 @@ xrf.portalNonEuclidian.setMaterial = function(mesh){
   mesh.material.colorWrite   = false;
   mesh.material.stencilWrite = true;
   mesh.material.stencilRef   = xrf.portalNonEuclidian.stencilRef;
-  mesh.renderOrder           = 10;//xrf.portalNonEuclidian.stencilRef;
+ // mesh.renderOrder           = 0;//xrf.portalNonEuclidian.stencilRef;
   mesh.material.stencilFunc  = xrf.THREE.AlwaysStencilFunc;
   mesh.material.stencilZPass = xrf.THREE.ReplaceStencilOp;
   mesh.material.stencilZFail = xrf.THREE.ReplaceStencilOp;
@@ -164,7 +179,7 @@ xrf.portalNonEuclidian.setMaterial = function(mesh){
 
 xrf.addEventListener('parseModel',(opts) => {
   const scene = opts.model.scene
-  scene.traverse( (n) => n.renderOrder = 0 ) // rendering everything *after* the stencil buffers
+ // scene.traverse( (n) => n.renderOrder = 10 ) // rendering everything *after* the stencil buffers
 })
 
 

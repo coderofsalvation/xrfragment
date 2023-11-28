@@ -63,7 +63,7 @@ class EReg:
     _hx_class_name = "EReg"
     __slots__ = ("pattern", "matchObj", "_hx_global")
     _hx_fields = ["pattern", "matchObj", "global"]
-    _hx_methods = ["split"]
+    _hx_methods = ["split", "replace"]
 
     def __init__(self,r,opt):
         self.matchObj = None
@@ -107,12 +107,35 @@ class EReg:
             else:
                 return [HxString.substring(s,0,self.matchObj.start()), HxString.substr(s,self.matchObj.end(),None)]
 
+    def replace(self,s,by):
+        _this = by.split("$$")
+        by = "_hx_#repl#__".join([python_Boot.toString1(x1,'') for x1 in _this])
+        def _hx_local_0(x):
+            res = by
+            g = x.groups()
+            _g = 0
+            _g1 = len(g)
+            while (_g < _g1):
+                i = _g
+                _g = (_g + 1)
+                gs = g[i]
+                if (gs is None):
+                    continue
+                delimiter = ("$" + HxOverrides.stringOrNull(str((i + 1))))
+                _this = (list(res) if ((delimiter == "")) else res.split(delimiter))
+                res = gs.join([python_Boot.toString1(x1,'') for x1 in _this])
+            _this = res.split("_hx_#repl#__")
+            res = "$".join([python_Boot.toString1(x1,'') for x1 in _this])
+            return res
+        replace = _hx_local_0
+        return python_lib_Re.sub(self.pattern,replace,s,(0 if (self._hx_global) else 1))
+
 
 
 class Reflect:
     _hx_class_name = "Reflect"
     __slots__ = ()
-    _hx_statics = ["field", "deleteField"]
+    _hx_statics = ["field", "deleteField", "copy"]
 
     @staticmethod
     def field(o,field):
@@ -128,6 +151,20 @@ class Reflect:
             return False
         o.__delattr__(field)
         return True
+
+    @staticmethod
+    def copy(o):
+        if (o is None):
+            return None
+        o2 = _hx_AnonObject({})
+        _g = 0
+        _g1 = python_Boot.fields(o)
+        while (_g < len(_g1)):
+            f = (_g1[_g] if _g >= 0 and _g < len(_g1) else None)
+            _g = (_g + 1)
+            value = Reflect.field(o,f)
+            setattr(o2,(("_hx_" + f) if ((f in python_Boot.keywords)) else (("_hx_" + f) if (((((len(f) > 2) and ((ord(f[0]) == 95))) and ((ord(f[1]) == 95))) and ((ord(f[(len(f) - 1)]) != 95)))) else f)),value)
+        return o2
 
 
 class Std:
@@ -984,7 +1021,11 @@ class python_HaxeIterator:
 class python_internal_ArrayImpl:
     _hx_class_name = "python.internal.ArrayImpl"
     __slots__ = ()
-    _hx_statics = ["concat", "copy", "iterator", "keyValueIterator", "indexOf", "lastIndexOf", "join", "toString", "pop", "push", "unshift", "remove", "contains", "shift", "slice", "sort", "splice", "map", "filter", "insert", "reverse", "_get"]
+    _hx_statics = ["get_length", "concat", "copy", "iterator", "keyValueIterator", "indexOf", "lastIndexOf", "join", "toString", "pop", "push", "unshift", "remove", "contains", "shift", "slice", "sort", "splice", "map", "filter", "insert", "reverse", "_get"]
+
+    @staticmethod
+    def get_length(x):
+        return len(x)
 
     @staticmethod
     def concat(a1,a2):
@@ -1120,7 +1161,7 @@ class python_internal_ArrayImpl:
 class HxOverrides:
     _hx_class_name = "HxOverrides"
     __slots__ = ()
-    _hx_statics = ["eq", "stringOrNull", "push", "arrayGet"]
+    _hx_statics = ["eq", "stringOrNull", "length", "arrayGet"]
 
     @staticmethod
     def eq(a,b):
@@ -1136,12 +1177,12 @@ class HxOverrides:
             return s
 
     @staticmethod
-    def push(x,e):
-        if isinstance(x,list):
-            _this = x
-            _this.append(e)
-            return len(_this)
-        return x.push(e)
+    def length(x):
+        if isinstance(x,str):
+            return len(x)
+        elif isinstance(x,list):
+            return len(x)
+        return x.length
 
     @staticmethod
     def arrayGet(a,i):
@@ -1173,7 +1214,7 @@ class python_internal_MethodClosure:
 class HxString:
     _hx_class_name = "HxString"
     __slots__ = ()
-    _hx_statics = ["split", "charCodeAt", "charAt", "lastIndexOf", "toUpperCase", "toLowerCase", "indexOf", "indexOfImpl", "toString", "substring", "substr"]
+    _hx_statics = ["split", "charCodeAt", "charAt", "lastIndexOf", "toUpperCase", "toLowerCase", "indexOf", "indexOfImpl", "toString", "get_length", "substring", "substr"]
 
     @staticmethod
     def split(s,d):
@@ -1253,6 +1294,10 @@ class HxString:
         return s
 
     @staticmethod
+    def get_length(s):
+        return len(s)
+
+    @staticmethod
     def substring(s,startIndex,endIndex = None):
         if (startIndex < 0):
             startIndex = 0
@@ -1280,156 +1325,73 @@ class HxString:
             return s[startIndex:(startIndex + _hx_len)]
 
 
-class xrfragment_Parser:
-    _hx_class_name = "xrfragment.Parser"
-    __slots__ = ()
-    _hx_statics = ["error", "debug", "parse"]
-
-    @staticmethod
-    def parse(key,value,store):
-        Frag = haxe_ds_StringMap()
-        Frag.h["#"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.T_PREDEFINED_VIEW) | xrfragment_XRF.PV_EXECUTE)
-        Frag.h["prio"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_INT)
-        Frag.h["src"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_URL)
-        Frag.h["href"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.T_URL) | xrfragment_XRF.T_PREDEFINED_VIEW)
-        Frag.h["tag"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
-        Frag.h["pos"] = ((((xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.T_STRING_OBJ) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
-        Frag.h["q"] = ((xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING) | xrfragment_XRF.METADATA)
-        Frag.h["scale"] = (((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA)
-        Frag.h["rot"] = ((((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
-        Frag.h["mov"] = (((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA)
-        Frag.h["show"] = (((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_INT) | xrfragment_XRF.METADATA)
-        Frag.h["env"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_STRING) | xrfragment_XRF.METADATA)
-        Frag.h["t"] = ((((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_FLOAT) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.T_STRING) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
-        Frag.h["tv"] = ((((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_FLOAT) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
-        Frag.h["gravity"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA)
-        Frag.h["physics"] = (((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA)
-        Frag.h["fov"] = ((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_INT) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
-        Frag.h["clip"] = ((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
-        Frag.h["fog"] = ((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
-        Frag.h["bg"] = ((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
-        Frag.h["namespace"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
-        Frag.h["SPDX"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
-        Frag.h["unit"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
-        Frag.h["description"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
-        Frag.h["session"] = (((((xrfragment_XRF.ASSET | xrfragment_XRF.T_URL) | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA) | xrfragment_XRF.PROMPT)
-        isPVDynamic = (((len(value) == 0) and ((len(key) > 0))) and (not (key in Frag.h)))
-        isPVDefault = (((len(value) == 0) and ((len(key) > 0))) and ((key == "#")))
-        if isPVDynamic:
-            v = xrfragment_XRF(key,(xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR))
-            v.validate(key)
-            setattr(store,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),v)
-            return True
-        v = xrfragment_XRF(key,Frag.h.get(key,None))
-        if (key in Frag.h):
-            if (not v.validate(value)):
-                print(str((((("⚠ fragment '" + ("null" if key is None else key)) + "' has incompatible value (") + ("null" if value is None else value)) + ")")))
-                return False
-            setattr(store,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),v)
-            if xrfragment_Parser.debug:
-                print(str(((("✔ " + ("null" if key is None else key)) + ": ") + HxOverrides.stringOrNull(v.string))))
-        else:
-            if Std.isOfType(value,str):
-                v.guessType(v,value)
-            v.noXRF = True
-            setattr(store,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),v)
-        return True
-
-
-class xrfragment_Query:
-    _hx_class_name = "xrfragment.Query"
-    __slots__ = ("str", "q", "isProp", "isExclude", "isRoot", "isNumber")
-    _hx_fields = ["str", "q", "isProp", "isExclude", "isRoot", "isNumber"]
+class xrfragment_Filter:
+    _hx_class_name = "xrfragment.Filter"
+    __slots__ = ("str", "q")
+    _hx_fields = ["str", "q"]
     _hx_methods = ["toObject", "get", "parse", "test", "testProperty"]
 
     def __init__(self,_hx_str):
-        self.isNumber = EReg("^[0-9\\.]+$","")
-        self.isRoot = EReg("^[-]?/","")
-        self.isExclude = EReg("^-","")
-        self.isProp = EReg("^.*:[><=!]?","")
         self.q = _hx_AnonObject({})
         self.str = ""
         if (_hx_str is not None):
             self.parse(_hx_str)
 
     def toObject(self):
-        return self.q
+        return Reflect.copy(self.q)
 
     def get(self):
-        return self.q
+        return Reflect.copy(self.q)
 
     def parse(self,_hx_str):
-        _gthis = self
         token = _hx_str.split(" ")
         q = _hx_AnonObject({})
         def _hx_local_0(_hx_str,prefix = None):
             if (prefix is None):
                 prefix = ""
             _hx_str = StringTools.trim(_hx_str)
-            k = HxOverrides.arrayGet(_hx_str.split(":"), 0)
-            v = HxOverrides.arrayGet(_hx_str.split(":"), 1)
+            k = HxOverrides.arrayGet(_hx_str.split("="), 0)
+            v = HxOverrides.arrayGet(_hx_str.split("="), 1)
             _hx_filter = _hx_AnonObject({})
             if Reflect.field(q,(("null" if prefix is None else prefix) + ("null" if k is None else k))):
                 _hx_filter = Reflect.field(q,(("null" if prefix is None else prefix) + ("null" if k is None else k)))
-            value = (Reflect.field(_hx_filter,"rules") if ((Reflect.field(_hx_filter,"rules") is not None)) else list())
-            setattr(_hx_filter,(("_hx_" + "rules") if (("rules" in python_Boot.keywords)) else (("_hx_" + "rules") if (((((len("rules") > 2) and ((ord("rules"[0]) == 95))) and ((ord("rules"[1]) == 95))) and ((ord("rules"[(len("rules") - 1)]) != 95)))) else "rules")),value)
-            _this = _gthis.isProp
+            _this = xrfragment_XRF.isProp
             _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
             if (_this.matchObj is not None):
                 oper = ""
-                startIndex = None
-                if (((_hx_str.find("*") if ((startIndex is None)) else HxString.indexOfImpl(_hx_str,"*",startIndex))) != -1):
-                    oper = "*"
                 startIndex = None
                 if (((_hx_str.find(">") if ((startIndex is None)) else HxString.indexOfImpl(_hx_str,">",startIndex))) != -1):
                     oper = ">"
                 startIndex = None
                 if (((_hx_str.find("<") if ((startIndex is None)) else HxString.indexOfImpl(_hx_str,"<",startIndex))) != -1):
                     oper = "<"
-                startIndex = None
-                if (((_hx_str.find(">=") if ((startIndex is None)) else HxString.indexOfImpl(_hx_str,">=",startIndex))) != -1):
-                    oper = ">="
-                startIndex = None
-                if (((_hx_str.find("<=") if ((startIndex is None)) else HxString.indexOfImpl(_hx_str,"<=",startIndex))) != -1):
-                    oper = "<="
-                _this = _gthis.isExclude
+                _this = xrfragment_XRF.isExclude
                 _this.matchObj = python_lib_Re.search(_this.pattern,k)
                 if (_this.matchObj is not None):
-                    oper = "!="
                     k = HxString.substr(k,1,None)
-                else:
-                    v = HxString.substr(v,len(oper),None)
+                v = HxString.substr(v,len(oper),None)
                 if (len(oper) == 0):
                     oper = "="
                 rule = _hx_AnonObject({})
-                _this = _gthis.isNumber
+                _this = xrfragment_XRF.isNumber
                 _this.matchObj = python_lib_Re.search(_this.pattern,v)
                 if (_this.matchObj is not None):
                     value = Std.parseFloat(v)
                     setattr(rule,(("_hx_" + oper) if ((oper in python_Boot.keywords)) else (("_hx_" + oper) if (((((len(oper) > 2) and ((ord(oper[0]) == 95))) and ((ord(oper[1]) == 95))) and ((ord(oper[(len(oper) - 1)]) != 95)))) else oper)),value)
                 else:
                     setattr(rule,(("_hx_" + oper) if ((oper in python_Boot.keywords)) else (("_hx_" + oper) if (((((len(oper) > 2) and ((ord(oper[0]) == 95))) and ((ord(oper[1]) == 95))) and ((ord(oper[(len(oper) - 1)]) != 95)))) else oper)),v)
-                Reflect.field(Reflect.field(_hx_filter,"rules"),"push")(rule)
-                setattr(q,(("_hx_" + k) if ((k in python_Boot.keywords)) else (("_hx_" + k) if (((((len(k) > 2) and ((ord(k[0]) == 95))) and ((ord(k[1]) == 95))) and ((ord(k[(len(k) - 1)]) != 95)))) else k)),_hx_filter)
-                return
-            else:
-                _this = _gthis.isExclude
-                _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
-                value = (False if ((_this.matchObj is not None)) else True)
-                setattr(_hx_filter,(("_hx_" + "id") if (("id" in python_Boot.keywords)) else (("_hx_" + "id") if (((((len("id") > 2) and ((ord("id"[0]) == 95))) and ((ord("id"[1]) == 95))) and ((ord("id"[(len("id") - 1)]) != 95)))) else "id")),value)
-                _this = _gthis.isRoot
-                _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
-                value = (_this.matchObj is not None)
-                setattr(_hx_filter,(("_hx_" + "root") if (("root" in python_Boot.keywords)) else (("_hx_" + "root") if (((((len("root") > 2) and ((ord("root"[0]) == 95))) and ((ord("root"[1]) == 95))) and ((ord("root"[(len("root") - 1)]) != 95)))) else "root")),value)
-                _this = _gthis.isExclude
-                _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
-                if (_this.matchObj is not None):
-                    _hx_str = HxString.substr(_hx_str,1,None)
-                _this = _gthis.isRoot
-                _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
-                if (_this.matchObj is not None):
-                    _hx_str = HxString.substr(_hx_str,1,None)
-                setattr(q,(("_hx_" + _hx_str) if ((_hx_str in python_Boot.keywords)) else (("_hx_" + _hx_str) if (((((len(_hx_str) > 2) and ((ord(_hx_str[0]) == 95))) and ((ord(_hx_str[1]) == 95))) and ((ord(_hx_str[(len(_hx_str) - 1)]) != 95)))) else _hx_str)),_hx_filter)
+                setattr(q,(("_hx_" + "expr") if (("expr" in python_Boot.keywords)) else (("_hx_" + "expr") if (((((len("expr") > 2) and ((ord("expr"[0]) == 95))) and ((ord("expr"[1]) == 95))) and ((ord("expr"[(len("expr") - 1)]) != 95)))) else "expr")),rule)
+            _this = xrfragment_XRF.isDeep
+            _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+            value = ((Reflect.field(k.split("*"),"length") - 1) if ((_this.matchObj is not None)) else 0)
+            setattr(q,(("_hx_" + "deep") if (("deep" in python_Boot.keywords)) else (("_hx_" + "deep") if (((((len("deep") > 2) and ((ord("deep"[0]) == 95))) and ((ord("deep"[1]) == 95))) and ((ord("deep"[(len("deep") - 1)]) != 95)))) else "deep")),value)
+            _this = xrfragment_XRF.isExclude
+            _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+            value = (False if ((_this.matchObj is not None)) else True)
+            setattr(q,(("_hx_" + "show") if (("show" in python_Boot.keywords)) else (("_hx_" + "show") if (((((len("show") > 2) and ((ord("show"[0]) == 95))) and ((ord("show"[1]) == 95))) and ((ord("show"[(len("show") - 1)]) != 95)))) else "show")),value)
+            value = xrfragment_XRF.operators.replace(k,"")
+            setattr(q,(("_hx_" + "key") if (("key" in python_Boot.keywords)) else (("_hx_" + "key") if (((((len("key") > 2) and ((ord("key"[0]) == 95))) and ((ord("key"[1]) == 95))) and ((ord("key"[(len("key") - 1)]) != 95)))) else "key")),value)
+            setattr(q,(("_hx_" + "value") if (("value" in python_Boot.keywords)) else (("_hx_" + "value") if (((((len("value") > 2) and ((ord("value"[0]) == 95))) and ((ord("value"[1]) == 95))) and ((ord("value"[(len("value") - 1)]) != 95)))) else "value")),v)
         process = _hx_local_0
         _g = 0
         _g1 = len(token)
@@ -1479,37 +1441,67 @@ class xrfragment_Query:
             v = Reflect.field(self.q,value)
             if (Reflect.field(v,property) is not None):
                 return Reflect.field(v,property)
-        _g = 0
-        _g1 = python_Boot.fields(self.q)
-        while (_g < len(_g1)):
-            k = (_g1[_g] if _g >= 0 and _g < len(_g1) else None)
-            _g = (_g + 1)
-            _hx_filter = Reflect.field(self.q,k)
-            if (Reflect.field(_hx_filter,"rules") is None):
-                continue
-            rules = Reflect.field(_hx_filter,"rules")
-            _g2 = 0
-            while (_g2 < len(rules)):
-                rule = (rules[_g2] if _g2 >= 0 and _g2 < len(rules) else None)
-                _g2 = (_g2 + 1)
-                if exclude:
-                    if (((Reflect.field(rule,"!=") is not None) and testprop((Std.string(value) == Std.string(Reflect.field(rule,"!="))))) and exclude):
-                        qualify = (qualify + 1)
-                else:
-                    if ((Reflect.field(rule,"*") is not None) and testprop((Std.parseFloat(value) is not None))):
-                        qualify = (qualify + 1)
-                    if ((Reflect.field(rule,">") is not None) and testprop((Std.parseFloat(value) > Std.parseFloat(Reflect.field(rule,">"))))):
-                        qualify = (qualify + 1)
-                    if ((Reflect.field(rule,"<") is not None) and testprop((Std.parseFloat(value) < Std.parseFloat(Reflect.field(rule,"<"))))):
-                        qualify = (qualify + 1)
-                    if ((Reflect.field(rule,">=") is not None) and testprop((Std.parseFloat(value) >= Std.parseFloat(Reflect.field(rule,">="))))):
-                        qualify = (qualify + 1)
-                    if ((Reflect.field(rule,"<=") is not None) and testprop((Std.parseFloat(value) <= Std.parseFloat(Reflect.field(rule,"<="))))):
-                        qualify = (qualify + 1)
-                    if ((Reflect.field(rule,"=") is not None) and ((testprop((value == Reflect.field(rule,"="))) or testprop((Std.parseFloat(value) == Std.parseFloat(Reflect.field(rule,"="))))))):
-                        qualify = (qualify + 1)
+        if Reflect.field(self.q,"expr"):
+            f = Reflect.field(self.q,"expr")
+            if (not Reflect.field(self.q,"show")):
+                if (((Reflect.field(f,"!=") is not None) and testprop((Std.string(value) == Std.string(Reflect.field(f,"!="))))) and exclude):
+                    qualify = (qualify + 1)
+            else:
+                if ((Reflect.field(f,"*") is not None) and testprop((Std.parseFloat(value) is not None))):
+                    qualify = (qualify + 1)
+                if ((Reflect.field(f,">") is not None) and testprop((Std.parseFloat(value) >= Std.parseFloat(Reflect.field(f,">"))))):
+                    qualify = (qualify + 1)
+                if ((Reflect.field(f,"<") is not None) and testprop((Std.parseFloat(value) <= Std.parseFloat(Reflect.field(f,"<"))))):
+                    qualify = (qualify + 1)
+                if ((Reflect.field(f,"=") is not None) and ((testprop((value == Reflect.field(f,"="))) or testprop((Std.parseFloat(value) == Std.parseFloat(Reflect.field(f,"="))))))):
+                    qualify = (qualify + 1)
         return (qualify > 0)
 
+
+
+class xrfragment_Parser:
+    _hx_class_name = "xrfragment.Parser"
+    __slots__ = ()
+    _hx_statics = ["error", "debug", "parse"]
+
+    @staticmethod
+    def parse(key,value,store,index = None):
+        Frag = haxe_ds_StringMap()
+        Frag.h["#"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.T_PREDEFINED_VIEW) | xrfragment_XRF.PV_EXECUTE)
+        Frag.h["src"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_URL)
+        Frag.h["href"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.T_URL) | xrfragment_XRF.T_PREDEFINED_VIEW)
+        Frag.h["tag"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
+        Frag.h["pos"] = (((((xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.T_STRING) | xrfragment_XRF.T_STRING_OBJ) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
+        Frag.h["rot"] = ((((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
+        Frag.h["t"] = ((((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_FLOAT) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.T_STRING) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
+        Frag.h["tv"] = ((((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_FLOAT) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
+        Frag.h["namespace"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
+        Frag.h["SPDX"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
+        Frag.h["unit"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
+        Frag.h["description"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
+        Frag.h["session"] = (((((xrfragment_XRF.ASSET | xrfragment_XRF.T_URL) | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA) | xrfragment_XRF.PROMPT)
+        keyStripped = xrfragment_XRF.operators.replace(key,"")
+        isPVDynamic = ((len(key) > 0) and (not (key in Frag.h)))
+        isPVDefault = (((len(value) == 0) and ((len(key) > 0))) and ((key == "#")))
+        if isPVDynamic:
+            v = xrfragment_XRF(key,(xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR),index)
+            v.validate(value)
+            setattr(store,(("_hx_" + keyStripped) if ((keyStripped in python_Boot.keywords)) else (("_hx_" + keyStripped) if (((((len(keyStripped) > 2) and ((ord(keyStripped[0]) == 95))) and ((ord(keyStripped[1]) == 95))) and ((ord(keyStripped[(len(keyStripped) - 1)]) != 95)))) else keyStripped)),v)
+            return True
+        v = xrfragment_XRF(key,Frag.h.get(key,None),index)
+        if (key in Frag.h):
+            if (not v.validate(value)):
+                print(str((((("⚠ fragment '" + ("null" if key is None else key)) + "' has incompatible value (") + ("null" if value is None else value)) + ")")))
+                return False
+            setattr(store,(("_hx_" + keyStripped) if ((keyStripped in python_Boot.keywords)) else (("_hx_" + keyStripped) if (((((len(keyStripped) > 2) and ((ord(keyStripped[0]) == 95))) and ((ord(keyStripped[1]) == 95))) and ((ord(keyStripped[(len(keyStripped) - 1)]) != 95)))) else keyStripped)),v)
+            if xrfragment_Parser.debug:
+                print(str(((("✔ " + ("null" if key is None else key)) + ": ") + HxOverrides.stringOrNull(v.string))))
+        else:
+            if Std.isOfType(value,str):
+                v.guessType(v,value)
+            v.noXRF = True
+            setattr(store,(("_hx_" + keyStripped) if ((keyStripped in python_Boot.keywords)) else (("_hx_" + keyStripped) if (((((len(keyStripped) > 2) and ((ord(keyStripped[0]) == 95))) and ((ord(keyStripped[1]) == 95))) and ((ord(keyStripped[(len(keyStripped) - 1)]) != 95)))) else keyStripped)),v)
+        return True
 
 
 class xrfragment_URI:
@@ -1544,7 +1536,7 @@ class xrfragment_URI:
             if (len(splitByEqual) > 1):
                 _this1 = regexPlus.split((splitByEqual[1] if 1 < len(splitByEqual) else None))
                 value = python_lib_urllib_Parse.unquote(" ".join([python_Boot.toString1(x1,'') for x1 in _this1]))
-            ok = xrfragment_Parser.parse(key,value,store)
+            ok = xrfragment_Parser.parse(key,value,store,i)
         if ((_hx_filter is not None) and ((_hx_filter != 0))):
             _g = 0
             _g1 = python_Boot.fields(store)
@@ -1559,14 +1551,14 @@ class xrfragment_URI:
 
 class xrfragment_XRF:
     _hx_class_name = "xrfragment.XRF"
-    __slots__ = ("fragment", "flags", "x", "y", "z", "w", "color", "string", "int", "float", "query", "noXRF")
-    _hx_fields = ["fragment", "flags", "x", "y", "z", "w", "color", "string", "int", "float", "query", "noXRF"]
+    __slots__ = ("fragment", "flags", "index", "x", "y", "z", "w", "color", "string", "int", "float", "filter", "noXRF")
+    _hx_fields = ["fragment", "flags", "index", "x", "y", "z", "w", "color", "string", "int", "float", "filter", "noXRF"]
     _hx_methods = ["is", "validate", "guessType"]
-    _hx_statics = ["ASSET", "PROP_BIND", "QUERY_OPERATOR", "PROMPT", "ROUNDROBIN", "NAVIGATOR", "METADATA", "PV_OVERRIDE", "PV_EXECUTE", "T_COLOR", "T_INT", "T_FLOAT", "T_VECTOR2", "T_VECTOR3", "T_URL", "T_PREDEFINED_VIEW", "T_STRING", "T_STRING_OBJ", "T_STRING_OBJ_PROP", "isColor", "isInt", "isFloat", "isVector", "isUrl", "isUrlOrPretypedView", "isString", "set", "unset"]
+    _hx_statics = ["ASSET", "PROP_BIND", "QUERY_OPERATOR", "PROMPT", "ROUNDROBIN", "NAVIGATOR", "METADATA", "PV_OVERRIDE", "PV_EXECUTE", "T_COLOR", "T_INT", "T_FLOAT", "T_VECTOR2", "T_VECTOR3", "T_URL", "T_PREDEFINED_VIEW", "T_STRING", "T_STRING_OBJ", "T_STRING_OBJ_PROP", "isColor", "isInt", "isFloat", "isVector", "isUrl", "isUrlOrPretypedView", "isString", "operators", "isProp", "isExclude", "isDeep", "isNumber", "set", "unset"]
 
-    def __init__(self,_fragment,_flags):
+    def __init__(self,_fragment,_flags,_index = None):
         self.noXRF = None
-        self.query = None
+        self.filter = None
         self.float = None
         self.int = None
         self.string = None
@@ -1577,6 +1569,7 @@ class xrfragment_XRF:
         self.x = None
         self.fragment = _fragment
         self.flags = _flags
+        self.index = _index
 
     def _hx_is(self,flag):
         if (not Std.isOfType(self.flags,Int)):
@@ -1585,41 +1578,45 @@ class xrfragment_XRF:
 
     def validate(self,value):
         self.guessType(self,value)
-        if (self.fragment == "q"):
-            self.query = xrfragment_Query(value).get()
         ok = True
         if (((not self._hx_is(xrfragment_XRF.T_FLOAT)) and self._hx_is(xrfragment_XRF.T_VECTOR2)) and (not ((Std.isOfType(self.x,Float) and Std.isOfType(self.y,Float))))):
             ok = False
-        if (((not self._hx_is(xrfragment_XRF.T_VECTOR2)) and self._hx_is(xrfragment_XRF.T_VECTOR3)) and (not (((Std.isOfType(self.x,Float) and Std.isOfType(self.y,Float)) and Std.isOfType(self.z,Float))))):
+        if (((not ((self._hx_is(xrfragment_XRF.T_VECTOR2) or self._hx_is(xrfragment_XRF.T_STRING)))) and self._hx_is(xrfragment_XRF.T_VECTOR3)) and (not (((Std.isOfType(self.x,Float) and Std.isOfType(self.y,Float)) and Std.isOfType(self.z,Float))))):
             ok = False
         return ok
 
     def guessType(self,v,_hx_str):
         v.string = _hx_str
-        if (len(_hx_str.split(",")) > 1):
-            xyzw = _hx_str.split(",")
-            if (len(xyzw) > 0):
-                v.x = Std.parseFloat((xyzw[0] if 0 < len(xyzw) else None))
-            if (len(xyzw) > 1):
-                v.y = Std.parseFloat((xyzw[1] if 1 < len(xyzw) else None))
-            if (len(xyzw) > 2):
-                v.z = Std.parseFloat((xyzw[2] if 2 < len(xyzw) else None))
-            if (len(xyzw) > 3):
-                v.w = Std.parseFloat((xyzw[3] if 3 < len(xyzw) else None))
-        _this = xrfragment_XRF.isColor
-        _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
-        if (_this.matchObj is not None):
-            v.color = _hx_str
-        _this = xrfragment_XRF.isFloat
-        _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
-        if (_this.matchObj is not None):
-            v.x = Std.parseFloat(_hx_str)
-            v.float = v.x
-        _this = xrfragment_XRF.isInt
-        _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
-        if (_this.matchObj is not None):
-            v.int = Std.parseInt(_hx_str)
-            v.x = v.int
+        if (not Std.isOfType(_hx_str,str)):
+            return
+        if (len(_hx_str) > 0):
+            if (len(_hx_str.split(",")) > 1):
+                xyzw = _hx_str.split(",")
+                if (len(xyzw) > 0):
+                    v.x = Std.parseFloat((xyzw[0] if 0 < len(xyzw) else None))
+                if (len(xyzw) > 1):
+                    v.y = Std.parseFloat((xyzw[1] if 1 < len(xyzw) else None))
+                if (len(xyzw) > 2):
+                    v.z = Std.parseFloat((xyzw[2] if 2 < len(xyzw) else None))
+                if (len(xyzw) > 3):
+                    v.w = Std.parseFloat((xyzw[3] if 3 < len(xyzw) else None))
+            _this = xrfragment_XRF.isColor
+            _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+            if (_this.matchObj is not None):
+                v.color = _hx_str
+            _this = xrfragment_XRF.isFloat
+            _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+            if (_this.matchObj is not None):
+                v.x = Std.parseFloat(_hx_str)
+                v.float = v.x
+            _this = xrfragment_XRF.isInt
+            _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+            if (_this.matchObj is not None):
+                v.int = Std.parseInt(_hx_str)
+                v.x = v.int
+            v.filter = xrfragment_Filter(((HxOverrides.stringOrNull(v.fragment) + "=") + HxOverrides.stringOrNull(v.string)))
+        else:
+            v.filter = xrfragment_Filter(v.fragment)
 
     @staticmethod
     def set(flag,flags):
@@ -1665,3 +1662,8 @@ xrfragment_XRF.isVector = EReg("([,]+|\\w)","")
 xrfragment_XRF.isUrl = EReg("(://)?\\..*","")
 xrfragment_XRF.isUrlOrPretypedView = EReg("(^#|://)?\\..*","")
 xrfragment_XRF.isString = EReg(".*","")
+xrfragment_XRF.operators = EReg("(^-|[\\*]+)","")
+xrfragment_XRF.isProp = EReg("^.*=[><=]?","")
+xrfragment_XRF.isExclude = EReg("^-","")
+xrfragment_XRF.isDeep = EReg("\\*","")
+xrfragment_XRF.isNumber = EReg("^[0-9\\.]+$","")
