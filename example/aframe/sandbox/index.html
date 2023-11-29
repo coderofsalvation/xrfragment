@@ -33,17 +33,16 @@
     <a-scene renderer="colorManagement: true; highRefreshRate:true" light="defaultLightsEnabled: false">
       <a-entity id="player">
         <a-entity camera="fov:90" position="0 1.6 0" wasd-controls look-controls id="camera"></a-entity>
-        <a-entity id="left-hand"  laser-controls="hand: left" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: #floor">
+        <a-entity id="left-hand"  laser-controls="hand: left" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: .floor">
           <a-entity rotation="-35 0 0" position="0 0.1 0" id="navigator"> 
             <a-entity id="back" xrf-button="label: <; width:0.05; action: history.back()"    position="-0.025 0 0" class="ray"></a-entity>
             <a-entity id="next" xrf-button="label: >; width:0.05; action: history.forward()" position=" 0.025 0 0" class="ray"></a-entity>
           </a-entity>
         </a-entity>
-        <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: #floor"></a-entity>
+        <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: .floor"></a-entity>
       </a-entity>
 
       <a-entity id="home"  xrf="index.glb"></a-entity>
-      <a-plane  id="floor" position="0 0 0" rotation="-90 0 0" width="1000" height="1000" material="visible:false"></a-plane>
     </a-scene>
 
     <script>

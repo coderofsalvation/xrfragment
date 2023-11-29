@@ -33,9 +33,15 @@ window.AFRAME.registerComponent('xrf', {
           // *TODO* this does not really belong here perhaps
           let blinkControls = document.querySelector('[blink-controls]')
           if( blinkControls ){
-            blinkControls = blinkControls.components['blink-controls']
-            blinkControls.defaultCollisionMeshes = xrf.getCollisionMeshes()
-            blinkControls.update()
+            let els = xrf.getCollisionMeshes()
+            els.map( (mesh) => {
+              mesh.material.visible = false
+              let el = document.createElement("a-entity")
+              el.setAttribute("xrf-get", `name: ${mesh.name};reparent:true` )
+              el.setAttribute("class","floor ray")
+              $('a-scene').appendChild(el)
+            })
+            blinkControls = blinkControls.components['blink-controls'].queryCollisionEntities()
           }
         })
 
