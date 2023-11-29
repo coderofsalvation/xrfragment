@@ -978,10 +978,9 @@ xrf.navigator.to = (url,flags,loader,data) => {
       xrf.frag.defaultPredefinedViews({model,scene:model.scene})
       // spec: 2. init metadata
       // spec: predefined view(s) from URL (https://xrfragment.org/#predefined_view)
-      setTimeout( () => { // give external objects some slack 
-        let frag = hashbus.pub( url, model) // and eval URI XR fragments 
-        hashbus.pub.XRWG({model,scene:model.scene,frag})
-      },2000)
+      let frag = hashbus.pub( url, model) // and eval URI XR fragments 
+      hashbus.pub.XRWG({model,scene:model.scene,frag})
+
       xrf.add( model.scene )
       xrf.navigator.updateHash(hash)
       xrf.emit('navigateLoaded',{url,model})
@@ -2307,9 +2306,10 @@ window.AFRAME.registerComponent('xrf', {
   init: function () {
     if( !AFRAME.XRF ){
 
+      let camera = document.querySelector('[camera]')
       // start with black
-      document.querySelector('[camera]').setAttribute('xrf-fade','')
-      AFRAME.fade = document.querySelector('[camera]').components['xrf-fade']
+      camera.setAttribute('xrf-fade','')
+      AFRAME.fade = camera.components['xrf-fade']
 
       if( document.location.host.match(/localhost/) ) document.querySelector('a-scene').setAttribute("stats",'')
 
@@ -2365,16 +2365,37 @@ window.AFRAME.registerComponent('xrf', {
           }
         })
 
-        // in order to set the rotation programmatically
-        // we need to disable look-controls
-        //xrf.rot  = (xrf,v,opts) => {
-        //  let {frag,renderer} = opts;
-        //  //let look = document.querySelector('[look-controls]')
-        //  //if( look ) look.removeAttribute("look-controls")
-        //  // *TODO* make look-controls compatible, because simply
-        //  // adding the look-controls will revert to the old rotation (cached somehow?)
-        //  //setTimeout( () => look.setAttribute("look-controls",""), 100 )
-        //}
+        // patch wasd-controls to affect camera-rig
+        if( camera.components['wasd-controls'] ){
+          camera.components['wasd-controls'].tick = function(time,delta){
+            var data = this.data;
+            var el = this.el;
+            var velocity = this.velocity;
+            function isEmptyObject(keys) {
+              var key;
+              for (key in keys) { return false; }
+              return true;
+            }
+
+            if (!velocity[data.adAxis] && !velocity[data.wsAxis] &&
+                isEmptyObject(this.keys)) { return; }
+
+            // Update velocity.
+            delta = delta / 1000;
+            this.updateVelocity(delta);
+
+            if (!velocity[data.adAxis] && !velocity[data.wsAxis]) { return; }
+
+
+            // Transform direction relative to heading.
+            let directionVector = this.getMovementVector(delta)
+            var rotationEuler = new THREE.Euler(0, 0, 0, 'YXZ');
+            rotationEuler.set(THREE.MathUtils.degToRad(0), THREE.MathUtils.degToRad(xrf.camera.rotation.y + 45), 0);
+            directionVector.applyEuler(rotationEuler);
+            // Get movement vector and translate position to camera-rig (not camera)
+            xrf.camera.position.add(directionVector);
+          }.bind( camera.components['wasd-controls'] )        
+        }
 
         // convert href's to a-entity's so AFRAME
         // raycaster can find & execute it

@@ -978,10 +978,9 @@ xrf.navigator.to = (url,flags,loader,data) => {
       xrf.frag.defaultPredefinedViews({model,scene:model.scene})
       // spec: 2. init metadata
       // spec: predefined view(s) from URL (https://xrfragment.org/#predefined_view)
-      setTimeout( () => { // give external objects some slack 
-        let frag = hashbus.pub( url, model) // and eval URI XR fragments 
-        hashbus.pub.XRWG({model,scene:model.scene,frag})
-      },2000)
+      let frag = hashbus.pub( url, model) // and eval URI XR fragments 
+      hashbus.pub.XRWG({model,scene:model.scene,frag})
+
       xrf.add( model.scene )
       xrf.navigator.updateHash(hash)
       xrf.emit('navigateLoaded',{url,model})
