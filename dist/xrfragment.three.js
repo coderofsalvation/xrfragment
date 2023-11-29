@@ -2145,10 +2145,6 @@ xrf.portalNonEuclidian = function(opts){
       if( mesh.material ) mesh.material = mesh.material.clone() // clone, so we can individually highlight meshes
     }, 0, mesh )
   
-    
-    // spec: increase height of portal(object) floor so it won't get rendererd under the current floor
-    mesh.portal.posWorld.y +=0.1
-
     return this
   }
 
