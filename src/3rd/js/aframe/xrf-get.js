@@ -14,9 +14,10 @@ window.AFRAME.registerComponent('xrf-get', {
 
       setTimeout( () => {
 
-        if( !this.mesh && this.el.className.match(/ray/) ){
+        if( !this.mesh ){
           let scene = AFRAME.XRF.scene 
           let mesh = this.mesh = scene.getObjectByName(meshname);
+          if( !this.el.className.match(/ray/) ) this.el.className += " ray"
           if (!mesh){
             console.error("mesh with name '"+meshname+"' not found in model")
             return;

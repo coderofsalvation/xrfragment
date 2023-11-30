@@ -38,10 +38,10 @@ window.AFRAME.registerComponent('xrf', {
               mesh.material.visible = false
               let el = document.createElement("a-entity")
               el.setAttribute("xrf-get", mesh.name )
-              el.setAttribute("class","floor ray")
+              el.setAttribute("class","floor")
               $('a-scene').appendChild(el)
             })
-            blinkControls = blinkControls.components['blink-controls'].update({collisionEntities:true})
+            blinkControls.components['blink-controls'].update({collisionEntities:true})
           }
         })
 
