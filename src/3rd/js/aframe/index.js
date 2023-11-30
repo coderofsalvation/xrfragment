@@ -37,11 +37,11 @@ window.AFRAME.registerComponent('xrf', {
             els.map( (mesh) => {
               mesh.material.visible = false
               let el = document.createElement("a-entity")
-              el.setAttribute("xrf-get", `name: ${mesh.name};reparent:true` )
+              el.setAttribute("xrf-get", mesh.name )
               el.setAttribute("class","floor ray")
               $('a-scene').appendChild(el)
             })
-            blinkControls = blinkControls.components['blink-controls'].queryCollisionEntities()
+            blinkControls = blinkControls.components['blink-controls'].update({collisionEntities:true})
           }
         })
 
@@ -124,12 +124,20 @@ window.AFRAME.registerComponent('xrf', {
           els.map( (el) => document.querySelector('a-scene').removeChild(el) )
         })
 
-        aScene.addEventListener('enter-vr', () => {
-          // undo lookup-control shenanigans (which blocks updating camerarig position in VR)
-          document.querySelector('[camera]').object3D.parent.matrixAutoUpdate = true 
-          document.querySelector('[camera]').removeAttribute("look-controls")
-          document.querySelector('[camera]').removeAttribute("wasd-controls")
-        })
+  // *TODO* workaround no longer needed?
+  //
+  //      aScene.addEventListener('enter-vr', () => {
+  //        // undo lookup-control shenanigans (which blocks updating camerarig position in VR)
+  //        document.querySelector('[camera]').object3D.parent.matrixAutoUpdate = true 
+  //        document.querySelector('[camera]').components['look-controls'].pause() //removeAttribute("look-controls")
+  //        document.querySelector('[camera]').components['wasd-controls'].pause() //removeAttribute("wasd-controls")
+  //      })
+  //      aScene.addEventListener('exit-vr', () => {
+  //        // redo lookup-control shenanigans (which blocks updating camerarig position in VR)
+  //        document.querySelector('[camera]').object3D.parent.matrixAutoUpdate = false 
+  //        document.querySelector('[camera]').components['look-controls'].play() //setAttribute("look-controls",'')
+  //        document.querySelector('[camera]').components['wasd-controls'].play() //setAttribute("wasd-controls",'')
+  //      })
 
         AFRAME.XRF.navigator.to(this.data)
                            .then( (model) => {

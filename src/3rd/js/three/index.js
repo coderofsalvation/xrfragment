@@ -80,6 +80,8 @@ xrf.reset = () => {
   xrf.interactive = xrf.interactiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
   xrf.add( xrf.interactive )
   xrf.layers = 0
+
+  // reset certain events 
   xrf.emit('reset',{})
   // remove mixers
   xrf.mixers.map( (m) => m.stop())

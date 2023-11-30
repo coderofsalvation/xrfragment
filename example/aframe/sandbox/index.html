@@ -39,7 +39,7 @@
             <a-entity id="next" xrf-button="label: >; width:0.05; action: history.forward()" position=" 0.025 0 0" class="ray"></a-entity>
           </a-entity>
         </a-entity>
-        <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: .floor"></a-entity>
+        <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #player; collisionEntities: .floor"></a-entity>
       </a-entity>
 
       <a-entity id="home"  xrf="index.glb"></a-entity>
@@ -58,7 +58,6 @@
 
         // reroute console messages to snackbar notifications
         console.log = ( (log) => function(str){
-          if( str.match(/URL:/) ) str += "<br><br>(use back-button to go back)"
           if( String(str).match(/:.*#/) ) window.notify(str)
           log(str)
         })(console.log)

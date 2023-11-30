@@ -73,3 +73,9 @@ xrf.emit.promise = function(e, opts){
     delete opts.promise
   })
 }
+
+xrf.addEventListener('reset', () => {
+// *TODO* do this nicely
+//  xrf._listeners['renderPost'] = []
+//  xrf._listeners['render'] = []
+})

@@ -14,22 +14,24 @@ xrf.portalNonEuclidian = function(opts){
     cameraPosition: new THREE.Vector3(),
     raycaster: new THREE.Raycaster(),
     isLocal: opts.isLocal,
-    isLens: false
+    isLens: false,
+    isInside: false,
+    setStencil:  (stencilRef) => mesh.portal.stencilObjects.traverse( (n) => showPortal(n, stencilRef == 0) && n.stencil && n.stencil(stencilRef) ),
+    positionObjectsIfNeeded: (pos,scale)  => !mesh.portal.isLens &&  mesh.portal.stencilObjects.traverse( (n) =>  n.positionAtStencil && (n.positionAtStencil(pos,scale)) )
   }
 
   // allow objects to flip between original and stencil position (which puts them behind stencilplane)
   const addStencilFeature = (n) => { 
     if( n.stencil ) return n // run once
-    n.stencil = ( (pos,scale) => (sRef,newPos, newScale) => {
-        if( !mesh.portal.isLens ){
-          n.position.copy( sRef == 0 ? pos   : newPos )
-          if( sRef > 0 ) n.scale.multiply( newScale )
-          else           n.scale.copy( scale )
-          n.updateMatrixWorld(true)
-        }
-        xrf.portalNonEuclidian.selectStencil(n, sRef )
-      }
-    )( n.position.clone(), n.scale.clone() )
+
+    n.stencil = (sRef ) => xrf.portalNonEuclidian.selectStencil(n, sRef )
+    n.positionAtStencil = (pos,scale) => (newPos,newScale) => {
+      n.position.copy( newPos || pos )
+      n.scale.copy( scale )
+      n.updateMatrixWorld(true)
+    }
+    // curry function 
+    n.positionAtStencil = n.positionAtStencil( n.position.clone(), n.scale.clone() )
     return n
   }
 
@@ -89,22 +91,23 @@ xrf.portalNonEuclidian = function(opts){
     xrf.addEventListener('renderPost', (opts) => {
       let {scene,camera,time,render,renderer} = opts
 
-      if( mesh.portal && mesh.portal.stencilObjects ){  
+      if( mesh.portal.needUpdate && mesh.portal && mesh.portal.stencilObjects ){  
+        let cameraDirection            = mesh.portal.cameraDirection
+        let cameraPosition             = mesh.portal.cameraPosition
         let stencilRef                 = mesh.portal.stencilRef
         let newPos                     = mesh.portal.posWorld
         let stencilObject              = mesh.portal.stencilObject
         let newScale                   = mesh.scale 
-        let cameraDirection            = mesh.portal.cameraDirection
-        let cameraPosition             = mesh.portal.cameraPosition
         let raycaster                  = mesh.portal.raycaster
+
         let cam = xrf.camera.getCam ? xrf.camera.getCam() : camera
         cam.getWorldPosition(cameraPosition)
-        if( cameraPosition.distanceTo(newPos) > 20.0 ) return // dont render far portals 
         cam.getWorldDirection(cameraDirection)
+        if( cameraPosition.distanceTo(newPos) > 20.0 ) return // dont render far portals 
 
         // init
         if( !mesh.portal.isLocal || mesh.portal.isLens ) stencilObject.visible = true 
-        mesh.portal.stencilObjects.traverse( (n) => showPortal(n,false) && n.stencil && n.stencil(stencilRef,newPos,newScale) )
+        mesh.portal.setStencil(stencilRef)
         renderer.autoClear             = false 
         renderer.autoClearDepth        = false 
         renderer.autoClearColor        = false 
@@ -116,7 +119,7 @@ xrf.portalNonEuclidian = function(opts){
         renderer.autoClearDepth        = true 
         renderer.autoClearColor        = true 
         renderer.autoClearStencil      = true 
-        mesh.portal.stencilObjects.traverse( (n) =>  showPortal(n,true) && n.stencil && (n.stencil(0)) )
+        mesh.portal.setStencil(0)
         if( !mesh.portal.isLocal || mesh.portal.isLens ) stencilObject.visible = false 
 
 
@@ -134,6 +137,9 @@ xrf.portalNonEuclidian = function(opts){
       }
       mesh.portal.needUpdate = false
     })
+
+
+
     return this
   }
 
@@ -147,6 +153,8 @@ xrf.portalNonEuclidian = function(opts){
   .setupListeners()
   .setupStencilObjects(scene,opts)
 
+  // move portal objects to portalposition
+  mesh.portal.positionObjectsIfNeeded(mesh.portal.posWorld, mesh.scale)
 }
 
 xrf.portalNonEuclidian.selectStencil = (n, stencilRef, nested) => {
@@ -178,5 +186,21 @@ xrf.addEventListener('parseModel',(opts) => {
  // scene.traverse( (n) => n.renderOrder = 10 ) // rendering everything *after* the stencil buffers
 })
 
+
+// (re)set portalObject when entering/leaving a portal 
+xrf.addEventListener('href', (opts) => {
+  let {mesh,v} = opts
+  if( opts.click && mesh.portal ){
+    if( !opts.click ) return 
+    xrf.scene.traverse( (n) => {
+      if( !n.portal ) return 
+      // since we're leaving this portal destination, lets move objects back to the portal 
+      if( n.portal.isInside ) n.portal.positionObjectsIfNeeded( n.portal.posWorld, n.scale )
+      n.portal.isInside = false
+    })
+    mesh.portal.isInside = true
+    mesh.portal.positionObjectsIfNeeded() // move objects back to original pos (since we are going there)
+  }
+})
 
 xrf.portalNonEuclidian.stencilRef = 1
