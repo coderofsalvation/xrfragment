@@ -49,6 +49,13 @@
       window.$ = (s) => document.querySelector(s)
       if( document.location.search.length > 2 ) 
         $('#home').setAttribute('xrf', document.location.search.substr(1)+document.location.hash )
+
+      // allow iframe to open url
+      window.addEventListener('message', (event) => {
+        if (event.data && event.data.url) {
+          window.open(event.data.url, '_blank');
+        }
+      });
         
 
       $('a-scene').addEventListener('XRF', () => {
@@ -58,7 +65,7 @@
 
         // reroute console messages to snackbar notifications
         console.log = ( (log) => function(str){
-          if( String(str).match(/:.*#/) ) window.notify(str)
+          if( String(str).match(/(:.*#|note:)/) ) window.notify(str)
           log(str)
         })(console.log)
 

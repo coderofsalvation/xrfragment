@@ -677,6 +677,12 @@ xrf.emit.promise = function(e, opts){
     delete opts.promise
   })
 }
+
+xrf.addEventListener('reset', () => {
+// *TODO* do this nicely
+//  xrf._listeners['renderPost'] = []
+//  xrf._listeners['render'] = []
+})
 /*! rasterizeHTML.js - v1.3.1 - 2023-07-06
 * http://www.github.com/cburgmer/rasterizeHTML.js
 * Copyright (c) 2023 Christoph Burgmer; Licensed MIT */
@@ -914,6 +920,8 @@ xrf.reset = () => {
   xrf.interactive = xrf.interactiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
   xrf.add( xrf.interactive )
   xrf.layers = 0
+
+  // reset certain events 
   xrf.emit('reset',{})
   // remove mixers
   xrf.mixers.map( (m) => m.stop())
@@ -1083,6 +1091,13 @@ xrf.frag.href = function(v, opts){
     xrf
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
+      let {urlObj,dir,file,hash,ext} = xrf.parseUrl(v.string)
+      //if( !file.match(/\./) || file.match(/\.html/) ){
+      //  debugger
+      //  let inIframe
+      //  try { inIframe = window.self !== window.top; } catch (e) { inIframe = true; }
+      //  return inIframe ? window.parent.postMessage({ url: v.string }, '*') : window.open( v.string, '_blank')
+      //}
       const flags = v.string[0] == '#' ? xrf.XRF.PV_OVERRIDE : undefined
       let toFrag = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
       // always commit current location (keep a trail of last positions before we navigate)
@@ -1178,6 +1193,7 @@ xrf.frag.src = function(v, opts){
   let url      = v.string
   let srcFrag  = opts.srcFrag = xrfragment.URI.parse(url)
   opts.isLocal = v.string[0] == '#'
+  opts.isPortal = xrf.frag.src.renderAsPortal(mesh)
 
   if( opts.isLocal ){
         xrf.frag.src.localSRC(url,srcFrag,opts)     // local
@@ -1187,22 +1203,21 @@ xrf.frag.src = function(v, opts){
 xrf.frag.src.addModel = (model,url,frag,opts) => {
   let {mesh} = opts
   let scene = model.scene
-  xrf.frag.src.filterScene(scene,{...opts,frag})     // filter scene
-  if( mesh.material ) mesh.material.visible = false  // hide placeholder object
+  scene = xrf.frag.src.filterScene(scene,{...opts,frag})         // get filtered scene
+  if( mesh.material && !mesh.userData.src ) mesh.material.visible = false  // hide placeholder object
   //enableSourcePortation(scene)
   if( xrf.frag.src.renderAsPortal(mesh) ){
     // only add remote objects, because 
     // local scene-objects are already added to scene
     xrf.portalNonEuclidian({...opts,model,scene:model.scene})
-    if( !opts.isLocal && !mesh.portal.isLens ) xrf.scene.add(scene) 
-    return
+    if( !opts.isLocal ) xrf.scene.add(scene) 
   }else{
     xrf.frag.src.scale( scene, opts, url )           // scale scene
     mesh.add(scene)
+    xrf.emit('parseModel', {...opts, scene, model}) 
   }
   // flag everything isSRC & isXRF
   mesh.traverse( (n) => { n.isSRC = n.isXRF = n[ opts.isLocal ? 'isSRCLocal' : 'isSRCExternal' ] = true })
-  xrf.emit('parseModel', {...opts, scene, model}) 
 }
 
 xrf.frag.src.renderAsPortal = (mesh) => {
@@ -1248,13 +1263,16 @@ xrf.frag.src.externalSRC = (url,frag,opts) => {
 }
 
 xrf.frag.src.localSRC = (url,frag,opts) => {
-  let {model,scene} = opts
-  let _model = {
-    animations: model.animations,
-    scene: scene.clone()
-  }
-  _model.scenes = [_model.scene]
-  xrf.frag.src.addModel(_model,url,frag, opts)    // current file 
+  let {model,mesh,scene} = opts
+  setTimeout( () => {
+    if( mesh.material ) mesh.material = mesh.material.clone() // clone, so we can individually highlight meshes
+    let _model = {
+      animations: model.animations,
+      scene: scene.clone() // *TODO* opts.isPortal ? scene : scene.clone()
+    }
+    _model.scenes = [_model.scene]
+    xrf.frag.src.addModel(_model,url,frag, opts)    // current file 
+  },500 )
 }
 
 // scale embedded XR fragments https://xrfragment.org/#scaling%20of%20instanced%20objects
@@ -1292,12 +1310,14 @@ xrf.frag.src.scale = function(scene, opts, url){
 xrf.frag.src.filterScene = (scene,opts) => {
   let { mesh, model, camera, renderer, THREE, hashbus, frag} = opts
 
-  xrf.filter.scene({scene,frag,reparent:true})
- 
-  scene.traverse( (m) => {
-    if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 
-    hashbus.pub.mesh(m,{scene,recursive:true})                       // cool idea: recursion-depth based distance between face & src
-  })
+  scene = xrf.filter.scene({scene,frag,reparent:true}) // *TODO* ,copyScene: opts.isPortal})
+
+  if( !opts.isLocal ){
+    scene.traverse( (m) => {
+      if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 
+      hashbus.pub.mesh(m,{scene,recursive:true})                       // cool idea: recursion-depth based distance between face & src
+    })
+  }
   return scene
 }
 
@@ -1656,7 +1676,7 @@ xrf.filter = function(query, cb){
 xrf.filter.scene = function(opts){
   let {scene,frag} = opts
 
-  xrf.filter 
+  scene = xrf.filter 
   .sort(frag)               // get (sorted) filters from XR Fragments
   .process(frag,scene,opts) // show/hide things
 
@@ -1673,12 +1693,14 @@ xrf.filter.sort = function(frag){
   return xrf.filter
 }
 
+// opts = {copyScene:true} in case you want a copy of the scene (not filter the current scene inplace)
 xrf.filter.process = function(frag,scene,opts){
   const cleanupKey   = (k) => k.replace(/[-\*\/]/g,'')
   let firstFilter    = frag.filters.length ? frag.filters[0].filter.get() : false 
   const hasName      = (m,name,filter)        => m.name == name 
   const hasNameOrTag = (m,name_or_tag,filter) => hasName(m,name_or_tag) || 
                                                  String(m.userData['tag']).match( new RegExp("(^| )"+name_or_tag) )
+
   // utility functions
   const getOrCloneMaterial = (o) => {
     if( o.material ){
@@ -1702,10 +1724,18 @@ xrf.filter.process = function(frag,scene,opts){
     let obj 
     frag.target = firstFilter
     scene.traverse( (n) => hasName(n, firstFilter.key,firstFilter) && (obj = n) )
-    if(obj){
-      while( scene.children.length > 0 ) scene.children[0].removeFromParent()
+    console.log("reparent "+firstFilter.key+" "+((opts.copyScene)?"copy":"inplace"))
+    if(obj ){
       obj.position.set(0,0,0)
-      scene.add( obj )
+      if( opts.copyScene ){
+        opts.copyScene = new xrf.THREE.Scene()
+        opts.copyScene.children[0] = obj 
+        scene = opts.copyScene
+      }else{
+        // empty current scene and add obj
+        while( scene.children.length > 0 ) scene.children[0].removeFromParent()
+        scene.add( obj )
+      }
     }
   }
 
@@ -1720,7 +1750,7 @@ xrf.filter.process = function(frag,scene,opts){
     // hide external objects temporarely
     scene.traverse( (m) => {
       if( m.isSRCExternal ){
-        m.traverse( (n) => (extembeds[ n.uuid ] = m) && (n.visible = false) )
+        m.traverse( (n) => (extembeds[ n.uuid ] = m) && (m.visible = false) )
       }
     })
 
@@ -1740,7 +1770,7 @@ xrf.filter.process = function(frag,scene,opts){
     for ( let i in extembeds ) extembeds[i].visible = true
   })
 
-  return xrf.filter
+  return scene 
 }
 
 xrf.frag.defaultPredefinedViews = (opts) => {
@@ -1873,13 +1903,11 @@ let loadAudio = (mimetype) => function(url,opts){
   let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
   let frag = xrf.URI.parse( url )
 
-  return
-
   /* WebAudio: setup context via THREEjs */
   if( !camera.listener ){
     camera.listener = new THREE.AudioListener();
     // *FIXME* camera vs camerarig conflict
-	  (camera.getCam ? camera.getCam() : camera).add( camera.listener );
+    (camera.getCam ? camera.getCam() : camera).add( camera.listener );
   }
 
   let isPositionalAudio = !(mesh.position.x == 0 && mesh.position.y == 0 && mesh.position.z == 0)
@@ -1899,35 +1927,35 @@ let loadAudio = (mimetype) => function(url,opts){
     }
 
     sound.playXRF = (t) => {
+      mesh.add(sound)
+      try{
+        if( sound.isPlaying && t.y != undefined ) sound.stop()
+        if( sound.isPlaying && t.y == undefined ) sound.pause()
 
-      if( sound.isPlaying && t.y != undefined ) sound.stop()
-      if( sound.isPlaying && t.y == undefined ) sound.pause()
+        let hardcodedLoop = frag.t != undefined
+        t = hardcodedLoop ? { ...frag.t, x: t.x} : t // override with hardcoded metadata except playstate (x)
+        if( t && t.x != 0 ){
+          // *TODO* https://stackoverflow.com/questions/12484052/how-can-i-reverse-playback-in-web-audio-api-but-keep-a-forward-version-as-well 
+          t.x = Math.abs(t.x)
+          sound.setPlaybackRate( t.x ) // WebAudio does not support negative playback
+          // setting loop
+          if( t.z ) sound.setLoop( true )
+          // apply embedded audio/video samplerate/fps or global mixer fps
+          let loopStart = hardcodedLoop ? t.y : t.y * buffer.sampleRate;
+          let loopEnd   = hardcodedLoop ? t.z : t.z * buffer.sampleRate;
+          let timeStart = loopStart > 0 ? loopStart : (t.y == undefined ? xrf.model.mixer.time : t.y)
 
-      let hardcodedLoop = frag.t != undefined
-      t = hardcodedLoop ? { ...frag.t, x: t.x} : t // override with hardcoded metadata except playstate (x)
-      if( t && t.x != 0 ){
-        // *TODO* https://stackoverflow.com/questions/12484052/how-can-i-reverse-playback-in-web-audio-api-but-keep-a-forward-version-as-well 
-        t.x = Math.abs(t.x)
-        sound.setPlaybackRate( t.x ) // WebAudio does not support negative playback
-        // setting loop
-        if( t.z ) sound.setLoop( true )
-        // apply embedded audio/video samplerate/fps or global mixer fps
-        let loopStart = hardcodedLoop ? t.y : t.y * buffer.sampleRate;
-        let loopEnd   = hardcodedLoop ? t.z : t.z * buffer.sampleRate;
-        let timeStart = loopStart > 0 ? loopStart : (t.y == undefined ? xrf.model.mixer.time : t.y)
-
-        if( t.z > 0 ) sound.setLoopEnd(   loopEnd   )
-        if( t.y != undefined ){ 
-          sound.setLoopStart( loopStart )
-          sound.offset = loopStart 
+          if( t.z > 0 ) sound.setLoopEnd(   loopEnd   )
+          if( t.y != undefined ){ 
+            sound.setLoopStart( loopStart )
+            sound.offset = loopStart 
+          }
+          sound.play()
         }
-        sound.play()
-      }
+      }catch(e){ console.warn(e) }
     }
-    mesh.add(sound)
+    mesh.audio = sound
   });
-
-  mesh.audio = sound
 }
 
 let audioMimeTypes = [
@@ -1968,6 +1996,18 @@ xrf.frag.src.type['gltf'] = function( url, opts ){
   })
 }
 
+
+let loadHTML = (mimetype) => function(url,opts){
+  let {mesh,src,camera} = opts
+  let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
+  let frag = xrf.URI.parse( url )
+  console.warn("todo: html viewer for src not implemented")
+}
+
+let htmlMimeTypes = [
+  'text/html'
+]
+htmlMimeTypes.map( (mimetype) =>  xrf.frag.src.type[ mimetype ] = loadHTML(mimetype) )
 /*
  * mimetype: image/png 
  * mimetype: image/jpg 
@@ -1978,55 +2018,13 @@ xrf.frag.src.type['image/png'] = function(url,opts){
   let {mesh,THREE} = opts
   let restrictTo3DBoundingBox = mesh.geometry
 
-  let renderEquirect = (texture) => {
-    texture.mapping = THREE.EquirectangularReflectionMapping
-    texture.needsUpdate = true
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    texture.magFilter =  THREE.NearestFilter 
-    texture.minFilter =  THREE.NearestFilter 
-
-    // poor man's equi-portal
-    mesh.material = new THREE.ShaderMaterial( {
-      side: THREE.DoubleSide,
-      uniforms: {
-        pano: { value: texture },
-        selected: { value: false },
-      },
-      vertexShader: `
-         vec3 portalPosition;
-         varying vec3 vWorldPosition;
-         varying float vDistanceToCenter;
-         varying float vDistance;
-         void main() {
-           vDistanceToCenter = clamp(length(position - vec3(0.0, 0.0, 0.0)), 0.0, 1.0);
-           portalPosition = (modelMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
-           vDistance = length(portalPosition - cameraPosition);
-           vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
-           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-         }
-      `,
-      fragmentShader: `
-        #define RECIPROCAL_PI2 0.15915494
-        uniform sampler2D pano;
-        uniform bool selected;
-        varying float vDistanceToCenter;
-        varying float vDistance;
-        varying vec3 vWorldPosition;
-        void main() {
-          vec3 direction = normalize(vWorldPosition - cameraPosition );
-          vec2 sampleUV;
-          sampleUV.y = clamp(direction.y * 0.5  + 0.5, 0.0, 1.0);
-          sampleUV.x = atan(direction.z, -direction.x) * -RECIPROCAL_PI2;
-          sampleUV.x += 0.33; // adjust focus to AFRAME's a-scene.components.screenshot.capture()
-          vec4 color = texture2D(pano, sampleUV);
-          vec4 selected_color = selected ? color*vec4(1.5) : color;
-          gl_FragColor = selected_color; 
-        }
-      `,
-    });
-    mesh.material.needsUpdate = true
-  }
+  mesh.material = new xrf.THREE.MeshBasicMaterial({ 
+    map: null, 
+    transparent: url.match(/(png|gif)/) ? true : false,
+    side: THREE.DoubleSide,
+    color: 0xFFFFFF,
+    opacity:1
+  });
 
   let renderImage = (texture) => {
     let img = {w: texture.source.data.width, h: texture.source.data.height}
@@ -2042,26 +2040,15 @@ xrf.frag.src.type['image/png'] = function(url,opts){
         //}
       }
     }
-    //const geometry = new THREE.BoxGeometry();
-    mesh.material = new xrf.THREE.MeshBasicMaterial({ 
-      map: texture, 
-      transparent: url.match(/(png|gif)/) ? true : false,
-      side: THREE.DoubleSide,
-      color: 0xFFFFFF,
-      opacity:1
-    });
+    mesh.material.map = texture
+    mesh.needsUpdate = true
   } 
 
   let onLoad = (texture) => {
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
-    // detect equirectangular image
-    if( texture && texture.source.data.height == texture.source.data.width/2 ){
-      renderEquirect(texture)
-    }else{
-      renderImage(texture)
-    }
+    renderImage(texture)
   }
 
   new THREE.TextureLoader().load( url, onLoad, null, console.error );
@@ -2076,6 +2063,7 @@ xrf.frag.src.type['image/jpeg'] = xrf.frag.src.type['image/png']
 xrf.portalNonEuclidian = function(opts){
   let { frag, mesh, model, camera, scene, renderer} = opts
 
+
   mesh.portal = {
     pos: mesh.position.clone(),
     posWorld: new xrf.THREE.Vector3(),
@@ -2087,22 +2075,24 @@ xrf.portalNonEuclidian = function(opts){
     cameraPosition: new THREE.Vector3(),
     raycaster: new THREE.Raycaster(),
     isLocal: opts.isLocal,
-    isLens: false
+    isLens: false,
+    isInside: false,
+    setStencil:  (stencilRef) => mesh.portal.stencilObjects.traverse( (n) => showPortal(n, stencilRef == 0) && n.stencil && n.stencil(stencilRef) ),
+    positionObjectsIfNeeded: (pos,scale)  => !mesh.portal.isLens &&  mesh.portal.stencilObjects.traverse( (n) =>  n.positionAtStencil && (n.positionAtStencil(pos,scale)) )
   }
 
   // allow objects to flip between original and stencil position (which puts them behind stencilplane)
   const addStencilFeature = (n) => { 
     if( n.stencil ) return n // run once
-    n.stencil = ( (pos,scale) => (sRef,newPos, newScale) => {
-        if( !mesh.portal.isLens ){
-          n.position.copy( sRef == 0 ? pos   : newPos )
-          if( sRef > 0 ) n.scale.multiply( newScale )
-          else           n.scale.copy( scale )
-          n.updateMatrixWorld(true)
-        }
-        xrf.portalNonEuclidian.selectStencil(n, sRef )
-      }
-    )( n.position.clone(), n.scale.clone() )
+
+    n.stencil = (sRef ) => xrf.portalNonEuclidian.selectStencil(n, sRef )
+    n.positionAtStencil = (pos,scale) => (newPos,newScale) => {
+      n.position.copy( newPos || pos )
+      n.scale.copy( scale )
+      n.updateMatrixWorld(true)
+    }
+    // curry function 
+    n.positionAtStencil = n.positionAtStencil( n.position.clone(), n.scale.clone() )
     return n
   }
 
@@ -2126,23 +2116,12 @@ xrf.portalNonEuclidian = function(opts){
                      .filter( (n) => !n.portal ) // filter out (self)references to portals (prevent recursion)
                      .map(addStencilFeature)
 
-    //// add missing lights to make sure things get lit properly 
-    xrf.scene.traverse( (n) => n.isLight && 
-                               !stencilObjects.find( (o) => o.uuid == n.uuid ) && 
-                               stencilObjects.push(n)
-    )
-
     // put it into a scene (without .add() because it reparents objects) so we can render it separately
     mesh.portal.stencilObjects = new xrf.THREE.Scene()
     mesh.portal.stencilObjects.children = stencilObjects 
 
     xrf.portalNonEuclidian.stencilRef += 1 // each portal has unique stencil id
     console.log(`enabling portal for object '${mesh.name}' (stencilRef:${mesh.portal.stencilRef})`)
-
-    // clone so it won't be affected by other fragments
-    setTimeout( (mesh) => {
-      if( mesh.material ) mesh.material = mesh.material.clone() // clone, so we can individually highlight meshes
-    }, 0, mesh )
   
     return this
   }
@@ -2162,22 +2141,23 @@ xrf.portalNonEuclidian = function(opts){
     xrf.addEventListener('renderPost', (opts) => {
       let {scene,camera,time,render,renderer} = opts
 
-      if( mesh.portal && mesh.portal.stencilObjects ){  
+      if( mesh.portal.needUpdate && mesh.portal && mesh.portal.stencilObjects ){  
+        let cameraDirection            = mesh.portal.cameraDirection
+        let cameraPosition             = mesh.portal.cameraPosition
         let stencilRef                 = mesh.portal.stencilRef
         let newPos                     = mesh.portal.posWorld
         let stencilObject              = mesh.portal.stencilObject
         let newScale                   = mesh.scale 
-        let cameraDirection            = mesh.portal.cameraDirection
-        let cameraPosition             = mesh.portal.cameraPosition
         let raycaster                  = mesh.portal.raycaster
+
         let cam = xrf.camera.getCam ? xrf.camera.getCam() : camera
         cam.getWorldPosition(cameraPosition)
-        if( cameraPosition.distanceTo(newPos) > 20.0 ) return // dont render far portals 
         cam.getWorldDirection(cameraDirection)
+        if( cameraPosition.distanceTo(newPos) > 20.0 ) return // dont render far portals 
 
         // init
         if( !mesh.portal.isLocal || mesh.portal.isLens ) stencilObject.visible = true 
-        mesh.portal.stencilObjects.traverse( (n) => showPortal(n,false) && n.stencil && n.stencil(stencilRef,newPos,newScale) )
+        mesh.portal.setStencil(stencilRef)
         renderer.autoClear             = false 
         renderer.autoClearDepth        = false 
         renderer.autoClearColor        = false 
@@ -2189,7 +2169,7 @@ xrf.portalNonEuclidian = function(opts){
         renderer.autoClearDepth        = true 
         renderer.autoClearColor        = true 
         renderer.autoClearStencil      = true 
-        mesh.portal.stencilObjects.traverse( (n) =>  showPortal(n,true) && n.stencil && (n.stencil(0)) )
+        mesh.portal.setStencil(0)
         if( !mesh.portal.isLocal || mesh.portal.isLens ) stencilObject.visible = false 
 
 
@@ -2207,6 +2187,9 @@ xrf.portalNonEuclidian = function(opts){
       }
       mesh.portal.needUpdate = false
     })
+
+
+
     return this
   }
 
@@ -2220,6 +2203,8 @@ xrf.portalNonEuclidian = function(opts){
   .setupListeners()
   .setupStencilObjects(scene,opts)
 
+  // move portal objects to portalposition
+  if( mesh.portal.stencilObjects ) mesh.portal.positionObjectsIfNeeded(mesh.portal.posWorld, mesh.scale)
 }
 
 xrf.portalNonEuclidian.selectStencil = (n, stencilRef, nested) => {
@@ -2248,9 +2233,26 @@ xrf.portalNonEuclidian.setMaterial = function(mesh){
 
 xrf.addEventListener('parseModel',(opts) => {
   const scene = opts.model.scene
- // scene.traverse( (n) => n.renderOrder = 10 ) // rendering everything *after* the stencil buffers
+  //for( let i in scene.children ) scene.children[i].renderOrder = 10 // render outer layers last (worldspheres e.g.)
 })
 
+
+// (re)set portalObjects when entering/leaving a portal 
+let updatePortals = (opts) => {
+  xrf.scene.traverse( (n) => {
+    if( !n.portal ) return 
+    // move objects back to the portal 
+    if( n.portal.isInside ) n.portal.positionObjectsIfNeeded( n.portal.posWorld, n.scale )
+    n.portal.isInside = false
+  })
+  if( opts.mesh && opts.mesh.portal && opts.click ){
+    opts.mesh.portal.isInside = true
+    opts.mesh.portal.positionObjectsIfNeeded() // move objects back to original pos (since we are teleporting there)
+  }
+}
+
+xrf.addEventListener('href', (opts) => opts.click && updatePortals(opts) )
+xrf.addEventListener('navigate', updatePortals )
 
 xrf.portalNonEuclidian.stencilRef = 1
 
@@ -2335,9 +2337,20 @@ window.AFRAME.registerComponent('xrf', {
           // *TODO* this does not really belong here perhaps
           let blinkControls = document.querySelector('[blink-controls]')
           if( blinkControls ){
-            blinkControls = blinkControls.components['blink-controls']
-            blinkControls.defaultCollisionMeshes = xrf.getCollisionMeshes()
-            blinkControls.update()
+            let els       = xrf.getCollisionMeshes()
+            let invisible = false
+            els.map( (mesh) => {
+              if( !invisible ){
+                invisible = mesh.material.clone()
+                invisible.visible = false
+              }
+              mesh.material = invisible 
+              let el = document.createElement("a-entity")
+              el.setAttribute("xrf-get", mesh.name )
+              el.setAttribute("class","floor")
+              $('a-scene').appendChild(el)
+            })
+            blinkControls.components['blink-controls'].update({collisionEntities:true})
           }
         })
 
@@ -2418,13 +2431,6 @@ window.AFRAME.registerComponent('xrf', {
         xrf.addEventListener('reset', (opts) => {
           let els = [...document.querySelectorAll('[xrf-get]')]
           els.map( (el) => document.querySelector('a-scene').removeChild(el) )
-        })
-
-        aScene.addEventListener('enter-vr', () => {
-          // undo lookup-control shenanigans (which blocks updating camerarig position in VR)
-          document.querySelector('[camera]').object3D.parent.matrixAutoUpdate = true 
-          document.querySelector('[camera]').removeAttribute("look-controls")
-          document.querySelector('[camera]').removeAttribute("wasd-controls")
         })
 
         AFRAME.XRF.navigator.to(this.data)
@@ -2657,9 +2663,10 @@ window.AFRAME.registerComponent('xrf-get', {
 
       setTimeout( () => {
 
-        if( !this.mesh && this.el.className == "ray" ){
+        if( !this.mesh ){
           let scene = AFRAME.XRF.scene 
           let mesh = this.mesh = scene.getObjectByName(meshname);
+          if( !this.el.className.match(/ray/) ) this.el.className += " ray"
           if (!mesh){
             console.error("mesh with name '"+meshname+"' not found in model")
             return;
@@ -2684,12 +2691,12 @@ window.AFRAME.registerComponent('xrf-get', {
           }
           this.el.setObject3D('mesh',mesh)
           if( !this.el.id ) this.el.setAttribute("id",`xrf-${mesh.name}`)
-        }
-      },500)
+        }else console.warn("xrf-get ignore: "+JSON.stringify(this.data))
+      }, evt && evt.timeout ? evt.timeout: 500)
 
     })
 
-    this.el.emit("update")
+    this.el.emit("update",{timeout:0})
 
   }
 
