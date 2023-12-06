@@ -1,5 +1,5 @@
 /*
- * generated at $(date)
+ * v0.5.1 generated at Wed Dec  6 09:38:34 PM CET 2023
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */

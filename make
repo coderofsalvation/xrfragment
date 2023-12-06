@@ -1,6 +1,5 @@
 #!/bin/sh
 set -e
-
 try(){ set +e; "$@" 2>/dev/null; set -e; }
 trace(){ set -x; "$@"; set +x; }
 
@@ -81,13 +80,14 @@ build(){
     cat dist/xrfragment.three.js        > dist/xrfragment.three.module.js
     echo "export default xrf;"  >> dist/xrfragment.three.module.js
 
+    # convert ESM to normal browser js
+    sed 's/export //g' example/assets/js/utils.js > dist/utils.js
+
     # add AFRAME 
     cat dist/xrfragment.three.js \
         dist/utils.js            \
         src/3rd/js/aframe/*.js   \
         example/assets/js/qr.js  > dist/xrfragment.aframe.js
-    # convert ESM to normal browser js
-    sed 's/export //g' example/assets/js/utils.js > dist/utils.js
     
     # fat all-in-one standalone xrf release
     test -f /tmp/xrf-aframe.js || {
@@ -95,13 +95,13 @@ build(){
       wget "https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js" -O /tmp/xrf-blink.js
       for i in /tmp/xrf-*.js; do echo -e "\n" >> $i; done # add extra linebreak to prevent bundle issues
     }
-    cat /tmp/xrf-*.js dist/xrfragment.aframe.js dist/utils.js  > dist/xrfragment.aframe.all.js
+    cat /tmp/xrf-*.js dist/xrfragment.aframe.js > dist/xrfragment.aframe.all.js
     
     # add license headers
-    for file in dist/xrfragment.{aframe,module,three,three.module,all}.js; do
+    for file in dist/xrfragment.{aframe,module,three,three.module,aframe.all}.js; do
       awk 'BEGIN{ 
         print "/*"
-        print " * generated at $(date)"
+        print " * '"$(git tag)"' generated at '"$(date)"'"
         print " * https://xrfragment.org"
         print " * SPDX-License-Identifier: MPL-2.0"
         print " */"

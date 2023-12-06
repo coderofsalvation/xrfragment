@@ -1,5 +1,5 @@
 /*
- * generated at $(date)
+ * v0.5.1 generated at Wed Dec  6 09:38:34 PM CET 2023
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -2929,31 +2929,26 @@ AFRAME.registerComponent('xrf-gaze',{
         material="color: #BBBBBB; shader: flat">
       </a-entity>`
     }else{
-      //if( document.querySelector('[cursor]') ) 
-      //  document.querySelector('[cursor]').setAttribute("visible",false)
+      if( document.querySelector('[cursor]') ) {
+        document.querySelector('[cursor]').setAttribute("visible",false)
+      }
     }
   }, 
   init:function(data){
-    this.immersive = false;
+    this.log = ""
     let enabled    = () => AFRAME.utils.device.isMobile()
-    let setVisible = () => {
-      let cursor = document.querySelector('[cursor]')
-      if( cursor ) cursor.setAttribute('visible', enabled() ) 
+    let setVisible = (state) => {
+      this.log += state ? ">true" :">false"
+      alert(this.log)
+      if( enabled() ) setGazer(state)
     }
 
-    this.setGazer(enabled())
-    setVisible();
+    setVisible(false);
 
-    document.querySelector("a-scene").addEventListener('exit-vr', () => {
-      this.immersive = false;
-      setVisible()
-    })
-
-    document.querySelector("a-scene").addEventListener('enter-vr', () => {
-      this.immersive = true;
-      setVisible()
-      if( !document.querySelector("#cursor") ) return
-    })
+    document.querySelector("a-scene").addEventListener('exit-vr', () => setVisible(false) )
+    document.querySelector("a-scene").addEventListener('enter-vr', () => setVisible(true) )
+    document.querySelector("a-scene").addEventListener('exit-ar', () => setVisible(false) )
+    document.querySelector("a-scene").addEventListener('enter-ar', () => setVisible(true) )
 
     let highlightMesh = (state) => (e) => {
       if( !e.target.object3D ) return 
