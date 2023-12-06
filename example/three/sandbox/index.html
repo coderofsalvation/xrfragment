@@ -17,7 +17,7 @@
 
     <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment-helloworld">➕ clone project</a> 
     <a class="btn-foot" id="embed" target="_blank" onclick="embed()">🔗 share</a> 
-    <a class="btn-foot" id="model" target="_blank" href="index.gltf">⬇️  scene</a> 
+    <a class="btn-foot" id="model" target="_blank" href="index.glb">⬇️  scene</a> 
     <a class="btn-foot" id="more" target="_blank" >XRF</a> 
 		<textarea style="display:none"></textarea>
     <canvas id="qrcode" style="display:none" width="300" height="300"></canvas>
@@ -120,7 +120,7 @@
 
         window.XRF = XRF // expose to form
 
-				let file = document.location.search.length > 2 ? document.location.search.substr(1) + document.location.hash : 'index.gltf#pos=0,1,20'
+				let file = document.location.search.length > 2 ? document.location.search.substr(1) + document.location.hash : 'index.glb'
 
         // optional decoration of href event        
         XRF.addEventListener('href',(e) => {
