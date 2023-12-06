@@ -66,6 +66,7 @@ build(){
     # add js module
     cat dist/xrfragment.js            >> dist/xrfragment.module.js
     echo "export default xrfragment;" >> dist/xrfragment.module.js
+
     # add THREE 
     cat dist/xrfragment.js                  \
         src/3rd/js/*.js                     \
@@ -75,16 +76,29 @@ build(){
         src/3rd/js/three/util/*.js          \
         src/3rd/js/three/xrf/dynamic/*.js   \
         src/3rd/js/three/xrf/src/*.js    > dist/xrfragment.three.js
+
     # add THREE module
     cat dist/xrfragment.three.js        > dist/xrfragment.three.module.js
     echo "export default xrf;"  >> dist/xrfragment.three.module.js
+
     # add AFRAME 
     cat dist/xrfragment.three.js \
-        src/3rd/js/aframe/*.js          > dist/xrfragment.aframe.js
+        dist/utils.js            \
+        src/3rd/js/aframe/*.js   \
+        example/assets/js/qr.js  > dist/xrfragment.aframe.js
     # convert ESM to normal browser js
     sed 's/export //g' example/assets/js/utils.js > dist/utils.js
+    
+    # fat all-in-one standalone xrf release
+    test -f /tmp/xrf-aframe.js || {
+      wget "https://aframe.io/releases/1.5.0/aframe.min.js" -O /tmp/xrf-aframe.js
+      wget "https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js" -O /tmp/xrf-blink.js
+      for i in /tmp/xrf-*.js; do echo -e "\n" >> $i; done # add extra linebreak to prevent bundle issues
+    }
+    cat /tmp/xrf-*.js dist/xrfragment.aframe.js dist/utils.js  > dist/xrfragment.aframe.all.js
+    
     # add license headers
-    for file in dist/xrfragment.{aframe,module,three,three.module}.js; do
+    for file in dist/xrfragment.{aframe,module,three,three.module,all}.js; do
       awk 'BEGIN{ 
         print "/*"
         print " * generated at $(date)"
@@ -95,12 +109,44 @@ build(){
       }' > /tmp/tmp.js 
       mv /tmp/tmp.js $file
     done
+
+
     ls -la dist | grep js 
     return $ok
   }
 
   test -z $1 && { parser && js; }
   test -z $1 || "$@"
+}
+
+repos(){
+  release_dir(){
+    slug=xrfragment-$1-helloworld
+    test -d ../$slug || git clone git@github.com:coderofsalvation/$slug.git ../$slug
+    pushd $(pwd)
+    cp example/assets/index.glb ../$2/index.glb
+    cat example/$1/sandbox/index.html | \
+      sed 's|href=".*/assets|href="https://xrfragment.org/example/assets|g'                            | \
+      sed 's|"\./.*/dist|"https://xrfragment.org/dist|g'                                               | \
+      sed 's|"\./.*/assets|"https://xrfragment.org/example/assets|g' \
+      > ../$2/index.html
+    test -z $COMMIT || {
+      set -x; cd ../$slug ; set +x
+      git add index.html
+      git commit -m "update index.html to commit $(git log | awk '{ print $1; exit 0; }') from xrfragment-repo"
+      git push origin main
+      popd
+    }
+    echo " "
+  }
+
+  release_dir aframe xrfragment-aframe-helloworld aframe
+  release_dir three  xrfragment-three-helloworld three.module
+  release_dir aframe xrfragment-helloworld aframe.all
+
+  # remove aframe reference
+  sed -i 's|<script src="https:\/\/aframe.*||g' ../xrfragment-helloworld/index.html
+  sed -i 's|<script src=".*blink-controls.*||g' ../xrfragment-helloworld/index.html
 }
 
 test -z $1 && build 

@@ -74,7 +74,7 @@ xrf.addEventListener('parseModel', (opts) => {
     mixer.actions.map( (action) => { 
       if( mixer.loop.timeStart != undefined ){
         action.time = mixer.loop.timeStart
-        action.setLoop( THREE.LoopOnce, )
+        action.setLoop( xrf.THREE.LoopOnce, )
         action.timeScale = mixer.timeScale
         action.enabled = true
         if( t.x != 0 ){ 

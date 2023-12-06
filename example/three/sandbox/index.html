@@ -15,7 +15,6 @@
       <input type="text" id="uri" value="" onchange="XRF.navigator.to( $('#uri').value )" style="display:none"/> 
     </div>
 
-    <!-- open AFRAME inspector: $('a-scene').components.inspector.openInspector() -->
     <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment-helloworld">➕ clone project</a> 
     <a class="btn-foot" id="embed" target="_blank" onclick="embed()">🔗 share</a> 
     <a class="btn-foot" id="model" target="_blank" href="index.gltf">⬇️  scene</a> 
@@ -23,7 +22,6 @@
 		<textarea style="display:none"></textarea>
     <canvas id="qrcode" style="display:none" width="300" height="300"></canvas>
 		
-		<script async src="./../../assets/js/alpine.min.js"></script>
 		<!-- Import maps polyfill -->
 		<!-- Remove this when import maps will be widely supported -->
 		<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
@@ -39,9 +37,9 @@
 		<script type="module">
 			import * as THREE from 'three';
 
-			import xrf from './../../../dist/xrfragment.three.module.js';
+			import xrf from "./../../../dist/xrfragment.three.module.js";
 
-			import { loadFile, setupConsole, setupUrlBar, notify } from './../../assets/js/utils.js';
+			import { loadFile, setupConsole, setupUrlBar, notify } from "./../../assets/js/utils.js";
 			import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 			import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
 			import { BoxLineGeometry } from 'three/addons/geometries/BoxLineGeometry.js';
@@ -103,7 +101,6 @@
           camera:cameraRig,
           scene,
           renderer,
-          debug: true,
           loaders: { gltf: GLTFLoader, fbx: FBXLoader }, // which 3D assets (extensions) to check for XR fragments?
         })
 
@@ -180,23 +177,6 @@
          
         setupConsole()
         setupUrlBar( $('input#uri'), XRF )
-
-				// GUI
-
-				function onChange() {
-						renderer.toneMappingExposure = parameters.env;
-				}
-
-				const gui = new GUI( { width: 300 } );
-				gui.add( parameters, 'env', 0.2, 3.0, 0.1 ).onChange( onChange );
-
-				const mesh = new HTMLMesh( gui.domElement );
-				mesh.position.x = - 0.75;
-				mesh.position.y = 1.5;
-				mesh.position.z = 0.3;
-				mesh.rotation.y = Math.PI / 4;
-				mesh.scale.setScalar( 2 );
-
 
 				// Add stats.js
 				stats = new Stats();

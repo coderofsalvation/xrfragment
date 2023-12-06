@@ -3,6 +3,7 @@ xrf.model  = {}
 xrf.mixers = []
 
 xrf.init = ((init) => function(opts){
+  console.log("add #debug to URL to see XR Fragment debuglog")
   let scene = new opts.THREE.Group()
   opts.scene.add(scene)
   opts.scene = scene

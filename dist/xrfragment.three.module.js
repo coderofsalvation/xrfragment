@@ -843,6 +843,7 @@ xrf.model  = {}
 xrf.mixers = []
 
 xrf.init = ((init) => function(opts){
+  console.log("add #debug to URL to see XR Fragment debuglog")
   let scene = new opts.THREE.Group()
   opts.scene.add(scene)
   opts.scene = scene
@@ -1412,7 +1413,7 @@ xrf.addEventListener('parseModel', (opts) => {
     mixer.actions.map( (action) => { 
       if( mixer.loop.timeStart != undefined ){
         action.time = mixer.loop.timeStart
-        action.setLoop( THREE.LoopOnce, )
+        action.setLoop( xrf.THREE.LoopOnce, )
         action.timeScale = mixer.timeScale
         action.enabled = true
         if( t.x != 0 ){ 
@@ -2071,9 +2072,9 @@ xrf.portalNonEuclidian = function(opts){
     stencilRef: xrf.portalNonEuclidian.stencilRef,
     needUpdate: false,
     stencilObject: false,
-    cameraDirection: new THREE.Vector3(),
-    cameraPosition: new THREE.Vector3(),
-    raycaster: new THREE.Raycaster(),
+    cameraDirection: new xrf.THREE.Vector3(),
+    cameraPosition: new xrf.THREE.Vector3(),
+    raycaster: new xrf.THREE.Raycaster(),
     isLocal: opts.isLocal,
     isLens: false,
     isInside: false,
