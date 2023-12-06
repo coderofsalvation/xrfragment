@@ -267,7 +267,7 @@ export function notify(scope){
       if( str.match(/error/g)   ) opts.status = "danger"
       if( str.match(/warning/g) ) opts.status = "warning"
     }
-    opts = Object.assign({ message: str , status, timeout:2000 },opts)
+    opts = Object.assign({ message: str , status, timeout:4000 },opts)
     SnackBar( opts )
   }
 }
@@ -285,12 +285,25 @@ export function download(){
 }
 
 export function embed(){
-  // *TODO* this should be part of the XRF framework
-  let camera = document.querySelector('[camera]').object3D.parent // *TODO* fix for threejs
+  // *TODO* this should be part of the XRF Threejs framework
+  if( typeof THREE == 'undefined' ) THREE = xrf.THREE 
+  let radToDeg  = THREE.MathUtils.radToDeg
+  let toDeg     = (x) => x / (Math.PI / 180)
+  let camera    = document.querySelector('[camera]').object3D.parent // *TODO* fix for threejs
+
+  // *TODO* add camera direction
+  let direction = new xrf.THREE.Vector3()
+  camera.getWorldDirection(direction)
+  const pitch   = Math.asin(direction.y);
+  const yaw     = Math.atan2(direction.x, direction.z);
+  const pitchInDegrees = pitch * 180 / Math.PI;
+  const yawInDegrees = yaw * 180 / Math.PI;
+
   let lastPos = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
-  let newHash = document.location.hash.replace(/[&]?pos=[0-9\.-]+,[0-9\.-]+,[0-9\.-]+/,'')
+  let newHash = document.location.hash.replace(/[&]?(pos|rot)=[0-9\.-]+,[0-9\.-]+,[0-9\.-]+/,'')
   newHash += `&${lastPos}`
   document.location.hash = newHash.replace(/&&/,'&')
+                                  .replace(/#&/,'')
   // copy url to clipboard 
   var dummy = document.createElement('input'),
       text = window.location.href;

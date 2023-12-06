@@ -72,6 +72,20 @@ Reflect.deleteField = function(o,field) {
 	delete(o[field]);
 	return true;
 };
+Reflect.copy = function(o) {
+	if(o == null) {
+		return null;
+	}
+	var o2 = { };
+	var _g = 0;
+	var _g1 = Reflect.fields(o);
+	while(_g < _g1.length) {
+		var f = _g1[_g];
+		++_g;
+		o2[f] = Reflect.field(o,f);
+	}
+	return o2;
+};
 var Std = function() { };
 Std.__name__ = true;
 Std.string = function(s) {
@@ -133,38 +147,38 @@ StringTools.trim = function(s) {
 var Test = function() { };
 Test.__name__ = true;
 Test.main = function() {
-	Test.test([{ fn : "url", expect : { fn : "equal.xyz", input : "pos", out : false}, label : "equal.xyz: should trigger incompatible type)", data : "http://foo.com?foo=1#pos=1.2,2.2"},{ fn : "url", expect : { fn : "equal.xyz", input : "pos", out : "1.2,2.2,3"}, label : "equal.xyz", data : "http://foo.com?foo=1#pos=1.2,2.2,3"},{ fn : "url", expect : { fn : "equal.xy", input : "t", out : "1,100"}, label : "a equal.xy", data : "http://foo.com?foo=1#t=1,100"},{ fn : "url", expect : { fn : "testParsed", input : "prio", out : false}, label : "should trigger incompatible type", data : "http://foo.com?foo=1#prio=foo"},{ fn : "url", expect : { fn : "equal.multi", input : "pos", out : "c|d|1,2,3"}, label : "b equal.multi", data : "http://foo.com?foo=1#pos=c|d|1,2,3"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "t", out : true}, label : "browser URI can override t (defined in asset)", data : "http://foo.com?foo=1#t=2,500"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "q", out : false}, label : "browser URI cannot override q (defined in asset)", data : "http://foo.com?foo=1#q=-bar"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "scale", out : false}, label : "scale does not have NAVIGATOR set", data : "http://foo.com?foo=1#scale=2,2,2"},{ fn : "url", expect : { fn : "testEmbedOverride", input : "scale", out : true}, label : "embedded (src) URI can override scale", data : "http://foo.com?foo=1#scale=2,2,2"},{ fn : "url", expect : { fn : "testPredefinedView", input : "mypredefinedview", out : true}, label : "test predefined view executed", data : "http://foo.com?foo=1#mypredefinedview"},{ fn : "url", expect : { fn : "testPredefinedView", input : "another", out : true}, label : "test predefined view executed (multiple)", data : "http://foo.com?foo=1#mypredefinedview&another"},{ fn : "url", expect : { fn : "testPredefinedView", input : "mypredefinedview", out : true}, label : "test predefined view executed (multiple)", data : "http://foo.com?foo=1#mypredefinedview&another"},{ fn : "url", expect : { fn : "testPropertyAssign", input : "cube.position.x", out : true}, label : "test data assign", data : "#cube.position.x=music.position.x"},{ fn : "url", expect : { fn : "testPropertyAssign", input : "cube.position.x", out : true}, label : "test one-way data bind", data : "#cube.position.x=@music.position.x"},{ fn : "url", expect : { fn : "testParsed", input : "mycustom", out : true}, label : "test custom property", data : "http://foo.com?foo=1#mycustom=foo"}]);
-	Test.test([{ fn : "query", expect : { fn : "testProperty", input : ["tag","bar"], out : true}, data : "tag:bar"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : false}, data : "tag:bar -tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, data : "tag:bar -tag:foo tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","bar"], out : true}, data : "tag:bar -tag:bar tag:bar"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, label : "tag:foo", data : "tag:foo -tag:foo tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, label : "tag:foo", data : "tag:foo -tag:foo bar:5 tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, label : "tag:foo", data : "tag:foo -tag:foo bar:>5 tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, label : "tag:foo", data : "tag:foo -tag:foo bar:>5 tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, label : "tag:foo", data : "tag:foo -tag:foo tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["id","foo"], out : true}, label : "id:foo", data : "tag:foo -tag:foo tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["id","foo"], out : true}, label : "id:foo?", data : "tag:foo -foo foo"},{ fn : "query", expect : { fn : "testQueryRoot", input : ["foo"], out : true}, label : "foo should be root-only", data : "/foo"},{ fn : "query", expect : { fn : "testQueryRoot", input : ["foo"], out : false}, label : "foo should recursively selected", data : "/foo foo"}]);
-	Test.test([]);
-	Test.test([{ fn : "query", expect : { fn : "testProperty", input : ["price","10"], out : true}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","10"], out : false}, data : "price:>=15"},{ fn : "query", expect : { fn : "testProperty", input : ["price","4"], out : false}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","0"], out : false}, data : "price:>=5"},{ fn : "query", expect : { fn : "testProperty", input : ["price","2"], out : true}, data : "price:>=2"},{ fn : "query", expect : { fn : "testProperty", input : ["price","1"], out : false}, label : "price=1", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["price","0"], out : true}, label : "price=0", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["price","6"], out : true}, label : "price=6", data : "price:>=5 price:0"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : true}, data : "tag:foo"},{ fn : "query", expect : { fn : "testProperty", input : ["tag","foo"], out : false}, data : "-tag:foo"},{ fn : "query", expect : { fn : "testPropertyExclude", input : ["tag","foo"], out : true}, label : "testExclude", data : "-tag:foo"},{ fn : "query", expect : { fn : "test", input : [{ price : 5}], out : true}, data : ".foo price:5 -tag:foo"},{ fn : "query", expect : { fn : "test", input : [{ tag : "foo", price : 5}], out : false}, data : ".foo price:5 -tag:foo"}]);
+	Test.test("url.json",[{ fn : "url", expect : { fn : "testPredefinedView", input : "mypredefinedview", out : true}, label : "test predefined view executed", data : "http://foo.com?foo=1#mypredefinedview"},{ fn : "url", expect : { fn : "testPredefinedView", input : "another", out : true}, label : "test predefined view executed (multiple)", data : "http://foo.com?foo=1#mypredefinedview&another"},{ fn : "url", expect : { fn : "testPredefinedView", input : "mypredefinedview", out : true}, label : "test predefined view executed (multiple)", data : "http://foo.com?foo=1#mypredefinedview&another"},{ fn : "url", expect : { fn : "testParsed", input : "mycustom", out : true}, label : "test custom property", data : "http://foo.com?foo=1#mycustom=foo"}]);
+	Test.test("pos.json",[{ fn : "url", expect : { fn : "equal.string", input : "pos", out : "1.2,2.2"}, label : "equal.string", data : "http://foo.com?foo=1#pos=1.2,2.2"},{ fn : "url", expect : { fn : "equal.xyz", input : "pos", out : "1.2,2.2,3"}, label : "equal.xyz", data : "http://foo.com?foo=1#pos=1.2,2.2,3"},{ fn : "url", expect : { fn : "equal.xyz", input : "pos", out : "1,2,3"}, label : "pos equal.xyz", data : "http://foo.com?foo=1#pos=1,2,3"},{ fn : "url", expect : { fn : "equal.string", input : "pos", out : "world2"}, label : "pos equal.xyz", data : "http://foo.com?foo=1#pos=world2"}]);
+	Test.test("t.json",[{ fn : "url", expect : { fn : "equal.x", input : "t", out : "1"}, label : "a equal.x", data : "http://foo.com?foo=1#t=1"},{ fn : "url", expect : { fn : "equal.x", input : "t", out : "-1"}, label : "a equal.x", data : "http://foo.com?foo=1#t=-1"},{ fn : "url", expect : { fn : "equal.x", input : "t", out : "-1.02"}, label : "a equal.x", data : "http://foo.com?foo=1#t=-1.02"},{ fn : "url", expect : { fn : "equal.xy", input : "t", out : "1,2"}, label : "a equal.xy", data : "http://foo.com?foo=1#t=1,2,3"},{ fn : "url", expect : { fn : "equal.xyz", input : "t", out : "1,2,3"}, label : "a equal.xyz", data : "http://foo.com?foo=1#t=1,2,3"},{ fn : "url", expect : { fn : "equal.xyz", input : "t", out : "1,-2,3"}, label : "a equal.xyz", data : "http://foo.com?foo=1#t=1,-2,3"},{ fn : "url", expect : { fn : "equal.xy", input : "t", out : "1,100"}, label : "a equal.xy", data : "http://foo.com?foo=1#t=1,100"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "t", out : true}, label : "browser URI can override t (defined in asset)", data : "http://foo.com?foo=1#t=2,500"}]);
+	Test.test("filter.selectors.json",[{ fn : "url", expect : { fn : "testParsed", input : "myid", out : true}, label : "myid exists", data : "http://foo.com?foo=1#foo*&-sometag&-someid&myid"},{ fn : "url", expect : { fn : "testParsed", input : "tag", out : true}, label : "tag exists", data : "http://foo.com?foo=1#tag=bar"},{ fn : "url", expect : { fn : "testParsed", input : "tag", out : true}, label : "tag exists", data : "http://foo.com?foo=1#-tag=bar"},{ fn : "url", expect : { fn : "testParsed", input : "price", out : true}, label : "filter test", data : "http://foo.com?foo=1#price=>2"},{ fn : "filter", expect : { fn : "testProperty", input : ["tag","bar"], out : true}, data : "tag=bar"},{ fn : "filter", expect : { fn : "testProperty", input : ["tag","foo"], out : false}, data : "-tag=foo"},{ fn : "filter", expect : { fn : "testProperty", input : ["tag","foo"], out : false}, data : "-tag*=foo"},{ fn : "filter", expect : { fn : "testProperty", input : ["tag","3"], out : false}, data : "-tag=>2"},{ fn : "filter", expect : { fn : "testProperty", input : ["price","1"], out : false}, data : "price=>2"},{ fn : "filter", expect : { fn : "testProperty", input : ["price","5"], out : false}, data : "price=<2"},{ fn : "filter", expect : { fn : "testProperty", input : ["price","1"], out : true}, data : "price=<2"},{ fn : "url", expect : { fn : "testFilterDeep", input : ["foo"], out : 1}, label : "foo should be deep", data : "#foo*"},{ fn : "url", expect : { fn : "testFilterDeep", input : ["foo"], out : 2}, label : "foo should be deep incl. embeds", data : "#foo**"}]);
 	if(Test.errors > 1) {
 		console.log("src/Test.hx:23:","\n-----\n[ ❌] " + Test.errors + " errors :/");
 	}
 };
-Test.test = function(spec) {
-	var Query = xrfragment_Query;
+Test.test = function(topic,spec) {
+	console.log("src/Test.hx:27:","\n[.] running " + topic);
+	var Filter = xrfragment_Filter;
 	var _g = 0;
 	var _g1 = spec.length;
 	while(_g < _g1) {
 		var i = _g++;
-		var q = null;
+		var f = null;
 		var res = null;
 		var valid = false;
 		var item = spec[i];
-		if(item.fn == "query") {
-			q = new xrfragment_Query(item.data);
-		}
-		if(item.fn == "url") {
-			res = xrfragment_URI.parse(item.data,0);
-		}
+		f = new xrfragment_Filter(item.data);
+		res = xrfragment_URI.parse(item.data,null);
 		if(item.expect.fn == "test") {
-			valid = item.expect.out == q.test(item.expect.input[0]);
+			valid = item.expect.out == f.test(item.expect.input[0]);
 		}
 		if(item.expect.fn == "testProperty") {
-			valid = item.expect.out == q.testProperty(item.expect.input[0],item.expect.input[1]);
+			valid = item.expect.out == f.testProperty(item.expect.input[0],item.expect.input[1]);
+		}
+		if(item.expect.fn == "testPropertyInt") {
+			valid = item.expect.out == f.testProperty(item.expect.input[0],item.expect.input[1]);
 		}
 		if(item.expect.fn == "testPropertyExclude") {
-			valid = item.expect.out == q.testProperty(item.expect.input[0],item.expect.input[1],true);
+			valid = item.expect.out == f.testProperty(item.expect.input[0],item.expect.input[1],true);
 		}
 		if(item.expect.fn == "testParsed") {
 			valid = item.expect.out == Object.prototype.hasOwnProperty.call(res,item.expect.input);
@@ -188,23 +202,35 @@ Test.test = function(spec) {
 		if(item.expect.fn == "equal.string") {
 			valid = res[item.expect.input] && item.expect.out == res[item.expect.input].string;
 		}
+		if(item.expect.fn == "equal.x") {
+			valid = Test.equalX(res,item);
+		}
 		if(item.expect.fn == "equal.xy") {
 			valid = Test.equalXY(res,item);
 		}
 		if(item.expect.fn == "equal.xyz") {
 			valid = Test.equalXYZ(res,item);
 		}
-		if(item.expect.fn == "equal.multi") {
-			valid = Test.equalMulti(res,item);
+		if(item.expect.fn == "testFilterRoot") {
+			valid = Object.prototype.hasOwnProperty.call(res,item.expect.input[0]) && res[item.expect.input[0]].filter.get().root == item.expect.out;
 		}
-		if(item.expect.fn == "testQueryRoot") {
-			valid = item.expect.out == q.get()[item.expect.input[0]].root;
+		if(item.expect.fn == "testFilterDeep") {
+			valid = Object.prototype.hasOwnProperty.call(res,item.expect.input[0]) && res[item.expect.input[0]].filter.get().deep == item.expect.out;
 		}
 		var ok = valid ? "[ ✔ ] " : "[ ❌] ";
-		console.log("src/Test.hx:49:",ok + Std.string(item.fn) + ": '" + Std.string(item.data) + "'" + (item.label ? "    (" + (item.label ? item.label : item.expect.fn) + ")" : ""));
+		console.log("src/Test.hx:52:",ok + Std.string(item.fn) + ": '" + Std.string(item.data) + "'" + (item.label ? "    (" + (item.label ? item.label : item.expect.fn) + ")" : ""));
 		if(!valid) {
 			Test.errors += 1;
 		}
+	}
+};
+Test.equalX = function(res,item) {
+	if(!item.expect.out && !res[item.expect.input]) {
+		return true;
+	} else if(res[item.expect.input]) {
+		return item.expect.out == Std.string(res[item.expect.input].x);
+	} else {
+		return false;
 	}
 };
 Test.equalXY = function(res,item) {
@@ -221,25 +247,6 @@ Test.equalXYZ = function(res,item) {
 		return true;
 	} else if(res[item.expect.input]) {
 		return item.expect.out == Std.string(res[item.expect.input].x) + "," + Std.string(res[item.expect.input].y) + "," + Std.string(res[item.expect.input].z);
-	} else {
-		return false;
-	}
-};
-Test.equalMulti = function(res,item) {
-	var target = res[item.expect.input];
-	var str = "";
-	if(!target) {
-		return false;
-	}
-	var _g = 0;
-	var _g1 = target.args.length;
-	while(_g < _g1) {
-		var i = _g++;
-		str = str + "|" + target.args[i].string;
-	}
-	str = HxOverrides.substr(str,1,null);
-	if(item.expect.out) {
-		return str == item.expect.out;
 	} else {
 		return false;
 	}
@@ -323,86 +330,22 @@ js_Boot.__string_rec = function(o,s) {
 		return String(o);
 	}
 };
-var xrfragment_Parser = $hx_exports["xrfragment"]["Parser"] = function() { };
-xrfragment_Parser.__name__ = true;
-xrfragment_Parser.parse = function(key,value,store) {
-	var Frag_h = Object.create(null);
-	Frag_h["#"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_PREDEFINED_VIEW | xrfragment_XRF.PV_EXECUTE;
-	Frag_h["prio"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_INT;
-	Frag_h["src"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL;
-	Frag_h["href"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.T_PREDEFINED_VIEW;
-	Frag_h["tag"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING_OBJ | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
-	Frag_h["q"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.METADATA;
-	Frag_h["scale"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
-	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
-	Frag_h["mov"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
-	Frag_h["show"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_INT | xrfragment_XRF.METADATA;
-	Frag_h["env"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.METADATA;
-	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
-	Frag_h["gravity"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
-	Frag_h["physics"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
-	Frag_h["fov"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_INT | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
-	Frag_h["clip"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
-	Frag_h["fog"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
-	Frag_h["bg"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
-	Frag_h["namespace"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["SPDX"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["unit"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["description"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["session"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA | xrfragment_XRF.PROMPT;
-	var isPVDynamic = value.length == 0 && key.length > 0 && !Object.prototype.hasOwnProperty.call(Frag_h,key);
-	var isPVDefault = value.length == 0 && key.length > 0 && key == "#";
-	if(isPVDynamic) {
-		var v = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR);
-		v.validate(key);
-		store[key] = v;
-		return true;
-	}
-	if(key.split(".").length > 1 && value.split(".").length > 1) {
-		store[key] = new xrfragment_XRF(key,xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.PROP_BIND);
-		return true;
-	}
-	var v = new xrfragment_XRF(key,Frag_h[key]);
-	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
-		if(!v.validate(value)) {
-			console.log("src/xrfragment/Parser.hx:83:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
-			return false;
-		}
-		store[key] = v;
-		if(xrfragment_Parser.debug) {
-			console.log("src/xrfragment/Parser.hx:87:","✔ " + key + ": " + v.string);
-		}
-	} else {
-		if(typeof(value) == "string") {
-			v.guessType(v,value);
-		}
-		v.noXRF = true;
-		store[key] = v;
-	}
-	return true;
-};
-var xrfragment_Query = $hx_exports["xrfragment"]["Query"] = function(str) {
-	this.isNumber = new EReg("^[0-9\\.]+$","");
-	this.isRoot = new EReg("^[-]?/","");
-	this.isExclude = new EReg("^-","");
-	this.isProp = new EReg("^.*:[><=!]?","");
+var xrfragment_Filter = $hx_exports["xrfragment"]["Filter"] = function(str) {
 	this.q = { };
 	this.str = "";
 	if(str != null) {
 		this.parse(str);
 	}
 };
-xrfragment_Query.__name__ = true;
-xrfragment_Query.prototype = {
+xrfragment_Filter.__name__ = true;
+xrfragment_Filter.prototype = {
 	toObject: function() {
-		return this.q;
+		return Reflect.copy(this.q);
 	}
 	,get: function() {
-		return this.q;
+		return Reflect.copy(this.q);
 	}
 	,parse: function(str) {
-		var _gthis = this;
 		var token = str.split(" ");
 		var q = { };
 		var process = function(str,prefix) {
@@ -410,59 +353,42 @@ xrfragment_Query.prototype = {
 				prefix = "";
 			}
 			str = StringTools.trim(str);
-			var k = str.split(":")[0];
-			var v = str.split(":")[1];
+			var k = str.split("=")[0];
+			var v = str.split("=")[1];
 			var filter = { };
 			if(q[prefix + k]) {
 				filter = q[prefix + k];
 			}
-			filter["rules"] = filter["rules"] != null ? filter["rules"] : [];
-			if(_gthis.isProp.match(str)) {
+			if(xrfragment_XRF.isProp.match(str)) {
 				var oper = "";
-				if(str.indexOf("*") != -1) {
-					oper = "*";
-				}
 				if(str.indexOf(">") != -1) {
 					oper = ">";
 				}
 				if(str.indexOf("<") != -1) {
 					oper = "<";
 				}
-				if(str.indexOf(">=") != -1) {
-					oper = ">=";
-				}
-				if(str.indexOf("<=") != -1) {
-					oper = "<=";
-				}
-				if(_gthis.isExclude.match(k)) {
-					oper = "!=";
+				if(xrfragment_XRF.isExclude.match(k)) {
 					k = HxOverrides.substr(k,1,null);
-				} else {
-					v = HxOverrides.substr(v,oper.length,null);
 				}
+				v = HxOverrides.substr(v,oper.length,null);
 				if(oper.length == 0) {
 					oper = "=";
 				}
 				var rule = { };
-				if(_gthis.isNumber.match(v)) {
+				if(xrfragment_XRF.isNumber.match(v)) {
 					rule[oper] = parseFloat(v);
 				} else {
 					rule[oper] = v;
 				}
-				filter["rules"].push(rule);
-				q[k] = filter;
-				return;
-			} else {
-				filter["id"] = _gthis.isExclude.match(str) ? false : true;
-				filter["root"] = _gthis.isRoot.match(str);
-				if(_gthis.isExclude.match(str)) {
-					str = HxOverrides.substr(str,1,null);
-				}
-				if(_gthis.isRoot.match(str)) {
-					str = HxOverrides.substr(str,1,null);
-				}
-				q[str] = filter;
+				q["expr"] = rule;
 			}
+			var value = xrfragment_XRF.isDeep.match(str) ? k.split("*").length - 1 : 0;
+			q["deep"] = value;
+			var value = xrfragment_XRF.isExclude.match(str) ? false : true;
+			q["show"] = value;
+			var value = k.replace(xrfragment_XRF.operators.r,"");
+			q["key"] = value;
+			q["value"] = v;
 		};
 		var _g = 0;
 		var _g1 = token.length;
@@ -511,48 +437,74 @@ xrfragment_Query.prototype = {
 				return v[property];
 			}
 		}
-		var _g = 0;
-		var _g1 = Reflect.fields(this.q);
-		while(_g < _g1.length) {
-			var k = _g1[_g];
-			++_g;
-			var filter = Reflect.field(this.q,k);
-			if(filter.rules == null) {
-				continue;
-			}
-			var rules = filter.rules;
-			var _g2 = 0;
-			while(_g2 < rules.length) {
-				var rule = rules[_g2];
-				++_g2;
-				if(exclude) {
-					if(Reflect.field(rule,"!=") != null && testprop((value == null ? "null" : "" + value) == Std.string(Reflect.field(rule,"!="))) && exclude) {
-						++qualify;
-					}
-				} else {
-					if(Reflect.field(rule,"*") != null && testprop(parseFloat(value) != null)) {
-						++qualify;
-					}
-					if(Reflect.field(rule,">") != null && testprop(parseFloat(value) > parseFloat(Reflect.field(rule,">")))) {
-						++qualify;
-					}
-					if(Reflect.field(rule,"<") != null && testprop(parseFloat(value) < parseFloat(Reflect.field(rule,"<")))) {
-						++qualify;
-					}
-					if(Reflect.field(rule,">=") != null && testprop(parseFloat(value) >= parseFloat(Reflect.field(rule,">=")))) {
-						++qualify;
-					}
-					if(Reflect.field(rule,"<=") != null && testprop(parseFloat(value) <= parseFloat(Reflect.field(rule,"<=")))) {
-						++qualify;
-					}
-					if(Reflect.field(rule,"=") != null && (testprop(value == Reflect.field(rule,"=")) || testprop(parseFloat(value) == parseFloat(Reflect.field(rule,"="))))) {
-						++qualify;
-					}
+		if(Reflect.field(this.q,"expr")) {
+			var f = Reflect.field(this.q,"expr");
+			if(!Reflect.field(this.q,"show")) {
+				if(Reflect.field(f,"!=") != null && testprop((value == null ? "null" : "" + value) == Std.string(Reflect.field(f,"!="))) && exclude) {
+					++qualify;
+				}
+			} else {
+				if(Reflect.field(f,"*") != null && testprop(parseFloat(value) != null)) {
+					++qualify;
+				}
+				if(Reflect.field(f,">") != null && testprop(parseFloat(value) >= parseFloat(Reflect.field(f,">")))) {
+					++qualify;
+				}
+				if(Reflect.field(f,"<") != null && testprop(parseFloat(value) <= parseFloat(Reflect.field(f,"<")))) {
+					++qualify;
+				}
+				if(Reflect.field(f,"=") != null && (testprop(value == Reflect.field(f,"=")) || testprop(parseFloat(value) == parseFloat(Reflect.field(f,"="))))) {
+					++qualify;
 				}
 			}
 		}
 		return qualify > 0;
 	}
+};
+var xrfragment_Parser = $hx_exports["xrfragment"]["Parser"] = function() { };
+xrfragment_Parser.__name__ = true;
+xrfragment_Parser.parse = function(key,value,store,index) {
+	var Frag_h = Object.create(null);
+	Frag_h["#"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_PREDEFINED_VIEW | xrfragment_XRF.PV_EXECUTE;
+	Frag_h["src"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL;
+	Frag_h["href"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.T_PREDEFINED_VIEW;
+	Frag_h["tag"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
+	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING | xrfragment_XRF.T_STRING_OBJ | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
+	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
+	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_FLOAT | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.T_STRING | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
+	Frag_h["tv"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_FLOAT | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
+	Frag_h["namespace"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
+	Frag_h["SPDX"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
+	Frag_h["unit"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
+	Frag_h["description"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
+	Frag_h["session"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA | xrfragment_XRF.PROMPT;
+	var keyStripped = key.replace(xrfragment_XRF.operators.r,"");
+	var isPVDynamic = key.length > 0 && !Object.prototype.hasOwnProperty.call(Frag_h,key);
+	var isPVDefault = value.length == 0 && key.length > 0 && key == "#";
+	if(isPVDynamic) {
+		var v = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR,index);
+		v.validate(value);
+		store[keyStripped] = v;
+		return true;
+	}
+	var v = new xrfragment_XRF(key,Frag_h[key],index);
+	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
+		if(!v.validate(value)) {
+			console.log("src/xrfragment/Parser.hx:66:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
+			return false;
+		}
+		store[keyStripped] = v;
+		if(xrfragment_Parser.debug) {
+			console.log("src/xrfragment/Parser.hx:70:","✔ " + key + ": " + v.string);
+		}
+	} else {
+		if(typeof(value) == "string") {
+			v.guessType(v,value);
+		}
+		v.noXRF = true;
+		store[keyStripped] = v;
+	}
+	return true;
 };
 var xrfragment_URI = $hx_exports["xrfragment"]["URI"] = function() { };
 xrfragment_URI.__name__ = true;
@@ -575,7 +527,7 @@ xrfragment_URI.parse = function(url,filter) {
 			var s = regexPlus.split(splitByEqual[1]).join(" ");
 			value = decodeURIComponent(s.split("+").join(" "));
 		}
-		var ok = xrfragment_Parser.parse(key,value,store);
+		var ok = xrfragment_Parser.parse(key,value,store,i);
 	}
 	if(filter != null && filter != 0) {
 		var _g = 0;
@@ -591,9 +543,10 @@ xrfragment_URI.parse = function(url,filter) {
 	}
 	return store;
 };
-var xrfragment_XRF = $hx_exports["xrfragment"]["XRF"] = function(_fragment,_flags) {
+var xrfragment_XRF = $hx_exports["xrfragment"]["XRF"] = function(_fragment,_flags,_index) {
 	this.fragment = _fragment;
 	this.flags = _flags;
+	this.index = _index;
 };
 xrfragment_XRF.__name__ = true;
 xrfragment_XRF.set = function(flag,flags) {
@@ -604,68 +557,58 @@ xrfragment_XRF.unset = function(flag,flags) {
 };
 xrfragment_XRF.prototype = {
 	is: function(flag) {
+		var v = this.flags;
+		if(!(typeof(v) == "number" && ((v | 0) === v))) {
+			this.flags = 0;
+		}
 		return (this.flags & flag) != 0;
 	}
 	,validate: function(value) {
 		this.guessType(this,value);
-		if(value.split("|").length > 1) {
-			this.args = [];
-			var args = value.split("|");
-			var _g = 0;
-			var _g1 = args.length;
-			while(_g < _g1) {
-				var i = _g++;
-				var x = new xrfragment_XRF(this.fragment,this.flags);
-				this.guessType(x,args[i]);
-				this.args.push(x);
-			}
-		}
-		if(this.fragment == "q") {
-			this.query = new xrfragment_Query(value).get();
-		}
 		var ok = true;
-		if(!((this.args) instanceof Array)) {
-			if(this.is(xrfragment_XRF.T_VECTOR3) && !(typeof(this.x) == "number" && typeof(this.y) == "number" && typeof(this.z) == "number")) {
-				ok = false;
-			}
-			if(this.is(xrfragment_XRF.T_VECTOR2) && !(typeof(this.x) == "number" && typeof(this.y) == "number")) {
-				ok = false;
-			}
-			var tmp;
-			if(this.is(xrfragment_XRF.T_INT)) {
-				var v = this.int;
-				tmp = !(typeof(v) == "number" && ((v | 0) === v));
-			} else {
-				tmp = false;
-			}
-			if(tmp) {
-				ok = false;
-			}
+		if(!this.is(xrfragment_XRF.T_FLOAT) && this.is(xrfragment_XRF.T_VECTOR2) && !(typeof(this.x) == "number" && typeof(this.y) == "number")) {
+			ok = false;
+		}
+		if(!(this.is(xrfragment_XRF.T_VECTOR2) || this.is(xrfragment_XRF.T_STRING)) && this.is(xrfragment_XRF.T_VECTOR3) && !(typeof(this.x) == "number" && typeof(this.y) == "number" && typeof(this.z) == "number")) {
+			ok = false;
 		}
 		return ok;
 	}
 	,guessType: function(v,str) {
 		v.string = str;
-		if(str.split(",").length > 1) {
-			var xyz = str.split(",");
-			if(xyz.length > 0) {
-				v.x = parseFloat(xyz[0]);
-			}
-			if(xyz.length > 1) {
-				v.y = parseFloat(xyz[1]);
-			}
-			if(xyz.length > 2) {
-				v.z = parseFloat(xyz[2]);
-			}
+		if(typeof(str) != "string") {
+			return;
 		}
-		if(xrfragment_XRF.isColor.match(str)) {
-			v.color = str;
-		}
-		if(xrfragment_XRF.isFloat.match(str)) {
-			v.float = parseFloat(str);
-		}
-		if(xrfragment_XRF.isInt.match(str)) {
-			v.int = Std.parseInt(str);
+		if(str.length > 0) {
+			if(str.split(",").length > 1) {
+				var xyzw = str.split(",");
+				if(xyzw.length > 0) {
+					v.x = parseFloat(xyzw[0]);
+				}
+				if(xyzw.length > 1) {
+					v.y = parseFloat(xyzw[1]);
+				}
+				if(xyzw.length > 2) {
+					v.z = parseFloat(xyzw[2]);
+				}
+				if(xyzw.length > 3) {
+					v.w = parseFloat(xyzw[3]);
+				}
+			}
+			if(xrfragment_XRF.isColor.match(str)) {
+				v.color = str;
+			}
+			if(xrfragment_XRF.isFloat.match(str)) {
+				v.x = parseFloat(str);
+				v.float = v.x;
+			}
+			if(xrfragment_XRF.isInt.match(str)) {
+				v.int = Std.parseInt(str);
+				v.x = v.int;
+			}
+			v.filter = new xrfragment_Filter(v.fragment + "=" + v.string);
+		} else {
+			v.filter = new xrfragment_Filter(v.fragment);
 		}
 	}
 };
@@ -698,12 +641,17 @@ xrfragment_XRF.T_STRING = 1048576;
 xrfragment_XRF.T_STRING_OBJ = 2097152;
 xrfragment_XRF.T_STRING_OBJ_PROP = 4194304;
 xrfragment_XRF.isColor = new EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","");
-xrfragment_XRF.isInt = new EReg("^[0-9]+$","");
-xrfragment_XRF.isFloat = new EReg("^[0-9]+\\.[0-9]+$","");
+xrfragment_XRF.isInt = new EReg("^[-0-9]+$","");
+xrfragment_XRF.isFloat = new EReg("^[-0-9]+\\.[0-9]+$","");
 xrfragment_XRF.isVector = new EReg("([,]+|\\w)","");
 xrfragment_XRF.isUrl = new EReg("(://)?\\..*","");
 xrfragment_XRF.isUrlOrPretypedView = new EReg("(^#|://)?\\..*","");
 xrfragment_XRF.isString = new EReg(".*","");
+xrfragment_XRF.operators = new EReg("(^-|[\\*]+)","");
+xrfragment_XRF.isProp = new EReg("^.*=[><=]?","");
+xrfragment_XRF.isExclude = new EReg("^-","");
+xrfragment_XRF.isDeep = new EReg("\\*","");
+xrfragment_XRF.isNumber = new EReg("^[0-9\\.]+$","");
 Test.main();
 })({});
 var xrfragment = $hx_exports["xrfragment"];

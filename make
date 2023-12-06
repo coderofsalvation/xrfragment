@@ -2,6 +2,7 @@
 set -e
 
 try(){ set +e; "$@" 2>/dev/null; set -e; }
+trace(){ set -x; "$@"; set +x; }
 
 install(){
   which haxe || { 
@@ -26,8 +27,8 @@ install(){
 
 tests(){
   {
-    which python3 && python3 test/generated/test.py src/spec/*.json | awk '{ print "py: "$0 } END{ print "\n"}'
     which node    && node test/generated/test.js    src/spec/*.json | awk '{ print "js: "$0 } END{ print "\n"}'
+    which python3 && python3 test/generated/test.py src/spec/*.json | awk '{ print "py: "$0 } END{ print "\n"}'
   } | awk '$2 ~ /src/ { $2=sprintf("%-30s",$2); print $0; next; } 1' | tee /tmp/log.txt
   grep error /tmp/log.txt && exit 1 || exit 0
 }
@@ -51,36 +52,55 @@ server(){
 }
 
 build(){
-  try rm dist/* 
-  haxe build.hxml
-  ok=$?
-  sed -i 's|.*nonlocal .*||g' dist/xrfragment.py
-  echo build OK
-  build_js
-}
 
-build_js(){
-  # prepend license to vanilla lib
-  #echo "// https://xrfragment.org\n// SPDX-License-Identifier: MPL-2.0\n$(cat dist/xrfragment.js)" > dist/xrfragment.js
-  # add js module
-  cat dist/xrfragment.js             > dist/xrfragment.module.js
-  echo "export default xrfragment;" >> dist/xrfragment.module.js
-  # add THREE 
-  cat dist/xrfragment.js               \
-      src/3rd/js/*.js                  \
-      src/3rd/js/three/*.js            \
-      src/3rd/js/three/xrmacro/*.js    \
-      src/3rd/js/three/xrf/*.js       > dist/xrfragment.three.js
-  # add THREE module
-  cat dist/xrfragment.three.js        > dist/xrfragment.three.module.js
-  echo "export default xrf;"  >> dist/xrfragment.three.module.js
-  # add AFRAME 
-  cat dist/xrfragment.three.js \
-      src/3rd/js/aframe/*.js          > dist/xrfragment.aframe.js
-  # convert ESM to normal browser js
-  sed 's/export //g' example/assets/js/utils.js > dist/utils.js
-  ls -la dist | grep js
-  exit $ok
+  parser(){
+    try rm dist/* 
+    haxe build.hxml || exit 1
+    sed -i 's|.*nonlocal .*||g' dist/xrfragment.py
+    ls -lah dist/*
+    echo -e "[OK] parser build\n"
+    return $ok
+  }
+
+  js(){
+    # add js module
+    cat dist/xrfragment.js            >> dist/xrfragment.module.js
+    echo "export default xrfragment;" >> dist/xrfragment.module.js
+    # add THREE 
+    cat dist/xrfragment.js                  \
+        src/3rd/js/*.js                     \
+        src/3rd/js/three/*.js               \
+        src/3rd/js/three/xrmacro/env.js     \
+        src/3rd/js/three/xrf/*.js           \
+        src/3rd/js/three/util/*.js          \
+        src/3rd/js/three/xrf/dynamic/*.js   \
+        src/3rd/js/three/xrf/src/*.js    > dist/xrfragment.three.js
+    # add THREE module
+    cat dist/xrfragment.three.js        > dist/xrfragment.three.module.js
+    echo "export default xrf;"  >> dist/xrfragment.three.module.js
+    # add AFRAME 
+    cat dist/xrfragment.three.js \
+        src/3rd/js/aframe/*.js          > dist/xrfragment.aframe.js
+    # convert ESM to normal browser js
+    sed 's/export //g' example/assets/js/utils.js > dist/utils.js
+    # add license headers
+    for file in dist/xrfragment.{aframe,module,three,three.module}.js; do
+      awk 'BEGIN{ 
+        print "/*"
+        print " * generated at $(date)"
+        print " * https://xrfragment.org"
+        print " * SPDX-License-Identifier: MPL-2.0"
+        print " */"
+        system("cat '$file'")
+      }' > /tmp/tmp.js 
+      mv /tmp/tmp.js $file
+    done
+    ls -la dist | grep js 
+    return $ok
+  }
+
+  test -z $1 && { parser && js; }
+  test -z $1 || "$@"
 }
 
 test -z $1 && build 

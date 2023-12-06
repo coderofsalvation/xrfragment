@@ -12,18 +12,19 @@ XRWG.cleankey = (word) => String(word).replace(/[^0-9\.a-zA-Z_]/g,'')
 XRWG.get = (v,k) => XRWG.find( (x) => x[ k || 'word'] == v )
 
 XRWG.match = (str,types,level) => {
-  level = level || 1000
+  if( XRWG.length == 0 ) XRWG.generate(xrf)
+  level = level == undefined ? 1000 : level
   types = types || []
   let res = XRWG.filter( (n) => {
     types.map( (type) => n[type] ? n = false : false )
     return n
   })
   str = str.toLowerCase()
-  if( level <10 ) res = res.filter( (n) => n.key    == str )
-  if( level <20 ) res = res.filter( (n) => n.word   == str   || n.key == str )
-  if( level <30 ) res = res.filter( (n) => n.word.match(str) || n.key == str )
-  if( level <40 ) res = res.filter( (n) => n.word.match(str) || n.key == str || String(n.value||'').match(str) )
-  if( level <1001 ) res = res.filter( (n) => n.word.match(str) != null || n.key.match(str) != null || String(n.value||'').match(str) != null)
+  if( level  <10   ) res = res.filter( (n) => n.key    == str )
+  if( level >=10   ) res = res.filter( (n) => n.word   == str   || n.key == str )
+  if( level  >30   ) res = res.filter( (n) => n.word.match(str) || n.key == str )
+  if( level  >40   ) res = res.filter( (n) => n.word.match(str) || n.key == str || String(n.value||'').match(str) )
+  if( level  >999  ) res = res.filter( (n) => n.word.match(str) != null || n.key.match(str) != null || String(n.value||'').match(str) != null)
   return res
 }
 
@@ -42,7 +43,7 @@ XRWG.generate = (opts) => {
       node = { word: XRWG.cleankey(key), key, nodes:[spatialNode] }
       if( spatialNode.userData[key] ) node.value = spatialNode.userData[key]
       node[type] = true
-      xrf.emit('XRWG',node)
+      xrf.emit('XRWGnode',node)
       XRWG.push( node )
     }
   }
@@ -64,5 +65,5 @@ XRWG.generate = (opts) => {
   // sort by n
   XRWG.sort( (a,b) => a.nodes.length - b.nodes.length )
   XRWG = XRWG.reverse() // the cleankey/get functions e.g. will persist
-  console.dir(XRWG)
+  xrf.emit('XRWG',XRWG)
 }

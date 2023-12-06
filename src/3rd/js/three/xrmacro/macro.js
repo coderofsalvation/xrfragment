@@ -1,6 +1,6 @@
 xrf.macros = {}
 
-xrf.addEventListener('mesh', (opts) => {
+xrf.addEventListener('frag2mesh', (opts) => {
   let { frag, mesh, model, camera, scene, renderer, THREE, hashbus} = opts
 
   for( let k in frag ){

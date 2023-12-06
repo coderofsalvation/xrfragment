@@ -26,25 +26,29 @@ AFRAME.registerComponent('xrf-gaze',{
   init:function(data){
     this.immersive = false;
     let enabled    = () => AFRAME.utils.device.isMobile()
-    let setVisible = () => document.querySelector('[cursor]').setAttribute('visible', enabled() )
+    let setVisible = () => {
+      let cursor = document.querySelector('[cursor]')
+      if( cursor ) cursor.setAttribute('visible', enabled() ) 
+    }
+
     this.setGazer(enabled())
-    if( enabled() ) setVisible();
+    setVisible();
 
     document.querySelector("a-scene").addEventListener('exit-vr', () => {
       this.immersive = false;
       setVisible()
     })
+
     document.querySelector("a-scene").addEventListener('enter-vr', () => {
       this.immersive = true;
       setVisible()
       if( !document.querySelector("#cursor") ) return
     })
 
-
     let highlightMesh = (state) => (e) => {
       if( !e.target.object3D ) return 
       let obj = e.target.object3D.children[0]
-      if( obj.userData && obj.userData.XRF && obj.userData.XRF.href )
+      if( obj && obj.userData && obj.userData.XRF && obj.userData.XRF.href )
         obj.userData.XRF.href.selected( state )()
     }
     this.el.addEventListener("mouseenter", highlightMesh(true) )

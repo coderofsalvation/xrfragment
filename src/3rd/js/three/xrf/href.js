@@ -29,78 +29,27 @@
  */
 
 xrf.frag.href = function(v, opts){
-  opts.embedded = v // indicate embedded XR fragment
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
 
   if( mesh.userData.XRF.href.exec ) return // mesh already initialized
 
-  const world = { 
-    pos: new THREE.Vector3(), 
-    scale: new THREE.Vector3(),
-    quat: new THREE.Quaternion()
-  }
-  // detect equirectangular image
-  let texture = mesh.material && mesh.material.map ? mesh.material.map : null
-  if( texture && texture.source.data.height == texture.source.data.width/2 ){
-    texture.mapping = THREE.ClampToEdgeWrapping
-    texture.needsUpdate = true
-
-    // poor man's equi-portal
-    mesh.material = new THREE.ShaderMaterial( {
-      side: THREE.DoubleSide,
-      uniforms: {
-        pano: { value: texture },
-        selected: { value: false },
-      },
-      vertexShader: `
-         vec3 portalPosition;
-         varying vec3 vWorldPosition;
-         varying float vDistanceToCenter;
-         varying float vDistance;
-         void main() {
-           vDistanceToCenter = clamp(length(position - vec3(0.0, 0.0, 0.0)), 0.0, 1.0);
-           portalPosition = (modelMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
-           vDistance = length(portalPosition - cameraPosition);
-           vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
-           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-         }
-      `,
-      fragmentShader: `
-        #define RECIPROCAL_PI2 0.15915494
-        uniform sampler2D pano;
-        uniform bool selected;
-        varying float vDistanceToCenter;
-        varying float vDistance;
-        varying vec3 vWorldPosition;
-        void main() {
-          vec3 direction = normalize(vWorldPosition - cameraPosition );
-          vec2 sampleUV;
-          sampleUV.y = -clamp(direction.y * 0.5  + 0.5, 0.0, 1.0);
-          sampleUV.x = atan(direction.z, -direction.x) * -RECIPROCAL_PI2;
-          sampleUV.x += 0.33; // adjust focus to AFRAME's a-scene.components.screenshot.capture()
-          vec4 color = texture2D(pano, sampleUV);
-          // Convert color to grayscale (lazy lite approach to not having to match tonemapping/shaderstacking of THREE.js)
-          float luminance = 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
-          vec4 grayscale_color = selected ? color : vec4(vec3(luminance) + vec3(0.33), color.a);
-          gl_FragColor = grayscale_color;
-        }
-      `,
-    });
-    mesh.material.needsUpdate = true
-  }else if( mesh.material){ mesh.material = mesh.material.clone() }
-
   let click = mesh.userData.XRF.href.exec = (e) => {
 
-    let isLocal = v.string[0] == '#'
-    let lastPos = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
-
+    let lastPos   = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
     xrf
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
+      let {urlObj,dir,file,hash,ext} = xrf.parseUrl(v.string)
+      //if( !file.match(/\./) || file.match(/\.html/) ){
+      //  debugger
+      //  let inIframe
+      //  try { inIframe = window.self !== window.top; } catch (e) { inIframe = true; }
+      //  return inIframe ? window.parent.postMessage({ url: v.string }, '*') : window.open( v.string, '_blank')
+      //}
       const flags = v.string[0] == '#' ? xrf.XRF.PV_OVERRIDE : undefined
       let toFrag = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-      // always keep a trail of last positions before we navigate
-      if( !document.location.hash.match(lastPos) ) xrf.navigator.to(`#${lastPos}`)
+      // always commit current location (keep a trail of last positions before we navigate)
+      if( !e.nocommit && !document.location.hash.match(lastPos) ) xrf.navigator.to(`#${lastPos}`)
       xrf.navigator.to(v.string)    // let's surf to HREF!
     }) 
     .catch( console.error )
@@ -112,7 +61,12 @@ xrf.frag.href = function(v, opts){
       let newState = o.name == mesh.name ? state : false
       if( o.material ){
         if( o.material.uniforms ) o.material.uniforms.selected.value = newState 
-        if( o.material.emissive ) o.material.emissive.r = o.material.emissive.g = o.material.emissive.b = newState ? 2.0 : 1.0
+        //if( o.material.emissive ) o.material.emissive.r = o.material.emissive.g = o.material.emissive.b = newState ? 2.0 : 1.0
+        if( o.material.emissive ){ 
+          if( !o.material.emissive.original ) o.material.emissive.original = o.material.emissive.clone()
+          o.material.emissive.r = o.material.emissive.g = o.material.emissive.b = 
+            newState ? o.material.emissive.original.r + 0.5 : o.material.emissive.original.r
+        }
       }
     })
     // update mouse cursor
@@ -127,16 +81,13 @@ xrf.frag.href = function(v, opts){
 
   mesh.addEventListener('click', click )
   mesh.addEventListener('mousemove', selected(true) )
+  mesh.addEventListener('mouseenter', selected(true) )
   mesh.addEventListener('mouseleave', selected(false) )
+
+  if( mesh.material ) mesh.material = mesh.material.clone() // clone, so we can individually highlight meshes
 
   // lazy add mesh (because we're inside a recursive traverse)
   setTimeout( (mesh) => {
-    mesh.getWorldPosition(world.pos)
-    mesh.getWorldScale(world.scale)
-    mesh.getWorldQuaternion(world.quat);
-    mesh.position.copy(world.pos)
-    mesh.scale.copy(world.scale)
-    mesh.setRotationFromQuaternion(world.quat);
     xrf.interactive.add(mesh)
     xrf.emit('interactionReady', {mesh,xrf:v,clickHandler: mesh.userData.XRF.href.exec })
   }, 0, mesh )

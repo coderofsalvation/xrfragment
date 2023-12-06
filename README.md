@@ -37,6 +37,10 @@ Pre-build libraries can be found in [/dist folder](dist)<br>
 If you really want to build from source:
 
 ```
-$ ./make install
-$ ./make build && ./make runtest
+$ nix-shell           # nix-users: drops you into a dev-ready shell 
+$ ./make install      # debian-users: install deps via apt-get
+$ ./make build && ./make tests
 ```
+
+> NOTE #1: to rebundle the THREE/AFRAME javascripts during dev run `./make build js`
+> NOTE #2: to regenerate the parser in various languages (via haxe), run `./make build parser`

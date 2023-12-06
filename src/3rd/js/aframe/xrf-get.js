@@ -1,7 +1,8 @@
 window.AFRAME.registerComponent('xrf-get', {
   schema: {
     name: {type: 'string'},
-    clone: {type: 'boolean', default:false}
+    clone: {type: 'boolean', default:false},
+    reparent: {type: 'boolean', default:false}
   },
 
   init: function () {
@@ -13,30 +14,40 @@ window.AFRAME.registerComponent('xrf-get', {
 
       setTimeout( () => {
 
-        if( !this.mesh && this.el.className == "ray" ){
+        if( !this.mesh ){
           let scene = AFRAME.XRF.scene 
           let mesh = this.mesh = scene.getObjectByName(meshname);
+          if( !this.el.className.match(/ray/) ) this.el.className += " ray"
           if (!mesh){
             console.error("mesh with name '"+meshname+"' not found in model")
             return;
           }
-          // convert to worldcoordinates
-          mesh.getWorldPosition(mesh.position)
-          mesh.getWorldScale(mesh.scale)
-          mesh.getWorldQuaternion(mesh.quaternion)
+          // we don't want to re-parent gltf-meshes
           mesh.isXRF = true    // mark for deletion by xrf
+          if( this.data.reparent ){ 
+            const world = { 
+              pos: new THREE.Vector3(), 
+              scale: new THREE.Vector3(),
+              quat: new THREE.Quaternion()
+            }
+            mesh.getWorldPosition(world.pos)
+            mesh.getWorldScale(world.scale)
+            mesh.getWorldQuaternion(world.quat);
+            mesh.position.copy(world.pos)
+            mesh.scale.copy(world.scale)
+            mesh.setRotationFromQuaternion(world.quat);
+          }else{
+            // add() will reparent the mesh so lets create a dummy
+            this.el.object3D.add = (a) => a 
+          }
           this.el.setObject3D('mesh',mesh)
-          // normalize position
-          //this.el.object3D.position.copy( mesh.position )
-          //mesh.position.fromArray([0,0,0])
           if( !this.el.id ) this.el.setAttribute("id",`xrf-${mesh.name}`)
-
-        }
-      },500)
+        }else console.warn("xrf-get ignore: "+JSON.stringify(this.data))
+      }, evt && evt.timeout ? evt.timeout: 500)
 
     })
 
-    this.el.emit("update")
+    this.el.emit("update",{timeout:0})
 
   }
 

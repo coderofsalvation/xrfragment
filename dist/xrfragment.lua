@@ -217,8 +217,8 @@ __lua_Boot = _hx_e()
 __lua_UserData = _hx_e()
 __lua_Lib = _hx_e()
 __lua_Thread = _hx_e()
+__xrfragment_Filter = _hx_e()
 __xrfragment_Parser = _hx_e()
-__xrfragment_Query = _hx_e()
 __xrfragment_URI = _hx_e()
 __xrfragment_XRF = _hx_e()
 
@@ -709,6 +709,20 @@ Reflect.deleteField = function(o,field)
   o[field] = nil;
   o.__fields__[field] = nil;
   do return true end;
+end
+Reflect.copy = function(o) 
+  if (o == nil) then 
+    do return nil end;
+  end;
+  local o2 = _hx_e();
+  local _g = 0;
+  local _g1 = Reflect.fields(o);
+  while (_g < _g1.length) do 
+    local f = _g1[_g];
+    _g = _g + 1;
+    o2[f] = Reflect.field(o, f);
+  end;
+  do return o2 end;
 end
 
 String.new = function(string) 
@@ -1378,269 +1392,28 @@ end
 __lua_Thread.new = {}
 __lua_Thread.__name__ = true
 
-__xrfragment_Parser.new = {}
-_hx_exports["xrfragment"]["Parser"] = __xrfragment_Parser
-__xrfragment_Parser.__name__ = true
-__xrfragment_Parser.parse = function(key,value,store) 
-  local Frag_h = ({});
-  local value1 = _hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_PREDEFINED_VIEW),__xrfragment_XRF.PV_EXECUTE);
-  if (value1 == nil) then 
-    Frag_h["#"] = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h["#"] = value1;
-  end;
-  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_INT);
-  if (value1 == nil) then 
-    Frag_h.prio = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.prio = value1;
-  end;
-  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_URL);
-  if (value1 == nil) then 
-    Frag_h.src = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.src = value1;
-  end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_URL),__xrfragment_XRF.T_PREDEFINED_VIEW);
-  if (value1 == nil) then 
-    Frag_h.href = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.href = value1;
-  end;
-  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
-  if (value1 == nil) then 
-    Frag_h.tag = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.tag = value1;
-  end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.PV_OVERRIDE,__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.T_STRING_OBJ),__xrfragment_XRF.METADATA),__xrfragment_XRF.NAVIGATOR);
-  if (value1 == nil) then 
-    Frag_h.pos = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.pos = value1;
-  end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.PV_OVERRIDE,__xrfragment_XRF.T_STRING),__xrfragment_XRF.METADATA);
-  if (value1 == nil) then 
-    Frag_h.q = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.q = value1;
-  end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.QUERY_OPERATOR,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.METADATA);
-  if (value1 == nil) then 
-    Frag_h.scale = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.scale = value1;
-  end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.QUERY_OPERATOR,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.METADATA),__xrfragment_XRF.NAVIGATOR);
-  if (value1 == nil) then 
-    Frag_h.rot = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.rot = value1;
-  end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.QUERY_OPERATOR,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.METADATA);
-  if (value1 == nil) then 
-    Frag_h.mov = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.mov = value1;
-  end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.QUERY_OPERATOR,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_INT),__xrfragment_XRF.METADATA);
-  if (value1 == nil) then 
-    Frag_h.show = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.show = value1;
-  end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_STRING),__xrfragment_XRF.METADATA);
-  if (value1 == nil) then 
-    Frag_h.env = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.env = value1;
-  end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.ROUNDROBIN),__xrfragment_XRF.T_VECTOR2),__xrfragment_XRF.NAVIGATOR),__xrfragment_XRF.METADATA);
-  if (value1 == nil) then 
-    Frag_h.t = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.t = value1;
-  end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.METADATA);
-  if (value1 == nil) then 
-    Frag_h.gravity = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.gravity = value1;
-  end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.METADATA);
-  if (value1 == nil) then 
-    Frag_h.physics = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.physics = value1;
-  end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_INT),__xrfragment_XRF.NAVIGATOR),__xrfragment_XRF.METADATA);
-  if (value1 == nil) then 
-    Frag_h.fov = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.fov = value1;
-  end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_VECTOR2),__xrfragment_XRF.NAVIGATOR),__xrfragment_XRF.METADATA);
-  if (value1 == nil) then 
-    Frag_h.clip = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.clip = value1;
-  end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_VECTOR2),__xrfragment_XRF.NAVIGATOR),__xrfragment_XRF.METADATA);
-  if (value1 == nil) then 
-    Frag_h.fog = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.fog = value1;
-  end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.NAVIGATOR),__xrfragment_XRF.METADATA);
-  if (value1 == nil) then 
-    Frag_h.bg = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.bg = value1;
-  end;
-  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
-  if (value1 == nil) then 
-    Frag_h.namespace = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.namespace = value1;
-  end;
-  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
-  if (value1 == nil) then 
-    Frag_h.SPDX = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.SPDX = value1;
-  end;
-  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
-  if (value1 == nil) then 
-    Frag_h.unit = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.unit = value1;
-  end;
-  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
-  if (value1 == nil) then 
-    Frag_h.description = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.description = value1;
-  end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_URL),__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.NAVIGATOR),__xrfragment_XRF.METADATA),__xrfragment_XRF.PROMPT);
-  if (value1 == nil) then 
-    Frag_h.session = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.session = value1;
-  end;
-  local isPVDynamic = ((__lua_lib_luautf8_Utf8.len(value) == 0) and (__lua_lib_luautf8_Utf8.len(key) > 0)) and (Frag_h[key] == nil);
-  local isPVDefault = ((__lua_lib_luautf8_Utf8.len(value) == 0) and (__lua_lib_luautf8_Utf8.len(key) > 0)) and (key == "#");
-  if (isPVDynamic) then 
-    local v = __xrfragment_XRF.new(key, _hx_bit.bor(__xrfragment_XRF.PV_EXECUTE,__xrfragment_XRF.NAVIGATOR));
-    v:validate(key);
-    store[key] = v;
-    do return true end;
-  end;
-  local tmp;
-  local idx = 1;
-  local ret = _hx_tab_array({}, 0);
-  while (idx ~= nil) do 
-    local newidx = 0;
-    if (__lua_lib_luautf8_Utf8.len(".") > 0) then 
-      newidx = __lua_lib_luautf8_Utf8.find(key, ".", idx, true);
-    else
-      if (idx >= __lua_lib_luautf8_Utf8.len(key)) then 
-        newidx = nil;
-      else
-        newidx = idx + 1;
-      end;
-    end;
-    if (newidx ~= nil) then 
-      local match = __lua_lib_luautf8_Utf8.sub(key, idx, newidx - 1);
-      ret:push(match);
-      idx = newidx + __lua_lib_luautf8_Utf8.len(".");
-    else
-      ret:push(__lua_lib_luautf8_Utf8.sub(key, idx, __lua_lib_luautf8_Utf8.len(key)));
-      idx = nil;
-    end;
-  end;
-  if (ret.length > 1) then 
-    local idx = 1;
-    local ret = _hx_tab_array({}, 0);
-    while (idx ~= nil) do 
-      local newidx = 0;
-      if (__lua_lib_luautf8_Utf8.len(".") > 0) then 
-        newidx = __lua_lib_luautf8_Utf8.find(value, ".", idx, true);
-      else
-        if (idx >= __lua_lib_luautf8_Utf8.len(value)) then 
-          newidx = nil;
-        else
-          newidx = idx + 1;
-        end;
-      end;
-      if (newidx ~= nil) then 
-        local match = __lua_lib_luautf8_Utf8.sub(value, idx, newidx - 1);
-        ret:push(match);
-        idx = newidx + __lua_lib_luautf8_Utf8.len(".");
-      else
-        ret:push(__lua_lib_luautf8_Utf8.sub(value, idx, __lua_lib_luautf8_Utf8.len(value)));
-        idx = nil;
-      end;
-    end;
-    tmp = ret.length > 1;
-  else
-    tmp = false;
-  end;
-  if (tmp) then 
-    local value = __xrfragment_XRF.new(key, _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_STRING),__xrfragment_XRF.PROP_BIND));
-    store[key] = value;
-    do return true end;
-  end;
-  local ret = Frag_h[key];
-  if (ret == __haxe_ds_StringMap.tnull) then 
-    ret = nil;
-  end;
-  local v = __xrfragment_XRF.new(key, ret);
-  if (Frag_h[key] ~= nil) then 
-    if (not v:validate(value)) then 
-      __haxe_Log.trace(Std.string(Std.string(Std.string(Std.string("⚠ fragment '") .. Std.string(key)) .. Std.string("' has incompatible value (")) .. Std.string(value)) .. Std.string(")"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=83,className="xrfragment.Parser",methodName="parse"}));
-      do return false end;
-    end;
-    store[key] = v;
-    if (__xrfragment_Parser.debug) then 
-      __haxe_Log.trace(Std.string(Std.string(Std.string("✔ ") .. Std.string(key)) .. Std.string(": ")) .. Std.string(v.string), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=87,className="xrfragment.Parser",methodName="parse"}));
-    end;
-  else
-    if (__lua_Boot.__instanceof(value, String)) then 
-      v:guessType(v, value);
-    end;
-    v.noXRF = true;
-    store[key] = v;
-  end;
-  do return true end;
-end
-
-__xrfragment_Query.new = function(str) 
-  local self = _hx_new(__xrfragment_Query.prototype)
-  __xrfragment_Query.super(self,str)
+__xrfragment_Filter.new = function(str) 
+  local self = _hx_new(__xrfragment_Filter.prototype)
+  __xrfragment_Filter.super(self,str)
   return self
 end
-__xrfragment_Query.super = function(self,str) 
-  self.isNumber = EReg.new("^[0-9\\.]+$", "");
-  self.isRoot = EReg.new("^[-]?/", "");
-  self.isExclude = EReg.new("^-", "");
-  self.isProp = EReg.new("^.*:[><=!]?", "");
+__xrfragment_Filter.super = function(self,str) 
   self.q = _hx_e();
   self.str = "";
   if (str ~= nil) then 
     self:parse(str);
   end;
 end
-_hx_exports["xrfragment"]["Query"] = __xrfragment_Query
-__xrfragment_Query.__name__ = true
-__xrfragment_Query.prototype = _hx_e();
-__xrfragment_Query.prototype.toObject = function(self) 
-  do return self.q end
+_hx_exports["xrfragment"]["Filter"] = __xrfragment_Filter
+__xrfragment_Filter.__name__ = true
+__xrfragment_Filter.prototype = _hx_e();
+__xrfragment_Filter.prototype.toObject = function(self) 
+  do return Reflect.copy(self.q) end
 end
-__xrfragment_Query.prototype.get = function(self) 
-  do return self.q end
+__xrfragment_Filter.prototype.get = function(self) 
+  do return Reflect.copy(self.q) end
 end
-__xrfragment_Query.prototype.parse = function(self,str) 
-  local _gthis = self;
+__xrfragment_Filter.prototype.parse = function(self,str) 
   local idx = 1;
   local ret = _hx_tab_array({}, 0);
   while (idx ~= nil) do 
@@ -1674,8 +1447,8 @@ __xrfragment_Query.prototype.parse = function(self,str)
     local ret = _hx_tab_array({}, 0);
     while (idx ~= nil) do 
       local newidx = 0;
-      if (__lua_lib_luautf8_Utf8.len(":") > 0) then 
-        newidx = __lua_lib_luautf8_Utf8.find(str, ":", idx, true);
+      if (__lua_lib_luautf8_Utf8.len("=") > 0) then 
+        newidx = __lua_lib_luautf8_Utf8.find(str, "=", idx, true);
       else
         if (idx >= __lua_lib_luautf8_Utf8.len(str)) then 
           newidx = nil;
@@ -1686,7 +1459,7 @@ __xrfragment_Query.prototype.parse = function(self,str)
       if (newidx ~= nil) then 
         local match = __lua_lib_luautf8_Utf8.sub(str, idx, newidx - 1);
         ret:push(match);
-        idx = newidx + __lua_lib_luautf8_Utf8.len(":");
+        idx = newidx + __lua_lib_luautf8_Utf8.len("=");
       else
         ret:push(__lua_lib_luautf8_Utf8.sub(str, idx, __lua_lib_luautf8_Utf8.len(str)));
         idx = nil;
@@ -1697,8 +1470,8 @@ __xrfragment_Query.prototype.parse = function(self,str)
     local ret = _hx_tab_array({}, 0);
     while (idx ~= nil) do 
       local newidx = 0;
-      if (__lua_lib_luautf8_Utf8.len(":") > 0) then 
-        newidx = __lua_lib_luautf8_Utf8.find(str, ":", idx, true);
+      if (__lua_lib_luautf8_Utf8.len("=") > 0) then 
+        newidx = __lua_lib_luautf8_Utf8.find(str, "=", idx, true);
       else
         if (idx >= __lua_lib_luautf8_Utf8.len(str)) then 
           newidx = nil;
@@ -1709,7 +1482,7 @@ __xrfragment_Query.prototype.parse = function(self,str)
       if (newidx ~= nil) then 
         local match = __lua_lib_luautf8_Utf8.sub(str, idx, newidx - 1);
         ret:push(match);
-        idx = newidx + __lua_lib_luautf8_Utf8.len(":");
+        idx = newidx + __lua_lib_luautf8_Utf8.len("=");
       else
         ret:push(__lua_lib_luautf8_Utf8.sub(str, idx, __lua_lib_luautf8_Utf8.len(str)));
         idx = nil;
@@ -1720,32 +1493,8 @@ __xrfragment_Query.prototype.parse = function(self,str)
     if (Reflect.field(q, Std.string(prefix) .. Std.string(k))) then 
       filter = Reflect.field(q, Std.string(prefix) .. Std.string(k));
     end;
-    local value = (function() 
-      local _hx_1
-      if (Reflect.field(filter, "rules") ~= nil) then 
-      _hx_1 = Reflect.field(filter, "rules"); else 
-      _hx_1 = Array.new(); end
-      return _hx_1
-    end )();
-    filter.rules = value;
-    if (_gthis.isProp:match(str)) then 
+    if (__xrfragment_XRF.isProp:match(str)) then 
       local oper = "";
-      local startIndex = nil;
-      if (startIndex == nil) then 
-        startIndex = 1;
-      else
-        startIndex = startIndex + 1;
-      end;
-      local r = __lua_lib_luautf8_Utf8.find(str, "*", startIndex, true);
-      if ((function() 
-        local _hx_2
-        if ((r ~= nil) and (r > 0)) then 
-        _hx_2 = r - 1; else 
-        _hx_2 = -1; end
-        return _hx_2
-      end )() ~= -1) then 
-        oper = "*";
-      end;
       local startIndex = nil;
       if (startIndex == nil) then 
         startIndex = 1;
@@ -1754,11 +1503,11 @@ __xrfragment_Query.prototype.parse = function(self,str)
       end;
       local r = __lua_lib_luautf8_Utf8.find(str, ">", startIndex, true);
       if ((function() 
-        local _hx_3
+        local _hx_1
         if ((r ~= nil) and (r > 0)) then 
-        _hx_3 = r - 1; else 
-        _hx_3 = -1; end
-        return _hx_3
+        _hx_1 = r - 1; else 
+        _hx_1 = -1; end
+        return _hx_1
       end )() ~= -1) then 
         oper = ">";
       end;
@@ -1770,48 +1519,15 @@ __xrfragment_Query.prototype.parse = function(self,str)
       end;
       local r = __lua_lib_luautf8_Utf8.find(str, "<", startIndex, true);
       if ((function() 
-        local _hx_4
+        local _hx_2
         if ((r ~= nil) and (r > 0)) then 
-        _hx_4 = r - 1; else 
-        _hx_4 = -1; end
-        return _hx_4
+        _hx_2 = r - 1; else 
+        _hx_2 = -1; end
+        return _hx_2
       end )() ~= -1) then 
         oper = "<";
       end;
-      local startIndex = nil;
-      if (startIndex == nil) then 
-        startIndex = 1;
-      else
-        startIndex = startIndex + 1;
-      end;
-      local r = __lua_lib_luautf8_Utf8.find(str, ">=", startIndex, true);
-      if ((function() 
-        local _hx_5
-        if ((r ~= nil) and (r > 0)) then 
-        _hx_5 = r - 1; else 
-        _hx_5 = -1; end
-        return _hx_5
-      end )() ~= -1) then 
-        oper = ">=";
-      end;
-      local startIndex = nil;
-      if (startIndex == nil) then 
-        startIndex = 1;
-      else
-        startIndex = startIndex + 1;
-      end;
-      local r = __lua_lib_luautf8_Utf8.find(str, "<=", startIndex, true);
-      if ((function() 
-        local _hx_6
-        if ((r ~= nil) and (r > 0)) then 
-        _hx_6 = r - 1; else 
-        _hx_6 = -1; end
-        return _hx_6
-      end )() ~= -1) then 
-        oper = "<=";
-      end;
-      if (_gthis.isExclude:match(k)) then 
-        oper = "!=";
+      if (__xrfragment_XRF.isExclude:match(k)) then 
         local pos = 1;
         local len = nil;
         if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(k)))) then 
@@ -1828,86 +1544,75 @@ __xrfragment_Query.prototype.parse = function(self,str)
           pos = 0;
         end;
         k = __lua_lib_luautf8_Utf8.sub(k, pos + 1, pos + len);
-      else
-        local pos = __lua_lib_luautf8_Utf8.len(oper);
-        local len = nil;
-        if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(v)))) then 
-          len = __lua_lib_luautf8_Utf8.len(v);
-        else
-          if (len < 0) then 
-            len = __lua_lib_luautf8_Utf8.len(v) + len;
-          end;
-        end;
-        if (pos < 0) then 
-          pos = __lua_lib_luautf8_Utf8.len(v) + pos;
-        end;
-        if (pos < 0) then 
-          pos = 0;
-        end;
-        v = __lua_lib_luautf8_Utf8.sub(v, pos + 1, pos + len);
       end;
+      local pos = __lua_lib_luautf8_Utf8.len(oper);
+      local len = nil;
+      if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(v)))) then 
+        len = __lua_lib_luautf8_Utf8.len(v);
+      else
+        if (len < 0) then 
+          len = __lua_lib_luautf8_Utf8.len(v) + len;
+        end;
+      end;
+      if (pos < 0) then 
+        pos = __lua_lib_luautf8_Utf8.len(v) + pos;
+      end;
+      if (pos < 0) then 
+        pos = 0;
+      end;
+      v = __lua_lib_luautf8_Utf8.sub(v, pos + 1, pos + len);
       if (__lua_lib_luautf8_Utf8.len(oper) == 0) then 
         oper = "=";
       end;
       local rule = _hx_e();
-      if (_gthis.isNumber:match(v)) then 
+      if (__xrfragment_XRF.isNumber:match(v)) then 
         local value = Std.parseFloat(v);
         rule[oper] = value;
       else
         rule[oper] = v;
       end;
-      Reflect.field(filter, "rules"):push(rule);
-      q[k] = filter;
-      do return end;
-    else
-      local value = (function() 
-        local _hx_7
-        if (_gthis.isExclude:match(str)) then 
-        _hx_7 = false; else 
-        _hx_7 = true; end
-        return _hx_7
-      end )();
-      filter.id = value;
-      local value = _gthis.isRoot:match(str);
-      filter.root = value;
-      if (_gthis.isExclude:match(str)) then 
-        local pos = 1;
-        local len = nil;
-        if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(str)))) then 
-          len = __lua_lib_luautf8_Utf8.len(str);
-        else
-          if (len < 0) then 
-            len = __lua_lib_luautf8_Utf8.len(str) + len;
-          end;
-        end;
-        if (pos < 0) then 
-          pos = __lua_lib_luautf8_Utf8.len(str) + pos;
-        end;
-        if (pos < 0) then 
-          pos = 0;
-        end;
-        str = __lua_lib_luautf8_Utf8.sub(str, pos + 1, pos + len);
-      end;
-      if (_gthis.isRoot:match(str)) then 
-        local pos = 1;
-        local len = nil;
-        if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(str)))) then 
-          len = __lua_lib_luautf8_Utf8.len(str);
-        else
-          if (len < 0) then 
-            len = __lua_lib_luautf8_Utf8.len(str) + len;
-          end;
-        end;
-        if (pos < 0) then 
-          pos = __lua_lib_luautf8_Utf8.len(str) + pos;
-        end;
-        if (pos < 0) then 
-          pos = 0;
-        end;
-        str = __lua_lib_luautf8_Utf8.sub(str, pos + 1, pos + len);
-      end;
-      q[str] = filter;
+      q.expr = rule;
     end;
+    local value;
+    if (__xrfragment_XRF.isDeep:match(str)) then 
+      local idx = 1;
+      local ret = _hx_tab_array({}, 0);
+      while (idx ~= nil) do 
+        local newidx = 0;
+        if (__lua_lib_luautf8_Utf8.len("*") > 0) then 
+          newidx = __lua_lib_luautf8_Utf8.find(k, "*", idx, true);
+        else
+          if (idx >= __lua_lib_luautf8_Utf8.len(k)) then 
+            newidx = nil;
+          else
+            newidx = idx + 1;
+          end;
+        end;
+        if (newidx ~= nil) then 
+          local match = __lua_lib_luautf8_Utf8.sub(k, idx, newidx - 1);
+          ret:push(match);
+          idx = newidx + __lua_lib_luautf8_Utf8.len("*");
+        else
+          ret:push(__lua_lib_luautf8_Utf8.sub(k, idx, __lua_lib_luautf8_Utf8.len(k)));
+          idx = nil;
+        end;
+      end;
+      value = ret.length - 1;
+    else
+      value = 0;
+    end;
+    q.deep = value;
+    local value = (function() 
+      local _hx_3
+      if (__xrfragment_XRF.isExclude:match(str)) then 
+      _hx_3 = false; else 
+      _hx_3 = true; end
+      return _hx_3
+    end )();
+    q.show = value;
+    local value = __xrfragment_XRF.operators:replace(k, "");
+    q.key = value;
+    q.value = v;
   end;
   local _g = 0;
   local _g1 = token.length;
@@ -1918,7 +1623,7 @@ __xrfragment_Query.prototype.parse = function(self,str)
   end;
   self.q = q do return self.q end
 end
-__xrfragment_Query.prototype.test = function(self,obj) 
+__xrfragment_Filter.prototype.test = function(self,obj) 
   local qualify = false;
   local _g = 0;
   local _g1 = Reflect.fields(obj);
@@ -1942,7 +1647,7 @@ __xrfragment_Query.prototype.test = function(self,obj)
   end;
   do return qualify end
 end
-__xrfragment_Query.prototype.testProperty = function(self,property,value,exclude) 
+__xrfragment_Filter.prototype.testProperty = function(self,property,value,exclude) 
   local conds = 0;
   local fails = 0;
   local qualify = 0;
@@ -1963,56 +1668,147 @@ __xrfragment_Query.prototype.testProperty = function(self,property,value,exclude
       do return Reflect.field(v, property) end;
     end;
   end;
-  local _g = 0;
-  local _g1 = Reflect.fields(self.q);
-  local _hx_continue_1 = false;
-  while (_g < _g1.length) do repeat 
-    local k = _g1[_g];
-    _g = _g + 1;
-    local filter = Reflect.field(self.q, k);
-    if (filter.rules == nil) then 
-      break;
-    end;
-    local rules = filter.rules;
-    local _g = 0;
-    while (_g < rules.length) do 
-      local rule = rules[_g];
-      _g = _g + 1;
-      if (exclude) then 
-        if (((Reflect.field(rule, "!=") ~= nil) and testprop(Std.string(value) == Std.string(Reflect.field(rule, "!=")))) and exclude) then 
-          qualify = qualify + 1;
-        end;
-      else
-        if ((Reflect.field(rule, "*") ~= nil) and testprop(Std.parseFloat(value) ~= nil)) then 
-          qualify = qualify + 1;
-        end;
-        if ((Reflect.field(rule, ">") ~= nil) and testprop(Std.parseFloat(value) > Std.parseFloat(Reflect.field(rule, ">")))) then 
-          qualify = qualify + 1;
-        end;
-        if ((Reflect.field(rule, "<") ~= nil) and testprop(Std.parseFloat(value) < Std.parseFloat(Reflect.field(rule, "<")))) then 
-          qualify = qualify + 1;
-        end;
-        if ((Reflect.field(rule, ">=") ~= nil) and testprop(Std.parseFloat(value) >= Std.parseFloat(Reflect.field(rule, ">=")))) then 
-          qualify = qualify + 1;
-        end;
-        if ((Reflect.field(rule, "<=") ~= nil) and testprop(Std.parseFloat(value) <= Std.parseFloat(Reflect.field(rule, "<=")))) then 
-          qualify = qualify + 1;
-        end;
-        if ((Reflect.field(rule, "=") ~= nil) and (testprop(value == Reflect.field(rule, "=")) or testprop(Std.parseFloat(value) == Std.parseFloat(Reflect.field(rule, "="))))) then 
-          qualify = qualify + 1;
-        end;
+  if (Reflect.field(self.q, "expr")) then 
+    local f = Reflect.field(self.q, "expr");
+    if (not Reflect.field(self.q, "show")) then 
+      if (((Reflect.field(f, "!=") ~= nil) and testprop(Std.string(value) == Std.string(Reflect.field(f, "!=")))) and exclude) then 
+        qualify = qualify + 1;
       end;
-    end;until true
-    if _hx_continue_1 then 
-    _hx_continue_1 = false;
-    break;
+    else
+      if ((Reflect.field(f, "*") ~= nil) and testprop(Std.parseFloat(value) ~= nil)) then 
+        qualify = qualify + 1;
+      end;
+      if ((Reflect.field(f, ">") ~= nil) and testprop(Std.parseFloat(value) >= Std.parseFloat(Reflect.field(f, ">")))) then 
+        qualify = qualify + 1;
+      end;
+      if ((Reflect.field(f, "<") ~= nil) and testprop(Std.parseFloat(value) <= Std.parseFloat(Reflect.field(f, "<")))) then 
+        qualify = qualify + 1;
+      end;
+      if ((Reflect.field(f, "=") ~= nil) and (testprop(value == Reflect.field(f, "=")) or testprop(Std.parseFloat(value) == Std.parseFloat(Reflect.field(f, "="))))) then 
+        qualify = qualify + 1;
+      end;
     end;
-    
   end;
   do return qualify > 0 end
 end
 
-__xrfragment_Query.prototype.__class__ =  __xrfragment_Query
+__xrfragment_Filter.prototype.__class__ =  __xrfragment_Filter
+
+__xrfragment_Parser.new = {}
+_hx_exports["xrfragment"]["Parser"] = __xrfragment_Parser
+__xrfragment_Parser.__name__ = true
+__xrfragment_Parser.parse = function(key,value,store,index) 
+  local Frag_h = ({});
+  local value1 = _hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_PREDEFINED_VIEW),__xrfragment_XRF.PV_EXECUTE);
+  if (value1 == nil) then 
+    Frag_h["#"] = __haxe_ds_StringMap.tnull;
+  else
+    Frag_h["#"] = value1;
+  end;
+  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_URL);
+  if (value1 == nil) then 
+    Frag_h.src = __haxe_ds_StringMap.tnull;
+  else
+    Frag_h.src = value1;
+  end;
+  local value1 = _hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_URL),__xrfragment_XRF.T_PREDEFINED_VIEW);
+  if (value1 == nil) then 
+    Frag_h.href = __haxe_ds_StringMap.tnull;
+  else
+    Frag_h.href = value1;
+  end;
+  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
+  if (value1 == nil) then 
+    Frag_h.tag = __haxe_ds_StringMap.tnull;
+  else
+    Frag_h.tag = value1;
+  end;
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.PV_OVERRIDE,__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.T_STRING),__xrfragment_XRF.T_STRING_OBJ),__xrfragment_XRF.METADATA),__xrfragment_XRF.NAVIGATOR);
+  if (value1 == nil) then 
+    Frag_h.pos = __haxe_ds_StringMap.tnull;
+  else
+    Frag_h.pos = value1;
+  end;
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.QUERY_OPERATOR,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.METADATA),__xrfragment_XRF.NAVIGATOR);
+  if (value1 == nil) then 
+    Frag_h.rot = __haxe_ds_StringMap.tnull;
+  else
+    Frag_h.rot = value1;
+  end;
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_FLOAT),__xrfragment_XRF.T_VECTOR2),__xrfragment_XRF.T_STRING),__xrfragment_XRF.NAVIGATOR),__xrfragment_XRF.METADATA);
+  if (value1 == nil) then 
+    Frag_h.t = __haxe_ds_StringMap.tnull;
+  else
+    Frag_h.t = value1;
+  end;
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_FLOAT),__xrfragment_XRF.T_VECTOR2),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.NAVIGATOR),__xrfragment_XRF.METADATA);
+  if (value1 == nil) then 
+    Frag_h.tv = __haxe_ds_StringMap.tnull;
+  else
+    Frag_h.tv = value1;
+  end;
+  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
+  if (value1 == nil) then 
+    Frag_h.namespace = __haxe_ds_StringMap.tnull;
+  else
+    Frag_h.namespace = value1;
+  end;
+  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
+  if (value1 == nil) then 
+    Frag_h.SPDX = __haxe_ds_StringMap.tnull;
+  else
+    Frag_h.SPDX = value1;
+  end;
+  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
+  if (value1 == nil) then 
+    Frag_h.unit = __haxe_ds_StringMap.tnull;
+  else
+    Frag_h.unit = value1;
+  end;
+  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
+  if (value1 == nil) then 
+    Frag_h.description = __haxe_ds_StringMap.tnull;
+  else
+    Frag_h.description = value1;
+  end;
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_URL),__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.NAVIGATOR),__xrfragment_XRF.METADATA),__xrfragment_XRF.PROMPT);
+  if (value1 == nil) then 
+    Frag_h.session = __haxe_ds_StringMap.tnull;
+  else
+    Frag_h.session = value1;
+  end;
+  local keyStripped = __xrfragment_XRF.operators:replace(key, "");
+  local isPVDynamic = (__lua_lib_luautf8_Utf8.len(key) > 0) and (Frag_h[key] == nil);
+  local isPVDefault = ((__lua_lib_luautf8_Utf8.len(value) == 0) and (__lua_lib_luautf8_Utf8.len(key) > 0)) and (key == "#");
+  if (isPVDynamic) then 
+    local v = __xrfragment_XRF.new(key, _hx_bit.bor(__xrfragment_XRF.PV_EXECUTE,__xrfragment_XRF.NAVIGATOR), index);
+    v:validate(value);
+    store[keyStripped] = v;
+    do return true end;
+  end;
+  local ret = Frag_h[key];
+  if (ret == __haxe_ds_StringMap.tnull) then 
+    ret = nil;
+  end;
+  local v = __xrfragment_XRF.new(key, ret, index);
+  if (Frag_h[key] ~= nil) then 
+    if (not v:validate(value)) then 
+      __haxe_Log.trace(Std.string(Std.string(Std.string(Std.string("⚠ fragment '") .. Std.string(key)) .. Std.string("' has incompatible value (")) .. Std.string(value)) .. Std.string(")"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=66,className="xrfragment.Parser",methodName="parse"}));
+      do return false end;
+    end;
+    store[keyStripped] = v;
+    if (__xrfragment_Parser.debug) then 
+      __haxe_Log.trace(Std.string(Std.string(Std.string("✔ ") .. Std.string(key)) .. Std.string(": ")) .. Std.string(v.string), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=70,className="xrfragment.Parser",methodName="parse"}));
+    end;
+  else
+    if (__lua_Boot.__instanceof(value, String)) then 
+      v:guessType(v, value);
+    end;
+    v.noXRF = true;
+    store[keyStripped] = v;
+  end;
+  do return true end;
+end
 
 __xrfragment_URI.new = {}
 _hx_exports["xrfragment"]["URI"] = __xrfragment_URI
@@ -2123,7 +1919,7 @@ __xrfragment_URI.parse = function(url,filter)
     if (splitByEqual.length > 1) then 
       value = StringTools.urlDecode(regexPlus:split(splitByEqual[1]):join(" "));
     end;
-    local ok = __xrfragment_Parser.parse(key, value, store);
+    local ok = __xrfragment_Parser.parse(key, value, store, i);
   end;
   if ((filter ~= nil) and (filter ~= 0)) then 
     local _g = 0;
@@ -2140,14 +1936,15 @@ __xrfragment_URI.parse = function(url,filter)
   do return store end;
 end
 
-__xrfragment_XRF.new = function(_fragment,_flags) 
+__xrfragment_XRF.new = function(_fragment,_flags,_index) 
   local self = _hx_new(__xrfragment_XRF.prototype)
-  __xrfragment_XRF.super(self,_fragment,_flags)
+  __xrfragment_XRF.super(self,_fragment,_flags,_index)
   return self
 end
-__xrfragment_XRF.super = function(self,_fragment,_flags) 
+__xrfragment_XRF.super = function(self,_fragment,_flags,_index) 
   self.fragment = _fragment;
   self.flags = _flags;
+  self.index = _index;
 end
 _hx_exports["xrfragment"]["XRF"] = __xrfragment_XRF
 __xrfragment_XRF.__name__ = true
@@ -2159,109 +1956,28 @@ __xrfragment_XRF.unset = function(flag,flags)
 end
 __xrfragment_XRF.prototype = _hx_e();
 __xrfragment_XRF.prototype.is = function(self,flag) 
+  if (not __lua_Boot.__instanceof(self.flags, Int)) then 
+    self.flags = 0;
+  end;
   do return (_hx_bit.band(self.flags,flag)) ~= 0 end
 end
 __xrfragment_XRF.prototype.validate = function(self,value) 
   self:guessType(self, value);
-  local idx = 1;
-  local ret = _hx_tab_array({}, 0);
-  while (idx ~= nil) do 
-    local newidx = 0;
-    if (__lua_lib_luautf8_Utf8.len("|") > 0) then 
-      newidx = __lua_lib_luautf8_Utf8.find(value, "|", idx, true);
-    else
-      if (idx >= __lua_lib_luautf8_Utf8.len(value)) then 
-        newidx = nil;
-      else
-        newidx = idx + 1;
-      end;
-    end;
-    if (newidx ~= nil) then 
-      local match = __lua_lib_luautf8_Utf8.sub(value, idx, newidx - 1);
-      ret:push(match);
-      idx = newidx + __lua_lib_luautf8_Utf8.len("|");
-    else
-      ret:push(__lua_lib_luautf8_Utf8.sub(value, idx, __lua_lib_luautf8_Utf8.len(value)));
-      idx = nil;
-    end;
-  end;
-  if (ret.length > 1) then 
-    self.args = Array.new();
-    local idx = 1;
-    local ret = _hx_tab_array({}, 0);
-    while (idx ~= nil) do 
-      local newidx = 0;
-      if (__lua_lib_luautf8_Utf8.len("|") > 0) then 
-        newidx = __lua_lib_luautf8_Utf8.find(value, "|", idx, true);
-      else
-        if (idx >= __lua_lib_luautf8_Utf8.len(value)) then 
-          newidx = nil;
-        else
-          newidx = idx + 1;
-        end;
-      end;
-      if (newidx ~= nil) then 
-        local match = __lua_lib_luautf8_Utf8.sub(value, idx, newidx - 1);
-        ret:push(match);
-        idx = newidx + __lua_lib_luautf8_Utf8.len("|");
-      else
-        ret:push(__lua_lib_luautf8_Utf8.sub(value, idx, __lua_lib_luautf8_Utf8.len(value)));
-        idx = nil;
-      end;
-    end;
-    local args = ret;
-    local _g = 0;
-    local _g1 = args.length;
-    while (_g < _g1) do 
-      _g = _g + 1;
-      local i = _g - 1;
-      local x = __xrfragment_XRF.new(self.fragment, self.flags);
-      self:guessType(x, args[i]);
-      self.args:push(x);
-    end;
-  end;
-  if (self.fragment == "q") then 
-    self.query = __xrfragment_Query.new(value):get();
-  end;
   local ok = true;
-  if (not __lua_Boot.__instanceof(self.args, Array)) then 
-    if (self:is(__xrfragment_XRF.T_VECTOR3) and not ((__lua_Boot.__instanceof(self.x, Float) and __lua_Boot.__instanceof(self.y, Float)) and __lua_Boot.__instanceof(self.z, Float))) then 
-      ok = false;
-    end;
-    if (self:is(__xrfragment_XRF.T_VECTOR2) and not (__lua_Boot.__instanceof(self.x, Float) and __lua_Boot.__instanceof(self.y, Float))) then 
-      ok = false;
-    end;
-    if (self:is(__xrfragment_XRF.T_INT) and not __lua_Boot.__instanceof(self.int, Int)) then 
-      ok = false;
-    end;
+  if ((not self:is(__xrfragment_XRF.T_FLOAT) and self:is(__xrfragment_XRF.T_VECTOR2)) and not (__lua_Boot.__instanceof(self.x, Float) and __lua_Boot.__instanceof(self.y, Float))) then 
+    ok = false;
+  end;
+  if ((not (self:is(__xrfragment_XRF.T_VECTOR2) or self:is(__xrfragment_XRF.T_STRING)) and self:is(__xrfragment_XRF.T_VECTOR3)) and not ((__lua_Boot.__instanceof(self.x, Float) and __lua_Boot.__instanceof(self.y, Float)) and __lua_Boot.__instanceof(self.z, Float))) then 
+    ok = false;
   end;
   do return ok end
 end
 __xrfragment_XRF.prototype.guessType = function(self,v,str) 
   v.string = str;
-  local idx = 1;
-  local ret = _hx_tab_array({}, 0);
-  while (idx ~= nil) do 
-    local newidx = 0;
-    if (__lua_lib_luautf8_Utf8.len(",") > 0) then 
-      newidx = __lua_lib_luautf8_Utf8.find(str, ",", idx, true);
-    else
-      if (idx >= __lua_lib_luautf8_Utf8.len(str)) then 
-        newidx = nil;
-      else
-        newidx = idx + 1;
-      end;
-    end;
-    if (newidx ~= nil) then 
-      local match = __lua_lib_luautf8_Utf8.sub(str, idx, newidx - 1);
-      ret:push(match);
-      idx = newidx + __lua_lib_luautf8_Utf8.len(",");
-    else
-      ret:push(__lua_lib_luautf8_Utf8.sub(str, idx, __lua_lib_luautf8_Utf8.len(str)));
-      idx = nil;
-    end;
+  if (not __lua_Boot.__instanceof(str, String)) then 
+    do return end;
   end;
-  if (ret.length > 1) then 
+  if (__lua_lib_luautf8_Utf8.len(str) > 0) then 
     local idx = 1;
     local ret = _hx_tab_array({}, 0);
     while (idx ~= nil) do 
@@ -2284,25 +2000,57 @@ __xrfragment_XRF.prototype.guessType = function(self,v,str)
         idx = nil;
       end;
     end;
-    local xyz = ret;
-    if (xyz.length > 0) then 
-      v.x = Std.parseFloat(xyz[0]);
+    if (ret.length > 1) then 
+      local idx = 1;
+      local ret = _hx_tab_array({}, 0);
+      while (idx ~= nil) do 
+        local newidx = 0;
+        if (__lua_lib_luautf8_Utf8.len(",") > 0) then 
+          newidx = __lua_lib_luautf8_Utf8.find(str, ",", idx, true);
+        else
+          if (idx >= __lua_lib_luautf8_Utf8.len(str)) then 
+            newidx = nil;
+          else
+            newidx = idx + 1;
+          end;
+        end;
+        if (newidx ~= nil) then 
+          local match = __lua_lib_luautf8_Utf8.sub(str, idx, newidx - 1);
+          ret:push(match);
+          idx = newidx + __lua_lib_luautf8_Utf8.len(",");
+        else
+          ret:push(__lua_lib_luautf8_Utf8.sub(str, idx, __lua_lib_luautf8_Utf8.len(str)));
+          idx = nil;
+        end;
+      end;
+      local xyzw = ret;
+      if (xyzw.length > 0) then 
+        v.x = Std.parseFloat(xyzw[0]);
+      end;
+      if (xyzw.length > 1) then 
+        v.y = Std.parseFloat(xyzw[1]);
+      end;
+      if (xyzw.length > 2) then 
+        v.z = Std.parseFloat(xyzw[2]);
+      end;
+      if (xyzw.length > 3) then 
+        v.w = Std.parseFloat(xyzw[3]);
+      end;
     end;
-    if (xyz.length > 1) then 
-      v.y = Std.parseFloat(xyz[1]);
+    if (__xrfragment_XRF.isColor:match(str)) then 
+      v.color = str;
     end;
-    if (xyz.length > 2) then 
-      v.z = Std.parseFloat(xyz[2]);
+    if (__xrfragment_XRF.isFloat:match(str)) then 
+      v.x = Std.parseFloat(str);
+      v.float = v.x;
     end;
-  end;
-  if (__xrfragment_XRF.isColor:match(str)) then 
-    v.color = str;
-  end;
-  if (__xrfragment_XRF.isFloat:match(str)) then 
-    v.float = Std.parseFloat(str);
-  end;
-  if (__xrfragment_XRF.isInt:match(str)) then 
-    v.int = Std.parseInt(str);
+    if (__xrfragment_XRF.isInt:match(str)) then 
+      v.int = Std.parseInt(str);
+      v.x = v.int;
+    end;
+    v.filter = __xrfragment_Filter.new(Std.string(Std.string(v.fragment) .. Std.string("=")) .. Std.string(v.string));
+  else
+    v.filter = __xrfragment_Filter.new(v.fragment);
   end;
 end
 
@@ -2407,9 +2155,9 @@ local _hx_static_init = function()
   
   __xrfragment_XRF.isColor = EReg.new("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", "");
   
-  __xrfragment_XRF.isInt = EReg.new("^[0-9]+$", "");
+  __xrfragment_XRF.isInt = EReg.new("^[-0-9]+$", "");
   
-  __xrfragment_XRF.isFloat = EReg.new("^[0-9]+\\.[0-9]+$", "");
+  __xrfragment_XRF.isFloat = EReg.new("^[-0-9]+\\.[0-9]+$", "");
   
   __xrfragment_XRF.isVector = EReg.new("([,]+|\\w)", "");
   
@@ -2418,6 +2166,16 @@ local _hx_static_init = function()
   __xrfragment_XRF.isUrlOrPretypedView = EReg.new("(^#|://)?\\..*", "");
   
   __xrfragment_XRF.isString = EReg.new(".*", "");
+  
+  __xrfragment_XRF.operators = EReg.new("(^-|[\\*]+)", "");
+  
+  __xrfragment_XRF.isProp = EReg.new("^.*=[><=]?", "");
+  
+  __xrfragment_XRF.isExclude = EReg.new("^-", "");
+  
+  __xrfragment_XRF.isDeep = EReg.new("\\*", "");
+  
+  __xrfragment_XRF.isNumber = EReg.new("^[0-9\\.]+$", "");
   
   
 end

@@ -1,5 +1,6 @@
 xrf.frag   = {}
 xrf.model  = {}
+xrf.mixers = []
 
 xrf.init = ((init) => function(opts){
   let scene = new opts.THREE.Group()
@@ -8,21 +9,26 @@ xrf.init = ((init) => function(opts){
   init(opts)
   if( opts.loaders ) Object.values(opts.loaders).map( xrf.patchLoader )
 
-  xrf.patchRenderer(opts.renderer)
+  xrf.patchRenderer(opts)
   xrf.navigator.init()
   // return xrfragment lib as 'xrf' query functor (like jquery)
   for ( let i in xrf ) xrf.query[i] = xrf[i] 
   return xrf.query
 })(xrf.init)
 
-xrf.patchRenderer = function(renderer){
+xrf.patchRenderer = function(opts){
+  let {renderer,camera} = opts
   renderer.xr.addEventListener( 'sessionstart', () => xrf.baseReferenceSpace = renderer.xr.getReferenceSpace() );
   renderer.xr.enabled = true;
+  xrf.clock = new xrf.THREE.Clock()
   renderer.render = ((render) => function(scene,camera){
-    if( xrf.model && xrf.model.render ) 
-      xrf.model.render(scene,camera)
+    // update clock
+    let time = xrf.clock.getDelta()
+    xrf.emit('render',{scene,camera,time,render}) // allow fragments to do something at renderframe
     render(scene,camera)
+    xrf.emit('renderPost',{scene,camera,time,render,renderer}) // allow fragments to do something after renderframe
   })(renderer.render.bind(renderer))
+
 }
 
 xrf.patchLoader = function(loader){
@@ -46,30 +52,11 @@ xrf.parseModel = function(model,url){
   let file               = xrf.getFile(url)
   model.file             = file
   // eval embedded XR fragments
-  model.scene.traverse( (mesh) => xrf.hashbus.pub.mesh(mesh,model) )
-  // add animations
-  model.clock            = new xrf.THREE.Clock();
-  model.mixer            = new xrf.THREE.AnimationMixer(model.scene)
-  model.animations.map( (anim) => { 
-    anim.action = model.mixer.clipAction( anim )
-    //anim.action.setLoop(0)
-    anim.action.play() 
+  model.scene.traverse( (mesh) => {
+    xrf.hashbus.pub.mesh(mesh,model) 
   })
-
-  let tmp = new xrf.THREE.Vector3()
-  model.render           = function(){
-    let time = model.clock.getDelta()
-    model.mixer.update( time )
-
-    // update focusline 
-    xrf.focusLine.material.color.r  = (1.0 + Math.sin( model.clock.getElapsedTime()*10  ))/2
-    xrf.focusLine.material.dashSize = 0.2 + 0.02*Math.sin( model.clock.getElapsedTime()  )
-    xrf.focusLine.material.gapSize  = 0.1 + 0.02*Math.sin( model.clock.getElapsedTime() *3  )
-    xrf.focusLine.material.opacity  = (0.25 + 0.15*Math.sin( model.clock.getElapsedTime() * 3 )) * xrf.focusLine.opacity;
-    if( xrf.focusLine.opacity > 0.0 ) xrf.focusLine.opacity -= time*0.2
-    if( xrf.focusLine.opacity < 0.0 ) xrf.focusLine.opacity = 0
-  }
-
+  model.animations.map( (a) => console.log("anim: "+a.name) )
+  xrf.emit('parseModel',{model,url,file})
 }
 
 xrf.getLastModel = ()           => xrf.model.last 
@@ -87,11 +74,18 @@ xrf.reset = () => {
     return true
   };
   let nodes = []
-  xrf.scene.traverse( (child) => child.isXRF ? nodes.push(child) : false )
+  xrf.scene.traverse( (n)     => n.audio && (n.audio.remove()) )
+  xrf.scene.traverse( (child) => child.isXRF && (nodes.push(child)) )
   nodes.map( disposeObject ) // leave non-XRF objects intact
-  xrf.interactive = xrf.InteractiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
+  xrf.interactive = xrf.interactiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
   xrf.add( xrf.interactive )
   xrf.layers = 0
+
+  // reset certain events 
+  xrf.emit('reset',{})
+  // remove mixers
+  xrf.mixers.map( (m) => m.stop())
+  xrf.mixers = []
 }
 
 xrf.parseUrl = (url) => {
@@ -108,3 +102,8 @@ xrf.add = (object) => {
   xrf.scene.add(object)
 }
 
+xrf.hasNoMaterial = (mesh) => {
+  const hasTexture        = mesh.material && mesh.material.map 
+  const hasMaterialName   = mesh.material && mesh.material.name.length > 0 
+  return mesh.geometry && !hasMaterialName && !hasTexture
+}

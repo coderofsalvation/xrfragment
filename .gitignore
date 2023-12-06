@@ -1,3 +1,4 @@
 dist/*.pyc
 src/spec/tmp.json
 tags
+example/assets/*.blend

@@ -18,13 +18,6 @@ import xrfragment.XRF;
  *     sub-delims  = "," /  "="
  * ```
  *
- * > Example: `://foo.com/my3d.asset#pos=1,0,0&prio=-5&t=0,100|100,200`
- *
- * | Explanation | |
- * |-|-|
- * | `pos=1,2,3` | vector/coordinate argument e.g. |
- * | `pos=1,2,3&rot=0,90,0&q=.foo` | combinators |
- *
  * In case your programming language has no parser ([check here](https://github.com/coderofsalvation/xrfragment/tree/main/dist)) you can [crosscompile it](https://github.com/coderofsalvation/xrfragment/blob/main/build.hxml), or roll your own `Parser.parse(k,v,store)` using the spec:
  *
  */
@@ -38,7 +31,7 @@ class URI {
       if( url == null || url.indexOf("#") == -1 ) return store;
       var fragment:Array<String>    = url.split("#");                      //  1. fragment URI starts with `#`
       var splitArray:Array<String>  = fragment[1].split('&');              //  1. fragments are split by `&`
-        for (i in 0...splitArray.length) {                                 //  1. loop thru each fragment
+      for (i in 0...splitArray.length) {                                   //  1. loop thru each fragment
 
         var splitByEqual = splitArray[i].split('=');                       //  1. for each fragment split on `=` to separate key/values 
         var regexPlus  = ~/\+/g;                                           //  1. fragment-values are urlencoded (space becomes `+` using `encodeUriComponent` e.g.)
@@ -47,7 +40,7 @@ class URI {
         if (splitByEqual.length > 1) {
           value = StringTools.urlDecode(regexPlus.split(splitByEqual[1]).join(" "));
         }
-				var ok:Bool = Parser.parse(key,value,store);                       //  1. for every recognized fragment key/value-pair call [Parser.parse](#%E2%86%AA%20Parser.parse%28k%2Cv%2Cstore%29)
+				var ok:Bool = Parser.parse(key,value,store,i);                     //  1. for every recognized fragment key/value-pair call [Parser.parse](#%E2%86%AA%20Parser.parse%28k%2Cv%2Cstore%29)
       }
       if( filter != null && filter != 0 ){
         for (key in store.keys()) {

@@ -1,83 +1,105 @@
 // *TODO* use webgl instancing
 
 xrf.frag.src = function(v, opts){
-
   opts.embedded = v // indicate embedded XR fragment
   let { mesh, model, camera, scene, renderer, THREE, hashbus, frag} = opts
 
-  console.log("   └ instancing src")
-  let src;
   let url      = v.string
-  let vfrag    = xrfragment.URI.parse(url)
-  opts.isPlane = mesh.geometry && mesh.geometry.attributes.uv && mesh.geometry.attributes.uv.count == 4 
+  let srcFrag  = opts.srcFrag = xrfragment.URI.parse(url)
+  opts.isLocal = v.string[0] == '#'
+  opts.isPortal = xrf.frag.src.renderAsPortal(mesh)
 
-  const addScene = (scene,url,frag) => {
-    src = xrf.frag.src.filterScene(scene,{...opts,frag})
-    xrf.frag.src.scale( src, opts, url )
-    xrf.frag.src.eval( src, opts, url )
-    enableSourcePortation(src)
-    mesh.add(src)
-    mesh.traverse( (n) => n.isSRC = n.isXRF = true )
-    if( mesh.material ) mesh.material.visible = false
-  }
-
-  const enableSourcePortation = (src) => {
-    if( vfrag.href || v.string[0] == '#' ) return
-    let scale = new THREE.Vector3()
-    let size  = new THREE.Vector3()
-    mesh.getWorldScale(scale)
-    new THREE.Box3().setFromObject(src).getSize(size)
-    const geo    = new THREE.SphereGeometry( Math.max(size.x, size.y, size.z) / scale.x, 10, 10 )
-    const mat    = new THREE.MeshBasicMaterial()
-    mat.transparent = true
-    mat.roughness = 0.05
-    mat.metalness = 1
-    mat.opacity = 0
-    const cube = new THREE.Mesh( geo, mat )
-    console.log("todo: sourceportate")
-    //mesh.add(cube)
-  }
-
-  const externalSRC = (url,frag,src) => {
-    fetch(url, { method: 'HEAD' })
-    .then( (res) => {
-      console.log(`loading src ${url}`)
-      let mimetype = res.headers.get('Content-type')
-      if( url.replace(/#.*/,'').match(/\.(gltf|glb)$/)    ) mimetype = 'gltf'
-      //if( url.match(/\.(fbx|stl|obj)$/) ) mimetype = 
-      console.log("src mimetype: "+mimetype)
-      opts = { ...opts, src, frag }
-      return xrf.frag.src.type[ mimetype ] ? xrf.frag.src.type[ mimetype ](url,opts) : xrf.frag.src.type.unknown(url,opts)
-    })
-    .then( (model) => {
-      if( model && model.scene ) addScene(model.scene, url, frag )
-    })
-    .finally( () => { })
-    .catch( console.error )
-  }
-
-  if( url[0] == "#" ) addScene(scene,url,vfrag)    // current file 
-  else externalSRC(url,vfrag)                      // external file
+  if( opts.isLocal ){
+        xrf.frag.src.localSRC(url,srcFrag,opts)     // local
+  }else xrf.frag.src.externalSRC(url,srcFrag,opts)  // external file
 }
 
-xrf.frag.src.eval = function(scene, opts, url){
-    let { mesh, model, camera, renderer, THREE, hashbus} = opts
-    if( url ){
-      console.log(mesh.name+" url="+url)
-      //let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
-      //let frag = xrfragment.URI.parse(url)
-      //// scale URI XR Fragments (queries) inside src-value 
-      //for( var i in frag ){
-      //  hashbus.pub.fragment(i, Object.assign(opts,{frag, model:{scene},scene}))
-      //}
-      //hashbus.pub( '#', {scene} )                    // execute the default projection '#' (if exist)
-      //hashbus.pub( url, {scene} )                    // and eval URI XR fragments 
+xrf.frag.src.addModel = (model,url,frag,opts) => {
+  let {mesh} = opts
+  let scene = model.scene
+  scene = xrf.frag.src.filterScene(scene,{...opts,frag})         // get filtered scene
+  if( mesh.material && !mesh.userData.src ) mesh.material.visible = false  // hide placeholder object
+  //enableSourcePortation(scene)
+  if( xrf.frag.src.renderAsPortal(mesh) ){
+    // only add remote objects, because 
+    // local scene-objects are already added to scene
+    xrf.portalNonEuclidian({...opts,model,scene:model.scene})
+    if( !opts.isLocal ) xrf.scene.add(scene) 
+  }else{
+    xrf.frag.src.scale( scene, opts, url )           // scale scene
+    mesh.add(scene)
+    xrf.emit('parseModel', {...opts, scene, model}) 
+  }
+  // flag everything isSRC & isXRF
+  mesh.traverse( (n) => { n.isSRC = n.isXRF = n[ opts.isLocal ? 'isSRCLocal' : 'isSRCExternal' ] = true })
+}
+
+xrf.frag.src.renderAsPortal = (mesh) => {
+  // *TODO* should support better isFlat(mesh) check
+  const isPlane           = mesh.geometry && mesh.geometry.attributes.uv && mesh.geometry.attributes.uv.count == 4 
+  return xrf.hasNoMaterial(mesh) && isPlane
+}
+
+xrf.frag.src.enableSourcePortation = (src) => {
+  // show sourceportation clickable plane
+  if( srcFrag.href || v.string[0] == '#' ) return
+  let scale = new THREE.Vector3()
+  let size  = new THREE.Vector3()
+  mesh.getWorldScale(scale)
+  new THREE.Box3().setFromObject(src).getSize(size)
+  const geo    = new THREE.SphereGeometry( Math.max(size.x, size.y, size.z) / scale.x, 10, 10 )
+  const mat    = new THREE.MeshBasicMaterial()
+  mat.transparent = true
+  mat.roughness = 0.05
+  mat.metalness = 1
+  mat.opacity = 0
+  const cube = new THREE.Mesh( geo, mat )
+  console.log("todo: sourceportate")
+  return xrf.frag.src
+}
+
+xrf.frag.src.externalSRC = (url,frag,opts) => {
+  fetch(url, { method: 'HEAD' })
+  .then( (res) => {
+    console.log(`loading src ${url}`)
+    let mimetype = res.headers.get('Content-type')
+    if( url.replace(/#.*/,'').match(/\.(gltf|glb)$/)    ) mimetype = 'gltf'
+    //if( url.match(/\.(fbx|stl|obj)$/) ) mimetype = 
+    opts = { ...opts, frag, mimetype }
+    return xrf.frag.src.type[ mimetype ] ? xrf.frag.src.type[ mimetype ](url,opts) : xrf.frag.src.type.unknown(url,opts)
+  })
+  .then( (model) => {
+    if( model && model.scene ) xrf.frag.src.addModel(model, url, frag, opts )
+  })
+  .finally( () => { })
+  .catch( console.error )
+  return xrf.frag.src
+}
+
+xrf.frag.src.localSRC = (url,frag,opts) => {
+  let {model,mesh,scene} = opts
+  setTimeout( () => {
+    if( mesh.material ) mesh.material = mesh.material.clone() // clone, so we can individually highlight meshes
+    let _model = {
+      animations: model.animations,
+      scene: scene.clone() // *TODO* opts.isPortal ? scene : scene.clone()
     }
+    _model.scenes = [_model.scene]
+    xrf.frag.src.addModel(_model,url,frag, opts)    // current file 
+  },500 )
 }
 
 // scale embedded XR fragments https://xrfragment.org/#scaling%20of%20instanced%20objects
 xrf.frag.src.scale = function(scene, opts, url){
     let { mesh, model, camera, renderer, THREE} = opts
+
+    // remove invisible objects (hidden by selectors) which might corrupt boundingbox size-detection 
+    let cleanScene = scene.clone()
+    if( !cleanScene ) debugger
+    let remove = []
+    const notVisible = (n) => !n.visible || (n.material && !n.material.visible)
+    cleanScene.traverse( (n) => notVisible(n) && n.children.length == 0 && (remove.push(n)) )
+    remove.map( (n) => n.removeFromParent() )
 
     let restrictTo3DBoundingBox = mesh.geometry
     if( restrictTo3DBoundingBox ){ 
@@ -86,27 +108,14 @@ xrf.frag.src.scale = function(scene, opts, url){
       // normalize instanced objectsize to boundingbox
       let sizeFrom  = new THREE.Vector3()
       let sizeTo    = new THREE.Vector3()
-
       let empty = new THREE.Object3D()
-
-// *TODO* exclude invisible objects from boundingbox size-detection
-//
-//      THREE.Box3.prototype.expandByObject = (function(expandByObject){
-//        return function(object,precise){
-//          return expandByObject.call(this, object.visible ? object : empty, precise)
-//        }
-//      })(THREE.Box3.prototype.expandByObject)
-
       new THREE.Box3().setFromObject(mesh).getSize(sizeTo)
-      new THREE.Box3().setFromObject(scene).getSize(sizeFrom)
+      new THREE.Box3().setFromObject(cleanScene).getSize(sizeFrom)
       let ratio = sizeFrom.divide(sizeTo)
       scene.scale.multiplyScalar( 1.0 / Math.max(ratio.x, ratio.y, ratio.z));
- //     let factor = getMax(sizeTo) < getMax(sizeFrom) ? getMax(sizeTo) / getMax(sizeFrom) : getMax(sizeFrom) / getMax(sizeTo)
- //     scene.scale.multiplyScalar( factor )
     }else{
       // spec 4 of https://xrfragment.org/#src
       // spec 2 of https://xrfragment.org/#scaling%20of%20instanced%20objects
-      console.log("normal scale: "+url)
       scene.scale.multiply( mesh.scale ) 
     }
     scene.isXRF = model.scene.isSRC = true
@@ -114,31 +123,16 @@ xrf.frag.src.scale = function(scene, opts, url){
 
 xrf.frag.src.filterScene = (scene,opts) => {
   let { mesh, model, camera, renderer, THREE, hashbus, frag} = opts
-  let obj, src
-  // cherrypicking of object(s)
-  if( !frag.q ){
-    src = new THREE.Group()
-    if( Object.keys(frag).length > 0 ){
-      for( var i in frag ){
-        if( scene.getObjectByName(i) ){
-          src.add( obj = scene.getObjectByName(i).clone(true) )
-        }
-        hashbus.pub.fragment(i, Object.assign(opts,{frag, model,scene}))
-      }
-    }else src = scene.clone(true)
-    if( src.children.length == 1 ) obj.position.set(0,0,0);
-  }
 
-  // filtering of objects using query
-  if( frag.q ){
-    src = scene.clone(true);
-    xrf.frag.q.filter(src,frag)
+  scene = xrf.filter.scene({scene,frag,reparent:true}) // *TODO* ,copyScene: opts.isPortal})
+
+  if( !opts.isLocal ){
+    scene.traverse( (m) => {
+      if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 
+      hashbus.pub.mesh(m,{scene,recursive:true})                       // cool idea: recursion-depth based distance between face & src
+    })
   }
-  src.traverse( (m) => {
-    if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 
-    hashbus.pub.mesh(m,{scene,recursive:true})                       // cool idea: recursion-depth based distance between face & src
-  })
-  return src
+  return scene
 }
 
 /*
@@ -153,72 +147,6 @@ xrf.frag.src.type = {}
 
 xrf.frag.src.type['unknown'] = function( url, opts ){
   return new Promise( (resolve,reject) => {
-    reject(`${url} mimetype not supported (yet)`)
+    reject(`${url} mimetype '${opts.mimetype}' not found or supported (yet)`)
   })
 }
-
-/*
- * mimetype: model/gltf+json
- */
-
-xrf.frag.src.type['gltf'] = function( url, opts ){
-  return new Promise( (resolve,reject) => {
-    let {mesh,src} = opts
-    let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
-    let loader
-
-    const Loader = xrf.loaders[ext]
-    if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 
-    if( !dir.match("://") ){ // force relative path 
-      dir = dir[0] == './' ? dir : `./${dir}`
-      loader = new Loader().setPath( dir )
-    }else loader = new Loader()
-
-    loader.load(url, (model) => {
-      resolve(model)
-    })
-  })
-}
-
-/*
- * mimetype: image/png 
- * mimetype: image/jpg 
- * mimetype: image/gif 
- */
-
-xrf.frag.src.type['image/png'] = function(url,opts){
-  let {mesh} = opts
-  let restrictTo3DBoundingBox = mesh.geometry
-  const texture = new THREE.TextureLoader().load( url );
-	texture.colorSpace = THREE.SRGBColorSpace;
-
-  //const geometry = new THREE.BoxGeometry();
-  const material = new THREE.MeshBasicMaterial({ 
-    map: texture, 
-    transparent: url.match(/(png|gif)/) ? true : false,
-    side: THREE.DoubleSide,
-    color: 0xFFFFFF,
-    opacity:1
-  });
-
-  // stretch image by pinning uv-coordinates to corners 
-  if( mesh.geometry ){
-    if( mesh.geometry.attributes.uv ){ // buffergeometries 
-      let uv = mesh.geometry.attributes.uv;
-      //       i  u  v
-      uv.setXY(0, 0, 0 )
-      uv.setXY(1, 1, 0 )
-      uv.setXY(2, 0, 1 )
-      uv.setXY(3, 1, 1 )
-    }else {
-      console.warn("xrfragment: uv's of ${url} might be off for non-buffer-geometries *TODO*")
-      //if( geometry.faceVertexUvs ){
-      // *TODO* force uv's of dynamically created geometries (in threejs)
-      //}
-    }
-  }
-  mesh.material = material
-}
-xrf.frag.src.type['image/gif'] = xrf.frag.src.type['image/png']
-xrf.frag.src.type['image/jpg'] = xrf.frag.src.type['image/png']
-

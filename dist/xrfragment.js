@@ -72,6 +72,20 @@ Reflect.deleteField = function(o,field) {
 	delete(o[field]);
 	return true;
 };
+Reflect.copy = function(o) {
+	if(o == null) {
+		return null;
+	}
+	var o2 = { };
+	var _g = 0;
+	var _g1 = Reflect.fields(o);
+	while(_g < _g1.length) {
+		var f = _g1[_g];
+		++_g;
+		o2[f] = Reflect.field(o,f);
+	}
+	return o2;
+};
 var Std = function() { };
 Std.__name__ = true;
 Std.string = function(s) {
@@ -209,86 +223,22 @@ js_Boot.__string_rec = function(o,s) {
 		return String(o);
 	}
 };
-var xrfragment_Parser = $hx_exports["xrfragment"]["Parser"] = function() { };
-xrfragment_Parser.__name__ = true;
-xrfragment_Parser.parse = function(key,value,store) {
-	var Frag_h = Object.create(null);
-	Frag_h["#"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_PREDEFINED_VIEW | xrfragment_XRF.PV_EXECUTE;
-	Frag_h["prio"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_INT;
-	Frag_h["src"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL;
-	Frag_h["href"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.T_PREDEFINED_VIEW;
-	Frag_h["tag"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING_OBJ | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
-	Frag_h["q"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.METADATA;
-	Frag_h["scale"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
-	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
-	Frag_h["mov"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
-	Frag_h["show"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_INT | xrfragment_XRF.METADATA;
-	Frag_h["env"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.METADATA;
-	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.ROUNDROBIN | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
-	Frag_h["gravity"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
-	Frag_h["physics"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA;
-	Frag_h["fov"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_INT | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
-	Frag_h["clip"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
-	Frag_h["fog"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
-	Frag_h["bg"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
-	Frag_h["namespace"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["SPDX"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["unit"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["description"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["session"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA | xrfragment_XRF.PROMPT;
-	var isPVDynamic = value.length == 0 && key.length > 0 && !Object.prototype.hasOwnProperty.call(Frag_h,key);
-	var isPVDefault = value.length == 0 && key.length > 0 && key == "#";
-	if(isPVDynamic) {
-		var v = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR);
-		v.validate(key);
-		store[key] = v;
-		return true;
-	}
-	if(key.split(".").length > 1 && value.split(".").length > 1) {
-		store[key] = new xrfragment_XRF(key,xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_STRING | xrfragment_XRF.PROP_BIND);
-		return true;
-	}
-	var v = new xrfragment_XRF(key,Frag_h[key]);
-	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
-		if(!v.validate(value)) {
-			console.log("src/xrfragment/Parser.hx:83:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
-			return false;
-		}
-		store[key] = v;
-		if(xrfragment_Parser.debug) {
-			console.log("src/xrfragment/Parser.hx:87:","✔ " + key + ": " + v.string);
-		}
-	} else {
-		if(typeof(value) == "string") {
-			v.guessType(v,value);
-		}
-		v.noXRF = true;
-		store[key] = v;
-	}
-	return true;
-};
-var xrfragment_Query = $hx_exports["xrfragment"]["Query"] = function(str) {
-	this.isNumber = new EReg("^[0-9\\.]+$","");
-	this.isRoot = new EReg("^[-]?/","");
-	this.isExclude = new EReg("^-","");
-	this.isProp = new EReg("^.*:[><=!]?","");
+var xrfragment_Filter = $hx_exports["xrfragment"]["Filter"] = function(str) {
 	this.q = { };
 	this.str = "";
 	if(str != null) {
 		this.parse(str);
 	}
 };
-xrfragment_Query.__name__ = true;
-xrfragment_Query.prototype = {
+xrfragment_Filter.__name__ = true;
+xrfragment_Filter.prototype = {
 	toObject: function() {
-		return this.q;
+		return Reflect.copy(this.q);
 	}
 	,get: function() {
-		return this.q;
+		return Reflect.copy(this.q);
 	}
 	,parse: function(str) {
-		var _gthis = this;
 		var token = str.split(" ");
 		var q = { };
 		var process = function(str,prefix) {
@@ -296,59 +246,42 @@ xrfragment_Query.prototype = {
 				prefix = "";
 			}
 			str = StringTools.trim(str);
-			var k = str.split(":")[0];
-			var v = str.split(":")[1];
+			var k = str.split("=")[0];
+			var v = str.split("=")[1];
 			var filter = { };
 			if(q[prefix + k]) {
 				filter = q[prefix + k];
 			}
-			filter["rules"] = filter["rules"] != null ? filter["rules"] : [];
-			if(_gthis.isProp.match(str)) {
+			if(xrfragment_XRF.isProp.match(str)) {
 				var oper = "";
-				if(str.indexOf("*") != -1) {
-					oper = "*";
-				}
 				if(str.indexOf(">") != -1) {
 					oper = ">";
 				}
 				if(str.indexOf("<") != -1) {
 					oper = "<";
 				}
-				if(str.indexOf(">=") != -1) {
-					oper = ">=";
-				}
-				if(str.indexOf("<=") != -1) {
-					oper = "<=";
-				}
-				if(_gthis.isExclude.match(k)) {
-					oper = "!=";
+				if(xrfragment_XRF.isExclude.match(k)) {
 					k = HxOverrides.substr(k,1,null);
-				} else {
-					v = HxOverrides.substr(v,oper.length,null);
 				}
+				v = HxOverrides.substr(v,oper.length,null);
 				if(oper.length == 0) {
 					oper = "=";
 				}
 				var rule = { };
-				if(_gthis.isNumber.match(v)) {
+				if(xrfragment_XRF.isNumber.match(v)) {
 					rule[oper] = parseFloat(v);
 				} else {
 					rule[oper] = v;
 				}
-				filter["rules"].push(rule);
-				q[k] = filter;
-				return;
-			} else {
-				filter["id"] = _gthis.isExclude.match(str) ? false : true;
-				filter["root"] = _gthis.isRoot.match(str);
-				if(_gthis.isExclude.match(str)) {
-					str = HxOverrides.substr(str,1,null);
-				}
-				if(_gthis.isRoot.match(str)) {
-					str = HxOverrides.substr(str,1,null);
-				}
-				q[str] = filter;
+				q["expr"] = rule;
 			}
+			var value = xrfragment_XRF.isDeep.match(str) ? k.split("*").length - 1 : 0;
+			q["deep"] = value;
+			var value = xrfragment_XRF.isExclude.match(str) ? false : true;
+			q["show"] = value;
+			var value = k.replace(xrfragment_XRF.operators.r,"");
+			q["key"] = value;
+			q["value"] = v;
 		};
 		var _g = 0;
 		var _g1 = token.length;
@@ -397,48 +330,74 @@ xrfragment_Query.prototype = {
 				return v[property];
 			}
 		}
-		var _g = 0;
-		var _g1 = Reflect.fields(this.q);
-		while(_g < _g1.length) {
-			var k = _g1[_g];
-			++_g;
-			var filter = Reflect.field(this.q,k);
-			if(filter.rules == null) {
-				continue;
-			}
-			var rules = filter.rules;
-			var _g2 = 0;
-			while(_g2 < rules.length) {
-				var rule = rules[_g2];
-				++_g2;
-				if(exclude) {
-					if(Reflect.field(rule,"!=") != null && testprop((value == null ? "null" : "" + value) == Std.string(Reflect.field(rule,"!="))) && exclude) {
-						++qualify;
-					}
-				} else {
-					if(Reflect.field(rule,"*") != null && testprop(parseFloat(value) != null)) {
-						++qualify;
-					}
-					if(Reflect.field(rule,">") != null && testprop(parseFloat(value) > parseFloat(Reflect.field(rule,">")))) {
-						++qualify;
-					}
-					if(Reflect.field(rule,"<") != null && testprop(parseFloat(value) < parseFloat(Reflect.field(rule,"<")))) {
-						++qualify;
-					}
-					if(Reflect.field(rule,">=") != null && testprop(parseFloat(value) >= parseFloat(Reflect.field(rule,">=")))) {
-						++qualify;
-					}
-					if(Reflect.field(rule,"<=") != null && testprop(parseFloat(value) <= parseFloat(Reflect.field(rule,"<=")))) {
-						++qualify;
-					}
-					if(Reflect.field(rule,"=") != null && (testprop(value == Reflect.field(rule,"=")) || testprop(parseFloat(value) == parseFloat(Reflect.field(rule,"="))))) {
-						++qualify;
-					}
+		if(Reflect.field(this.q,"expr")) {
+			var f = Reflect.field(this.q,"expr");
+			if(!Reflect.field(this.q,"show")) {
+				if(Reflect.field(f,"!=") != null && testprop((value == null ? "null" : "" + value) == Std.string(Reflect.field(f,"!="))) && exclude) {
+					++qualify;
+				}
+			} else {
+				if(Reflect.field(f,"*") != null && testprop(parseFloat(value) != null)) {
+					++qualify;
+				}
+				if(Reflect.field(f,">") != null && testprop(parseFloat(value) >= parseFloat(Reflect.field(f,">")))) {
+					++qualify;
+				}
+				if(Reflect.field(f,"<") != null && testprop(parseFloat(value) <= parseFloat(Reflect.field(f,"<")))) {
+					++qualify;
+				}
+				if(Reflect.field(f,"=") != null && (testprop(value == Reflect.field(f,"=")) || testprop(parseFloat(value) == parseFloat(Reflect.field(f,"="))))) {
+					++qualify;
 				}
 			}
 		}
 		return qualify > 0;
 	}
+};
+var xrfragment_Parser = $hx_exports["xrfragment"]["Parser"] = function() { };
+xrfragment_Parser.__name__ = true;
+xrfragment_Parser.parse = function(key,value,store,index) {
+	var Frag_h = Object.create(null);
+	Frag_h["#"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_PREDEFINED_VIEW | xrfragment_XRF.PV_EXECUTE;
+	Frag_h["src"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL;
+	Frag_h["href"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.T_PREDEFINED_VIEW;
+	Frag_h["tag"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
+	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING | xrfragment_XRF.T_STRING_OBJ | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
+	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
+	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_FLOAT | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.T_STRING | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
+	Frag_h["tv"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_FLOAT | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
+	Frag_h["namespace"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
+	Frag_h["SPDX"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
+	Frag_h["unit"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
+	Frag_h["description"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
+	Frag_h["session"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA | xrfragment_XRF.PROMPT;
+	var keyStripped = key.replace(xrfragment_XRF.operators.r,"");
+	var isPVDynamic = key.length > 0 && !Object.prototype.hasOwnProperty.call(Frag_h,key);
+	var isPVDefault = value.length == 0 && key.length > 0 && key == "#";
+	if(isPVDynamic) {
+		var v = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR,index);
+		v.validate(value);
+		store[keyStripped] = v;
+		return true;
+	}
+	var v = new xrfragment_XRF(key,Frag_h[key],index);
+	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
+		if(!v.validate(value)) {
+			console.log("src/xrfragment/Parser.hx:66:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
+			return false;
+		}
+		store[keyStripped] = v;
+		if(xrfragment_Parser.debug) {
+			console.log("src/xrfragment/Parser.hx:70:","✔ " + key + ": " + v.string);
+		}
+	} else {
+		if(typeof(value) == "string") {
+			v.guessType(v,value);
+		}
+		v.noXRF = true;
+		store[keyStripped] = v;
+	}
+	return true;
 };
 var xrfragment_URI = $hx_exports["xrfragment"]["URI"] = function() { };
 xrfragment_URI.__name__ = true;
@@ -461,7 +420,7 @@ xrfragment_URI.parse = function(url,filter) {
 			var s = regexPlus.split(splitByEqual[1]).join(" ");
 			value = decodeURIComponent(s.split("+").join(" "));
 		}
-		var ok = xrfragment_Parser.parse(key,value,store);
+		var ok = xrfragment_Parser.parse(key,value,store,i);
 	}
 	if(filter != null && filter != 0) {
 		var _g = 0;
@@ -477,9 +436,10 @@ xrfragment_URI.parse = function(url,filter) {
 	}
 	return store;
 };
-var xrfragment_XRF = $hx_exports["xrfragment"]["XRF"] = function(_fragment,_flags) {
+var xrfragment_XRF = $hx_exports["xrfragment"]["XRF"] = function(_fragment,_flags,_index) {
 	this.fragment = _fragment;
 	this.flags = _flags;
+	this.index = _index;
 };
 xrfragment_XRF.__name__ = true;
 xrfragment_XRF.set = function(flag,flags) {
@@ -490,68 +450,58 @@ xrfragment_XRF.unset = function(flag,flags) {
 };
 xrfragment_XRF.prototype = {
 	is: function(flag) {
+		var v = this.flags;
+		if(!(typeof(v) == "number" && ((v | 0) === v))) {
+			this.flags = 0;
+		}
 		return (this.flags & flag) != 0;
 	}
 	,validate: function(value) {
 		this.guessType(this,value);
-		if(value.split("|").length > 1) {
-			this.args = [];
-			var args = value.split("|");
-			var _g = 0;
-			var _g1 = args.length;
-			while(_g < _g1) {
-				var i = _g++;
-				var x = new xrfragment_XRF(this.fragment,this.flags);
-				this.guessType(x,args[i]);
-				this.args.push(x);
-			}
-		}
-		if(this.fragment == "q") {
-			this.query = new xrfragment_Query(value).get();
-		}
 		var ok = true;
-		if(!((this.args) instanceof Array)) {
-			if(this.is(xrfragment_XRF.T_VECTOR3) && !(typeof(this.x) == "number" && typeof(this.y) == "number" && typeof(this.z) == "number")) {
-				ok = false;
-			}
-			if(this.is(xrfragment_XRF.T_VECTOR2) && !(typeof(this.x) == "number" && typeof(this.y) == "number")) {
-				ok = false;
-			}
-			var tmp;
-			if(this.is(xrfragment_XRF.T_INT)) {
-				var v = this.int;
-				tmp = !(typeof(v) == "number" && ((v | 0) === v));
-			} else {
-				tmp = false;
-			}
-			if(tmp) {
-				ok = false;
-			}
+		if(!this.is(xrfragment_XRF.T_FLOAT) && this.is(xrfragment_XRF.T_VECTOR2) && !(typeof(this.x) == "number" && typeof(this.y) == "number")) {
+			ok = false;
+		}
+		if(!(this.is(xrfragment_XRF.T_VECTOR2) || this.is(xrfragment_XRF.T_STRING)) && this.is(xrfragment_XRF.T_VECTOR3) && !(typeof(this.x) == "number" && typeof(this.y) == "number" && typeof(this.z) == "number")) {
+			ok = false;
 		}
 		return ok;
 	}
 	,guessType: function(v,str) {
 		v.string = str;
-		if(str.split(",").length > 1) {
-			var xyz = str.split(",");
-			if(xyz.length > 0) {
-				v.x = parseFloat(xyz[0]);
-			}
-			if(xyz.length > 1) {
-				v.y = parseFloat(xyz[1]);
-			}
-			if(xyz.length > 2) {
-				v.z = parseFloat(xyz[2]);
-			}
+		if(typeof(str) != "string") {
+			return;
 		}
-		if(xrfragment_XRF.isColor.match(str)) {
-			v.color = str;
-		}
-		if(xrfragment_XRF.isFloat.match(str)) {
-			v.float = parseFloat(str);
-		}
-		if(xrfragment_XRF.isInt.match(str)) {
-			v.int = Std.parseInt(str);
+		if(str.length > 0) {
+			if(str.split(",").length > 1) {
+				var xyzw = str.split(",");
+				if(xyzw.length > 0) {
+					v.x = parseFloat(xyzw[0]);
+				}
+				if(xyzw.length > 1) {
+					v.y = parseFloat(xyzw[1]);
+				}
+				if(xyzw.length > 2) {
+					v.z = parseFloat(xyzw[2]);
+				}
+				if(xyzw.length > 3) {
+					v.w = parseFloat(xyzw[3]);
+				}
+			}
+			if(xrfragment_XRF.isColor.match(str)) {
+				v.color = str;
+			}
+			if(xrfragment_XRF.isFloat.match(str)) {
+				v.x = parseFloat(str);
+				v.float = v.x;
+			}
+			if(xrfragment_XRF.isInt.match(str)) {
+				v.int = Std.parseInt(str);
+				v.x = v.int;
+			}
+			v.filter = new xrfragment_Filter(v.fragment + "=" + v.string);
+		} else {
+			v.filter = new xrfragment_Filter(v.fragment);
 		}
 	}
 };
@@ -583,11 +533,16 @@ xrfragment_XRF.T_STRING = 1048576;
 xrfragment_XRF.T_STRING_OBJ = 2097152;
 xrfragment_XRF.T_STRING_OBJ_PROP = 4194304;
 xrfragment_XRF.isColor = new EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","");
-xrfragment_XRF.isInt = new EReg("^[0-9]+$","");
-xrfragment_XRF.isFloat = new EReg("^[0-9]+\\.[0-9]+$","");
+xrfragment_XRF.isInt = new EReg("^[-0-9]+$","");
+xrfragment_XRF.isFloat = new EReg("^[-0-9]+\\.[0-9]+$","");
 xrfragment_XRF.isVector = new EReg("([,]+|\\w)","");
 xrfragment_XRF.isUrl = new EReg("(://)?\\..*","");
 xrfragment_XRF.isUrlOrPretypedView = new EReg("(^#|://)?\\..*","");
 xrfragment_XRF.isString = new EReg(".*","");
+xrfragment_XRF.operators = new EReg("(^-|[\\*]+)","");
+xrfragment_XRF.isProp = new EReg("^.*=[><=]?","");
+xrfragment_XRF.isExclude = new EReg("^-","");
+xrfragment_XRF.isDeep = new EReg("\\*","");
+xrfragment_XRF.isNumber = new EReg("^[0-9\\.]+$","");
 })({});
 var xrfragment = $hx_exports["xrfragment"];
