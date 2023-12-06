@@ -81,8 +81,8 @@ value:     draft-XRFRAGMENTS-leonvankammen-00
 <h1 class="special" id="abstract">Abstract</h1>
 
 <p>This draft is a specification for 4D URLs &amp; <a href="https://github.com/coderofsalvation/hypermediatic">hypermediatic</a> navigation, which links together space, time &amp; text together, for hypermedia browsers with- or without a network-connection.<br>
-The specification promotes spatial addressibility, sharing, navigation, query-ing and annotating interactive (text)objects across for (XR) Browsers.<br>
-XR Fragments allows us to enrich existing dataformats, by recursive use of existing proven technologies like <a href="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</a> and BibTags notation.<br></p>
+The specification promotes spatial addressibility, sharing, navigation, filtering and databinding objects for (XR) Browsers.<br>
+XR Fragments allows us to better use existing metadata inside 3D scene(files), by connecting it to proven technologies like <a href="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</a>.</p>
 
 <blockquote>
 <p>Almost every idea in this document is demonstrated at <a href="https://xrfragment.org">https://xrfragment.org</a></p>
@@ -90,14 +90,18 @@ XR Fragments allows us to enrich existing dataformats, by recursive use of exist
 <section data-matter="main">
 <h1 id="introduction">Introduction</h1>
 
-<p>How can we add more features to existing text &amp; 3D scenes, without introducing new dataformats?<br>
+<p>How can we add more control to existing text &amp; 3D scenes, without introducing new dataformats?<br>
 Historically, there&rsquo;s many attempts to create the ultimate markuplanguage or 3D fileformat.<br>
-The lowest common denominator is: describing/tagging/naming nodes using <strong>plain text</strong>.<br>
-XR Fragments allows us to enrich/connect existing dataformats, by introducing existing technologies/ideas:<br></p>
+The lowest common denominator is: designers describing/tagging/naming things using <strong>plain text</strong>.<br>
+XR Fragments exploits the fact that all 3D models already contain such metadata:</p>
+
+<p><strong>XR Fragments allows controlling of metadata in 3D scene(files) using URLs</strong></p>
+
+<p>Or more detailed:</p>
 
 <ol>
 <li>addressibility and <a href="https://github.com/coderofsalvation/hypermediatic">hypermediatic</a> navigation of 3D scenes/objects: <a href="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</a> + src/href spatial metadata</li>
-<li>Interlinking text/&amp; 3D by collapsing space into a Word Graph (XRWG) to show <a href="#visible-links">visible links</a> (and augmenting text with <a href="https://github.com/coderofsalvation/tagbibs">bibs</a> / <a href="https://en.wikipedia.org/wiki/BibTeX">BibTags</a> appendices (see <a href="https://visual-meta.info">visual-meta</a> e.g.)</li>
+<li>Interlinking (text)objects by collapsing space into a Word Graph (XRWG) to show <a href="#visible-links">visible links</a></li>
 <li>unlocking spatial potential of the (originally 2D) hashtag (which jumps to a chapter) for navigating XR documents</li>
 </ol>
 
@@ -107,10 +111,10 @@ XR Fragments allows us to enrich/connect existing dataformats, by introducing ex
 
 <h1 id="core-principle">Core principle</h1>
 
-<p>XR Fragments strives to serve (nontechnical/fuzzy) humans first, and machine(implementations) later, by ensuring hasslefree text-vs-thought feedback loops.<br>
-This also means that the repair-ability of machine-matters should be human friendly too (not too complex).<br>
-XR Fragments tries to seek to connect the world of text (semantical web / RDF), and the world of pixels.<br>
-Instead of combining them (in a game-editor e.g.), XR Fragments is opting for a more integrated path <strong>towards</strong> them, by describing how to make browsers <strong>4D URL-ready</strong>:</p>
+<p><strong>XR Fragments allows controlling of metadata in 3D scene(files) using URLs</strong></p>
+
+<p>XR Fragments tries to seek to connect the world of text (semantical web / RDF), and the world of pixels.<br>
+Instead of combining them (in a game-editor e.g.), XR Fragments <strong>integrates all</strong>, by collecting metadata into an XRWG and control it via URL:</p>
 
 <table>
 <thead>
@@ -130,14 +134,8 @@ Instead of combining them (in a game-editor e.g.), XR Fragments is opting for a 
 
 <tr>
 <td>the hashbus</td>
-<td>hashtags map to camera/scene-projections</td>
-<td>hashtags map to document positions</td>
-</tr>
-
-<tr>
-<td>spacetime hashtags</td>
-<td>positions camera, triggers scene-preset/time</td>
-<td>jumps/scrolls to chapter</td>
+<td>hashtags alter camera/scene/object-projections</td>
+<td>hashtags alter document positions</td>
 </tr>
 
 <tr>
@@ -154,20 +152,26 @@ Instead of combining them (in a game-editor e.g.), XR Fragments is opting for a 
 
 <tr>
 <td>href metadata</td>
-<td>repositions camera or animation-range</td>
-<td>jumps to camera</td>
+<td>triggers predefined view</td>
+<td>Media fragments</td>
+</tr>
+
+<tr>
+<td>href metadata</td>
+<td>triggers camera/scene/object/projections</td>
+<td>n/a</td>
 </tr>
 
 <tr>
 <td>href metadata</td>
 <td>draws visible connection(s) for XRWG &lsquo;tag&rsquo;</td>
-<td></td>
+<td>n/a</td>
 </tr>
 
 <tr>
 <td>href metadata</td>
-<td>triggers predefined view</td>
-<td>Media fragments</td>
+<td>filters certain (in)visible objects</td>
+<td>n/a</td>
 </tr>
 </tbody>
 </table>
@@ -183,13 +187,16 @@ Instead of combining them (in a game-editor e.g.), XR Fragments is opting for a 
  │                2D URL:       ://library.com  /document        ?search     #chapter           │
  │                                                                                              │
  │                4D URL:       ://park.com     /4Dscene.fbx ──&gt; ?misc  ──&gt;  #view ───&gt; hashbus │
- │                                                │                          #query      │      │
+ │                                                │                          #filter     │      │
  │                                                │                          #tag        │      │
+ │                                                │                          #material   │      │
+ │                                                │                          #animation  │      │
+ │                                                │                          #texture    │      │
+ │                                                │                          #variable   │      │
  │                                                │                                      │      │
  │                                               XRWG &lt;─────────────────────&lt;────────────+      │
  │                                                │                                      │      │
- │                                                ├─ objects ───────────────&gt;────────────│      │
- │                                                └─ text    ───────────────&gt;────────────+      │
+ │                                                └─ objects  ──────────────&gt;────────────+      │
  │                                                                                              │
  │                                                                                              │
  +──────────────────────────────────────────────────────────────────────────────────────────────+
@@ -236,7 +243,7 @@ sub-delims  = &quot;,&quot; / &quot;=&quot;
 </tr>
 
 <tr>
-<td><code>pos=1,2,3&amp;rot=0,90,0&amp;q=.foo</code></td>
+<td><code>pos=1,2,3&amp;rot=0,90,0&amp;foo</code></td>
 <td>combinators</td>
 </tr>
 </tbody>
@@ -275,25 +282,14 @@ sub-delims  = &quot;,&quot; / &quot;=&quot;
 
 <tr>
 <td><code>#t</code></td>
-<td>vector3</td>
-<td><code>#t=1,500,1000</code></td>
-<td>play animation-loop range between frame 500 and 1000, at normal speed</td>
-</tr>
-
-<tr>
-<td><code>#......</code></td>
-<td>string</td>
-<td><code>#.cubes</code> <code>#cube</code></td>
-<td>predefined views, XRWG fragments and ID fragments</td>
+<td>timevector</td>
+<td><code>#t=2,2000,1</code></td>
+<td>play animation-loop range between frame 2 and 2000 at (normal) speed 1</td>
 </tr>
 </tbody>
 </table>
 
-<blockquote>
-<p>xyz coordinates are similar to ones found in SVG Media Fragments</p>
-</blockquote>
-
-<h1 id="list-of-metadata-for-3d-nodes">List of metadata for 3D nodes</h1>
+<h2 id="list-of-metadata-for-3d-nodes">List of metadata for 3D nodes</h2>
 
 <table>
 <thead>
@@ -327,16 +323,148 @@ sub-delims  = &quot;,&quot; / &quot;=&quot;
 <td><code>tag</code></td>
 <td>string</td>
 <td><code>&quot;tag&quot;: &quot;cubes geo&quot;</code></td>
-<td>tag object (for query-use / XRWG highlighting)</td>
+<td>tag object (for filter-use / XRWG highlighting)</td>
 <td>custom property in 3D fileformats</td>
 </tr>
 </tbody>
 </table>
+
+<blockquote>
 <p>Supported popular compatible 3D fileformats: <code>.gltf</code>, <code>.obj</code>, <code>.fbx</code>, <code>.usdz</code>, <code>.json</code> (THREE.js), <code>.dae</code> and so on.</p>
+</blockquote>
+
+<h2 id="vector-datatypes">vector datatypes</h2>
+
+<p>| type       | syntax | example | info |</p>
+
+<table>
+<tbody>
+<tr>
+<td>vector2</td>
+</tr>
+
+<tr>
+<td>vector3</td>
+</tr>
+
+<tr>
+<td>timevector</td>
+</tr>
+
+<tr>
+<td></td>
+</tr>
+
+<tr>
+<td></td>
+</tr>
+
+<tr>
+<td></td>
+</tr>
+
+<tr>
+<td></td>
+</tr>
+
+<tr>
+<td></td>
+</tr>
+
+<tr>
+<td></td>
+</tr>
+
+<tr>
+<td></td>
+</tr>
+
+<tr>
+<td></td>
+</tr>
+
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
 
 <blockquote>
 <p>NOTE: XR Fragments are optional but also file- and protocol-agnostic, which means that programmatic 3D scene(nodes) can also use the mechanism/metadata.</p>
 </blockquote>
+
+<h2 id="dynamic-xr-fragments-databindings">Dynamic XR Fragments (+databindings)</h2>
+
+<p>These are automatic fragment-to-metadata mappings, which only trigger if the 3D scene metadata matches a specific identifier (<code>aliasname</code> e.g.)</p>
+
+<table>
+<thead>
+<tr>
+<th>fragment</th>
+<th>type</th>
+<th>example</th>
+<th>info</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>#&lt;aliasname&gt;</code></td>
+<td>string</td>
+<td><code>#cubes</code></td>
+<td>evaluate predefined views (<code>#cubes: #foo&amp;bar</code> e.g.)</td>
+</tr>
+
+<tr>
+<td><code>#&lt;tag_or_objectname&gt;</code></td>
+<td>string</td>
+<td><code>#person</code></td>
+<td>focus object(s) with <code>tag: person</code> or name <code>person</code> by looking up XRWG</td>
+</tr>
+
+<tr>
+<td><code>#&lt;cameraname&gt;</code></td>
+<td>string</td>
+<td><code>#cam01</code></td>
+<td>set camera as active camera</td>
+</tr>
+
+<tr>
+<td><code>#&lt;objectname&gt;=&lt;material&gt;</code></td>
+<td>string=string</td>
+<td><code>#car=metallic</code></td>
+<td>set material of car to material with name <code>metallic</code></td>
+</tr>
+
+<tr>
+<td></td>
+<td>string=string</td>
+<td><code>#product=metallic</code></td>
+<td>set material of objects tagged with <code>product</code> to material with name <code>metallic</code></td>
+</tr>
+
+<tr>
+<td><code>#&lt;objectname&gt;=&lt;mediafrag&gt;</code></td>
+<td>string=<a href="https://www.w3.org/TR/media-frags/#valid-uri">media frag</a></td>
+<td><code>#foo=0,1</code></td>
+<td>play media <code>src</code> using <a href="https://www.w3.org/TR/media-frags/#valid-uri">media fragment URI</a></td>
+</tr>
+
+<tr>
+<td><code>#&lt;objectname&gt;=&lt;timevector&gt;</code></td>
+<td>string=timevector</td>
+<td><code>#sky=0,0.5,0.1,0</code></td>
+<td>sets 1D/2D/3D time(line) vectors (uv-position e.g.) to <code>0,0.5</code> (and autoscroll x with max <code>0.1</code> every second)</td>
+</tr>
+
+<tr>
+<td></td>
+<td></td>
+<td><code>#music=1,2</code></td>
+<td>play media of object (<code>src: podcast.mp3</code> e.g.) from beginning (<code>1</code>) at double speed (<code>2</code>)</td>
+</tr>
+</tbody>
+</table>
 
 <h1 id="spatial-referencing-3d">Spatial Referencing 3D</h1>
 
@@ -390,8 +518,8 @@ For example, to render a portal with a preview-version of the scene, create an 3
 <tbody>
 <tr>
 <td><b>#pos</b>=0,0,0</td>
-<td>vector3</td>
-<td>(re)position camera</td>
+<td>vector3 or string</td>
+<td>(re)position camera based on coordinates directly, or indirectly using objectname (its worldposition)</td>
 </tr>
 
 <tr>
@@ -415,7 +543,7 @@ For example, to render a portal with a preview-version of the scene, create an 3
 <li>set the position of the camera accordingly to the vector3 values of <code>#pos</code></li>
 <li><code>rot</code> sets the rotation of the camera (only for non-VR/AR headsets)</li>
 <li><code>t</code> sets the playbackspeed and animation-range of the current scene animation(s) or <code>src</code>-mediacontent (video/audioframes e.g., use <code>t=0,7,7</code> to &lsquo;STOP&rsquo; at frame 7 e.g.)</li>
-<li>in case an <code>href</code> does not mention any <code>pos</code>-coordinate, <code>pos=0,0,0</code> will be assumed</li>
+<li>after scene load: in case an <code>href</code> does not mention any <code>pos</code>-coordinate, <code>pos=0,0,0</code> will be assumed</li>
 </ol>
 
 <p>Here&rsquo;s an ascii representation of a 3D scene-graph which contains 3D objects <code>◻</code> and their metadata:</p>
@@ -453,7 +581,7 @@ In case of <code>buttonA</code> the end-user will be teleported to another locat
 <li>IF a <code>#cube</code> matches anything else in the XR Word Graph (XRWG) draw wires to them (text or related objects).</li>
 </ol>
 
-<h1 id="embedding-xr-content-src-instancing">Embedding XR content (src-instancing)</h1>
+<h1 id="embedding-xr-content-using-src">Embedding XR content using src</h1>
 
 <p><code>src</code> is the 3D version of the <a target="_blank" href="https://www.w3.org/html/wiki/Elements/iframe">iframe</a>.<br>
 It instances content (in objects) in the current scene/asset.</p>
@@ -470,22 +598,22 @@ It instances content (in objects) in the current scene/asset.</p>
 <tbody>
 <tr>
 <td><code>src</code></td>
-<td>string (uri, hashtag/query)</td>
-<td><code>#cube</code><br><code>#sometag</code><br>#q=-ball_inside_cube<code>&lt;br&gt;</code>#q=-/sky -rain<code>&lt;br&gt;</code>#q=-.language .english<code>&lt;br&gt;</code>#q=price:&gt;2 price:<5`<br><code>https://linux.org/penguin.png</code><br><code>https://linux.world/distrowatch.gltf#t=1,100</code><br><code>linuxapp://conference/nixworkshop/apply.gltf#q=flyer</code><br><code>androidapp://page1?tutorial#pos=0,0,1&amp;t1,100</code></td>
+<td>string (uri, hashtag/filter)</td>
+<td><code>#cube</code><br><code>#sometag</code><br>#cube&amp;-ball_inside_cube<code>&lt;br&gt;</code>#-sky&amp;-rain<code>&lt;br&gt;</code>#-language&amp;english<code>&lt;br&gt;</code>#price=&gt;5<code>&lt;br&gt;</code><a href="https://linux.org/penguin.png`">https://linux.org/penguin.png`</a><br><code>https://linux.world/distrowatch.gltf#t=1,100</code><br><code>linuxapp://conference/nixworkshop/apply.gltf#-cta&amp;cta_apply</code><br><code>androidapp://page1?tutorial#pos=0,0,1&amp;t1,100</code><br><code>foo.mp3#0,0,0</code></td>
 </tr>
 </tbody>
 </table>
-<p>Here&rsquo;s an ascii representation of a 3D scene-graph with 3D objects <code>◻</code> which embeds remote &amp; local 3D objects <code>◻</code> with/out using queries:</p>
+<p>Here&rsquo;s an ascii representation of a 3D scene-graph with 3D objects <code>◻</code> which embeds remote &amp; local 3D objects <code>◻</code> with/out using filters:</p>
 
 <pre><code>  +────────────────────────────────────────────────────────+  +─────────────────────────+ 
   │                                                        │  │                         │
   │  index.gltf                                            │  │ ocean.com/aquarium.fbx  │
-  │    │                                                   │  │   │                     │
+  │    │                                                   │  │   ├ room                │
   │    ├── ◻ canvas                                        │  │   └── ◻ fishbowl        │
   │    │      └ src: painting.png                          │  │         ├─ ◻ bass       │
   │    │                                                   │  │         └─ ◻ tuna       │
   │    ├── ◻ aquariumcube                                  │  │                         │       
-  │    │      └ src: ://rescue.com/fish.gltf#bass%20tuna   │  +─────────────────────────+
+  │    │      └ src: ://rescue.com/fish.gltf#fishbowl      │  +─────────────────────────+
   │    │                                                   │    
   │    ├── ◻ bedroom                                       │   
   │    │      └ src: #canvas                               │
@@ -497,41 +625,45 @@ It instances content (in objects) in the current scene/asset.</p>
 </code></pre>
 
 <p>An XR Fragment-compatible browser viewing this scene, lazy-loads and projects <code>painting.png</code> onto the (plane) object called <code>canvas</code> (which is copy-instanced in the bed and livingroom).<br>
-Also, after lazy-loading <code>ocean.com/aquarium.gltf</code>, only the queried objects <code>bass</code> and <code>tuna</code> will be instanced inside <code>aquariumcube</code>.<br>
+Also, after lazy-loading <code>ocean.com/aquarium.gltf</code>, only the queried objects <code>fishbowl</code> (and <code>bass</code> and <code>tuna</code>) will be instanced inside <code>aquariumcube</code>.<br>
 Resizing will be happen accordingly to its placeholder object <code>aquariumcube</code>, see chapter Scaling.<br></p>
 
 <blockquote>
-<p>Instead of cherrypicking objects with <code>#bass&amp;tuna</code> thru <code>src</code>, queries can be used to import the whole scene (and filter out certain objects). See next chapter below.</p>
+<p>Instead of cherrypicking a rootobject <code>#fishbowl</code> with <code>src</code>, additional filters can be used to include/exclude certain objects. See next chapter on filtering below.</p>
 </blockquote>
 
 <p><strong>Specification</strong>:</p>
 
 <ol>
-<li>local/remote content is instanced by the <code>src</code> (query) value (and attaches it to the placeholder mesh containing the <code>src</code> property)</li>
-<li><b>local</b> <code>src</code> values (URL <strong>starting</strong> with <code>#</code>, like <code>#cube&amp;foo</code>) means <strong>only</strong> the mentioned objectnames will be copied to the instanced scene (from the current scene) while preserving their names (to support recursive selectors). <a href="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/src.js">(example code)</a></li>
-<li><b>local</b> <code>src</code> values indicating a query (<code>#q=</code>), means that all included objects (from the current scene) will be copied to the instanced scene (before applying the query) while preserving their names (to support recursive selectors). <a href="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/src.js">(example code)</a></li>
+<li>local/remote content is instanced by the <code>src</code> (filter) value (and attaches it to the placeholder mesh containing the <code>src</code> property)</li>
+<li>by default all objects are loaded into the instanced src (scene) object (but not shown yet)</li>
+<li><b>local</b> <code>src</code> values (<code>#...</code> e.g.) starting with a non-negating filter (<code>#cube</code> e.g.) will (deep)reparent that object (with name <code>cube</code>) as the new root of the scene at position 0,0,0</li>
+<li><b>local</b> <code>src</code> values should respect (negative) filters (<code>#-foo&amp;price=&gt;3</code>)</li>
 <li>the instanced scene (from a <code>src</code> value) should be <b>scaled accordingly</b> to its placeholder object or <b>scaled relatively</b> based on the scale-property (of a geometry-less placeholder, an &lsquo;empty&rsquo;-object in blender e.g.). For more info see Chapter Scaling.</li>
 <li><b>external</b> <code>src</code> values should be served with appropriate mimetype (so the XR Fragment-compatible browser will now how to render it). The bare minimum supported mimetypes are:</li>
 <li><code>src</code> values should make its placeholder object invisible, and only flush its children when the resolved content can succesfully be retrieved (see <a href="#links">broken links</a>)</li>
 <li><b>external</b> <code>src</code> values should respect the fallback link mechanism (see <a href="#broken-links">broken links</a></li>
 <li>when the placeholder object is a 2D plane, but the mimetype is 3D, then render the spatial content on that plane via a stencil buffer.</li>
 <li>src-values are non-recursive: when linking to an external object (<code>src: foo.fbx#bar</code>), then <code>src</code>-metadata on object <code>bar</code> should be ignored.</li>
-<li>clicking on external <code>src</code>-values always allow sourceportation: teleporting to the origin URI to which the object belongs.</li>
+<li>an external <code>src</code>-value should always allow a sourceportation icon within 3 meter: teleporting to the origin URI to which the object belongs.</li>
 <li>when only one object was cherrypicked (<code>#cube</code> e.g.), set its position to <code>0,0,0</code></li>
+<li>when the enduser clicks an href with <code>#t=1,0,0</code> (play) will be applied to all src mediacontent with a timeline (mp4/mp3 e.g.)</li>
+<li>a non-euclidian portal can be rendered for flat 3D objects (using stencil buffer e.g.) in case ofspatial <code>src</code>-values (an object <code>#world3</code> or URL <code>world3.fbx</code> e.g.).</li>
 </ol>
 
 <ul>
+<li><code>model/gltf-binary</code></li>
 <li><code>model/gltf+json</code></li>
 <li><code>image/png</code></li>
 <li><code>image/jpg</code></li>
-<li><code>text/plain;charset=utf-8;bib=^@</code></li>
+<li><code>text/plain;charset=utf-8</code></li>
 </ul>
 
 <p><a href="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/src.js">» example implementation</a><br>
 <a href="https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/src.gltf#L192">» example 3D asset</a><br>
 <a href="https://github.com/coderofsalvation/xrfragment/issues/4">» discussion</a><br></p>
 
-<h1 id="navigating-content-internal-outbound-href-portals">Navigating content (internal/outbound href portals)</h1>
+<h1 id="navigating-content-href-portals">Navigating content href portals</h1>
 
 <p>navigation, portals &amp; mutations</p>
 
@@ -566,12 +698,24 @@ Resizing will be happen accordingly to its placeholder object <code>aquariumcube
 
 <li><p>in case of navigating to a new [[pos)ition, &ldquo;first&rdquo; navigate to the &ldquo;current position&rdquo; so that the &ldquo;back-button&rdquo; of the &ldquo;browser-history&rdquo; always refers to the previous position (see [<a href="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/href.js#L97">here</a>)</p></li>
 
-<li><p>portal-rendering: a 2:1 ratio texture-material indicates an equirectangular projection</p></li>
+<li><p>ignore previous rule in special cases, like clicking an <code>href</code> using camera-portal collision (the back-button would cause a teleport-loop)</p></li>
 </ol>
 
 <p><a href="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/href.js">» example implementation</a><br>
 <a href="https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/href.gltf#L192">» example 3D asset</a><br>
 <a href="https://github.com/coderofsalvation/xrfragment/issues/1">» discussion</a><br></p>
+
+<h2 id="walking-surfaces">Walking surfaces</h2>
+
+<p>XR Fragment-compatible viewers can infer this data based scanning the scene for:</p>
+
+<ol>
+<li>materialless (nameless &amp; textureless) mesh-objects (without <code>src</code> and <code>href</code>)</li>
+</ol>
+
+<blockquote>
+<p>optionally the viewer can offer thumbstick, mouse or joystick teleport-tools for non-roomscale VR/AR setups.</p>
+</blockquote>
 
 <h2 id="ux-spec">UX spec</h2>
 
@@ -616,7 +760,53 @@ How does the scale of the object (with the embedded properties) impact the scale
 <p>TODO: needs intermediate visuals to make things more obvious</p>
 </blockquote>
 
-<h1 id="xr-fragment-queries">XR Fragment queries</h1>
+<h1 id="xr-fragment-pos">XR Fragment: pos</h1>
+
+<h1 id="xr-fragment-rot">XR Fragment: rot</h1>
+
+<h1 id="xr-fragment-t">XR Fragment: t</h1>
+
+<p>controls the animation(s) of the scene (or <code>src</code> resource which contains a timeline)</p>
+
+<p>| fragment | type | functionality |
+| <b>#t</b>=1,1,100 | <a href="default:`#t=1,0,0`">[vector3|vector]</a> | speed,framestart,framestop  |</p>
+
+<ul>
+<li>playposition is reset to framestart, when framestart or framestop is greater than 0 |</li>
+</ul>
+
+<p>| Example Value     | Explanation |
+|-|-|
+| <code>1,1,100</code> |  play loop between frame 1 and 100 |
+| <code>1,1,0</code>   | play once from frame 1 (oneshot) |
+| <code>1,0,0</code>   | play (previously set looprange if any) |
+| <code>0,0,0</code>   | pause                            |
+| <code>1,1,1</code>   | play and auto-loop between begin and end of duration |
+| <code>-1,0,0</code>  | reverse playback speed           |
+| <code>2.3,0,0</code> | set (forward) playback speed to 2.3 (no restart) |
+| <code>-2.3,0,0</code> | set (reverse) playback speed to -2.3 ( no restart)|
+| <code>-2.3,100,0</code> | set (reverse) playback speed to -2.3 restarting from frame 100 |</p>
+
+<p>[[» example implementation|<a href="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/t.js]">https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/t.js]</a>]<br>
+[[» discussion|<a href="https://github.com/coderofsalvation/xrfragment/issues/10]">https://github.com/coderofsalvation/xrfragment/issues/10]</a>]<br></p>
+
+<h1 id="xr-audio-video-integration">XR audio/video integration</h1>
+
+<p>To play global audio/video items:</p>
+
+<ol>
+<li>add a <code>src: foo.mp3</code> or <code>src: bar.mp4</code> metadata to a 3D object (<code>cube</code> e.g.)</li>
+<li>to disable auto-play and global timeline ([[#t=|t]]) control: hardcode a [[#t=|t]] XR Fragment: (<code>src: bar.mp3#t=0,0,0</code> e.g.)</li>
+<li>to play it, add <code>href: #cube</code> somewhere else</li>
+<li>when the enduser clicks the <code>href</code>, <code>#t=1,0,0</code> (play) will be applied to the <code>src</code> value</li>
+<li>to play a single animation, add href: #animationname=1,0,0 somewhere else</li>
+</ol>
+
+<blockquote>
+<p>NOTE: hardcoded framestart/framestop uses sampleRate/fps of embedded audio/video, otherwise the global fps applies. For more info see [[#t|t]].</p>
+</blockquote>
+
+<h1 id="xr-fragment-filters">XR Fragment filters</h1>
 
 <p>Include, exclude, hide/shows objects using space-separated strings:</p>
 
@@ -630,34 +820,35 @@ How does the scale of the object (with the embedded properties) impact the scale
 
 <tbody>
 <tr>
-<td><code>#q=-sky</code></td>
+<td><code>#-sky</code></td>
 <td>show everything except object named <code>sky</code></td>
 </tr>
 
 <tr>
-<td><code>#q=-tag:language tag:english</code></td>
+<td><code>#-language&amp;english</code></td>
 <td>hide everything with tag <code>language</code>, but show all tag <code>english</code> objects</td>
 </tr>
 
 <tr>
-<td><code>#q=price:&gt;2 price:&lt;5</code></td>
-<td>of all objects with property <code>price</code>, show only objects with value between 2 and 5</td>
+<td><code>#-price&amp;price=&gt;10</code></td>
+<td>hide all objects with property <code>price</code>, then only show object with price above 10</td>
 </tr>
 </tbody>
 </table>
 <p>It&rsquo;s simple but powerful syntax which allows filtering the scene using searchengine prompt-style feeling:</p>
 
 <ol>
-<li>queries are a way to traverse a scene, and filter objects based on their tag- or property-values.</li>
-<li>words like <code>german</code> match tag-metadata of 3D objects like <code>&quot;tag&quot;:&quot;german&quot;</code></li>
-<li>words like <code>german</code> match (XR Text) objects with (Bib(s)TeX) tags like <code>#KarlHeinz@german</code> or <code>@german{KarlHeinz, ...</code> e.g.</li>
+<li>filters are a way to traverse a scene, and filter objects based on their name, tag- or property-values.</li>
 </ol>
 
 <ul>
-<li>see <a href="https://coderofsalvation.github.io/xrfragment.media/queries.mp4">an (outdated) example video here</a></li>
+<li>see <a href="https://coderofsalvation.github.io/xrfragment.media/queries.mp4">an (outdated) example video here</a> which used a dedicated <code>q=</code> variable (now deprecated and usable directly)</li>
 </ul>
 
 <h2 id="including-excluding">including/excluding</h2>
+
+<p>By default, selectors work like photoshop-layers: they scan for matching layer(name/properties) within the scene-graph.
+Each matched object (not their children) will be toggled (in)visible when selecting.</p>
 
 <table>
 <thead>
@@ -670,56 +861,55 @@ How does the scale of the object (with the embedded properties) impact the scale
 <tbody>
 <tr>
 <td><code>-</code></td>
-<td>removes/hides object(s)</td>
+<td>hides object(s) (<code>#-myobject&amp;-objects</code> e.g.</td>
 </tr>
 
 <tr>
-<td><code>:</code></td>
-<td>indicates an object-embedded custom property key/value</td>
+<td><code>=</code></td>
+<td>indicates an object-embedded custom property key/value (<code>#price=4&amp;category=foo</code> e.g.)</td>
 </tr>
 
 <tr>
-<td><code>&gt;</code> <code>&lt;</code></td>
-<td>compare float or int number</td>
+<td><code>=&gt;</code> <code>=&lt;</code></td>
+<td>compare float or int number (<code>#price=&gt;4</code> e.g.)</td>
 </tr>
 
 <tr>
-<td><code>/</code></td>
-<td>reference to root-scene.<br>Useful in case of (preventing) showing/hiding objects in nested scenes (instanced by <code>src</code>) (*)</td>
+<td><code>*</code></td>
+<td>deepselect: automatically select children of selected object, including local (nonremote) embedded objects (starting with <code>#</code>)</td>
 </tr>
 </tbody>
 </table>
 
 <blockquote>
-<p>* = <code>#q=-/cube</code> hides object <code>cube</code> only in the root-scene (not nested <code>cube</code> objects)<br> <code>#q=-cube</code> hides both object <code>cube</code> in the root-scene <b>AND</b> nested <code>skybox</code> objects |</p>
+<p>NOTE 1: after an external embedded object has been instanced (<code>src: https://y.com/bar.fbx#room</code> e.g.), filters do not affect them anymore (reason: local tag/name collisions can be mitigated easily, but not in case of remote content).</p>
+
+<p>NOTE 2: depending on the used 3D framework, toggling objects (in)visible should happen by enabling/disableing writing to the colorbuffer (to allow children being still visible while their parents are invisible).</p>
 </blockquote>
 
 <p><a href="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/q.js">» example implementation</a>
-<a href="https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/query.gltf#L192">» example 3D asset</a>
+<a href="https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/filter.gltf#L192">» example 3D asset</a>
 <a href="https://github.com/coderofsalvation/xrfragment/issues/3">» discussion</a></p>
 
-<h2 id="query-parser">Query Parser</h2>
+<h2 id="filter-parser">Filter Parser</h2>
 
-<p>Here&rsquo;s how to write a query parser:</p>
+<p>Here&rsquo;s how to write a filter parser:</p>
 
 <ol>
-<li>create an associative array/object to store query-arguments as objects</li>
-<li>detect object id&rsquo;s &amp; properties <code>foo:1</code> and <code>foo</code> (reference regex: <code>/^.*:[&gt;&lt;=!]?/</code>  )</li>
-<li>detect excluders like <code>-foo</code>,<code>-foo:1</code>,<code>-.foo</code>,<code>-/foo</code> (reference regex: <code>/^-/</code> )</li>
-<li>detect root selectors like <code>/foo</code> (reference regex: <code>/^[-]?\//</code> )</li>
-<li>detect number values like <code>foo:1</code> (reference regex: <code>/^[0-9\.]+$/</code> )</li>
-<li>for every query token split string on <code>:</code></li>
-<li>create an empty array <code>rules</code></li>
-<li>then strip key-operator: convert &ldquo;-foo&rdquo; into &ldquo;foo&rdquo;</li>
-<li>add operator and value to rule-array</li>
-<li>therefore we we set <code>id</code> to <code>true</code> or <code>false</code> (false=excluder <code>-</code>)</li>
+<li>create an associative array/object to store filter-arguments as objects</li>
+<li>detect object id&rsquo;s &amp; properties <code>foo=1</code> and <code>foo</code> (reference regex= <code>~/^.*=[&gt;&lt;=]?/</code>  )</li>
+<li>detect excluders like <code>-foo</code>,<code>-foo=1</code>,<code>-.foo</code>,<code>-/foo</code> (reference regex= <code>/^-/</code> )</li>
+<li>detect root selectors like <code>/foo</code> (reference regex= <code>/^[-]?\//</code> )</li>
+<li>detect number values like <code>foo=1</code> (reference regex= <code>/^[0-9\.]+$/</code> )</li>
+<li>detect operators so you can easily strip keys (reference regex= <code>/(^-|\*$)/</code> )</li>
+<li>detect exclude keys like <code>-foo</code>   (reference regex= <code>/^-/</code> )</li>
+<li>for every filter token split string on <code>=</code></li>
 <li>and we set <code>root</code> to <code>true</code> or <code>false</code> (true=<code>/</code> root selector is present)</li>
-<li>we convert key &lsquo;/foo&rsquo; into &lsquo;foo&rsquo;</li>
-<li>finally we add the key/value to the store like <code>store.foo = {id:false,root:true}</code> e.g.</li>
+<li>therefore we we set <code>show</code> to <code>true</code> or <code>false</code> (false=excluder <code>-</code>)</li>
 </ol>
 
 <blockquote>
-<p>An example query-parser (which compiles to many languages) can be <a href="https://github.com/coderofsalvation/xrfragment/blob/main/src/xrfragment/Query.hx">found here</a></p>
+<p>An example filter-parser (which compiles to many languages) can be <a href="https://github.com/coderofsalvation/xrfragment/blob/main/src/xrfragment/Filter.hx">found here</a></p>
 </blockquote>
 
 <h1 id="visible-links">Visible links</h1>
@@ -1103,12 +1293,12 @@ here are some hashtagbibs followed by bibtex:
   │                                                        │
   │  index.gltf                                            │
   │    │                                                   │
-  │    │ #: #q=-offlinetext                                │
+  │    │ #: #-offlinetext                                │
   │    │                                                   │
   │    ├── ◻ buttonA                                       │
   │    │      └ href:     http://foo.io/campagne.fbx       │
   │    │      └ href@404: ipfs://foo.io/campagne.fbx       │
-  │    │      └ href@400: #q=clienterrortext               │
+  │    │      └ href@400: #clienterrortext               │
   │    │      └ ◻ offlinetext                              │
   │    │                                                   │
   │    └── ◻ embeddedObject                          &lt;--------- the meshdata inside embeddedObject will (not)
@@ -1132,12 +1322,12 @@ Consider 3D scenes linking to eachother using these <code>href</code> values:</p
 </ul>
 
 <p>These links would all show visible links to math-tagged objects in the scene.<br>
-To filter out non-related objects one could take it a step further using queries:</p>
+To filter out non-related objects one could take it a step further using filters:</p>
 
 <ul>
-<li><code>href: schoolA.edu/projects.gltf#math&amp;q=-topics math</code></li>
-<li><code>href: schoolB.edu/projects.gltf#math&amp;q=-courses math</code></li>
-<li><code>href: university.edu/projects.gltf#math&amp;q=-theme math</code></li>
+<li><code>href: schoolA.edu/projects.gltf#math&amp;-topics math</code></li>
+<li><code>href: schoolB.edu/projects.gltf#math&amp;-courses math</code></li>
+<li><code>href: university.edu/projects.gltf#math&amp;-theme math</code></li>
 </ul>
 
 <blockquote>
@@ -1177,6 +1367,15 @@ Non-HTML Hypermedia browsers should make browser extensions the right place, to 
 <li><a href="https://nlnet.nl">NLNET</a></li>
 <li><a href="https://futureoftext.org">Future of Text</a></li>
 <li><a href="https://visual-meta.info">visual-meta.info</a></li>
+<li>Michiel Leenaars</li>
+<li>Gerben van der Broeke</li>
+<li>Mauve</li>
+<li>Jens Finkhäuser</li>
+<li>Marc Belmont</li>
+<li>Tim Gerritsen</li>
+<li>Frode Hegland</li>
+<li>Brandel Zackernuk</li>
+<li>Mark Anderson</li>
 </ul>
 
 <h1 id="appendix-definitions">Appendix: Definitions</h1>
@@ -1256,8 +1455,8 @@ Non-HTML Hypermedia browsers should make browser extensions the right place, to 
 </tr>
 
 <tr>
-<td>query</td>
-<td>an URI Fragment-operator which queries object(s) from a scene like <code>#q=cube</code></td>
+<td>filter</td>
+<td>URI Fragment(s) which show/hide object(s) in a scene based on name/tag/property (<code>#cube&amp;-price=&gt;3</code>)</td>
 </tr>
 
 <tr>
@@ -1293,6 +1492,11 @@ Non-HTML Hypermedia browsers should make browser extensions the right place, to 
 <tr>
 <td>(un)obtrusive</td>
 <td>obtrusive: wrapping human text/thought in XML/HTML/JSON obfuscates human text into a salad of machine-symbols and words</td>
+</tr>
+
+<tr>
+<td>flat 3D object</td>
+<td>a 3D object of which all verticies share a plane</td>
 </tr>
 
 <tr>
