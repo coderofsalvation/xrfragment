@@ -24,7 +24,7 @@ xrf.filter = function(query, cb){
 xrf.filter.scene = function(opts){
   let {scene,frag} = opts
 
-  xrf.filter 
+  scene = xrf.filter 
   .sort(frag)               // get (sorted) filters from XR Fragments
   .process(frag,scene,opts) // show/hide things
 
@@ -41,12 +41,14 @@ xrf.filter.sort = function(frag){
   return xrf.filter
 }
 
+// opts = {copyScene:true} in case you want a copy of the scene (not filter the current scene inplace)
 xrf.filter.process = function(frag,scene,opts){
   const cleanupKey   = (k) => k.replace(/[-\*\/]/g,'')
   let firstFilter    = frag.filters.length ? frag.filters[0].filter.get() : false 
   const hasName      = (m,name,filter)        => m.name == name 
   const hasNameOrTag = (m,name_or_tag,filter) => hasName(m,name_or_tag) || 
                                                  String(m.userData['tag']).match( new RegExp("(^| )"+name_or_tag) )
+
   // utility functions
   const getOrCloneMaterial = (o) => {
     if( o.material ){
@@ -70,10 +72,18 @@ xrf.filter.process = function(frag,scene,opts){
     let obj 
     frag.target = firstFilter
     scene.traverse( (n) => hasName(n, firstFilter.key,firstFilter) && (obj = n) )
-    if(obj){
-      while( scene.children.length > 0 ) scene.children[0].removeFromParent()
+    console.log("reparent "+firstFilter.key+" "+((opts.copyScene)?"copy":"inplace"))
+    if(obj ){
       obj.position.set(0,0,0)
-      scene.add( obj )
+      if( opts.copyScene ){
+        opts.copyScene = new xrf.THREE.Scene()
+        opts.copyScene.children[0] = obj 
+        scene = opts.copyScene
+      }else{
+        // empty current scene and add obj
+        while( scene.children.length > 0 ) scene.children[0].removeFromParent()
+        scene.add( obj )
+      }
     }
   }
 
@@ -88,7 +98,7 @@ xrf.filter.process = function(frag,scene,opts){
     // hide external objects temporarely
     scene.traverse( (m) => {
       if( m.isSRCExternal ){
-        m.traverse( (n) => (extembeds[ n.uuid ] = m) && (n.visible = false) )
+        m.traverse( (n) => (extembeds[ n.uuid ] = m) && (m.visible = false) )
       }
     })
 
@@ -108,6 +118,6 @@ xrf.filter.process = function(frag,scene,opts){
     for ( let i in extembeds ) extembeds[i].visible = true
   })
 
-  return xrf.filter
+  return scene 
 }
 

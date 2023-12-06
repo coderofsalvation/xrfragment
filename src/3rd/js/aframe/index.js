@@ -33,9 +33,14 @@ window.AFRAME.registerComponent('xrf', {
           // *TODO* this does not really belong here perhaps
           let blinkControls = document.querySelector('[blink-controls]')
           if( blinkControls ){
-            let els = xrf.getCollisionMeshes()
+            let els       = xrf.getCollisionMeshes()
+            let invisible = false
             els.map( (mesh) => {
-              mesh.material.visible = false
+              if( !invisible ){
+                invisible = mesh.material.clone()
+                invisible.visible = false
+              }
+              mesh.material = invisible 
               let el = document.createElement("a-entity")
               el.setAttribute("xrf-get", mesh.name )
               el.setAttribute("class","floor")
@@ -123,21 +128,6 @@ window.AFRAME.registerComponent('xrf', {
           let els = [...document.querySelectorAll('[xrf-get]')]
           els.map( (el) => document.querySelector('a-scene').removeChild(el) )
         })
-
-  // *TODO* workaround no longer needed?
-  //
-  //      aScene.addEventListener('enter-vr', () => {
-  //        // undo lookup-control shenanigans (which blocks updating camerarig position in VR)
-  //        document.querySelector('[camera]').object3D.parent.matrixAutoUpdate = true 
-  //        document.querySelector('[camera]').components['look-controls'].pause() //removeAttribute("look-controls")
-  //        document.querySelector('[camera]').components['wasd-controls'].pause() //removeAttribute("wasd-controls")
-  //      })
-  //      aScene.addEventListener('exit-vr', () => {
-  //        // redo lookup-control shenanigans (which blocks updating camerarig position in VR)
-  //        document.querySelector('[camera]').object3D.parent.matrixAutoUpdate = false 
-  //        document.querySelector('[camera]').components['look-controls'].play() //setAttribute("look-controls",'')
-  //        document.querySelector('[camera]').components['wasd-controls'].play() //setAttribute("wasd-controls",'')
-  //      })
 
         AFRAME.XRF.navigator.to(this.data)
                            .then( (model) => {

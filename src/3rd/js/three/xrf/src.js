@@ -7,6 +7,7 @@ xrf.frag.src = function(v, opts){
   let url      = v.string
   let srcFrag  = opts.srcFrag = xrfragment.URI.parse(url)
   opts.isLocal = v.string[0] == '#'
+  opts.isPortal = xrf.frag.src.renderAsPortal(mesh)
 
   if( opts.isLocal ){
         xrf.frag.src.localSRC(url,srcFrag,opts)     // local
@@ -16,22 +17,21 @@ xrf.frag.src = function(v, opts){
 xrf.frag.src.addModel = (model,url,frag,opts) => {
   let {mesh} = opts
   let scene = model.scene
-  xrf.frag.src.filterScene(scene,{...opts,frag})     // filter scene
-  if( mesh.material ) mesh.material.visible = false  // hide placeholder object
+  scene = xrf.frag.src.filterScene(scene,{...opts,frag})         // get filtered scene
+  if( mesh.material && !mesh.userData.src ) mesh.material.visible = false  // hide placeholder object
   //enableSourcePortation(scene)
   if( xrf.frag.src.renderAsPortal(mesh) ){
     // only add remote objects, because 
     // local scene-objects are already added to scene
     xrf.portalNonEuclidian({...opts,model,scene:model.scene})
-    if( !opts.isLocal && !mesh.portal.isLens ) xrf.scene.add(scene) 
-    return
+    if( !opts.isLocal ) xrf.scene.add(scene) 
   }else{
     xrf.frag.src.scale( scene, opts, url )           // scale scene
     mesh.add(scene)
+    xrf.emit('parseModel', {...opts, scene, model}) 
   }
   // flag everything isSRC & isXRF
   mesh.traverse( (n) => { n.isSRC = n.isXRF = n[ opts.isLocal ? 'isSRCLocal' : 'isSRCExternal' ] = true })
-  xrf.emit('parseModel', {...opts, scene, model}) 
 }
 
 xrf.frag.src.renderAsPortal = (mesh) => {
@@ -77,13 +77,16 @@ xrf.frag.src.externalSRC = (url,frag,opts) => {
 }
 
 xrf.frag.src.localSRC = (url,frag,opts) => {
-  let {model,scene} = opts
-  let _model = {
-    animations: model.animations,
-    scene: scene.clone()
-  }
-  _model.scenes = [_model.scene]
-  xrf.frag.src.addModel(_model,url,frag, opts)    // current file 
+  let {model,mesh,scene} = opts
+  setTimeout( () => {
+    if( mesh.material ) mesh.material = mesh.material.clone() // clone, so we can individually highlight meshes
+    let _model = {
+      animations: model.animations,
+      scene: scene.clone() // *TODO* opts.isPortal ? scene : scene.clone()
+    }
+    _model.scenes = [_model.scene]
+    xrf.frag.src.addModel(_model,url,frag, opts)    // current file 
+  },500 )
 }
 
 // scale embedded XR fragments https://xrfragment.org/#scaling%20of%20instanced%20objects
@@ -121,12 +124,14 @@ xrf.frag.src.scale = function(scene, opts, url){
 xrf.frag.src.filterScene = (scene,opts) => {
   let { mesh, model, camera, renderer, THREE, hashbus, frag} = opts
 
-  xrf.filter.scene({scene,frag,reparent:true})
- 
-  scene.traverse( (m) => {
-    if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 
-    hashbus.pub.mesh(m,{scene,recursive:true})                       // cool idea: recursion-depth based distance between face & src
-  })
+  scene = xrf.filter.scene({scene,frag,reparent:true}) // *TODO* ,copyScene: opts.isPortal})
+
+  if( !opts.isLocal ){
+    scene.traverse( (m) => {
+      if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 
+      hashbus.pub.mesh(m,{scene,recursive:true})                       // cool idea: recursion-depth based distance between face & src
+    })
+  }
   return scene
 }
 

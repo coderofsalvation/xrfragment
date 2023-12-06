@@ -39,6 +39,13 @@ xrf.frag.href = function(v, opts){
     xrf
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
+      let {urlObj,dir,file,hash,ext} = xrf.parseUrl(v.string)
+      //if( !file.match(/\./) || file.match(/\.html/) ){
+      //  debugger
+      //  let inIframe
+      //  try { inIframe = window.self !== window.top; } catch (e) { inIframe = true; }
+      //  return inIframe ? window.parent.postMessage({ url: v.string }, '*') : window.open( v.string, '_blank')
+      //}
       const flags = v.string[0] == '#' ? xrf.XRF.PV_OVERRIDE : undefined
       let toFrag = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
       // always commit current location (keep a trail of last positions before we navigate)

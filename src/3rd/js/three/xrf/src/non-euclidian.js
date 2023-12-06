@@ -3,6 +3,7 @@
 xrf.portalNonEuclidian = function(opts){
   let { frag, mesh, model, camera, scene, renderer} = opts
 
+
   mesh.portal = {
     pos: mesh.position.clone(),
     posWorld: new xrf.THREE.Vector3(),
@@ -55,23 +56,12 @@ xrf.portalNonEuclidian = function(opts){
                      .filter( (n) => !n.portal ) // filter out (self)references to portals (prevent recursion)
                      .map(addStencilFeature)
 
-    //// add missing lights to make sure things get lit properly 
-    xrf.scene.traverse( (n) => n.isLight && 
-                               !stencilObjects.find( (o) => o.uuid == n.uuid ) && 
-                               stencilObjects.push(n)
-    )
-
     // put it into a scene (without .add() because it reparents objects) so we can render it separately
     mesh.portal.stencilObjects = new xrf.THREE.Scene()
     mesh.portal.stencilObjects.children = stencilObjects 
 
     xrf.portalNonEuclidian.stencilRef += 1 // each portal has unique stencil id
     console.log(`enabling portal for object '${mesh.name}' (stencilRef:${mesh.portal.stencilRef})`)
-
-    // clone so it won't be affected by other fragments
-    setTimeout( (mesh) => {
-      if( mesh.material ) mesh.material = mesh.material.clone() // clone, so we can individually highlight meshes
-    }, 0, mesh )
   
     return this
   }
@@ -154,7 +144,7 @@ xrf.portalNonEuclidian = function(opts){
   .setupStencilObjects(scene,opts)
 
   // move portal objects to portalposition
-  mesh.portal.positionObjectsIfNeeded(mesh.portal.posWorld, mesh.scale)
+  if( mesh.portal.stencilObjects ) mesh.portal.positionObjectsIfNeeded(mesh.portal.posWorld, mesh.scale)
 }
 
 xrf.portalNonEuclidian.selectStencil = (n, stencilRef, nested) => {
@@ -183,24 +173,25 @@ xrf.portalNonEuclidian.setMaterial = function(mesh){
 
 xrf.addEventListener('parseModel',(opts) => {
   const scene = opts.model.scene
- // scene.traverse( (n) => n.renderOrder = 10 ) // rendering everything *after* the stencil buffers
+  //for( let i in scene.children ) scene.children[i].renderOrder = 10 // render outer layers last (worldspheres e.g.)
 })
 
 
-// (re)set portalObject when entering/leaving a portal 
-xrf.addEventListener('href', (opts) => {
-  let {mesh,v} = opts
-  if( opts.click && mesh.portal ){
-    if( !opts.click ) return 
-    xrf.scene.traverse( (n) => {
-      if( !n.portal ) return 
-      // since we're leaving this portal destination, lets move objects back to the portal 
-      if( n.portal.isInside ) n.portal.positionObjectsIfNeeded( n.portal.posWorld, n.scale )
-      n.portal.isInside = false
-    })
-    mesh.portal.isInside = true
-    mesh.portal.positionObjectsIfNeeded() // move objects back to original pos (since we are going there)
+// (re)set portalObjects when entering/leaving a portal 
+let updatePortals = (opts) => {
+  xrf.scene.traverse( (n) => {
+    if( !n.portal ) return 
+    // move objects back to the portal 
+    if( n.portal.isInside ) n.portal.positionObjectsIfNeeded( n.portal.posWorld, n.scale )
+    n.portal.isInside = false
+  })
+  if( opts.mesh && opts.mesh.portal && opts.click ){
+    opts.mesh.portal.isInside = true
+    opts.mesh.portal.positionObjectsIfNeeded() // move objects back to original pos (since we are teleporting there)
   }
-})
+}
+
+xrf.addEventListener('href', (opts) => opts.click && updatePortals(opts) )
+xrf.addEventListener('navigate', updatePortals )
 
 xrf.portalNonEuclidian.stencilRef = 1
