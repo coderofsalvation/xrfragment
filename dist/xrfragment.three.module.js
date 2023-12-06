@@ -971,8 +971,8 @@ xrf.navigator.to = (url,flags,loader,data) => {
       loader = loader || new Loader().setPath( dir )
     }
 
-    // force relative path 
-    if( dir ) dir = dir[0] == '.' ? dir : `.${dir}`
+    // force relative path for files which dont include protocol or relative path
+    if( dir ) dir = dir[0] == '.' || dir.match("://") ? dir : `.${dir}`
     url = url.replace(dir,"")
     loader = loader || new Loader().setPath( dir )
     const onLoad = (model) => {
