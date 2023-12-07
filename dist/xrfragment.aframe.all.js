@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Wed Dec  6 10:52:00 PM CET 2023
+ * v0.5.1 generated at Thu Dec  7 09:39:29 AM CET 2023
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -2942,11 +2942,9 @@ AFRAME.registerComponent('xrf-gaze',{
   }, 
   init:function(data){
     this.log = ""
-    let enabled    = () => AFRAME.utils.device.isMobile()
+    let enabled    = () AFRAME.utils.device.isMobile()
     let setVisible = (state) => {
-      //this.log += state ? ">true" :">false"
-      //alert(this.log)
-      if( enabled() ) setGazer(state)
+      if( enabled() ) this.setGazer(state)
     }
 
     setVisible(false);
