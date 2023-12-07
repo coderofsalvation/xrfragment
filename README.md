@@ -47,5 +47,5 @@ $ ./make build && ./make tests
 
 <br>
 <a href="https://nlnet.nl" target="_blank">
-  <img src="https://nlnet.nl/" width="100"/>
+  <img src="https://nlnet.nl/image/logo_nlnet.svg" width="100"/>
 </a>
