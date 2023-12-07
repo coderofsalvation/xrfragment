@@ -25,8 +25,7 @@ AFRAME.registerComponent('xrf-gaze',{
     }
   }, 
   init:function(data){
-    this.log = ""
-    let enabled    = () AFRAME.utils.device.isMobile()
+    let enabled    = () => AFRAME.utils.device.isMobile()
     let setVisible = (state) => {
       if( enabled() ) this.setGazer(state)
     }
