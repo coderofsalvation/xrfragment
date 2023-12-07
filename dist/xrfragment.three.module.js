@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Thu Dec  7 09:47:19 AM CET 2023
+ * v0.5.1 generated at Thu Dec  7 10:14:06 PM CET 2023
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -1340,7 +1340,10 @@ xrf.frag.src.type['unknown'] = function( url, opts ){
 xrf.frag.t = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   if( !model.mixer ) return 
-  if( !model.animations || model.animations[0] == undefined ) return console.warn('no animation in scene')
+  if( !model.animations || model.animations[0] == undefined ){
+    console.warn('no animations found in model')
+    return xrf.emit( v.x == 0 ? 'stop' : 'play',{isPlaying: v.x != 0 })
+  }
 
   xrf.mixers.map ( (mixer) => {
     
