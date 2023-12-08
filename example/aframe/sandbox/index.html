@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>AFRAME - xrfragment sandbox</title>
+    <title>XR Fragments aframe viewer</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
@@ -28,7 +28,7 @@
     <textarea style="display:none"></textarea>
     <canvas id="qrcode" style="display:none" width="300" height="300"></canvas>
 
-    <a-scene renderer="colorManagement: true; highRefreshRate:true" light="defaultLightsEnabled: false">
+    <a-scene xr-mode-ui="XRMode: xr"  renderer="colorManagement: true; highRefreshRate:true" light="defaultLightsEnabled: false">
       <a-entity id="player">
         <a-entity camera="fov:90" position="0 1.6 0" wasd-controls look-controls id="camera"></a-entity>
         <a-entity id="left-hand"  laser-controls="hand: left" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: .floor">

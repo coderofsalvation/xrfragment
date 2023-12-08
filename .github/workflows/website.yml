@@ -41,7 +41,7 @@ jobs:
       - name: create index.gltf 
         run: cp example/assets/query.gltf index.gltf
       - name: copy gltfs 
-        run: cp example/assets/*.gltf .
+        run: cp example/assets/*.{gltf,glb} .
       #  working-directory: ./
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1

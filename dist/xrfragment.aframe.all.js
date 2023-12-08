@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Thu Dec  7 10:14:06 PM CET 2023
+ * v0.5.1 generated at Fri Dec  8 01:31:41 PM CET 2023
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -784,7 +784,8 @@ let pub = function( url, model, flags ){  // evaluate fragments in url
   return frag
 }
 
-pub.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) inside mesh of model 
+// deprecated: (XR Macros) evaluate embedded fragments (metadata) inside mesh of model *REMOVEME*
+pub.mesh     = (mesh,model) => { 
   if( mesh.userData ){
     let frag = {}
     for( let k in mesh.userData ) xrf.Parser.parse( k, mesh.userData[k], frag )
@@ -792,7 +793,7 @@ pub.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) insid
       let opts = {frag, mesh, model, camera: xrf.camera, scene: model.scene, renderer: xrf.renderer, THREE: xrf.THREE, hashbus: xrf.hashbus }
       mesh.userData.XRF = frag // allow fragment impl to access XRF obj already
       xrf.emit('frag2mesh',opts)
-      .then( () => pub.fragment(k,opts) )
+      .then( () => pub.fragment(k, {...opts, skipXRWG:true}) )
     }
   }
 }
@@ -800,7 +801,7 @@ pub.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) insid
 pub.fragment = (k, opts ) => { // evaluate one fragment
   let frag = opts.frag[k];
 
-  if( frag.is( xrf.XRF.PV_EXECUTE ) ) pub.XRWG({...opts,frag})
+  if( !opts.skipXRWG && frag.is( xrf.XRF.PV_EXECUTE ) ) pub.XRWG(opts)
 
   // call native function (xrf/env.js e.g.), or pass it to user decorator
   xrf.emit(k,opts)
@@ -992,9 +993,8 @@ xrf.navigator.to = (url,flags,loader,data) => {
       // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
       xrf.frag.defaultPredefinedViews({model,scene:model.scene})
       // spec: 2. init metadata
-      // spec: predefined view(s) from URL (https://xrfragment.org/#predefined_view)
+      // spec: predefined view(s) & objects-of-interest-in-XRWG from URL (https://xrfragment.org/#predefined_view)
       let frag = hashbus.pub( url, model) // and eval URI XR fragments 
-      hashbus.pub.XRWG({model,scene:model.scene,frag})
 
       xrf.add( model.scene )
       xrf.navigator.updateHash(hash)
@@ -1789,22 +1789,17 @@ xrf.frag.defaultPredefinedViews = (opts) => {
     if( n.userData && n.userData['#'] ){
       let frag = xrf.URI.parse( n.userData['#'] )
       xrf.hashbus.pub( n.userData['#'] )          // evaluate static XR fragments
-      xrf.hashbus.pub.XRWG({frag,model,scene})    // evaluate dynamic XR fragment using XRWG (see spec)
     }
   })
 }
 
 // react to enduser typing url
-xrf.addEventListener('hash', (opts) => {
-  let frag = xrf.URI.parse( opts.hash )
-  xrf.hashbus.pub.XRWG({frag,scene:xrf.scene})
-}) 
+xrf.addEventListener('hash', (opts) => xrf.hashbus.pub( opts.hash ) )
 
 // clicking href url with predefined view 
 xrf.addEventListener('href', (opts) => {
   if( !opts.click || opts.xrf.string[0] != '#' ) return 
-  let frag = xrf.URI.parse( opts.xrf.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-  xrf.hashbus.pub.XRWG({frag,scene:xrf.scene,href:opts.xrf})
+  xrf.hashbus.pub( opts.xrf.string )
 }) 
 xrf.addEventListener('dynamicKeyValue', (opts) => {
   let {scene,match,v} = opts
@@ -2642,10 +2637,10 @@ window.AFRAME.registerComponent('xrf', {
 
       if( document.location.host.match(/localhost/) ) document.querySelector('a-scene').setAttribute("stats",'')
 
-      document.querySelector('a-scene').addEventListener('loaded', () => {
+      let aScene = document.querySelector('a-scene')
+      aScene.addEventListener('loaded', () => {
 
         // enable XR fragments
-        let aScene = document.querySelector('a-scene')
         let XRF = AFRAME.XRF = xrf.init({
           THREE,
           camera:    aScene.camera,
@@ -2657,6 +2652,12 @@ window.AFRAME.registerComponent('xrf', {
           }
         })
         if( !XRF.camera ) throw 'xrfragment: no camera detected, please declare <a-entity camera..> ABOVE entities with xrf-attributes'
+
+        // this is just for convenience (not part of spec): hide/show stuff based on VR/AR tags in 3D model 
+        ARbutton = document.querySelector('.a-enter-ar-button')
+        VRbutton = document.querySelector('.a-enter-vr-button')
+        if( ARbutton ) ARbutton.addEventListener('click', () => AFRAME.XRF.hashbus.pub( '#AR' ) )
+        if( VRbutton ) VRbutton.addEventListener('click', () => AFRAME.XRF.hashbus.pub( '#VR' ) )
 
         xrf.addEventListener('navigateLoaded', () => {
           setTimeout( () => AFRAME.fade.out(),500) 

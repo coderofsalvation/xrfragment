@@ -1,7 +1,10 @@
 xrf.frag.t = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   if( !model.mixer ) return 
-  if( !model.animations || model.animations[0] == undefined ) return console.warn('no animation in scene')
+  if( !model.animations || model.animations[0] == undefined ){
+    console.warn('no animations found in model')
+    return xrf.emit( v.x == 0 ? 'stop' : 'play',{isPlaying: v.x != 0 })
+  }
 
   xrf.mixers.map ( (mixer) => {
     

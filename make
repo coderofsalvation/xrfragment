@@ -140,13 +140,14 @@ repos(){
     echo " "
   }
 
-  release_dir aframe xrfragment-aframe-helloworld aframe
-  release_dir three  xrfragment-three-helloworld three.module
-  release_dir aframe xrfragment-helloworld aframe.all
+  release_dir aframe xrfragment-aframe-helloworld 
+  release_dir three  xrfragment-three-helloworld 
+  release_dir aframe xrfragment-helloworld
 
   # remove aframe reference
   sed -i 's|<script src="https:\/\/aframe.*||g' ../xrfragment-helloworld/index.html
   sed -i 's|<script src=".*blink-controls.*||g' ../xrfragment-helloworld/index.html
+  sed -i 's|aframe\.js|aframe.all.js|g'         ../xrfragment-helloworld/index.html
 }
 
 test -z $1 && build 

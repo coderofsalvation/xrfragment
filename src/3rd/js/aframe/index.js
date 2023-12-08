@@ -11,10 +11,10 @@ window.AFRAME.registerComponent('xrf', {
 
       if( document.location.host.match(/localhost/) ) document.querySelector('a-scene').setAttribute("stats",'')
 
-      document.querySelector('a-scene').addEventListener('loaded', () => {
+      let aScene = document.querySelector('a-scene')
+      aScene.addEventListener('loaded', () => {
 
         // enable XR fragments
-        let aScene = document.querySelector('a-scene')
         let XRF = AFRAME.XRF = xrf.init({
           THREE,
           camera:    aScene.camera,
@@ -26,6 +26,12 @@ window.AFRAME.registerComponent('xrf', {
           }
         })
         if( !XRF.camera ) throw 'xrfragment: no camera detected, please declare <a-entity camera..> ABOVE entities with xrf-attributes'
+
+        // this is just for convenience (not part of spec): hide/show stuff based on VR/AR tags in 3D model 
+        ARbutton = document.querySelector('.a-enter-ar-button')
+        VRbutton = document.querySelector('.a-enter-vr-button')
+        if( ARbutton ) ARbutton.addEventListener('click', () => AFRAME.XRF.hashbus.pub( '#AR' ) )
+        if( VRbutton ) VRbutton.addEventListener('click', () => AFRAME.XRF.hashbus.pub( '#VR' ) )
 
         xrf.addEventListener('navigateLoaded', () => {
           setTimeout( () => AFRAME.fade.out(),500) 

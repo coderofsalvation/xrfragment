@@ -19,7 +19,8 @@ let pub = function( url, model, flags ){  // evaluate fragments in url
   return frag
 }
 
-pub.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) inside mesh of model 
+// deprecated: (XR Macros) evaluate embedded fragments (metadata) inside mesh of model *REMOVEME*
+pub.mesh     = (mesh,model) => { 
   if( mesh.userData ){
     let frag = {}
     for( let k in mesh.userData ) xrf.Parser.parse( k, mesh.userData[k], frag )
@@ -27,7 +28,7 @@ pub.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) insid
       let opts = {frag, mesh, model, camera: xrf.camera, scene: model.scene, renderer: xrf.renderer, THREE: xrf.THREE, hashbus: xrf.hashbus }
       mesh.userData.XRF = frag // allow fragment impl to access XRF obj already
       xrf.emit('frag2mesh',opts)
-      .then( () => pub.fragment(k,opts) )
+      .then( () => pub.fragment(k, {...opts, skipXRWG:true}) )
     }
   }
 }
@@ -35,7 +36,7 @@ pub.mesh     = (mesh,model) => { // evaluate embedded fragments (metadata) insid
 pub.fragment = (k, opts ) => { // evaluate one fragment
   let frag = opts.frag[k];
 
-  if( frag.is( xrf.XRF.PV_EXECUTE ) ) pub.XRWG({...opts,frag})
+  if( !opts.skipXRWG && frag.is( xrf.XRF.PV_EXECUTE ) ) pub.XRWG(opts)
 
   // call native function (xrf/env.js e.g.), or pass it to user decorator
   xrf.emit(k,opts)
