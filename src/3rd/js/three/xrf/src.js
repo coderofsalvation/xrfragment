@@ -8,6 +8,7 @@ xrf.frag.src = function(v, opts){
   let srcFrag  = opts.srcFrag = xrfragment.URI.parse(url)
   opts.isLocal = v.string[0] == '#'
   opts.isPortal = xrf.frag.src.renderAsPortal(mesh)
+  opts.isSRC   = true
 
   if( opts.isLocal ){
         xrf.frag.src.localSRC(url,srcFrag,opts)     // local

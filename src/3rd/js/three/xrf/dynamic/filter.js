@@ -75,16 +75,20 @@ xrf.filter.process = function(frag,scene,opts){
     console.log("reparent "+firstFilter.key+" "+((opts.copyScene)?"copy":"inplace"))
     if(obj ){
       obj.position.set(0,0,0)
-      if( opts.copyScene ){
+      if( opts.copyScene ) {
         opts.copyScene = new xrf.THREE.Scene()
-        opts.copyScene.children[0] = obj 
-        scene = opts.copyScene
+        opts.copyScene.children[0] = obj  // we dont use .add() as that reparents it from the original scene
       }else{
         // empty current scene and add obj
         while( scene.children.length > 0 ) scene.children[0].removeFromParent()
         scene.add( obj )
       }
-    }
+    }else{
+      console.warn("could not reparent scene to object "+firstFilter.key+" (not found)")
+      opts.copyScene = new xrf.THREE.Scene() // return empty scene
+    } 
+    if( opts.copyScene ) scene = opts.copyScene
+    if( obj ) obj.isReparented = true
   }
 
   // then show/hide things based on secondary selectors

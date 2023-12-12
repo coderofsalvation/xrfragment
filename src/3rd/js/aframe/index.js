@@ -80,38 +80,6 @@ window.AFRAME.registerComponent('xrf', {
           }
         })
 
-        // patch wasd-controls to affect camera-rig
-        if( camera.components['wasd-controls'] ){
-          camera.components['wasd-controls'].tick = function(time,delta){
-            var data = this.data;
-            var el = this.el;
-            var velocity = this.velocity;
-            function isEmptyObject(keys) {
-              var key;
-              for (key in keys) { return false; }
-              return true;
-            }
-
-            if (!velocity[data.adAxis] && !velocity[data.wsAxis] &&
-                isEmptyObject(this.keys)) { return; }
-
-            // Update velocity.
-            delta = delta / 1000;
-            this.updateVelocity(delta);
-
-            if (!velocity[data.adAxis] && !velocity[data.wsAxis]) { return; }
-
-
-            // Transform direction relative to heading.
-            let directionVector = this.getMovementVector(delta)
-            var rotationEuler = new THREE.Euler(0, 0, 0, 'YXZ');
-            rotationEuler.set(THREE.MathUtils.degToRad(0), THREE.MathUtils.degToRad(xrf.camera.rotation.y + 45), 0);
-            directionVector.applyEuler(rotationEuler);
-            // Get movement vector and translate position to camera-rig (not camera)
-            xrf.camera.position.add(directionVector);
-          }.bind( camera.components['wasd-controls'] )        
-        }
-
         // convert href's to a-entity's so AFRAME
         // raycaster can find & execute it
         AFRAME.XRF.clickableMeshToEntity = (opts) => {

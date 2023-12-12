@@ -16,6 +16,7 @@ xrf.frag.src.type['gltf'] = function( url, opts ){
     }else loader = new Loader()
 
     loader.load(url, (model) => {
+      model.isSRC = true
       resolve(model)
     })
   })

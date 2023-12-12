@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Fri Dec  8 01:31:41 PM CET 2023
+ * v0.5.1 generated at Tue Dec 12 05:22:39 PM CET 2023
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -893,11 +893,16 @@ xrf.getFile = (url) => url.split("/").pop().replace(/#.*/,'')
 xrf.parseModel = function(model,url){
   let file               = xrf.getFile(url)
   model.file             = file
-  // eval embedded XR fragments
-  model.scene.traverse( (mesh) => {
-    xrf.hashbus.pub.mesh(mesh,model) 
-  })
   model.animations.map( (a) => console.log("anim: "+a.name) )
+  // spec: 2. init metadata inside model for non-SRC data
+  if( !model.isSRC ){ 
+    model.scene.traverse( (mesh) => xrf.hashbus.pub.mesh(mesh,model) )
+  }
+  // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
+  xrf.frag.defaultPredefinedViews({model,scene:model.scene})
+  // spec: predefined view(s) & objects-of-interest-in-XRWG from URL (https://xrfragment.org/#predefined_view)
+  let frag = xrf.hashbus.pub( url, model) // and eval URI XR fragments 
+
   xrf.emit('parseModel',{model,url,file})
 }
 
@@ -984,11 +989,6 @@ xrf.navigator.to = (url,flags,loader,data) => {
       xrf.model = model 
       // spec: 1. generate the XRWG
       xrf.XRWG.generate({model,scene:model.scene})
-      // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
-      xrf.frag.defaultPredefinedViews({model,scene:model.scene})
-      // spec: 2. init metadata
-      // spec: predefined view(s) & objects-of-interest-in-XRWG from URL (https://xrfragment.org/#predefined_view)
-      let frag = hashbus.pub( url, model) // and eval URI XR fragments 
 
       xrf.add( model.scene )
       xrf.navigator.updateHash(hash)
@@ -1178,12 +1178,20 @@ xrf.frag.pos = function(v, opts){
 xrf.frag.rot = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   console.log("   └ setting camera rotation to "+v.string)
-  camera.rotation.set( 
-    v.x * Math.PI / 180,
-    v.y * Math.PI / 180,
-    v.z * Math.PI / 180
-  )
-  camera.updateMatrixWorld()
+  if( !model.isSRC ){
+    camera.rotation.set( 
+      v.x * Math.PI / 180,
+      v.y * Math.PI / 180,
+      v.z * Math.PI / 180
+    )
+  }else{
+    obj = model.scene.isReparented ? model.scene.children[0] : model.scene
+    obj.rotation.set( 
+      v.x * Math.PI / 180,
+      v.y * Math.PI / 180,
+      v.z * Math.PI / 180
+    )
+  }
 }
 // *TODO* use webgl instancing
 
@@ -1195,6 +1203,7 @@ xrf.frag.src = function(v, opts){
   let srcFrag  = opts.srcFrag = xrfragment.URI.parse(url)
   opts.isLocal = v.string[0] == '#'
   opts.isPortal = xrf.frag.src.renderAsPortal(mesh)
+  opts.isSRC   = true
 
   if( opts.isLocal ){
         xrf.frag.src.localSRC(url,srcFrag,opts)     // local
@@ -1731,16 +1740,20 @@ xrf.filter.process = function(frag,scene,opts){
     console.log("reparent "+firstFilter.key+" "+((opts.copyScene)?"copy":"inplace"))
     if(obj ){
       obj.position.set(0,0,0)
-      if( opts.copyScene ){
+      if( opts.copyScene ) {
         opts.copyScene = new xrf.THREE.Scene()
-        opts.copyScene.children[0] = obj 
-        scene = opts.copyScene
+        opts.copyScene.children[0] = obj  // we dont use .add() as that reparents it from the original scene
       }else{
         // empty current scene and add obj
         while( scene.children.length > 0 ) scene.children[0].removeFromParent()
         scene.add( obj )
       }
-    }
+    }else{
+      console.warn("could not reparent scene to object "+firstFilter.key+" (not found)")
+      opts.copyScene = new xrf.THREE.Scene() // return empty scene
+    } 
+    if( opts.copyScene ) scene = opts.copyScene
+    if( obj ) obj.isReparented = true
   }
 
   // then show/hide things based on secondary selectors
@@ -1990,6 +2003,7 @@ xrf.frag.src.type['gltf'] = function( url, opts ){
     }else loader = new Loader()
 
     loader.load(url, (model) => {
+      model.isSRC = true
       resolve(model)
     })
   })
@@ -2700,38 +2714,6 @@ window.AFRAME.registerComponent('xrf', {
           }
         })
 
-        // patch wasd-controls to affect camera-rig
-        if( camera.components['wasd-controls'] ){
-          camera.components['wasd-controls'].tick = function(time,delta){
-            var data = this.data;
-            var el = this.el;
-            var velocity = this.velocity;
-            function isEmptyObject(keys) {
-              var key;
-              for (key in keys) { return false; }
-              return true;
-            }
-
-            if (!velocity[data.adAxis] && !velocity[data.wsAxis] &&
-                isEmptyObject(this.keys)) { return; }
-
-            // Update velocity.
-            delta = delta / 1000;
-            this.updateVelocity(delta);
-
-            if (!velocity[data.adAxis] && !velocity[data.wsAxis]) { return; }
-
-
-            // Transform direction relative to heading.
-            let directionVector = this.getMovementVector(delta)
-            var rotationEuler = new THREE.Euler(0, 0, 0, 'YXZ');
-            rotationEuler.set(THREE.MathUtils.degToRad(0), THREE.MathUtils.degToRad(xrf.camera.rotation.y + 45), 0);
-            directionVector.applyEuler(rotationEuler);
-            // Get movement vector and translate position to camera-rig (not camera)
-            xrf.camera.position.add(directionVector);
-          }.bind( camera.components['wasd-controls'] )        
-        }
-
         // convert href's to a-entity's so AFRAME
         // raycaster can find & execute it
         AFRAME.XRF.clickableMeshToEntity = (opts) => {
@@ -3016,6 +2998,19 @@ window.AFRAME.registerComponent('xrf-get', {
 
 });
 
+// gaze click on mobile VR
+
+AFRAME.registerComponent('xrf-moveplayer',{
+  schema:{
+  },
+  init:function(data){
+    this.player = document.querySelector('#player')
+  },
+  tick:function(){
+    this.player.object3D.rotation.copy( this.el.object3D.rotation )
+    this.player.object3D.position.copy( this.el.object3D.position )
+  }
+});
 window.AFRAME.registerComponent('xrf-wear', {
   schema:{
     el: {type:"selector"}, 

@@ -52,11 +52,16 @@ xrf.getFile = (url) => url.split("/").pop().replace(/#.*/,'')
 xrf.parseModel = function(model,url){
   let file               = xrf.getFile(url)
   model.file             = file
-  // eval embedded XR fragments
-  model.scene.traverse( (mesh) => {
-    xrf.hashbus.pub.mesh(mesh,model) 
-  })
   model.animations.map( (a) => console.log("anim: "+a.name) )
+  // spec: 2. init metadata inside model for non-SRC data
+  if( !model.isSRC ){ 
+    model.scene.traverse( (mesh) => xrf.hashbus.pub.mesh(mesh,model) )
+  }
+  // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
+  xrf.frag.defaultPredefinedViews({model,scene:model.scene})
+  // spec: predefined view(s) & objects-of-interest-in-XRWG from URL (https://xrfragment.org/#predefined_view)
+  let frag = xrf.hashbus.pub( url, model) // and eval URI XR fragments 
+
   xrf.emit('parseModel',{model,url,file})
 }
 
