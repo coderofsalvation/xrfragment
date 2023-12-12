@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Tue Dec 12 05:22:39 PM CET 2023
+ * v0.5.1 generated at Tue Dec 12 06:06:16 PM CET 2023
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -1174,6 +1174,7 @@ xrf.frag.pos = function(v, opts){
     camera.position.y = v.y
     camera.position.z = v.z
   }
+  camera.updateMatrixWorld()
 }
 xrf.frag.rot = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
@@ -1184,6 +1185,8 @@ xrf.frag.rot = function(v, opts){
       v.y * Math.PI / 180,
       v.z * Math.PI / 180
     )
+    camera.rotation.offset = camera.rotation.clone() // remember
+    //camera.updateProjectionMatrix()
   }else{
     obj = model.scene.isReparented ? model.scene.children[0] : model.scene
     obj.rotation.set( 

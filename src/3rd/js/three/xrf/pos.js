@@ -15,4 +15,5 @@ xrf.frag.pos = function(v, opts){
     camera.position.y = v.y
     camera.position.z = v.z
   }
+  camera.updateMatrixWorld()
 }

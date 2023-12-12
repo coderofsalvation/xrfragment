@@ -93,7 +93,7 @@ build(){
     test -f /tmp/xrf-aframe.js || {
       wget "https://aframe.io/releases/1.5.0/aframe.min.js" -O /tmp/xrf-aframe.js
       wget "https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js" -O /tmp/xrf-blink.js
-      for i in /tmp/xrf-*.js; do echo -e "\n" >> $i; done # add extra linebreak to prevent bundle issues
+      #for i in /tmp/xrf-*.js; do echo -e "\n" >> $i; done # add extra linebreak to prevent bundle issues
     }
     cat /tmp/xrf-*.js dist/xrfragment.aframe.js > dist/xrfragment.aframe.all.js
     

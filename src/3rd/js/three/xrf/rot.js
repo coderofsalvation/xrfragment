@@ -7,6 +7,8 @@ xrf.frag.rot = function(v, opts){
       v.y * Math.PI / 180,
       v.z * Math.PI / 180
     )
+    camera.rotation.offset = camera.rotation.clone() // remember
+    //camera.updateProjectionMatrix()
   }else{
     obj = model.scene.isReparented ? model.scene.children[0] : model.scene
     obj.rotation.set( 

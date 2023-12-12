@@ -36,6 +36,7 @@ window.AFRAME.registerComponent('xrf-button', {
             depth: 0.005
         });
         el.setAttribute('material', {
+            shader: "flat",
             color: this.color, 
             transparent:true,
             opacity:0.7
