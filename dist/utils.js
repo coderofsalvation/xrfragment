@@ -55,13 +55,17 @@ function setupConsole(el){
 
 function setupUrlBar(el,XRF){
   let inIframe = window.location !== window.parent.location
-  let ids = ['#overlay','a#embed','a#source','a#model','#qrcode']
-  let showButtons = () => {
-    ids.map( (i) => $(i).style.display = 'block' ) 
-    $('a#more').style.display = 'none' 
+  let ids = ['#overlay','a#embed','a#clone','a#model','a#meeting','#qrcode']
+  let showButtons = (state) => {
+    ids.map( (i) => $(i).style.display = state ? 'inline-block' : 'none' ) 
+    $('a#more').style.display = state ? 'none' : 'inline-block'
     if( inIframe ) $('#uri').style.display = 'block'
   }
-  $('a#more').addEventListener('click', () => showButtons() )
+  $('a#more').addEventListener('click', () => showButtons(true) )
+  $('a#meeting').addEventListener('click', () => {
+    document.querySelector('a-scene').setAttribute('meeting', 'id: xrfragments')
+    showButtons(false)
+  })
 
   XRF.addEventListener('hash', () => reflectUrl() )
   const reflectUrl = window.reflectUrl = (url) => {

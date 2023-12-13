@@ -120,7 +120,7 @@ input[type="submit"] {
   text-decoration:none;
 }
 
-a.btn-foot#embed{
+a.btn-foot#clone{
   color: #888;
   bottom: 129px;
 }
@@ -133,14 +133,20 @@ a.btn-foot#more{
   bottom:72px;
   width: 37px;
   min-width: 37px;
+  font-size:23px;
   text-align: center;
 }
 
-a.btn-foot#source{
+a.btn-foot#embed{
   bottom:186px;
 }
 
-a#source,
+a.btn-foot#meeting{
+  bottom:246px;
+}
+
+a#meeting,
+a#clone,
 a#embed,
 a#model{
   display:none
@@ -217,9 +223,9 @@ html{
     transition: all ease .5s;
     border-radius: 3px;
     box-shadow: 0 0 4px 0 #0007;
-    left: 20px;
+    right: 20px;
     position: fixed;
-    bottom: 20px;
+    top: 20px;
 }
 
 .js-snackbar {
@@ -291,18 +297,15 @@ html{
 
 #qrcode{
   z-index: 2000;
-  position: absolute;
-  border: 5px solid #1c1c3299;
-  top: 66px;
-  right: 20px;
-  width: 175px;
+  width: 111px;
   border-radius: 20px;
   background: #fff;
-  border: 5px solid #888;
   border-radius: 15px;
-  margin: 20px 20px;
   overflow: hidden;
   -webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC);
+  bottom: 306px;
+  height: 121px;
+  right: 19px;
 }
 
 input#share{

@@ -20,13 +20,7 @@
       <input type="text" id="uri" value="" onchange="AFRAME.XRF.navigator.to( $('#uri').value )" style="display:none"/> 
     </div>
 
-    <!-- open AFRAME inspector: $('a-scene').components.inspector.openInspector() -->
-    <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment-helloworld">➕ host</a> 
-    <a class="btn-foot" id="embed" target="_blank" onclick="window.embed()">🔗 share</a> 
-    <a class="btn-foot" id="model" target="_blank" onclick="window.download()">⬇️  scene</a> 
-    <a class="btn-foot" id="more" target="_blank">XRF</a> 
     <textarea style="display:none"></textarea>
-    <canvas id="qrcode" style="display:none" width="300" height="300"></canvas>
 
     <a-scene xr-mode-ui="XRMode: xr"  renderer="colorManagement: true; highRefreshRate:true" light="defaultLightsEnabled: false">
       <a-entity id="player" wasd-controls look-controls>
@@ -96,5 +90,15 @@
 
       })
     </script>
+
+    <!-- open AFRAME inspector: $('a-scene').components.inspector.openInspector() -->
+    <div class="footer">
+      <canvas id="qrcode" class="btn-foot" style="display:none" width="121" height="121"></canvas>
+      <a class="btn-foot" id="meeting" target="_blank">🧑‍🤝‍🧑 meeting</a> 
+      <a class="btn-foot" id="clone" target="_blank" href="https://github.com/coderofsalvation/xrfragment-helloworld">➕ clone</a> 
+      <a class="btn-foot" id="embed" target="_blank" onclick="window.embed()">🔗 share</a> 
+      <a class="btn-foot" id="model" target="_blank" onclick="window.download()">⬇️  scene</a> 
+      <a class="btn-foot" id="more" target="_blank">⚡</a> 
+    </div>
   </body>
 </html>
