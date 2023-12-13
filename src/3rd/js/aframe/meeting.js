@@ -88,7 +88,7 @@ AFRAME.registerComponent('meeting', {
   }, 
 
   trysteroInit: async function(){
-    const { joinRoom } = await import("/dist/trystero-torrent.min.js");
+    const { joinRoom } = await import("./../../../dist/trystero-torrent.min.js");
 
     const roomname = document.location.href.replace(/#.*/,'')
     const config   = this.config = {appId: this.data.id }

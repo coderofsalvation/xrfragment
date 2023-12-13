@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Wed Dec 13 07:05:52 PM CET 2023
+ * v0.5.1 generated at Wed Dec 13 07:23:32 PM CET 2023
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -2856,11 +2856,11 @@ AFRAME.registerComponent('meeting', {
   }, 
 
   trysteroInit: async function(){
-    const { joinRoom } = await import("/dist/trystero-torrent.min.js");
+    const { joinRoom } = await import("./../../../dist/trystero-torrent.min.js");
 
     const roomname = document.location.href.replace(/#.*/,'')
-    const config = this.config = {appId: this.data.id }
-    const room   = this.room   = joinRoom(config, roomname )
+    const config   = this.config = {appId: this.data.id }
+    const room     = this.room   = joinRoom(config, roomname )
     console.log("starting webrtc room: "+roomname)
 
     const idsToNames = this.idsToNames = {}
