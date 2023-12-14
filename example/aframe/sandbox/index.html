@@ -9,18 +9,8 @@
     <script src="./../../../dist/xrfragment.aframe.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js"></script>
 
-    <link  href="./../../assets/css/style.css" type="text/css" rel="stylesheet"/>
   </head>
   <body>
-    <div id="overlay" style="display:none">
-      <img src="./../../assets/logo.png" class="logo"/>
-      <button id="navback"  onclick="history.back()">&lt;</button>
-      <button id="navforward" onclick="history.forward()">&gt;</button>
-      <input type="submit" value="load 3D file"></input>
-      <input type="text" id="uri" value="" onchange="AFRAME.XRF.navigator.to( $('#uri').value )" style="display:none"/> 
-    </div>
-
-    <textarea style="display:none"></textarea>
 
     <a-scene xr-mode-ui="XRMode: xr"  renderer="colorManagement: true; highRefreshRate:true" light="defaultLightsEnabled: false">
       <a-entity id="player" wasd-controls look-controls>
@@ -34,71 +24,42 @@
         <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #player; collisionEntities: .floor"></a-entity>
       </a-entity>
 
-      <a-entity id="home"  xrf="index.glb"></a-entity>
+      <a-entity id="home" xrf="index.glb" xrf-menu></a-entity>
     </a-scene>
 
     <script>
-      window.$ = (s) => document.querySelector(s)
-      if( document.location.search.length > 2 ) 
-        $('#home').setAttribute('xrf', document.location.search.substr(1)+document.location.hash )
-
-      // allow iframe to open url
-      window.addEventListener('message', (event) => {
-        if (event.data && event.data.url) {
-          window.open(event.data.url, '_blank');
-        }
-      });
-        
-
-      $('a-scene').addEventListener('XRF', () => {
-        window.notify = notify(window)
-        window.embed  = embed
-        window.notify('loading '+document.location.search.substr(1))
-
-        // reroute console messages to snackbar notifications
-        console.log = ( (log) => function(str){
-          if( String(str).match(/(:.*#|note:)/) ) window.notify(str)
-          log(str)
-        })(console.log)
-
-        let XRF = window.AFRAME.XRF
-        setupConsole( $('textarea') )
-        setupUrlBar( $('input#uri'), XRF )
-
-        // on localhost enable debugging mode for developer convenience
-        let loc = document.location
-        if( loc.host.match(/^localhost/) ){
-          $('a-scene').setAttribute('stats')
-          XRF.debug = 1
-        }
-
-        // add screenshot component with camera to capture bigger size equirects
-        // document.querySelector('a-scene').components.screenshot.capture('perspective')
-        $('a-scene').setAttribute("screenshot",{camera: "[camera]",width: 4096*2, height:2048*2})
-
-        if( window.outerWidth > 800 )
-          setTimeout( () => window.notify("use WASD-keys and mouse-drag to move around",{timeout:false}),2000 )
-
-        window.AFRAME.XRF.addEventListener('href', (data) => data.selected ? window.notify(`href: ${data.xrf.string}`) : false )
-
-        // enable user-uploaded asset files
-				let fileLoaders = loadFile({
-          ".gltf": (file) => file.arrayBuffer().then( (data) => xrf.navigator.to(file.name,null, (new xrf.loaders.gltf()), data) ),
-          ".glb":  (file) => file.arrayBuffer().then( (data) => xrf.navigator.to(file.name,null, (new xrf.loaders.gltf()), data) )
-				})
-				$("#overlay > input[type=submit]").addEventListener("click", fileLoaders )
-
-      })
+      // add your logo
+      XRFMENU.logo      = './../../assets/logo.png'
+      XRFMENU.morelabel = '⚡'
+      // add your menubuttons:
+      XRFMENU.html.push(`<a class="btn" aria-label="button" aria-description="help menu" onclick="window.showHelp()">💁 help?</a><br>`)
+      showHelp = () => window.notify(`
+          <h1>💁 Hi there!</h1>
+          This XR experience works on almost any device.<br>
+          Though, the best is with AR/VR headsets ♥️<br><br>
+          <table>
+          ${ 
+            $$('.footer>.btn').map( (btn) => {
+              let info = btn.getAttribute("aria-description")
+              return info && info != "help menu" ? `<tr><td>${btn.outerHTML}</td><td>${info}</td></tr>` : ''
+            }).join('\n')
+          }  
+          </table>
+          <b>This uses only open standards:</b><br>
+          📦 simply surf hyperlinked 3D model files<br>
+          🚫 no proprietary tech/game-engines<br>
+          🔗 <a href="https://xrfragment.org" target="_blank">XR Fragments</a> for links & navigation<br> 
+          📷 Serverless <a href="https://webrtc.org" target="_blank">P2P WebRTC</a><br> 
+          🅰  <a href="https://aframe.io" target="_blank">AFRAME</a> + <a href="https://three.org" target="_blank">Three.js</a> for <a href="https://immersiveweb.dev" target="_blank">WebXR</a><br>
+          🙉 go selfhost <a href="https://github.com/coderofsalvation/xrfragment-helloworld">worlds-in-a-webpage</a><br>
+          ♥️  Be sustainable: go 100% <a href="https://www.forbes.com/sites/adrianbridgwater/2023/02/06/the-future-for-open-source/" target="_blank">opensource</a>
+          <br><br>
+          <a href="https://nlnet.nl" target="_blank">
+            <img src="https://nlnet.nl/image/logo_nlnet.svg" width="100"/>
+          </a>
+          <br><br>
+          `,{timeout:40000})
     </script>
 
-    <!-- open AFRAME inspector: $('a-scene').components.inspector.openInspector() -->
-    <div class="footer">
-      <canvas id="qrcode" class="btn-foot" style="display:none" width="121" height="121"></canvas>
-      <a class="btn-foot" id="meeting" target="_blank">🧑‍🤝‍🧑 meeting</a> 
-      <a class="btn-foot" id="clone" target="_blank" href="https://github.com/coderofsalvation/xrfragment-helloworld">➕ clone</a> 
-      <a class="btn-foot" id="embed" target="_blank" onclick="window.embed()">🔗 share</a> 
-      <a class="btn-foot" id="model" target="_blank" onclick="window.download()">⬇️  scene</a> 
-      <a class="btn-foot" id="more" target="_blank">⚡</a> 
-    </div>
   </body>
 </html>

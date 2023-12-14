@@ -80,12 +80,8 @@ build(){
     cat dist/xrfragment.three.js        > dist/xrfragment.three.module.js
     echo "export default xrf;"  >> dist/xrfragment.three.module.js
 
-    # convert ESM to normal browser js
-    sed 's/export //g' example/assets/js/utils.js > dist/utils.js
-
     # add AFRAME 
     cat dist/xrfragment.three.js \
-        dist/utils.js            \
         src/3rd/js/aframe/*.js   \
         example/assets/js/qr.js  > dist/xrfragment.aframe.js
     

@@ -42,7 +42,7 @@ AFRAME.registerComponent('meeting', {
         left: 20px;
         width: 48%;
         background: white;
-        padding: 7px 0px 7px 15px; 
+        padding: 0px 0px 0px 15px; 
         border-radius: 30px;
         max-width: 500px;
         box-sizing: border-box;
@@ -50,7 +50,8 @@ AFRAME.registerComponent('meeting', {
       }
       #chatbar input{
         border:none;
-        width:93%;
+        width:90%;
+        box-sizing:border-box;
       }
       #chat{
         position: absolute;
@@ -71,15 +72,11 @@ AFRAME.registerComponent('meeting', {
       }
       #chat,#chatbar,#chatbar *, #chat *{
         font-family:monospace;
-        font-size:16px;
+        font-size:15px;
       }
-      #chatbar * {
-        font-size:20px;
-      }
-}
     </style>
     <div id="videos" style="pointer-events:none"></div>
-    <div id="chat"></div>
+    <div id="chat" aria-live="assertive" aria-relevant></div>
     <div id="chatbar">
       <input id="chatline" type="text" placeholder="chat here"></input>
     </div>`
@@ -104,7 +101,7 @@ AFRAME.registerComponent('meeting', {
     this.getName  = getName
 
     // tell other peers currently in the room our name
-    let name = prompt('enter your name:')
+    let name = this.name = prompt('enter your name:')
     idsToNames[ room.selfId ] = name.substr(0,15)
     sendName( name )
 
@@ -231,6 +228,8 @@ AFRAME.registerComponent('meeting', {
       if( e.key !== "Enter" ) return 
       send()
       chatline.value = ''
+      event.preventDefault();
+      event.target.blur()
     })
 
     // listen for chatmsg 
@@ -243,6 +242,9 @@ AFRAME.registerComponent('meeting', {
       }
       chat.append(data.content) // send to screen
     })
+
+    // notify join in chat 
+    this.send( this.name+": joined")
 
     return this
   },
