@@ -260,9 +260,12 @@ window.XRFMENU = {
     newHash += `&${lastPos}`
     document.location.hash = newHash.replace(/&&/,'&')
                                     .replace(/#&/,'')
+    XRFMENU.copyToClipboard( window.location.href );
+  },
+
+  copyToClipboard(text){
     // copy url to clipboard 
-    var dummy = document.createElement('input'),
-        text = window.location.href;
+    var dummy = document.createElement('input')
     document.body.appendChild(dummy);
     dummy.value = text;
     dummy.select();
@@ -271,9 +274,13 @@ window.XRFMENU = {
   },
 
   share(){
-    XRFMENU.updateHashPosition()
+    let inMeeting = $('[meeting]')
+    let url = window.location.href
+    if( !inMeeting ) XRFMENU.updateHashPosition()
+    else url = $('[meeting]').components['meeting'].data.link
+    XRFMENU.copyToClipboard( url )
     // End of *TODO* 
-    window.notify(`<h2>Link copied to clipboard!</h2> <br>Now share it with your friends ❤️<br>
+    window.notify(`<h2>${ inMeeting ? 'Meeting link ' : 'Link'} copied to clipboard!</h2> <br>Now share it with your friends ❤️<br>
       <canvas id="qrcode" width="121" height="121"></canvas><br>
       <button onclick="window.download()">💾 download scene file</button> <br>
       <button onclick="alert('this might take a while'); $('a-scene').components.screenshot.capture('equirectangular')">📷 download 360 screenshot</button> <br>
@@ -285,9 +292,9 @@ window.XRFMENU = {
     `,{timeout:2000000})
     // draw QR code
     setTimeout( () => {
-      let QR = window.QR
+      let QR  = window.QR
       QR.canvas = document.getElementById('qrcode')
-      QR.draw( document.location.href, QR.canvas )
+      QR.draw( url, QR.canvas )
     },0)
   }
 }

@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Fri Dec 15 05:17:47 PM CET 2023
+ * v0.5.1 generated at Fri Dec 15 06:46:07 PM CET 2023
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -870,9 +870,12 @@ window.XRFMENU = {
     newHash += `&${lastPos}`
     document.location.hash = newHash.replace(/&&/,'&')
                                     .replace(/#&/,'')
+    XRFMENU.copyToClipboard( window.location.href );
+  },
+
+  copyToClipboard(text){
     // copy url to clipboard 
-    var dummy = document.createElement('input'),
-        text = window.location.href;
+    var dummy = document.createElement('input')
     document.body.appendChild(dummy);
     dummy.value = text;
     dummy.select();
@@ -881,9 +884,13 @@ window.XRFMENU = {
   },
 
   share(){
-    XRFMENU.updateHashPosition()
+    let inMeeting = $('[meeting]')
+    let url = window.location.href
+    if( !inMeeting ) XRFMENU.updateHashPosition()
+    else url = $('[meeting]').components['meeting'].data.link
+    XRFMENU.copyToClipboard( url )
     // End of *TODO* 
-    window.notify(`<h2>Link copied to clipboard!</h2> <br>Now share it with your friends ❤️<br>
+    window.notify(`<h2>${ inMeeting ? 'Meeting link ' : 'Link'} copied to clipboard!</h2> <br>Now share it with your friends ❤️<br>
       <canvas id="qrcode" width="121" height="121"></canvas><br>
       <button onclick="window.download()">💾 download scene file</button> <br>
       <button onclick="alert('this might take a while'); $('a-scene').components.screenshot.capture('equirectangular')">📷 download 360 screenshot</button> <br>
@@ -895,9 +902,9 @@ window.XRFMENU = {
     `,{timeout:2000000})
     // draw QR code
     setTimeout( () => {
-      let QR = window.QR
+      let QR  = window.QR
       QR.canvas = document.getElementById('qrcode')
-      QR.draw( document.location.href, QR.canvas )
+      QR.draw( url, QR.canvas )
     },0)
   }
 }
@@ -3155,7 +3162,8 @@ AFRAME.registerComponent('meeting', {
   schema:{
     id:{ required:true, type:'string'},
     visitorname:{required:false,type:'string'},
-    parentRoom:{required:false,type:'string'}
+    parentRoom:{required:false,type:'string'},
+    link:{required:false,type:'string'}
   },
   remove: function(){
     if( this.room ) this.room.leave()
@@ -3201,7 +3209,9 @@ AFRAME.registerComponent('meeting', {
         filter: brightness(1.8);
         cursor:pointer;
       }
-      #chatbar {
+
+      #chatbar,
+      button#showchat{
         z-index: 1500;
         position: fixed;
         bottom: 20px;
@@ -3213,6 +3223,15 @@ AFRAME.registerComponent('meeting', {
         max-width: 500px;
         box-sizing: border-box;
         box-shadow: 0px 0px 5px 5px #0002;
+      }
+      button#showchat{
+        z-index:1550;
+        color:white;
+        border:0;
+        display:none;
+        height: 44px;
+        background:#07F;
+        font-weight:bold;
       }
       #chatbar input{
         border:none;
@@ -3244,7 +3263,6 @@ AFRAME.registerComponent('meeting', {
         background: #333;
         color: #FFF;
         font-size: 14px;
-        font-weight: bold;
         padding: 0px 16px;
       }
       #chat .msg.info a,
@@ -3276,8 +3294,9 @@ AFRAME.registerComponent('meeting', {
     </style>
     <div id="videos" style="pointer-events:none"></div>
     <div id="chat" aria-live="assertive" aria-relevant></div>
+    <button id="showchat" class="btn">show chat</button>
     <div id="chatbar">
-      <input id="chatline" type="text" placeholder="enter your name"></input>
+      <input id="chatline" type="text" placeholder="enter name"></input>
     </div>`
     document.body.appendChild(el)
 
@@ -3303,7 +3322,7 @@ AFRAME.registerComponent('meeting', {
       if( classes ) classes.map( (c) => el.classList.add(c) )
       this.chat.appendChild(el) // send to screen
       this.chat.innerHTML += '<br>'
-      this.chat.log.push(str)
+      if( !classes ) this.chat.log.push(str)
     }
     if( buttons ){
       for( let i in buttons ){
@@ -3323,7 +3342,7 @@ AFRAME.registerComponent('meeting', {
     if( !document.location.hash.match(/meet/) ){
       document.location.hash += document.location.hash.match(/#/) ? '&meet' : '#meet'
     }
-    let roomname   = this.roomname = document.location.href
+    let roomname   = this.roomname = this.data.link = document.location.href
     const config   = this.config = {appId: this.data.id }
     const room     = this.room   = joinRoom(config, roomname )
     this.chat.append("joined meeting at "+roomname,["info"]);
@@ -3399,6 +3418,7 @@ AFRAME.registerComponent('meeting', {
       this.addVideo(stream,peerId)
     })
 
+    // show hide chat on small screens
   },
 
   addVideo: function(stream,peerId){
@@ -3446,8 +3466,10 @@ AFRAME.registerComponent('meeting', {
     chatline.addEventListener("keydown", (e) => {
       if( e.key !== "Enter" ) return 
       if( !this.data.visitorname ){
-        this.data.visitorname = chatline.value
+        this.data.visitorname = chatline.value.toLowerCase()
+        this.data.visitorname = this.data.visitorname.replace(/[^a-z]+/g,'-')
         this.chat.append("note: camera/mic access is totally optional ♥️",["info"])
+        this.chatline.setAttribute("placeholder","chat here")
         this.trysteroInit()
       }else{
         let str = `${this.idsToNames[ this.room.selfId ]}: ${chatline.value.substr(0,65515).trim()}`
@@ -3457,6 +3479,19 @@ AFRAME.registerComponent('meeting', {
       event.preventDefault();
       event.target.blur()
     })
+
+    // on small screens/mobile make chat toggle-able
+    if( window.outerWidth < 1024 ){
+      let show = (state) => () => {
+        $('#chat').style.display     = state ? '' : 'none'
+        $('#chatline').style.display = state ? '' : 'none'
+        $('button#showchat').style.display = state ? 'none' : 'block'
+      }
+      $('.a-canvas').addEventListener('click',      show(false) )
+      $('.a-canvas').addEventListener('touchstart', show(false) )
+      $('#showchat').addEventListener('touchstart', show(true) )
+      $('#showchat').addEventListener('click',      show(true) )
+    }
   },
 
   initChat: function(){
