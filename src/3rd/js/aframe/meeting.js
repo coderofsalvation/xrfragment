@@ -1,12 +1,19 @@
 AFRAME.registerComponent('meeting', {
   schema:{
-    id:{ required:true, type:'string'}
+    id:{ required:true, type:'string'},
+    visitorname:{required:false,type:'string'},
+    parentRoom:{required:false,type:'string'}
+  },
+  remove: function(){
+    if( this.room ) this.room.leave()
+    this.meeting.remove()
   },
   init: function(){
     // embed https://github.com/dmotz/trystero (trystero-torrent.min.js build)
 
     // add css+html
-    let el = document.createElement("div")
+    let el = this.meeting = document.createElement("div")
+    el.id  = 'meeting'
     el.innerHTML += `<style type="text/css">
       #videos{
         display:grid-auto-columns;
@@ -58,17 +65,50 @@ AFRAME.registerComponent('meeting', {
         top: 100px;
         left: 0;
         right: 0;
-        bottom: 110px;
+        bottom: 88px;
         padding: 15px;
         pointer-events: none;
+        overflow-y:auto;
       }
       #chat .msg{
-        background: #fffc;
+        background: #fff;
         display: inline-block;
         padding: 6px 17px;
         border-radius: 20px;
         color: #000c;
         margin-bottom: 10px;
+        line-height:23px;
+        pointer-events:visible;
+        border: 1px solid #ccc;
+      }
+      #chat .msg.info{
+        background: #333;
+        color: #FFF;
+        font-size: 14px;
+        font-weight: bold;
+        padding: 0px 16px;
+      }
+      #chat .msg.info a,
+      #chat .msg.info a:visited{
+        color: #aaf;
+        text-decoration: none;
+        transition:0.3s;
+      }
+      #chat .msg.info a:hover,
+      #chat button:hover{
+        filter: brightness(1.8);
+        text-decoration: underline;
+      }
+      #chat button {
+        margin: 0px 15px 10px 0px;
+        background: #07F;
+        color: #FFF;
+        border-radius: 7px;
+        padding: 11px 15px;
+        border: 0;
+        font-weight: bold;
+        box-shadow: 0px 0px 5px 5px #0002;
+        pointer-events:all;
       }
       #chat,#chatbar,#chatbar *, #chat *{
         font-family:monospace;
@@ -78,19 +118,57 @@ AFRAME.registerComponent('meeting', {
     <div id="videos" style="pointer-events:none"></div>
     <div id="chat" aria-live="assertive" aria-relevant></div>
     <div id="chatbar">
-      <input id="chatline" type="text" placeholder="chat here"></input>
+      <input id="chatline" type="text" placeholder="enter your name"></input>
     </div>`
     document.body.appendChild(el)
-    this.trysteroInit()
+
+    let chatline   = this.chatline = document.querySelector("#chatline")
+    let chat       = this.chat     = document.querySelector("#chat")
+    chat.log = []  // save raw chatlog to prime new visitors
+    chat.append = (str,classes,buttons) => this.chatAppend(str,classes,buttons)
+ 
+    this.initChatLine()
+
+    if( !this.data.visitorname ) this.chat.append("💁 Hi there! Please enter your name")
+    else{
+      if( this.data.parentRoom ) this.chat.append(`leaving ${this.data.parentRoom}`,["info"]);
+      this.trysteroInit()
+    }
   }, 
+
+  chatAppend: function(str,classes,buttons){
+    if( str ){
+      str = str.replace('\n', "<br>")
+               .replace(/^[a-zA-Z-0-9]+?[:\.]/,'<b>$&</b>')
+      let el = this.createMsg(str)
+      if( classes ) classes.map( (c) => el.classList.add(c) )
+      this.chat.appendChild(el) // send to screen
+      this.chat.innerHTML += '<br>'
+      this.chat.log.push(str)
+    }
+    if( buttons ){
+      for( let i in buttons ){
+        let btn = document.createElement("button")
+        btn.innerText = i 
+        btn.addEventListener('click', () => buttons[i]() )
+        this.chat.appendChild(btn)
+      }
+      this.chat.innerHTML += '<br>'
+    }
+    this.chat.scrollTop = this.chat.scrollHeight; // scroll to bottom
+  },
 
   trysteroInit: async function(){
     const { joinRoom } = await import("./../../../dist/trystero-torrent.min.js");
 
-    const roomname = document.location.href.replace(/#.*/,'')
+    if( !document.location.hash.match(/meet/) ){
+      document.location.hash += document.location.hash.match(/#/) ? '&meet' : '#meet'
+    }
+    let roomname   = this.roomname = document.location.href
     const config   = this.config = {appId: this.data.id }
     const room     = this.room   = joinRoom(config, roomname )
-    console.log("starting webrtc room: "+roomname)
+    this.chat.append("joined meeting at "+roomname,["info"]);
+    this.chat.append("copied meeting link to clipboard",["info"]);
 
     const idsToNames = this.idsToNames = {}
     const [sendName, getName] = room.makeAction('name')
@@ -101,9 +179,8 @@ AFRAME.registerComponent('meeting', {
     this.getName  = getName
 
     // tell other peers currently in the room our name
-    let name = this.name = prompt('enter your name:')
-    idsToNames[ room.selfId ] = name.substr(0,15)
-    sendName( name )
+    idsToNames[ room.selfId ] = this.data.visitorname.substr(0,15)
+    sendName( this.data.visitorname )
 
     // listen for peers naming themselves
     getName((name, peerId) => (idsToNames[peerId] = name))
@@ -133,7 +210,6 @@ AFRAME.registerComponent('meeting', {
 
     // send stream + chatlog to peers who join later
     room.onPeerJoin( (peerId) => {
-      console.log(`${idsToNames[peerId] || 'a visitor'} joined`)
       room.addStream(selfStream, peerId)
       sendName( name, peerId)
       this.sendChat({prime: this.chat.log}, peerId )
@@ -192,7 +268,7 @@ AFRAME.registerComponent('meeting', {
     return video
   },
 
-  createElement: function(str){
+  createMsg: function(str){
     let el = document.createElement("div")
     el.className = "msg"
     el.innerHTML = this.linkify(str) 
@@ -200,38 +276,31 @@ AFRAME.registerComponent('meeting', {
   },
 
   // central function to broadcast stuff to chat
-  send: function(str){
+  send: function(str,classes,buttons){
     if( !this.sendChat ) return
-    this.sendChat({content:str})      // send to network
-    this.chat.append(str)             // send to screen
+    this.sendChat({content:str})          // send to network
+    this.chat.append(str,classes,buttons) // send to screen
   },
 
-  initChat: function(){
-
+  initChatLine: function(){
     let chatline   = this.chatline = document.querySelector("#chatline")
-    let chat       = this.chat     = document.querySelector("#chat")
-    chat.log = []  // save raw chatlog to prime new visitors
-    chat.append = (str) => {
-      if( !str ) return
-      str = str.replace('\n', "<br>")
-      this.chat.appendChild(this.createElement(str)) // send to screen
-      this.chat.innerHTML += '<br>'
-      this.chat.log.push(str)
-    }
-
-    let send = () => {
-      let str = `${this.idsToNames[ this.room.selfId ]}: ${chatline.value.substr(0,65515).trim()}`
-      this.send(str)
-    }
-
     chatline.addEventListener("keydown", (e) => {
       if( e.key !== "Enter" ) return 
-      send()
+      if( !this.data.visitorname ){
+        this.data.visitorname = chatline.value
+        this.chat.append("btw. camera/mic access is totally optional ♥️")
+        this.trysteroInit()
+      }else{
+        let str = `${this.idsToNames[ this.room.selfId ]}: ${chatline.value.substr(0,65515).trim()}`
+        this.send(str)
+      }
       chatline.value = ''
       event.preventDefault();
       event.target.blur()
     })
+  },
 
+  initChat: function(){
     // listen for chatmsg 
     this.getChat((data, peerId) => {
       if( data.prime ){
@@ -240,33 +309,41 @@ AFRAME.registerComponent('meeting', {
         data.prime.map( (l) => chat.append(l) ) // send log to screen
         this.chat.primed = true
       }
-      chat.append(data.content) // send to screen
+      chat.append(data.content,data.classes,data.buttons) // send to screen
     })
 
-    // notify join in chat 
-    this.send( this.name+": joined")
-
+    this.notifyTeleport()
     return this
   },
 
+  notifyTeleport: function(buttons){
+    // send to network
+    this.sendChat({
+      content: `${this.data.visitorname} teleported to ${this.roomname}`,
+      classes: ["info"], 
+      buttons
+    })
+  },
+
   linkify: function(t){
-    const isValidHttpUrl = s => {
-      let u
-      try {u = new URL(s)}
-      catch (_) {return false}
-      return u.protocol.startsWith("http")
-    }
-    const m = t.match(/(?<=\s|^)[a-zA-Z0-9-:/]+\.[a-zA-Z0-9-].+?(?=[.,;:?!-]?(?:\s|$))/g)
+    const m = t.match(/(?<=\s|^)[a-zA-Z0-9-:/]+[?\.][a-zA-Z0-9-].+?(?=[.,;:?!-]?(?:\s|$))/g)
     if (!m) return t
     const a = []
     m.forEach(x => {
       const [t1, ...t2] = t.split(x)
       a.push(t1)
       t = t2.join(x)
-      const y = (!(x.match(/:\/\//)) ? 'https://' : '') + x
-      if (isNaN(x) && isValidHttpUrl(y)) 
-        a.push('<a href="' + y + '" target="_blank" style="pointer-events:all">' + y.split('/')[2] + '</a>')
-      else
+      let y = (!(x.match(/:\/\//)) ? 'https://' : '') + x
+      if (isNaN(x) ){
+        let url_human = y.split('/')[2]
+        let isXRFragment = y.match("pos=")
+        if( isXRFragment ){               // detect xr fragments
+          url_human = y.replace(/.*[?\?]/,'')   // shorten xr fragment links
+                       .replace(/[?\&]meet/,'')
+          y   = y.replace(/.*[\?]/, '?')        // start from search (to prevent page-refresh)
+        }
+        a.push(`<a href="${y}" ${isXRFragment ? '' : `target="_blank"`} style="pointer-events:all">${url_human}</a>`)
+      }else
         a.push(x)
     })
     a.push(t)

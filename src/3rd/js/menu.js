@@ -8,7 +8,7 @@ window.XRFMENU = {
 
   html: [ 
      `<a class="btn" aria-label="button" aria-description="start text/audio/video chat" id="meeting" target="_blank">🧑‍🤝‍🧑 meeting</a><br>`,
-     `<a class="btn" aria-label="button" aria-description="share URL/screenshot/embed" id="share" target="_blank" onclick="window.embed()">🔗 share</a><br>`
+     `<a class="btn" aria-label="button" aria-description="share URL/screenshot/embed" id="share" target="_blank" onclick="window.share()">🔗 share</a><br>`
   ],
 
   loadFile(contentLoaders, multiple){
@@ -32,9 +32,10 @@ window.XRFMENU = {
   },
 
   setupMenu(XRF){
+    let aScene   = document.querySelector('a-scene')
     let urlbar   = $('input#uri')
     let inIframe = window.location !== window.parent.location
-    let els      = [ ...document.querySelectorAll('.footer .btn') ]
+    let els      = [ ...document.querySelectorAll('.menu .btn') ]
     els          = els.filter( (el) => el.id != "more" ? el : false )
 
     let showMenu = (state) => {
@@ -47,7 +48,23 @@ window.XRFMENU = {
     els.map( (el) => el.addEventListener('click', () => showMenu(false) ) )
     $('a#more').addEventListener('click',    () => showMenu(true) )
     $('.a-canvas').addEventListener('click',    () => showMenu(false) )
-    $('a#meeting').addEventListener('click', () => document.querySelector('a-scene').setAttribute('meeting', 'id: xrfragments') )
+
+    // enable meetings
+    let startMeeting = () => {
+      aScene.setAttribute('meeting', 'id: xrfragments') 
+      $('a#meeting').innerText = '📍 new meeting location'
+    }
+    $('a#meeting').addEventListener('click', () => {
+      if( aScene.getAttribute('meeting') ){ // meeting already, start breakout room
+        let parentRoom = document.location.href
+        XRFMENU.updateHashPosition(true) 
+        let visitorname = aScene.getAttribute("meeting").visitorname
+        aScene.removeAttribute('meeting')
+        // breakoutroom
+        aScene.setAttribute('meeting', `id: xrfragments; visitorname: ${visitorname}; parentRoom: ${parentRoom}`) 
+      }else startMeeting()
+    })
+    if( document.location.hash.match(/(#|&)meet/) ) startMeeting()
 
     XRF.addEventListener('hash', () => reflectUrl() )
     const reflectUrl = window.reflectUrl = (url) => {
@@ -72,8 +89,10 @@ window.XRFMENU = {
       var _Options = _OptionDefaults;
 
       function _Create() {
-          let _Containers = [ ...document.querySelectorAll(".js-snackbar-container") ]
-          _Containers.map( (c) => c.remove() )
+          _Container = document.querySelector(".js-snackbar-container") 
+          if( _Container ){
+            _Container.remove()
+          }
           _Container = null
 
           if (!_Container) {
@@ -83,6 +102,7 @@ window.XRFMENU = {
 
               document.body.appendChild(_Container);
           }
+          _Container.opts = _Options
           _Container.innerHTML = ''
           _Element = document.createElement("div");
           _Element.classList.add("js-snackbar__wrapper","xrf");
@@ -115,7 +135,9 @@ window.XRFMENU = {
           
           _Message = document.createElement("span");
           _Message.classList.add("js-snackbar__message");
-          _Message.innerHTML = _Options.message;
+          if( typeof _Options.message == 'string' ){
+            _Message.innerHTML = _Options.message;
+          }else _Message.appendChild(_Options.message)
 
           innerSnack.appendChild(_Message);
 
@@ -139,60 +161,6 @@ window.XRFMENU = {
 
           if (_Options.timeout !== false) {
               _Interval = setTimeout(snackbar.Close, _Options.timeout);
-          }
-      }
-
-      var _ConfigureDefaults = function() {
-          // if no options given, revert to default
-          if (userOptions === undefined) {
-              return;
-          }
-
-          if (userOptions.message !== undefined) {
-              _Options.message = userOptions.message;
-          }
-
-          if (userOptions.dismissible !== undefined) {
-              if (typeof (userOptions.dismissible) === "string") {
-                  _Options.dismissible = (userOptions.dismissible === "true");
-              }
-              else if (typeof (userOptions.dismissible) === "boolean") {
-                  _Options.dismissible = userOptions.dismissible;
-              }
-              else {
-                  console.debug("Invalid option provided for 'dismissable' [" + userOptions.dismissible + "] is of type " + (typeof userOptions.dismissible));
-              }
-          }
-
-
-          if (userOptions.timeout !== undefined) {
-              if (typeof (userOptions.timeout) === "boolean" && userOptions.timeout === false) {
-                  _Options.timeout = false;
-              }
-              else if (typeof (userOptions.timeout) === "string") {
-                  _Options.timeout = parseInt(userOptions.timeout);
-              }
-
-
-              if (typeof (userOptions.timeout) === "number") {
-                  if (userOptions.timeout === Infinity) {
-                      _Options.timeout = false;
-                  }
-                  else if (userOptions.timeout >= 0) {
-                      _Options.timeout = userOptions.timeout;
-                  }
-                  else {
-                      console.debug("Invalid timeout entered. Must be greater than or equal to 0.");
-                  }
-
-                  _Options.timeout = userOptions.timeout;
-              }
-
-              
-          }
-
-          if (userOptions.status !== undefined) {
-              _Options.status = userOptions.status;
           }
       }
 
@@ -232,25 +200,28 @@ window.XRFMENU = {
           });
 
           setTimeout(function() {
-              try { _Container.removeChild(_Element); } catch (e) { }
+              try { 
+                _Container.removeChild(_Element); 
+              } catch (e) { }
           }, 1000);
       };
 
-      _ConfigureDefaults();
+      _Options = { ..._OptionDefaults, ...userOptions }
       _Create();
       snackbar.Open();
   },
 
   notify(scope){
     return function notify(str,opts){
-      str  = String(str)
-      opts = opts || {}        
-      if( !opts.status ){      
-        opts.status = "info"   
-        if( str.match(/error/g)   ) opts.status = "danger"
-        if( str.match(/warning/g) ) opts.status = "warning"
+      opts = opts || {status:'info'}        
+      opts = Object.assign({ status, timeout:4000 },opts)
+      if( typeof str == 'string' ){
+        if( !opts.status ){      
+          if( str.match(/error/g)   ) opts.status = "danger"
+          if( str.match(/warning/g) ) opts.status = "warning"
+        }
       }
-      opts = Object.assign({ message: str , status, timeout:4000 },opts)
+      opts.message = str
       window.XRFMENU.SnackBar( opts )
     }
   },
@@ -267,12 +238,14 @@ window.XRFMENU = {
     fetchAndDownload( file, file )
   },
 
-  embed(){
+  updateHashPosition(randomize){
     // *TODO* this should be part of the XRF Threejs framework
     if( typeof THREE == 'undefined' ) THREE = xrf.THREE 
     let radToDeg  = THREE.MathUtils.radToDeg
     let toDeg     = (x) => x / (Math.PI / 180)
     let camera    = document.querySelector('[camera]').object3D.parent // *TODO* fix for threejs
+    camera.position.x += Math.random()/10
+    camera.position.z += Math.random()/10
 
     // *TODO* add camera direction
     let direction = new xrf.THREE.Vector3()
@@ -295,8 +268,12 @@ window.XRFMENU = {
     dummy.select();
     document.execCommand('copy');
     document.body.removeChild(dummy); 
+  },
+
+  share(){
+    XRFMENU.updateHashPosition()
     // End of *TODO* 
-    window.notify(`<b>Link copied to clipboard!</b> ❤️<br><br>
+    window.notify(`<h2>Link copied to clipboard!</h2> <br>Now share it with your friends ❤️<br>
       <canvas id="qrcode" width="121" height="121"></canvas><br>
       <button onclick="window.download()">💾 download scene file</button> <br>
       <button onclick="alert('this might take a while'); $('a-scene').components.screenshot.capture('equirectangular')">📷 download 360 screenshot</button> <br>
@@ -364,6 +341,8 @@ window.XRFMENU.addHTML = () => {
       line-height: var(--xrf-font-size-1);
       cursor:pointer;
       white-space:pre;
+      min-width: 45px;
+      box-shadow: 0px 0px 10px var(--xrf-box-shadow);
     }
 
     .xrf button:hover,
@@ -438,6 +417,8 @@ window.XRFMENU.addHTML = () => {
       border-radius:6px;
       top: 8px;
       color: var(--xrf-light-gray);
+      width: 36px;
+      min-width: unset;
     }
     #overlay > button#navforward {
       left:49px;
@@ -461,9 +442,8 @@ window.XRFMENU.addHTML = () => {
 
 
 
-    .xrf.footer .btn{
+    .menu .btn{
       background: var(--xrf-primary);
-      box-shadow: 0px 0px 10px var(--xrf-box-shadow);
       border-radius: 25px;
       border: 0;
       padding: 5px 19px;
@@ -480,6 +460,7 @@ window.XRFMENU.addHTML = () => {
       margin-top: 15px;
       line-height:36px;
       margin-right:10px;
+      text-align:left;
     }
 
     .xrf a.btn#more{
@@ -524,6 +505,9 @@ window.XRFMENU.addHTML = () => {
       .js-snackbar__message{
         overflow-y:auto;
         max-height:600px;
+      }
+      .js-snackbar__message h1,h2,h3{
+        font-size:22px;
       }
       .xrf table tr td {
     
@@ -673,6 +657,9 @@ window.XRFMENU.addHTML = () => {
       padding-bottom:149px;
       box-sizing:border-box;
     }
+    .footer .menu{
+      text-align:right;
+    }
 
   </style>
   <div id="overlay" class="xrf" style="display:none">
@@ -684,7 +671,7 @@ window.XRFMENU.addHTML = () => {
   </div>
   <!-- open AFRAME inspector: $('a-scene').components.inspector.openInspector() -->
   <div class="xrf footer">
-    <div>
+    <div id="buttons" class="menu">
       ${window.XRFMENU.html.map( (html) => typeof html == "function" ? html() : html ).join('\n')}
       <a class="btn" id="more" style="display:inline-block">${window.XRFMENU.morelabel}</a>
     </div>
@@ -695,7 +682,7 @@ window.XRFMENU.addHTML = () => {
   if( XRFMENU.logo ) $('.logo').style['background-image'] = `url(${XRFMENU.logo})`
 
   window.notify   = XRFMENU.notify(window)
-  window.embed    = XRFMENU.embed
+  window.share    = XRFMENU.share
   window.download = XRFMENU.download
   window.notify('loading '+document.location.search.substr(1))
   // reroute console messages to snackbar notifications
