@@ -350,7 +350,7 @@ AFRAME.registerComponent('meeting', {
     return this
   },
 
-  notifyTeleport: function(buttons){
+  notifyTeleport: function(url,buttons){
     // send to network
     this.sendChat({
       content: `${this.data.visitorname} teleported to ${this.roomname}`,

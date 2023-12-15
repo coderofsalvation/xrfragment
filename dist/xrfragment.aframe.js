@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Fri Dec 15 06:46:07 PM CET 2023
+ * v0.5.1 generated at Fri Dec 15 07:00:04 PM CET 2023
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -3089,6 +3089,8 @@ window.AFRAME.registerComponent('xrf', {
             let url     = opts.xrf.string
             let isLocal = url.match(/^#/)
             let hasPos  = url.match(/pos=/)
+            let meeting = $('[meeting]') ? $('[meeting]').components['meeting'] : false
+            if(meeting) meeting.notifyTeleport(url)
             if( isLocal && hasPos ){
               // local teleports only
               let fastFadeMs = 200
@@ -3504,7 +3506,7 @@ AFRAME.registerComponent('meeting', {
     return this
   },
 
-  notifyTeleport: function(buttons){
+  notifyTeleport: function(url,buttons){
     // send to network
     this.sendChat({
       content: `${this.data.visitorname} teleported to ${this.roomname}`,
