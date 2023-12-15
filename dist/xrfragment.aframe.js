@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Fri Dec 15 04:23:00 PM CET 2023
+ * v0.5.1 generated at Fri Dec 15 05:17:47 PM CET 2023
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -656,16 +656,16 @@ window.XRFMENU = {
     // enable meetings
     let startMeeting = () => {
       aScene.setAttribute('meeting', 'id: xrfragments') 
-      $('a#meeting').innerText = '📍 new meeting location'
+      $('a#meeting').innerText = '🧑‍🤝‍🧑 breakout meeting'
+      $('a#meeting').setAttribute('aria-description','breakout room')
     }
     $('a#meeting').addEventListener('click', () => {
       if( aScene.getAttribute('meeting') ){ // meeting already, start breakout room
         let parentRoom = document.location.href
         XRFMENU.updateHashPosition(true) 
-        let visitorname = aScene.getAttribute("meeting").visitorname
-        aScene.removeAttribute('meeting')
-        // breakoutroom
-        aScene.setAttribute('meeting', `id: xrfragments; visitorname: ${visitorname}; parentRoom: ${parentRoom}`) 
+        let meeting = $('[meeting]').components['meeting']
+        meeting.data.parentRoom = parentRoom
+        meeting.update()
       }else startMeeting()
     })
     if( document.location.hash.match(/(#|&)meet/) ) startMeeting()
@@ -3155,6 +3155,12 @@ AFRAME.registerComponent('meeting', {
     if( this.room ) this.room.leave()
     this.meeting.remove()
   },
+  update: function(){
+    setTimeout( () => {
+      this.remove()
+      this.init()
+    },100)
+  },
   init: function(){
     // embed https://github.com/dmotz/trystero (trystero-torrent.min.js build)
 
@@ -3276,7 +3282,7 @@ AFRAME.registerComponent('meeting', {
  
     this.initChatLine()
 
-    if( !this.data.visitorname ) this.chat.append("💁 Hi there! Please enter your name")
+    if( !this.data.visitorname ) this.chat.append("Please enter your name below",["info"])
     else{
       if( this.data.parentRoom ) this.chat.append(`leaving ${this.data.parentRoom}`,["info"]);
       this.trysteroInit()
@@ -3435,7 +3441,7 @@ AFRAME.registerComponent('meeting', {
       if( e.key !== "Enter" ) return 
       if( !this.data.visitorname ){
         this.data.visitorname = chatline.value
-        this.chat.append("btw. camera/mic access is totally optional ♥️")
+        this.chat.append("note: camera/mic access is totally optional ♥️",["info"])
         this.trysteroInit()
       }else{
         let str = `${this.idsToNames[ this.room.selfId ]}: ${chatline.value.substr(0,65515).trim()}`
@@ -3481,15 +3487,19 @@ AFRAME.registerComponent('meeting', {
       a.push(t1)
       t = t2.join(x)
       let y = (!(x.match(/:\/\//)) ? 'https://' : '') + x
+      let attr = 'target="_blank"'
       if (isNaN(x) ){
-        let url_human = y.split('/')[2]
-        let isXRFragment = y.match("pos=")
+        let url_human    = y.split('/')[2] 
+        let isXRFragment = y.match(/\.(glb|gltf|obj|usdz|fbx|col)/)
         if( isXRFragment ){               // detect xr fragments
-          url_human = y.replace(/.*[?\?]/,'')   // shorten xr fragment links
+          isMeeting = y.match(/(#|&)meet/)
+          url_human  = y.replace(/.*[?\?]/,'')   // shorten xr fragment links
                        .replace(/[?\&]meet/,'')
           y   = y.replace(/.*[\?]/, '?')        // start from search (to prevent page-refresh)
+          attr = ''
+          if( isMeeting ) attr = `onclick="$('[meeting]').components['meeting'].update()"`
         }
-        a.push(`<a href="${y}" ${isXRFragment ? '' : `target="_blank"`} style="pointer-events:all">${url_human}</a>`)
+        a.push(`<a href="${y}" ${attr} style="pointer-events:all">${url_human}</a>`)
       }else
         a.push(x)
     })

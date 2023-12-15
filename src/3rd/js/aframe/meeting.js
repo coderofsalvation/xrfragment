@@ -8,6 +8,12 @@ AFRAME.registerComponent('meeting', {
     if( this.room ) this.room.leave()
     this.meeting.remove()
   },
+  update: function(){
+    setTimeout( () => {
+      this.remove()
+      this.init()
+    },100)
+  },
   init: function(){
     // embed https://github.com/dmotz/trystero (trystero-torrent.min.js build)
 
@@ -129,7 +135,7 @@ AFRAME.registerComponent('meeting', {
  
     this.initChatLine()
 
-    if( !this.data.visitorname ) this.chat.append("💁 Hi there! Please enter your name")
+    if( !this.data.visitorname ) this.chat.append("Please enter your name below",["info"])
     else{
       if( this.data.parentRoom ) this.chat.append(`leaving ${this.data.parentRoom}`,["info"]);
       this.trysteroInit()
@@ -288,7 +294,7 @@ AFRAME.registerComponent('meeting', {
       if( e.key !== "Enter" ) return 
       if( !this.data.visitorname ){
         this.data.visitorname = chatline.value
-        this.chat.append("btw. camera/mic access is totally optional ♥️")
+        this.chat.append("note: camera/mic access is totally optional ♥️",["info"])
         this.trysteroInit()
       }else{
         let str = `${this.idsToNames[ this.room.selfId ]}: ${chatline.value.substr(0,65515).trim()}`
@@ -334,15 +340,19 @@ AFRAME.registerComponent('meeting', {
       a.push(t1)
       t = t2.join(x)
       let y = (!(x.match(/:\/\//)) ? 'https://' : '') + x
+      let attr = 'target="_blank"'
       if (isNaN(x) ){
-        let url_human = y.split('/')[2]
-        let isXRFragment = y.match("pos=")
+        let url_human    = y.split('/')[2] 
+        let isXRFragment = y.match(/\.(glb|gltf|obj|usdz|fbx|col)/)
         if( isXRFragment ){               // detect xr fragments
-          url_human = y.replace(/.*[?\?]/,'')   // shorten xr fragment links
+          isMeeting = y.match(/(#|&)meet/)
+          url_human  = y.replace(/.*[?\?]/,'')   // shorten xr fragment links
                        .replace(/[?\&]meet/,'')
           y   = y.replace(/.*[\?]/, '?')        // start from search (to prevent page-refresh)
+          attr = ''
+          if( isMeeting ) attr = `onclick="$('[meeting]').components['meeting'].update()"`
         }
-        a.push(`<a href="${y}" ${isXRFragment ? '' : `target="_blank"`} style="pointer-events:all">${url_human}</a>`)
+        a.push(`<a href="${y}" ${attr} style="pointer-events:all">${url_human}</a>`)
       }else
         a.push(x)
     })

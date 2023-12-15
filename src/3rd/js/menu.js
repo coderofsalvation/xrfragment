@@ -52,16 +52,16 @@ window.XRFMENU = {
     // enable meetings
     let startMeeting = () => {
       aScene.setAttribute('meeting', 'id: xrfragments') 
-      $('a#meeting').innerText = '📍 new meeting location'
+      $('a#meeting').innerText = '🧑‍🤝‍🧑 breakout meeting'
+      $('a#meeting').setAttribute('aria-description','breakout room')
     }
     $('a#meeting').addEventListener('click', () => {
       if( aScene.getAttribute('meeting') ){ // meeting already, start breakout room
         let parentRoom = document.location.href
         XRFMENU.updateHashPosition(true) 
-        let visitorname = aScene.getAttribute("meeting").visitorname
-        aScene.removeAttribute('meeting')
-        // breakoutroom
-        aScene.setAttribute('meeting', `id: xrfragments; visitorname: ${visitorname}; parentRoom: ${parentRoom}`) 
+        let meeting = $('[meeting]').components['meeting']
+        meeting.data.parentRoom = parentRoom
+        meeting.update()
       }else startMeeting()
     })
     if( document.location.hash.match(/(#|&)meet/) ) startMeeting()
