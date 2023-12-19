@@ -14,6 +14,10 @@ xrf.init = ((init) => function(opts){
   xrf.navigator.init()
   // return xrfragment lib as 'xrf' query functor (like jquery)
   for ( let i in xrf ) xrf.query[i] = xrf[i] 
+
+  // install menu+extras if available
+  if( typeof XRFMENU != 'undefined' ) XRFMENU.install(xrf)
+
   return xrf.query
 })(xrf.init)
 

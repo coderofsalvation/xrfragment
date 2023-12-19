@@ -84,14 +84,18 @@ build(){
     cat dist/xrfragment.three.js \
         src/3rd/js/aframe/*.js   \
         example/assets/js/qr.js  > dist/xrfragment.aframe.js
+
+    # html extras like menu & meetings
+    test -f dist/alpine.min.js || wget "https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" -O dist/alpine.min.js
+    cat dist/alpine.min.js src/3rd/js/extra/*.js  > dist/xrfragment.extras.js 
     
     # fat all-in-one standalone xrf release
     test -f /tmp/xrf-aframe.js || {
       wget "https://aframe.io/releases/1.5.0/aframe.min.js" -O /tmp/xrf-aframe.js
       wget "https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js" -O /tmp/xrf-blink.js
-      #for i in /tmp/xrf-*.js; do echo -e "\n" >> $i; done # add extra linebreak to prevent bundle issues
     }
-    cat /tmp/xrf-*.js dist/xrfragment.aframe.js > dist/xrfragment.aframe.all.js
+
+    cat /tmp/xrf-*.js dist/xrfragment.aframe.js dist/xrfragment.extras.js > dist/xrfragment.aframe.all.js
     
     # add license headers
     for file in dist/xrfragment.{aframe,module,three,three.module,aframe.all}.js; do
@@ -142,6 +146,7 @@ repos(){
 
   # remove aframe reference
   sed -i 's|<script src="https:\/\/aframe.*||g' ../xrfragment-helloworld/index.html
+  sed -i 's|<script src=".*extras.*||g'         ../xrfragment-helloworld/index.html
   sed -i 's|<script src=".*blink-controls.*||g' ../xrfragment-helloworld/index.html
   sed -i 's|aframe\.js|aframe.all.js|g'         ../xrfragment-helloworld/index.html
 }

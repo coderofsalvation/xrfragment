@@ -1,7 +1,7 @@
+// alpine component for displaying the menu 
 
 $XRFMENU = $el(
-  `<div id="menu" x-bind="XRFMENU">
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" type="text/javascript"></script>
+  `<div id="menu" x-data="XRFMENU">
     <style type="text/css">
       :root {
           --xrf-primary: #6839dc;
@@ -150,6 +150,7 @@ $XRFMENU = $el(
 
 
       .menu .btn{
+        display:inline-block;
         background: var(--xrf-primary);
         border-radius: 25px;
         border: 0;
@@ -163,7 +164,6 @@ $XRFMENU = $el(
         cursor:pointer;
         min-width:107px;
         text-decoration:none;
-        display:none;
         margin-top: 15px;
         line-height:36px;
         margin-right:10px;
@@ -369,8 +369,8 @@ $XRFMENU = $el(
       }
 
     </style>
-    <div id="overlay" class="xrf" style="display:none">
-      <div class="logo" :style="'background-image: url('+$store.XRFMENU.logo+')'"></div>
+    <div id="overlay" class="xrf" x-show="enabled">
+      <div class="logo" :style="'background-image: url('+logo+')'"></div>
       <button id="navback"  onclick="history.back()">&lt;</button>
       <button id="navforward" onclick="history.forward()">&gt;</button>
       <input type="submit" value="load 3D file"></input>
@@ -378,36 +378,34 @@ $XRFMENU = $el(
     </div>
     <div class="xrf footer">
       <div id="buttons" class="menu">
-        <a class="btn" id="more" style="display:inline-block" x-text="$store.XRFMENU.morelabel"></a>
+        <template x-for="btn in buttons.reverse()">
+          <div x-show="enabled" x-html="btn"></div> 
+        </template>
+        <a class="btn" id="more" @click="toggle" x-text="morelabel"></a>
       </div>
     </div>
   </div>`
 )
-      //${window.XRFMENU.html.map( (html) => typeof html == "function" ? html() : html ).join('\n')}
 
 window.XRFMENU = {
-
-  $:   $XRFMENU,
 
   morelabel:  '⚡',
   enabled:    false,
   logo:       './../../assets/logo.png',
-  buttons:    [ 
-     `<a class="btn" aria-label="button" aria-description="start text/audio/video chat" id="meeting" target="_blank">🧑‍🤝‍🧑 meeting</a><br>`,
-     `<a class="btn" aria-label="button" aria-description="share URL/screenshot/embed" id="share" target="_blank" onclick="window.share()">🔗 share</a><br>`
-  ],
+  buttons:    [`<a class="btn" aria-label="button" aria-description="share URL/screenshot/embed"  id="share"   onclick="window.share()">🔗 share</a><br>`],
+  init(){      window.XRFMENU = this.$data    }, // replace so we can modify state in global scope
+  toggle(){   this.enabled = !this.enabled },
 
-  init: () => {
+  install(opts){
 
-    // bind object as alpine app 
-    document.body.appendChild( XRFMENU.$ )
-    document.addEventListener('alpine:init', () => Alpine.bind('XRFMENU', () => XRFMENU ) )
+    document.body.appendChild( $XRFMENU )
+    document.dispatchEvent( new CustomEvent("XRFMENU:ready", {detail: opts}) )
 
-    //if( XRFMENU.logo ) $('.logo').style['background-image'] = `url(${XRFMENU.logo})`
     window.notify   = XRFMENU.notify(window)
     window.share    = XRFMENU.share
     window.download = XRFMENU.download
     window.notify('loading '+document.location.search.substr(1))
+
     // reroute console messages to snackbar notifications
     console.log = ( (log) => function(str){
       if( String(str).match(/(:.*#|note:)/) ) window.notify(str)
@@ -439,48 +437,6 @@ window.XRFMENU = {
       };
       input.click();
     }
-  },
-
-  setupMenu(XRF){
-    let aScene   = document.querySelector('a-scene')
-    let urlbar   = $('input#uri')
-    let inIframe = window.location !== window.parent.location
-    let els      = [ ...document.querySelectorAll('.menu .btn') ]
-    els          = els.filter( (el) => el.id != "more" ? el : false )
-
-    let showMenu = (state) => {
-      els.map( (el) => el.style.display = state ? 'inline-block' : 'none' )
-      $('a#more').style.display         = state ? 'none'         : 'inline-block'
-      $('#overlay').style.display       = state ? 'inline-block' : 'none'
-      if( inIframe ) $('#uri').style.display = 'block'
-    }
-
-    els.map( (el) => el.addEventListener('click', () => showMenu(false) ) )
-    $('a#more').addEventListener('click',    () => showMenu(true) )
-    $('.a-canvas').addEventListener('click',    () => showMenu(false) )
-
-    // enable meetings
-    let startMeeting = () => {
-      aScene.setAttribute('meeting', 'id: xrfragments') 
-      $('a#meeting').innerText = '🧑‍🤝‍🧑 breakout meeting'
-      $('a#meeting').setAttribute('aria-description','breakout room')
-    }
-    $('a#meeting').addEventListener('click', () => {
-      if( aScene.getAttribute('meeting') ){ // meeting already, start breakout room
-        let parentRoom = document.location.href
-        XRFMENU.updateHashPosition(true) 
-        let meeting = $('[meeting]').components['meeting']
-        meeting.data.parentRoom = parentRoom
-        meeting.update()
-      }else startMeeting()
-    })
-    if( document.location.hash.match(/(#|&)meet/) ) startMeeting()
-
-    XRF.addEventListener('hash', () => reflectUrl() )
-    const reflectUrl = window.reflectUrl = (url) => {
-      urlbar.value = url || document.location.search.substr(1) + document.location.hash
-    }
-    reflectUrl()
   },
 
   SnackBar(userOptions) {
@@ -708,4 +664,70 @@ window.XRFMENU = {
     },0)
   }
 }
+
+//$('a-scene').addEventListener('XRF', this.onXRFready )
+//    
+//    if( document.location.search.length > 2 ){
+//      $('[xrf]').setAttribute('xrf', document.location.search.substr(1)+document.location.hash )
+//    }
+//
+//  },
+//
+//  onXRFready: function(){
+//
+//    let XRF = window.AFRAME.XRF
+//    //setupMenu(XRF){
+//    //  let aScene   = document.querySelector('a-scene')
+//    //  let urlbar   = $('input#uri')
+//    //  let inIframe = window.location !== window.parent.location
+//    //  let els      = [ ...document.querySelectorAll('.menu .btn') ]
+//    //  els          = els.filter( (el) => el.id != "more" ? el : false )
+//
+//    //  // enable meetings
+//    //  let startMeeting = () => {
+//    //    aScene.setAttribute('meeting', 'id: xrfragments') 
+//    //    $('a#meeting').innerText = '🧑‍🤝‍🧑 breakout meeting'
+//    //    $('a#meeting').setAttribute('aria-description','breakout room')
+//    //  }
+//    //  $('a#meeting').addEventListener('click', () => {
+//    //    if( aScene.getAttribute('meeting') ){ // meeting already, start breakout room
+//    //      let parentRoom = document.location.href
+//    //      XRFMENU.updateHashPosition(true) 
+//    //      let meeting = $('[meeting]').components['meeting']
+//    //      meeting.data.parentRoom = parentRoom
+//    //      meeting.update()
+//    //    }else startMeeting()
+//    //  })
+//    //  if( document.location.hash.match(/(#|&)meet/) ) startMeeting()
+//
+//    //  XRF.addEventListener('hash', () => reflectUrl() )
+//    //  const reflectUrl = window.reflectUrl = (url) => {
+//    //    urlbar.value = url || document.location.search.substr(1) + document.location.hash
+//    //  }
+//    //  reflectUrl()
+//    //},
+//
+//
+//    // on localhost enable debugging mode for developer convenience
+//    let loc = document.location
+//    if( loc.host.match(/^localhost/) ){
+//      $('a-scene').setAttribute('stats')
+//      XRF.debug = 1
+//    }
+//
+//    // add screenshot component with camera to capture bigger size equirects
+//    // document.querySelector('a-scene').components.screenshot.capture('perspective')
+//    $('a-scene').setAttribute("screenshot",{camera: "[camera]",width: 4096*2, height:2048*2})
+//
+//    if( window.outerWidth > 800 )
+//      setTimeout( () => window.notify("use WASD-keys and mouse-drag to move around",{timeout:false}),2000 )
+//
+//    window.AFRAME.XRF.addEventListener('href', (data) => data.selected ? window.notify(`href: ${data.xrf.string}`) : false )
+//
+//    // enable user-uploaded asset files
+//    let fileLoaders = XRFMENU.loadFile({
+//      ".gltf": (file) => file.arrayBuffer().then( (data) => xrf.navigator.to(file.name,null, (new xrf.loaders.gltf()), data) ),
+//      ".glb":  (file) => file.arrayBuffer().then( (data) => xrf.navigator.to(file.name,null, (new xrf.loaders.gltf()), data) )
+//    })
+//    $("#overlay > input[type=submit]").addEventListener("click", fileLoaders )
 
