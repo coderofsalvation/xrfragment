@@ -4,7 +4,7 @@ AFRAME.registerComponent('xrf-menu', {
   },
   init: function(){
     // add css+html
-    window.XRFMENU.addHTML()
+    window.XRFMENU.init()
 
     $('a-scene').addEventListener('XRF', this.onXRFready )
     
@@ -17,6 +17,7 @@ AFRAME.registerComponent('xrf-menu', {
   onXRFready: function(){
 
     let XRF = window.AFRAME.XRF
+    return
     XRFMENU.setupMenu( XRF )
 
     // on localhost enable debugging mode for developer convenience

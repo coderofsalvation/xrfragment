@@ -62,8 +62,6 @@ window.AFRAME.registerComponent('xrf', {
             let url     = opts.xrf.string
             let isLocal = url.match(/^#/)
             let hasPos  = url.match(/pos=/)
-            let meeting = $('[meeting]') ? $('[meeting]').components['meeting'] : false
-            if(meeting) meeting.notifyTeleport(url)
             if( isLocal && hasPos ){
               // local teleports only
               let fastFadeMs = 200

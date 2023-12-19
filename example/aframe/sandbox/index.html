@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <script src="./../../../dist/xrfragment.aframe.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js"></script>
 
   </head>
   <body>
+    <script src="./../../../dist/xrfragment.aframe.js"></script>
 
     <a-scene xr-mode-ui="XRMode: xr"  renderer="colorManagement: true; highRefreshRate:true" light="defaultLightsEnabled: false">
       <a-entity id="player" wasd-controls look-controls>
@@ -28,14 +28,14 @@
     </a-scene>
 
     <script>
-      // add your logo
+      // the xrf-menu is totally optional but can be handy
+      // to quickly add your logo & buttons etc
       XRFMENU.logo      = './../../assets/logo.png'
       XRFMENU.morelabel = '⚡'
       // add your menubuttons:
-      XRFMENU.html.push(`<a class="btn" aria-label="button" aria-description="about menu" onclick="window.showAbout()">💁 about</a><br>`)
-      showAbout = () => window.notify(`
+      XRFMENU.buttons   = XRFMENU.buttons.concat([`<a class="btn" aria-label="button" aria-description="about menu" onclick="XRFMENU.showAbout()">💁 about</a><br>`])
+      XRFMENU.showAbout = () => window.notify(`
           <h1>💁 Hi there!</h1>
-
 
           This XR fragments experience works almost anywhere.<br>
           Allowing rich audiovisual events with(out)<br>
