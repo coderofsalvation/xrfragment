@@ -1,7 +1,67 @@
+MEETING = {
+
+  html: `
+     <div id="videos" style="pointer-events:none"></div>
+     <div id="chat" aria-live="assertive" aria-relevant></div>
+     <div id="chatfooter">
+       <div id="chatbar">
+           <input id="chatline" type="text" placeholder=""></input>
+       </div>
+       <button id="showchat" class="btn">show chat</button>
+     </div>
+    </div>
+  `,
+
+  init: (el) => new Proxy({
+
+    scene: null,
+    enabled:  false,
+    active:   false,
+    //$overlay: $overlay = el.querySelector('#overlay'),
+    //
+    install(opts){
+      this.scene = opts.scene 
+      window.meeting.buttons.push(`<a class="btn" aria-label="button" aria-description="start text/audio/video chat" id="meeting" onclick="MEETING.toggle()" target="_blank">🧑‍🤝‍🧑 meeting</a><br>`)
+      document.body.appendChild( el )
+
+    },
+
+    start(){
+      this.scene.addEventListener('meeting.peer.add',    () => console.log("$meeting.peer.add") )
+      this.scene.addEventListener('meeting.peer.remove', () => console.log("$meeting.peer.remove") )
+    },
+
+    toggle:   () => MEETING.collapsed = !MEETING.collapsed,
+    install:  (opts) => {
+      document.body.appendChild(el)
+      document.dispatchEvent( new CustomEvent("MEETING:ready", {detail: opts}) )
+    }
+
+  },{
+
+    get(data,k,v){ return data[k] },
+    set(data,k,v){ 
+      data[k] = v    
+      switch( k ){
+        case "css":        document.head.innerHTML += v;                  break;
+      }
+    },
+
+  })
+}
+
+// reactify component!
+document.addEventListener('XRFMENU:ready', (opts) => {
+  opts = opts.detail
+  $meeting = document.createElement('div')
+  $meeting.innerHTML = MEETING.html
+  MEETING = MEETING.init($meeting)
+  MEETING.install(opts)
+})
+
 // alpine component for displaying meetings
 
-$XRFMEETING = $el(
-  `<div x-show="enabled" id="meeting" x-data="XRFMEETING">
+MEETING.css = `
     <style type="text/css">
      #videos{
        display:grid-auto-columns;
@@ -112,48 +172,4 @@ $XRFMEETING = $el(
        font-family:monospace;
        font-size:15px;
      }
-   </style>
-   <div id="videos" style="pointer-events:none"></div>
-   <div id="chat" aria-live="assertive" aria-relevant></div>
-   <div id="chatfooter">
-     <div id="chatbar">
-         <input id="chatline" type="text" placeholder=""></input>
-     </div>
-     <button id="showchat" class="btn">show chat</button>
-   </div>
-  </div>`
-)
-
-window.XRFMEETING = {
-
-  scene: null,
-  enabled:  false,
-  active:   false,
-  init(){   
-    window.XRFMEETING = this.$data // replace so we can modify state in global scope
-    window.meeting
-  },
-  toggle(){ 
-    this.enabled = !this.enabled 
-    if( !this.active ) this.start() 
-  },
-
-  install(opts){
-    this.scene = opts.scene 
-    window.XRFMENU.buttons.push(`<a class="btn" aria-label="button" aria-description="start text/audio/video chat" id="meeting" onclick="XRFMEETING.toggle()" target="_blank">🧑‍🤝‍🧑 meeting</a><br>`)
-    document.body.appendChild( $XRFMEETING )
-
-  },
-
-  start(){
-    this.scene.addEventListener('meeting.peer.add',    () => console.log("$meeting.peer.add") )
-    this.scene.addEventListener('meeting.peer.remove', () => console.log("$meeting.peer.remove") )
-  }
-}
-
-// finally we alpinify
-document.addEventListener('XRFMENU:ready', (opts) => {
-  opts = opts.detail
-  Alpine.data('XRFMEETING', () => window.XRFMEETING)
-  XRFMEETING.install(opts)
-})
+   </style>`

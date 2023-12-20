@@ -29,12 +29,13 @@
     </a-scene>
 
     <script>
-      // the xrf-menu is totally optional but can be handy
+      // the xrfmenu is totally optional but can be handy
       // to quickly add your logo & buttons etc
       XRFMENU.logo      = './../../assets/logo.png'
       XRFMENU.morelabel = '⚡'
       // add your menubuttons:
-      XRFMENU.buttons.push(`<a class="btn" aria-label="button" aria-description="about menu" onclick="XRFMENU.showAbout()">💁 about</a><br>`)
+      XRFMENU.buttons = XRFMENU.buttons.concat([`<a class="btn" aria-label="button" aria-description="about menu" onclick="XRFMENU.showAbout()">💁 about</a><br>`])
+      XRFMENU.collapsed = false
       XRFMENU.showAbout = () => window.notify(`
           <h1>💁 Hi there!</h1>
 

@@ -86,8 +86,7 @@ build(){
         example/assets/js/qr.js  > dist/xrfragment.aframe.js
 
     # html extras like menu & meetings
-    test -f dist/alpine.min.js || wget "https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" -O dist/alpine.min.js
-    cat dist/alpine.min.js src/3rd/js/extra/*.js  > dist/xrfragment.extras.js 
+    cat src/3rd/js/extra/*.js  > dist/xrfragment.extras.js 
     
     # fat all-in-one standalone xrf release
     test -f /tmp/xrf-aframe.js || {

@@ -8,6 +8,11 @@
       haxe
       mmark
       xml2rfc
+      dendrite
 
     ];
+
+    shellHooks = ''
+      bash
+    '';
 }

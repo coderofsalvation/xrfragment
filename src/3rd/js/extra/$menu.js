@@ -1,410 +1,75 @@
-// alpine component for displaying the menu 
+// reactive component for displaying the menu 
+XRFMENU = {
 
-$XRFMENU = $el(
-  `<div id="menu" x-data="XRFMENU">
-    <style type="text/css">
-      :root {
-          --xrf-primary: #6839dc;
-          --xrf-primary-fg: #FFF;
-          --xrf-light-primary: #ea23cf;
-          --xrf-secondary: #872eff;
-          --xrf-light-xrf-secondary: #ce7df2;
-          --xrf-overlay-bg: #fffb;
-          --xrf-box-shadow: #0005;
-          --xrf-red: red;
-          --xrf-black: #424280;
-          --xrf-white: #fdfdfd;
-          --xrf-dark-gray: #343334;
-          --xrf-gray: #ecf7ff47;
-          --xrf-light-gray: #efefef;
-          --xrf-lighter-gray: #e4e2fb96;
-          --xrf-font-sans-serif: system-ui, -apple-system, segoe ui, roboto, ubuntu, helvetica, cantarell, noto sans, sans-serif;
-          --xrf-font-monospace: menlo, monaco, lucida console, liberation mono, dejavu sans mono, bitstream vera sans mono, courier new, monospace, serif;
-          --xrf-font-size-1: 14px;
-          --xrf-font-size-2: 17px;
-          --xrf-font-size-3: 21px;
-      }
-
-      .xrf table tr td{
-        vertical-align:top;
-      }
-      .xrf table tr td:nth-child(1){
-        padding-right:35px;
-      }
-
-      .xrf button,
-      .xrf input[type="submit"],
-      .xrf .btn {
-        text-decoration:none;
-        background: var(--xrf-primary);
-        border: 0;
-        border-radius: 25px;
-        padding: 11px 15px;
-        font-weight: bold;  
-        transition: 0.3s;
-        height: 32px;
-        font-size: var(--xrf-font-size-1);
-        color: var(--xrf-primary-fg);
-        line-height: var(--xrf-font-size-1);
-        cursor:pointer;
-        white-space:pre;
-        min-width: 45px;
-        box-shadow: 0px 0px 10px var(--xrf-box-shadow);
-      }
-
-      .xrf button:hover,
-      .xrf input[type="submit"]:hover,
-      .xrf .btn:hover {
-        background: var(--xrf-secondary);
-      }
-
-      .xrf, .xrf *{
-        font-family: var(--xrf-font-sans-serif);
-        font-size: var(--xrf-font-size-1);
-        line-height:27px;
-      }
-
-      textarea, select, input[type="text"] {
-        background: transparent; /* linear-gradient( var(--xrf-lighter-gray), var(--xrf-gray) ) !important; */
-      }
-
-      input[type="submit"] {
-        color: var(--xrf-light-gray);
-      }
-
-      input[type=text]{
-        padding:7px 15px;
-      }
-      input{
-        border-radius:7px;
-        margin:5px 0px;
-      }
-
-      .title {
-        border-bottom: 2px solid var(--xrf-secondary);
-        padding-bottom: 20px;
-      }
-
-      #overlay{
-        background: var(--xrf-overlay-bg);
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 48px;
-        box-shadow: 0px 0px 10px var(--xrf-box-shadow);
-        opacity: 0.9;
-        z-index:2000;
-      }
-
-      #overlay .logo{
-        width: 92px;
-        position: absolute;
-        top: 9px;
-        left: 93px;
-        height: 30px;
-        background-size: contain;
-        background-repeat: no-repeat;
-      }
-
-      #overlay > input[type="submit"] {
-        height: 32px;
-        position: absolute;
-        right: 20px;
-        top: 2px;
-      }
-
-      #overlay > button#navback,
-      #overlay > button#navforward {
-        height: 32px;
-        font-size: var(--xrf-font-size-1);
-        position: absolute;
-        left: 9px;
-        padding: 2px 13px;
-        border-radius:6px;
-        top: 8px;
-        color: var(--xrf-light-gray);
-        width: 36px;
-        min-width: unset;
-      }
-      #overlay > button#navforward {
-        left:49px;
-      }
-
-      #overlay > #uri {
-          height: 18px;
-          font-size: var(--xrf-font-size-3);
-          position: absolute;
-          left: 200px;
-          top: 9px;
-          max-width: 550px;
-          padding: 5px 0px 5px 5px;
-          width: calc( 63% - 200px);
-          background: #f0f0f0;
-          border-color: #Ccc;
-          border: 2px solid #CCC;
-          border-radius: 7px;
-          color: #555;
-      }
-
-
-
-      .menu .btn{
-        display:inline-block;
-        background: var(--xrf-primary);
-        border-radius: 25px;
-        border: 0;
-        padding: 5px 19px;
-        font-weight: 1000;
-        font-family: sans-serif;
-        font-size: var(--xrf-font-size-2);
-        color:var(--xrf-primary-fg);
-        height:33px;
-        z-index:2000;
-        cursor:pointer;
-        min-width:107px;
-        text-decoration:none;
-        margin-top: 15px;
-        line-height:36px;
-        margin-right:10px;
-        text-align:left;
-      }
-
-      .xrf a.btn#more{
-        width: 19px;
-        min-width: 19px;
-        font-size:16px;
-        text-align: center;
-        background:white;
-      }
-
-      html{
-        max-width:unset;
-      }
-
-      .render {
-        position:absolute;
-        top:0;
-        left:0;
-        right:0;
-        bottom:0;
-      }
-
-      .lil-gui.autoPlace{
-        right:0px !important;
-        top:48px !important;
-        height:33vh;
-      }
-
-      #VRButton {
-        margin-bottom:20vh;
-      }
-
-      @media (max-width: 450px) {
-        #uri{ display:none; }
-      }
-
-      @media (max-width: 640px) {
-        .lil-gui.root{
-          top:auto !important;
-          left:auto !important;
-        }
-        .js-snackbar__message{
-          overflow-y:auto;
-          max-height:600px;
-        }
-        .js-snackbar__message h1,h2,h3{
-          font-size:22px;
-        }
-        .xrf table tr td {
-      
-        }
-        :root{
-          --xrf-font-size-1: 13px;
-          --xrf-font-size-2: 17px;
-          --xrf-font-size-3: 20px;
-        }
-      }
-
-
-      /* notifications */
-
-      .js-snackbar-container .btn,
-      .js-snackbar-container input[type=submit],
-      .js-snackbar-container button{
-        margin-bottom:15px;
-      }
-      .js-snackbar-container {
-          position: absolute;
-          top: 10px;
-          left: 0px;
-          display: flex;
-          align-items: center;
-        width:100%;
-          max-width: 100%;
-          padding: 10px;
-          z-index:1001;
-        justify-content: center;
-          overflow: hidden;
-      }
-
-      .js-snackbar-container * {
-          box-sizing: border-box;
-      }
-
-      .js-snackbar__wrapper {
-        --color-c: #555;
-        --color-a: #FFF;
-      }
-
-
-      .js-snackbar__wrapper {
-          overflow: hidden;
-          height: auto;
-          margin: 5px 0;
-          transition: all ease .5s;
-          border-radius: 3px;
-          box-shadow: 0 0 4px 0 var(--xrf-box-shadow);
-          right: 20px;
-          position: fixed;
-          top: 55px;
-      }
-
-      .js-snackbar {
-          display: inline-flex;
-          box-sizing: border-box;
-          border-radius: 3px;
-          color: var(--color-c);
-          background-color: var(--color-a);
-          vertical-align: bottom;
-      }
-
-      .js-snackbar__close,
-      .js-snackbar__status,
-      .js-snackbar__message {
-          position: relative;
-      }
-
-      .js-snackbar__message {
-        margin: 12px;
-      }
-
-      .js-snackbar__status {
-          display: none;
-          width: 15px;
-          margin-right: 5px;
-          border-radius: 3px 0 0 3px;
-          background-color: transparent;
-      }
-
-       .js-snackbar__status.js-snackbar--success,
-       .js-snackbar__status.js-snackbar--warning,
-       .js-snackbar__status.js-snackbar--danger,
-       .js-snackbar__status.js-snackbar--info {
-          display: block;
-      }
-
-      .js-snackbar__status.js-snackbar--success  {
-          background-color: #4caf50;
-      }
-
-      .js-snackbar__status.js-snackbar--warning  {
-          background-color: #ff9800;
-      }
-
-       .js-snackbar__status.js-snackbar--danger {
-          background-color: #ff6060;
-      }
-
-      .js-snackbar__status.js-snackbar--info {
-          background-color: #CCC;
-      }
-
-      .js-snackbar__close {
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          padding: 0 10px;
-          user-select: none;
-      }
-
-      .js-snackbar__close:hover {
-          background-color: #4443;
-      }
-
-      .a-enter-vr-button, .a-enter-ar-button{
-        height:41px;
-      }
-
-      #qrcode{
-        background: transparent;
-        overflow: hidden;
-        height: 121px;
-        display: inline-block;
-        position: relative;
-      }
-
-      input#share{
-        font-size: var(--xrf-font-size-1);
-        font-family: var(--xrf-font-monospace);
-        border:2px solid #AAA;
-        width:50vw;
-        max-width:400px;
-      }
-
-      .footer {
-        display: flex;
-        flex-direction: column-reverse; /* This reverses the stacking order of the flex container */
-        align-items: flex-end;
-        height: 100%;
-        position: fixed;
-        top: 71px;
-        right: 11px;
-        bottom: 0;
-        padding-bottom:149px;
-        box-sizing:border-box;
-      }
-      .footer .menu{
-        text-align:right;
-      }
-
-    </style>
-    <div id="overlay" class="xrf" x-show="enabled">
-      <div class="logo" :style="'background-image: url('+logo+')'"></div>
+  html: `
+    <div id="overlay" class="xrf">
+      <div class="logo" ></div>
       <button id="navback"  onclick="history.back()">&lt;</button>
       <button id="navforward" onclick="history.forward()">&gt;</button>
-      <input type="submit" value="load 3D file"></input>
+      <input id="load" type="submit" value="load 3D file"></input>
       <input type="text" id="uri" value="" onchange="AFRAME.XRF.navigator.to( $('#uri').value )" style="display:none"/> 
     </div>
     <div class="xrf footer">
-      <div id="buttons" class="menu">
-        <template x-for="btn in buttons.reverse()">
-          <div x-show="enabled" x-html="btn"></div> 
-        </template>
-        <a class="btn" id="more" @click="toggle" x-text="morelabel"></a>
+      <div class="menu">
+        <div id="buttons"></div>
+        <a class="btn" id="more" onclick="XRFMENU.toggle()"></a><br>
       </div>
     </div>
-  </div>`
-)
+  `,
 
-window.XRFMENU = {
+  init: (el) => new Proxy({
+    morelabel:  '⚡',
+    collapsed:    false,
+    logo:       './../../assets/logo.png',
+    buttons:    [`<a class="btn" aria-label="button" aria-description="share URL/screenshot/embed"  id="share"   onclick="XRFMENU.share()">🔗 share</a><br>`],
 
-  morelabel:  '⚡',
-  enabled:    false,
-  logo:       './../../assets/logo.png',
-  buttons:    [`<a class="btn" aria-label="button" aria-description="share URL/screenshot/embed"  id="share"   onclick="window.share()">🔗 share</a><br>`],
-  init(){      window.XRFMENU = this.$data    }, // replace so we can modify state in global scope
-  toggle(){   this.enabled = !this.enabled },
+    $overlay: $overlay = el.querySelector('#overlay'),
+    $logo:    $logo    = el.querySelector('.logo'),
+    $uri:     $uri     = el.querySelector('#uri'),
+    $buttons: $buttons = el.querySelector('#buttons'),
+    $btnMore: $btnMore = el.querySelector('#more'),
 
-  install(opts){
+    toggle:   () => XRFMENU.collapsed = !XRFMENU.collapsed,
+    install:  (opts) => {
+      XRFMENU.bindToWindow() // bind functions like notify to window 
+      window.notify('loading '+document.location.search.substr(1))
+      document.body.appendChild(el)
+      document.dispatchEvent( new CustomEvent("XRFMENU:ready", {detail: opts}) )
+    }
 
-    document.body.appendChild( $XRFMENU )
-    document.dispatchEvent( new CustomEvent("XRFMENU:ready", {detail: opts}) )
+  },{
+
+    get(data,k,v){ return data[k] },
+    set(data,k,v){ 
+      data[k] = v    
+      switch( k ){
+        case "logo":       $logo.style.backgroundImage = `url(${v})`;     break;
+        case "css":        document.head.innerHTML += v;                  break;
+        case "morelabel":  $btnMore.innerText = data.morelabel;           break;
+        case "buttons":    $buttons.innerHTML = this.renderButtons(data); break;
+        case "collapsed":  $overlay.style.display = data.collapsed ? 'block' : 'none'
+                           $buttons.style.display = data.collapsed ? 'block' : 'none'
+                           break;
+      }
+    },
+
+    renderButtons: (data) => `${data.buttons.join('')}`
+
+  })
+}
+
+// reactify component!
+$xrfmenu = document.createElement('div')
+$xrfmenu.innerHTML = XRFMENU.html
+XRFMENU = XRFMENU.init($xrfmenu)
+
+
+// here come all menu functions which are less related to rendering 
+let utils = {
+
+  bindToWindow(opts){
 
     window.notify   = XRFMENU.notify(window)
-    window.share    = XRFMENU.share
-    window.download = XRFMENU.download
-    window.notify('loading '+document.location.search.substr(1))
 
     // reroute console messages to snackbar notifications
     console.log = ( (log) => function(str){
@@ -648,7 +313,7 @@ window.XRFMENU = {
     // End of *TODO* 
     window.notify(`<h2>${ inMeeting ? 'Meeting link ' : 'Link'} copied to clipboard!</h2> <br>Now share it with your friends ❤️<br>
       <canvas id="qrcode" width="121" height="121"></canvas><br>
-      <button onclick="window.download()">💾 download scene file</button> <br>
+      <button onclick="XRFMENU.download()">💾 download scene file</button> <br>
       <button onclick="alert('this might take a while'); $('a-scene').components.screenshot.capture('equirectangular')">📷 download 360 screenshot</button> <br>
       <a class="btn" target="_blank" href="https://github.com/coderofsalvation/xrfragment-helloworld">🖥 clone & selfhost this experience</a><br>
       <br>
@@ -664,6 +329,9 @@ window.XRFMENU = {
     },0)
   }
 }
+
+// map to component
+for( let i in utils ) XRFMENU[i] = utils[i]
 
 //$('a-scene').addEventListener('XRF', this.onXRFready )
 //    
@@ -731,3 +399,375 @@ window.XRFMENU = {
 //    })
 //    $("#overlay > input[type=submit]").addEventListener("click", fileLoaders )
 
+
+// finally add some css 
+XRFMENU.css = `
+  <style type="text/css">
+    :root {
+        --xrf-primary: #6839dc;
+        --xrf-primary-fg: #FFF;
+        --xrf-light-primary: #ea23cf;
+        --xrf-secondary: #872eff;
+        --xrf-light-xrf-secondary: #ce7df2;
+        --xrf-overlay-bg: #fffb;
+        --xrf-box-shadow: #0005;
+        --xrf-red: red;
+        --xrf-black: #424280;
+        --xrf-white: #fdfdfd;
+        --xrf-dark-gray: #343334;
+        --xrf-gray: #ecf7ff47;
+        --xrf-light-gray: #efefef;
+        --xrf-lighter-gray: #e4e2fb96;
+        --xrf-font-sans-serif: system-ui, -apple-system, segoe ui, roboto, ubuntu, helvetica, cantarell, noto sans, sans-serif;
+        --xrf-font-monospace: menlo, monaco, lucida console, liberation mono, dejavu sans mono, bitstream vera sans mono, courier new, monospace, serif;
+        --xrf-font-size-1: 14px;
+        --xrf-font-size-2: 17px;
+        --xrf-font-size-3: 21px;
+    }
+
+    .xrf table tr td{
+      vertical-align:top;
+    }
+    .xrf table tr td:nth-child(1){
+      padding-right:35px;
+    }
+
+    .xrf button,
+    .xrf input[type="submit"],
+    .xrf .btn {
+      text-decoration:none;
+      background: var(--xrf-primary);
+      border: 0;
+      border-radius: 25px;
+      padding: 11px 15px;
+      font-weight: bold;  
+      transition: 0.3s;
+      height: 32px;
+      font-size: var(--xrf-font-size-1);
+      color: var(--xrf-primary-fg);
+      line-height: var(--xrf-font-size-1);
+      cursor:pointer;
+      white-space:pre;
+      min-width: 45px;
+      box-shadow: 0px 0px 10px var(--xrf-box-shadow);
+    }
+
+    .xrf button:hover,
+    .xrf input[type="submit"]:hover,
+    .xrf .btn:hover {
+      background: var(--xrf-secondary);
+    }
+
+    .xrf, .xrf *{
+      font-family: var(--xrf-font-sans-serif);
+      font-size: var(--xrf-font-size-1);
+      line-height:27px;
+    }
+
+    textarea, select, input[type="text"] {
+      background: transparent; /* linear-gradient( var(--xrf-lighter-gray), var(--xrf-gray) ) !important; */
+    }
+
+    input[type="submit"] {
+      color: var(--xrf-light-gray);
+    }
+
+    input[type=text]{
+      padding:7px 15px;
+    }
+    input{
+      border-radius:7px;
+      margin:5px 0px;
+    }
+
+    .title {
+      border-bottom: 2px solid var(--xrf-secondary);
+      padding-bottom: 20px;
+    }
+
+    #overlay{
+      background: var(--xrf-overlay-bg);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 48px;
+      box-shadow: 0px 0px 10px var(--xrf-box-shadow);
+      opacity: 0.9;
+      z-index:2000;
+    }
+
+    #overlay .logo{
+      width: 92px;
+      position: absolute;
+      top: 9px;
+      left: 93px;
+      height: 30px;
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+
+    #overlay > input[type="submit"] {
+      height: 32px;
+      position: absolute;
+      right: 20px;
+      top: 2px;
+    }
+
+    #overlay > button#navback,
+    #overlay > button#navforward {
+      height: 32px;
+      font-size: var(--xrf-font-size-1);
+      position: absolute;
+      left: 9px;
+      padding: 2px 13px;
+      border-radius:6px;
+      top: 8px;
+      color: var(--xrf-light-gray);
+      width: 36px;
+      min-width: unset;
+    }
+    #overlay > button#navforward {
+      left:49px;
+    }
+
+    #overlay > #uri {
+        height: 18px;
+        font-size: var(--xrf-font-size-3);
+        position: absolute;
+        left: 200px;
+        top: 9px;
+        max-width: 550px;
+        padding: 5px 0px 5px 5px;
+        width: calc( 63% - 200px);
+        background: #f0f0f0;
+        border-color: #Ccc;
+        border: 2px solid #CCC;
+        border-radius: 7px;
+        color: #555;
+    }
+
+
+
+    .menu .btn{
+      display:inline-block;
+      background: var(--xrf-primary);
+      border-radius: 25px;
+      border: 0;
+      padding: 5px 19px;
+      font-weight: 1000;
+      font-family: sans-serif;
+      font-size: var(--xrf-font-size-2);
+      color:var(--xrf-primary-fg);
+      height:33px;
+      z-index:2000;
+      cursor:pointer;
+      min-width:107px;
+      text-decoration:none;
+      margin-top: 15px;
+      line-height:36px;
+      margin-right:10px;
+      text-align:left;
+    }
+
+    .xrf a.btn#more{
+      width: 19px;
+      min-width: 19px;
+      font-size:16px;
+      text-align: center;
+      background:white;
+      color: var(--xrf-primary);
+    }
+
+    html{
+      max-width:unset;
+    }
+
+    .render {
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      bottom:0;
+    }
+
+    .lil-gui.autoPlace{
+      right:0px !important;
+      top:48px !important;
+      height:33vh;
+    }
+
+    #VRButton {
+      margin-bottom:20vh;
+    }
+
+    @media (max-width: 450px) {
+      #uri{ display:none; }
+    }
+
+    @media (max-width: 640px) {
+      .lil-gui.root{
+        top:auto !important;
+        left:auto !important;
+      }
+      .js-snackbar__message{
+        overflow-y:auto;
+        max-height:600px;
+      }
+      .js-snackbar__message h1,h2,h3{
+        font-size:22px;
+      }
+      .xrf table tr td {
+    
+      }
+      :root{
+        --xrf-font-size-1: 13px;
+        --xrf-font-size-2: 17px;
+        --xrf-font-size-3: 20px;
+      }
+    }
+
+
+    /* notifications */
+
+    .js-snackbar-container .btn,
+    .js-snackbar-container input[type=submit],
+    .js-snackbar-container button{
+      margin-bottom:15px;
+    }
+    .js-snackbar-container {
+        position: absolute;
+        top: 10px;
+        left: 0px;
+        display: flex;
+        align-items: center;
+      width:100%;
+        max-width: 100%;
+        padding: 10px;
+        z-index:1001;
+      justify-content: center;
+        overflow: hidden;
+    }
+
+    .js-snackbar-container * {
+        box-sizing: border-box;
+    }
+
+    .js-snackbar__wrapper {
+      --color-c: #555;
+      --color-a: #FFF;
+    }
+
+
+    .js-snackbar__wrapper {
+        overflow: hidden;
+        height: auto;
+        margin: 5px 0;
+        transition: all ease .5s;
+        border-radius: 3px;
+        box-shadow: 0 0 4px 0 var(--xrf-box-shadow);
+        right: 20px;
+        position: fixed;
+        top: 55px;
+    }
+
+    .js-snackbar {
+        display: inline-flex;
+        box-sizing: border-box;
+        border-radius: 3px;
+        color: var(--color-c);
+        background-color: var(--color-a);
+        vertical-align: bottom;
+    }
+
+    .js-snackbar__close,
+    .js-snackbar__status,
+    .js-snackbar__message {
+        position: relative;
+    }
+
+    .js-snackbar__message {
+      margin: 12px;
+    }
+
+    .js-snackbar__status {
+        display: none;
+        width: 15px;
+        margin-right: 5px;
+        border-radius: 3px 0 0 3px;
+        background-color: transparent;
+    }
+
+     .js-snackbar__status.js-snackbar--success,
+     .js-snackbar__status.js-snackbar--warning,
+     .js-snackbar__status.js-snackbar--danger,
+     .js-snackbar__status.js-snackbar--info {
+        display: block;
+    }
+
+    .js-snackbar__status.js-snackbar--success  {
+        background-color: #4caf50;
+    }
+
+    .js-snackbar__status.js-snackbar--warning  {
+        background-color: #ff9800;
+    }
+
+     .js-snackbar__status.js-snackbar--danger {
+        background-color: #ff6060;
+    }
+
+    .js-snackbar__status.js-snackbar--info {
+        background-color: #CCC;
+    }
+
+    .js-snackbar__close {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        user-select: none;
+    }
+
+    .js-snackbar__close:hover {
+        background-color: #4443;
+    }
+
+    .a-enter-vr-button, .a-enter-ar-button{
+      height:41px;
+    }
+
+    #qrcode{
+      background: transparent;
+      overflow: hidden;
+      height: 121px;
+      display: inline-block;
+      position: relative;
+    }
+
+    input#share{
+      font-size: var(--xrf-font-size-1);
+      font-family: var(--xrf-font-monospace);
+      border:2px solid #AAA;
+      width:50vw;
+      max-width:400px;
+    }
+
+    .footer {
+      display: flex;
+      flex-direction: column-reverse; /* This reverses the stacking order of the flex container */
+      align-items: flex-end;
+      height: 100%;
+      position: fixed;
+      top: 71px;
+      right: 11px;
+      bottom: 0;
+      padding-bottom:149px;
+      box-sizing:border-box;
+    }
+    .footer .menu{
+      text-align:right;
+    }
+
+  </style>
+`
