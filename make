@@ -89,12 +89,12 @@ build(){
     cat src/3rd/js/extra/*.js  > dist/xrfragment.extras.js 
     
     # fat all-in-one standalone xrf release
-    test -f /tmp/xrf-aframe.js || {
-      wget "https://aframe.io/releases/1.5.0/aframe.min.js" -O /tmp/xrf-aframe.js
-      wget "https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js" -O /tmp/xrf-blink.js
+    test -f dist/aframe.min.js || {
+      wget "https://aframe.io/releases/1.5.0/aframe.min.js" -O dist/aframe.min.js
+      wget "https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js" -O dist/aframe-blink-controls.min.js
     }
 
-    cat /tmp/xrf-*.js dist/xrfragment.aframe.js dist/xrfragment.extras.js > dist/xrfragment.aframe.all.js
+    cat dist/aframe.min.js dist/aframe-blink-controls.min.js dist/xrfragment.aframe.js dist/xrfragment.extras.js > dist/xrfragment.aframe.all.js
     
     # add license headers
     for file in dist/xrfragment.{aframe,module,three,three.module,aframe.all}.js; do

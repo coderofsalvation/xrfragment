@@ -14,16 +14,15 @@ MEETING = {
 
   init: (el) => new Proxy({
 
-    scene: null,
-    enabled:  false,
-    active:   false,
+    scene:    null,
+    visible:  false,
     //$overlay: $overlay = el.querySelector('#overlay'),
     //
     install(opts){
       this.scene = opts.scene 
-      window.meeting.buttons.push(`<a class="btn" aria-label="button" aria-description="start text/audio/video chat" id="meeting" onclick="MEETING.toggle()" target="_blank">🧑‍🤝‍🧑 meeting</a><br>`)
-      document.body.appendChild( el )
 
+      document.body.appendChild( el )
+      document.dispatchEvent( new CustomEvent("MEETING:ready", {detail: opts}) )
     },
 
     start(){
@@ -31,11 +30,7 @@ MEETING = {
       this.scene.addEventListener('meeting.peer.remove', () => console.log("$meeting.peer.remove") )
     },
 
-    toggle:   () => MEETING.collapsed = !MEETING.collapsed,
-    install:  (opts) => {
-      document.body.appendChild(el)
-      document.dispatchEvent( new CustomEvent("MEETING:ready", {detail: opts}) )
-    }
+    toggle:   () => MEETING.visible = !MEETING.visible,
 
   },{
 
@@ -43,7 +38,7 @@ MEETING = {
     set(data,k,v){ 
       data[k] = v    
       switch( k ){
-        case "css":        document.head.innerHTML += v;                  break;
+        case "visible": el.style.display = data.visible ? 'block' : 'none'
       }
     },
 
@@ -53,6 +48,9 @@ MEETING = {
 // reactify component!
 document.addEventListener('XRFMENU:ready', (opts) => {
   opts = opts.detail
+  XRFMENU.buttons = ([`<a class="btn" aria-label="button" aria-description="start text/audio/video chat" id="meeting" onclick="MEETING.toggle()" target="_blank">🧑‍🤝‍🧑 meeting</a><br>`])
+                    .concat(XRFMENU.buttons)
+  document.head.innerHTML += MEETING.css 
   $meeting = document.createElement('div')
   $meeting.innerHTML = MEETING.html
   MEETING = MEETING.init($meeting)

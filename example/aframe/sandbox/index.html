@@ -5,15 +5,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js"></script>
+    <!-- <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>                                       -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js"></script> -->
+    <script src="./../../../dist/aframe.min.js"></script>
+    <script src="./../../../dist/aframe-blink-controls.min.js"></script>
 
   </head>
   <body>
     <script src="./../../../dist/xrfragment.aframe.js"></script>
     <script src="./../../../dist/xrfragment.extras.js"></script>
 
-    <a-scene xr-mode-ui="XRMode: xr"  renderer="colorManagement: true; highRefreshRate:true" light="defaultLightsEnabled: false">
+    <a-scene stats xr-mode-ui="XRMode: xr"  renderer="colorManagement: true; highRefreshRate:true" light="defaultLightsEnabled: false">
       <a-entity id="player" wasd-controls look-controls>
         <a-entity camera="fov:90" position="0 1.6 0" id="camera"></a-entity>
         <a-entity id="left-hand"  laser-controls="hand: left" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: .floor">
@@ -29,8 +31,8 @@
     </a-scene>
 
     <script>
-      // the xrfmenu is totally optional but can be handy
-      // to quickly add your logo & buttons etc
+      // xrfragment.extras.js is totally optional but can be handy
+      // to quickly add a menu, logo, buttons, serverless meeting-functionality etc
       XRFMENU.logo      = './../../assets/logo.png'
       XRFMENU.morelabel = '⚡'
       // add your menubuttons:
@@ -59,6 +61,8 @@
           </a>
           <br><br>
           `,{timeout:false})
+
+      XRFMENU.install(xrf)
     </script>
 
   </body>

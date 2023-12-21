@@ -63,8 +63,7 @@ $xrfmenu = document.createElement('div')
 $xrfmenu.innerHTML = XRFMENU.html
 XRFMENU = XRFMENU.init($xrfmenu)
 
-
-// here come all menu functions which are less related to rendering 
+// attach menu functions which are less related to rendering 
 let utils = {
 
   bindToWindow(opts){

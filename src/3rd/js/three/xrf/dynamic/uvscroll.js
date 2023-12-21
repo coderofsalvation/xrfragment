@@ -2,7 +2,7 @@ xrf.addEventListener('dynamicKeyValue', (opts) => {
   let {scene,match,v} = opts
   let objname         = v.fragment
   let autoscroll      = v.z > 0 || v.w > 0 
-
+return // DISABLED
   scene.traverse( (mesh) => {
     if( mesh.name == objname ){
       if( !mesh.geometry ) return console.warn(`mesh '${objname}' has no uvcoordinates to offset`)
