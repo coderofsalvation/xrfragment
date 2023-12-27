@@ -1,5 +1,5 @@
 // reactive component for displaying the menu 
-XRFMENU = {
+menuComponent = {
 
   html: `
     <div id="overlay" class="xrf">
@@ -12,7 +12,7 @@ XRFMENU = {
     <div class="xrf footer">
       <div class="menu">
         <div id="buttons"></div>
-        <a class="btn" id="more" onclick="XRFMENU.toggle()"></a><br>
+        <a class="btn" id="more" aria-description="menu with options, like extra accessibility" onclick="$menu.toggle()"></a><br>
       </div>
     </div>
   `,
@@ -21,7 +21,7 @@ XRFMENU = {
     morelabel:  '⚡',
     collapsed:    false,
     logo:       './../../assets/logo.png',
-    buttons:    [`<a class="btn" aria-label="button" aria-description="share URL/screenshot/embed"  id="share"   onclick="XRFMENU.share()">🔗 share</a><br>`],
+    buttons:    [`<a class="btn" aria-label="button" aria-description="share URL/screenshot/embed"  id="share"   onclick="$menu.share()">🔗 share</a><br>`],
 
     $overlay: $overlay = el.querySelector('#overlay'),
     $logo:    $logo    = el.querySelector('.logo'),
@@ -29,12 +29,29 @@ XRFMENU = {
     $buttons: $buttons = el.querySelector('#buttons'),
     $btnMore: $btnMore = el.querySelector('#more'),
 
-    toggle:   () => XRFMENU.collapsed = !XRFMENU.collapsed,
-    install:  (opts) => {
-      XRFMENU.bindToWindow() // bind functions like notify to window 
+    toggle:   () => $menu.collapsed = !$menu.collapsed,
+    install:  (xrf) => {
+      this.xrf = xrf
+      $menu.bindToWindow() // bind functions like notify to window 
       window.notify('loading '+document.location.search.substr(1))
       document.body.appendChild(el)
-      document.dispatchEvent( new CustomEvent("XRFMENU:ready", {detail: opts}) )
+      document.dispatchEvent( new CustomEvent("$menu:ready", {detail: xrf}) )
+
+      // add screenshot component with camera to capture bigger size equirects
+      // document.querySelector('a-scene').components.screenshot.capture('perspective')
+      $('a-scene').setAttribute("screenshot",{camera: "[camera]",width: 4096*2, height:2048*2})
+  
+      if( window.outerWidth > 800 )
+        setTimeout( () => window.notify("use WASD-keys and mouse-drag to move around",{timeout:false}),2000 )
+  
+      xrf.addEventListener('href', (data) => data.selected ? window.notify(`href: ${data.xrf.string}`) : false )
+  
+      // enable user-uploaded asset files
+      let fileLoaders = $menu.loadFile({
+        ".gltf": (file) => file.arrayBuffer().then( (data) => xrf.navigator.to(file.name,null, (new xrf.loaders.gltf()), data) ),
+        ".glb":  (file) => file.arrayBuffer().then( (data) => xrf.navigator.to(file.name,null, (new xrf.loaders.gltf()), data) )
+      })
+      el.querySelector("#overlay > input[type=submit]").addEventListener("click", fileLoaders )
     }
 
   },{
@@ -46,7 +63,9 @@ XRFMENU = {
         case "logo":       $logo.style.backgroundImage = `url(${v})`;     break;
         case "css":        document.head.innerHTML += v;                  break;
         case "morelabel":  $btnMore.innerText = data.morelabel;           break;
-        case "buttons":    $buttons.innerHTML = this.renderButtons(data); break;
+        case "buttons":    $buttons.innerHTML = this.renderButtons(data); 
+                           document.dispatchEvent( new CustomEvent("$menu:buttons:render", {detail: el.querySelector('.menu') }) )
+                           break;
         case "collapsed":  $overlay.style.display = data.collapsed ? 'block' : 'none'
                            $buttons.style.display = data.collapsed ? 'block' : 'none'
                            break;
@@ -59,22 +78,25 @@ XRFMENU = {
 }
 
 // reactify component!
-$xrfmenu = document.createElement('div')
-$xrfmenu.innerHTML = XRFMENU.html
-XRFMENU = XRFMENU.init($xrfmenu)
+$menu = document.createElement('div')
+$menu.innerHTML = menuComponent.html
+$menu = menuComponent.init($menu)
 
 // attach menu functions which are less related to rendering 
 let utils = {
 
+
+
   bindToWindow(opts){
 
-    window.notify   = XRFMENU.notify(window)
+    window.notify   = $menu.notify(window)
 
     // reroute console messages to snackbar notifications
-    console.log = ( (log) => function(str){
-      if( String(str).match(/(:.*#|note:)/) ) window.notify(str)
-      log(str)
-    })(console.log)
+    console.log = ( (log,console) => function(str){
+      if( String(str).match(/(:.*#|note:|:\/\/)/) ) window.notify( str )
+      log.call(console,str)
+    })(console.log, console)
+
     // allow iframe to open url
     window.addEventListener('message', (event) => {
       if (event.data && event.data.url) {
@@ -242,7 +264,8 @@ let utils = {
   },
 
   notify(scope){
-    return function notify(str,opts){
+    return function notify(_str,opts){
+      str = _str.replace(/(^\w+):/,"<div class='badge'>\$1</div>") 
       opts = opts || {status:'info'}        
       opts = Object.assign({ status, timeout:4000 },opts)
       if( typeof str == 'string' ){
@@ -252,7 +275,9 @@ let utils = {
         }
       }
       opts.message = str
-      window.XRFMENU.SnackBar( opts )
+      window.$menu.SnackBar( opts )
+      opts.message = _str
+      document.dispatchEvent( new CustomEvent("notify", {detail:opts}) )
     }
   },
 
@@ -290,7 +315,7 @@ let utils = {
     newHash += `&${lastPos}`
     document.location.hash = newHash.replace(/&&/,'&')
                                     .replace(/#&/,'')
-    XRFMENU.copyToClipboard( window.location.href );
+    $menu.copyToClipboard( window.location.href );
   },
 
   copyToClipboard(text){
@@ -306,13 +331,13 @@ let utils = {
   share(){
     let inMeeting = $('[meeting]')
     let url = window.location.href
-    if( !inMeeting ) XRFMENU.updateHashPosition()
+    if( !inMeeting ) $menu.updateHashPosition()
     else url = $('[meeting]').components['meeting'].data.link
-    XRFMENU.copyToClipboard( url )
+    $menu.copyToClipboard( url )
     // End of *TODO* 
     window.notify(`<h2>${ inMeeting ? 'Meeting link ' : 'Link'} copied to clipboard!</h2> <br>Now share it with your friends ❤️<br>
       <canvas id="qrcode" width="121" height="121"></canvas><br>
-      <button onclick="XRFMENU.download()">💾 download scene file</button> <br>
+      <button onclick="$menu.download()">💾 download scene file</button> <br>
       <button onclick="alert('this might take a while'); $('a-scene').components.screenshot.capture('equirectangular')">📷 download 360 screenshot</button> <br>
       <a class="btn" target="_blank" href="https://github.com/coderofsalvation/xrfragment-helloworld">🖥 clone & selfhost this experience</a><br>
       <br>
@@ -330,7 +355,7 @@ let utils = {
 }
 
 // map to component
-for( let i in utils ) XRFMENU[i] = utils[i]
+for( let i in utils ) $menu[i] = utils[i]
 
 //$('a-scene').addEventListener('XRF', this.onXRFready )
 //    
@@ -359,7 +384,7 @@ for( let i in utils ) XRFMENU[i] = utils[i]
 //    //  $('a#meeting').addEventListener('click', () => {
 //    //    if( aScene.getAttribute('meeting') ){ // meeting already, start breakout room
 //    //      let parentRoom = document.location.href
-//    //      XRFMENU.updateHashPosition(true) 
+//    //      $menu.updateHashPosition(true) 
 //    //      let meeting = $('[meeting]').components['meeting']
 //    //      meeting.data.parentRoom = parentRoom
 //    //      meeting.update()
@@ -392,7 +417,7 @@ for( let i in utils ) XRFMENU[i] = utils[i]
 //    window.AFRAME.XRF.addEventListener('href', (data) => data.selected ? window.notify(`href: ${data.xrf.string}`) : false )
 //
 //    // enable user-uploaded asset files
-//    let fileLoaders = XRFMENU.loadFile({
+//    let fileLoaders = $menu.loadFile({
 //      ".gltf": (file) => file.arrayBuffer().then( (data) => xrf.navigator.to(file.name,null, (new xrf.loaders.gltf()), data) ),
 //      ".glb":  (file) => file.arrayBuffer().then( (data) => xrf.navigator.to(file.name,null, (new xrf.loaders.gltf()), data) )
 //    })
@@ -400,7 +425,7 @@ for( let i in utils ) XRFMENU[i] = utils[i]
 
 
 // finally add some css 
-XRFMENU.css = `
+$menu.css = `
   <style type="text/css">
     :root {
         --xrf-primary: #6839dc;
@@ -411,26 +436,25 @@ XRFMENU.css = `
         --xrf-overlay-bg: #fffb;
         --xrf-box-shadow: #0005;
         --xrf-red: red;
-        --xrf-black: #424280;
-        --xrf-white: #fdfdfd;
         --xrf-dark-gray: #343334;
-        --xrf-gray: #ecf7ff47;
+        --xrf-gray: #424280;
+        --xrf-white: #fdfdfd;
         --xrf-light-gray: #efefef;
         --xrf-lighter-gray: #e4e2fb96;
         --xrf-font-sans-serif: system-ui, -apple-system, segoe ui, roboto, ubuntu, helvetica, cantarell, noto sans, sans-serif;
         --xrf-font-monospace: menlo, monaco, lucida console, liberation mono, dejavu sans mono, bitstream vera sans mono, courier new, monospace, serif;
+        --xrf-font-size-0: 12px;
         --xrf-font-size-1: 14px;
         --xrf-font-size-2: 17px;
         --xrf-font-size-3: 21px;
     }
 
+    /* CSS reset */
+    html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}main{display:block}h1{font-size:2em;margin:0.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}pre{font-family:monospace, monospace;font-size:1em}a{background-color:transparent}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:bolder}code,kbd,samp{font-family:monospace, monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-0.25em}sup{top:-0.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}[type="button"],[type="reset"],[type="submit"],button{-webkit-appearance:button}[type="button"]::-moz-focus-inner,[type="reset"]::-moz-focus-inner,[type="submit"]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type="button"]:-moz-focusring,[type="reset"]:-moz-focusring,[type="submit"]:-moz-focusring,button:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:0.35em 0.75em 0.625em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}progress{vertical-align:baseline}textarea{overflow:auto}[type="checkbox"],[type="radio"]{box-sizing:border-box;padding:0}[type="number"]::-webkit-inner-spin-button,[type="number"]::-webkit-outer-spin-button{height:auto}[type="search"]{-webkit-appearance:textfield;outline-offset:-2px}[type="search"]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}details{display:block}summary{display:list-item}template{display:none}[hidden]{display:none}
+
     .xrf table tr td{
       vertical-align:top;
     }
-    .xrf table tr td:nth-child(1){
-      padding-right:35px;
-    }
-
     .xrf button,
     .xrf input[type="submit"],
     .xrf .btn {
@@ -455,6 +479,7 @@ XRFMENU.css = `
     .xrf input[type="submit"]:hover,
     .xrf .btn:hover {
       background: var(--xrf-secondary);
+      text-decoration:none;
     }
 
     .xrf, .xrf *{
@@ -561,7 +586,7 @@ XRFMENU.css = `
       height:33px;
       z-index:2000;
       cursor:pointer;
-      min-width:107px;
+      min-width:130px;
       text-decoration:none;
       margin-top: 15px;
       line-height:36px;
@@ -570,6 +595,7 @@ XRFMENU.css = `
     }
 
     .xrf a.btn#more{
+      z-index:3000;
       width: 19px;
       min-width: 19px;
       font-size:16px;
@@ -767,6 +793,40 @@ XRFMENU.css = `
     .footer .menu{
       text-align:right;
     }
+
+    .badge {
+      display:inline-block;
+      color: var(--xrf-white);
+      font-weight: bold;
+      background: var(--xrf-gray);
+      border-radius:5px;
+      padding:0px 4px;
+      font-size: var(--xrf-font-size-0);
+      margin-right:10px
+    }
+    a.badge {
+      text-decoration:none;
+    }
+
+    .xrf select{
+      min-width: 200px;oborder-inline: none;
+      border-inline: none;
+      border-block: none;
+      border: 1px solid #AAA;
+      box-shadow: 0px 0px 5px #0003;
+      height: 31px;
+      border-radius: 5px;
+      background: var(--xrf-lighter-gray);
+    }
+
+    .xrf table tr td {
+       vertical-align:middle;
+    }
+    .xrf table tr td:nth-child(1){
+      padding-right:35px;
+      min-width:80px;
+    }
+
 
   </style>
 `

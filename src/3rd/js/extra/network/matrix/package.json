@@ -1,0 +1,17 @@
+{
+  "name": "matrix",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "matrix-crdt": "^0.2.1-alpha.1",
+    "webpack-cli": "^5.1.4",
+    "yjs": "^13.6.10"
+  }
+}

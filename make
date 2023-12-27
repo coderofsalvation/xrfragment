@@ -86,7 +86,7 @@ build(){
         example/assets/js/qr.js  > dist/xrfragment.aframe.js
 
     # html extras like menu & meetings
-    cat src/3rd/js/extra/*.js  > dist/xrfragment.extras.js 
+    cat src/3rd/js/extra/*.js dist/matrix-crdt.js src/3rd/js/extra/network/*.js dist/trystero-torrent.min.js > dist/xrfragment.extras.js 
     
     # fat all-in-one standalone xrf release
     test -f dist/aframe.min.js || {

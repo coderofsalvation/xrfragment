@@ -9,8 +9,6 @@ window.AFRAME.registerComponent('xrf', {
       camera.setAttribute('xrf-fade','')
       AFRAME.fade = camera.components['xrf-fade']
 
-      if( document.location.host.match(/localhost/) ) document.querySelector('a-scene').setAttribute("stats",'')
-
       let aScene = document.querySelector('a-scene')
       aScene.addEventListener('loaded', () => {
 

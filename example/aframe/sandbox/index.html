@@ -15,7 +15,7 @@
     <script src="./../../../dist/xrfragment.aframe.js"></script>
     <script src="./../../../dist/xrfragment.extras.js"></script>
 
-    <a-scene stats xr-mode-ui="XRMode: xr"  renderer="colorManagement: true; highRefreshRate:true" light="defaultLightsEnabled: false">
+    <a-scene xr-mode-ui="XRMode: xr"  renderer="colorManagement: true; highRefreshRate:true" light="defaultLightsEnabled: false">
       <a-entity id="player" wasd-controls look-controls>
         <a-entity camera="fov:90" position="0 1.6 0" id="camera"></a-entity>
         <a-entity id="left-hand"  laser-controls="hand: left" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: .floor">
@@ -33,12 +33,12 @@
     <script>
       // xrfragment.extras.js is totally optional but can be handy
       // to quickly add a menu, logo, buttons, serverless meeting-functionality etc
-      XRFMENU.logo      = './../../assets/logo.png'
-      XRFMENU.morelabel = '⚡'
+      $menu.logo      = 'logo_file_or_url_here'
+      $menu.morelabel = '⚡'
       // add your menubuttons:
-      XRFMENU.buttons = XRFMENU.buttons.concat([`<a class="btn" aria-label="button" aria-description="about menu" onclick="XRFMENU.showAbout()">💁 about</a><br>`])
-      XRFMENU.collapsed = false
-      XRFMENU.showAbout = () => window.notify(`
+      $menu.buttons = $menu.buttons.concat([`<a class="btn" aria-label="button" aria-description="about menu" onclick="$menu.showAbout()">💁 about</a><br>`])
+      $menu.collapsed = false
+      $menu.showAbout = () => window.notify(`
           <h1>💁 Hi there!</h1>
 
           This XR fragments experience works almost anywhere.<br>
@@ -62,7 +62,7 @@
           <br><br>
           `,{timeout:false})
 
-      XRFMENU.install(xrf)
+      $menu.install(xrf)
     </script>
 
   </body>

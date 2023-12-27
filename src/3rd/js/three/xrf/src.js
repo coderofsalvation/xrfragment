@@ -62,7 +62,6 @@ xrf.frag.src.enableSourcePortation = (src) => {
 xrf.frag.src.externalSRC = (url,frag,opts) => {
   fetch(url, { method: 'HEAD' })
   .then( (res) => {
-    console.log(`loading src ${url}`)
     let mimetype = res.headers.get('Content-type')
     if( url.replace(/#.*/,'').match(/\.(gltf|glb)$/)    ) mimetype = 'gltf'
     //if( url.match(/\.(fbx|stl|obj)$/) ) mimetype = 
