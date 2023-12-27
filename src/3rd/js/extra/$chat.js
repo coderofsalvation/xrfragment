@@ -28,7 +28,7 @@ chatComponent = {
       el.style.display = 'none' // start hidden 
       document.body.appendChild( el )
       document.dispatchEvent( new CustomEvent("$chat:ready", {detail: opts}) )
-      $chat.send({message:`Welcome to <b>${document.location.search.substr(1)}</b>, a 3D scene(file) which simply links to others.<br>You can start a solo offline exploration in XR right away.<br>Type /help below, or use the arrow- or WASD-keys on your keyboard, and mouse-drag to rotate.<br>`, class: ["info","multiline"] })
+      $chat.send({message:`Welcome to <b>${document.location.search.substr(1)}</b>, a 3D scene(file) which simply links to other ones.<br>You can start a solo offline exploration in XR right away.<br>Type /help below, or use the arrow- or WASD-keys on your keyboard, and mouse-drag to rotate.<br>`, class: ["info","multiline"] })
     },
 
     initListeners(){
@@ -182,14 +182,13 @@ chatComponent.css = `
        line-height:33px;
      }
      #messages .msg.info{
-       border: 4px dotted #CCC
        font-size: 14px;
        padding: 3px 16px;
      }
-     #messages.guide .guide{
+     #messages.guide, .guide{
       display:unset;
      }
-     $message .guide, .guide{
+     #messages .guide, .guide{
        display:none;
      }
      br.guide{
@@ -233,5 +232,28 @@ chatComponent.css = `
       height: 18px;
       max-width:168px;
     }
-}
+
+    #messages button.emoticon,
+    #messages .btn.emoticon {
+      line-height:2px;
+      width: 20px;
+      display: inline-block;
+      padding: 0px 0px;
+      margin: 0;
+      vertical-align: middle;
+      background: none;
+      border: none;
+      min-width: 31px;
+      box-shadow:none;
+    }
+
+    #messages button.emoticon:hover,
+    #messages .btn.emoticon:hover {
+      border: 1px solid #ccc !important;
+      background:#EEE;
+    }
+
+    nomargin{
+      margin:0;
+    }
    </style>`

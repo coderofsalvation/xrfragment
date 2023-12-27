@@ -36,7 +36,7 @@
       $menu.logo      = 'logo_file_or_url_here'
       $menu.morelabel = '⚡'
       // add your menubuttons:
-      $menu.buttons = $menu.buttons.concat([`<a class="btn" aria-label="button" aria-description="about menu" onclick="$menu.showAbout()">💁 about</a><br>`])
+      $menu.buttons = $menu.buttons.concat([`<a class="btn" aria-label="button" aria-title="menu button" aria-description="about menu" onclick="$menu.showAbout()">💁 about</a><br>`])
       $menu.collapsed = false
       $menu.showAbout = () => window.notify(`
           <h1>💁 Hi there!</h1>

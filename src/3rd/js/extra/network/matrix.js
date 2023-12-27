@@ -39,8 +39,8 @@ window.matrix = (opts) => new Proxy({
       if( this.html[i] ) html += this.html[i](opts)
     }
     el.innerHTML = html
-    el.addEventListener('mouseover', () => {
-      window.notify(`${opts.name} is ${opts.description}.<br>You can basically make up your own channelname or use an existing one`)
+    el.querySelector('.badge').addEventListener('mouseover', () => {
+      window.notify(`${opts.name} is ${opts.description}.<br>You can basically make up a new channelname or use an existing one`)
     })
     return el
   }

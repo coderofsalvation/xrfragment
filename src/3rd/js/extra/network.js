@@ -46,6 +46,6 @@ window.network = (opts) => new Proxy({
 document.addEventListener('$menu:ready', (e) => {
   window.network = network(e.detail) 
   document.dispatchEvent( new CustomEvent("network:ready", e ) )
-  $menu.buttons = ([`<a class="btn" aria-label="button" aria-description="start text/audio/video chat" id="meeting" onclick="$connections.show()">🧑‍🤝‍🧑 connect</a><br>`])
+  $menu.buttons = ([`<a class="btn" aria-label="button" aria-title="connect button" aria-description="start text/audio/video chat" id="meeting" onclick="$connections.show()">🧑‍🤝‍🧑 connect</a><br>`])
                     .concat($menu.buttons)
 })

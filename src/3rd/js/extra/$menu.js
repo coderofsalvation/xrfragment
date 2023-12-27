@@ -12,7 +12,7 @@ menuComponent = {
     <div class="xrf footer">
       <div class="menu">
         <div id="buttons"></div>
-        <a class="btn" id="more" aria-description="menu with options, like extra accessibility" onclick="$menu.toggle()"></a><br>
+        <a class="btn" id="more" aria-title="menu button" aria-description="menu with options, like extra accessibility" onclick="$menu.toggle()"></a><br>
       </div>
     </div>
   `,
@@ -21,7 +21,7 @@ menuComponent = {
     morelabel:  '⚡',
     collapsed:    false,
     logo:       './../../assets/logo.png',
-    buttons:    [`<a class="btn" aria-label="button" aria-description="share URL/screenshot/embed"  id="share"   onclick="$menu.share()">🔗 share</a><br>`],
+    buttons:    [`<a class="btn" aria-label="button" aria-title="share button" aria-description="share URL/screenshot/embed"  id="share"   onclick="$menu.share()">🔗 share</a><br>`],
 
     $overlay: $overlay = el.querySelector('#overlay'),
     $logo:    $logo    = el.querySelector('.logo'),
@@ -265,6 +265,7 @@ let utils = {
 
   notify(scope){
     return function notify(_str,opts){
+      if( accessibility.enabled ) return $chat.send({message:_str})
       str = _str.replace(/(^\w+):/,"<div class='badge'>\$1</div>") 
       opts = opts || {status:'info'}        
       opts = Object.assign({ status, timeout:4000 },opts)
@@ -586,7 +587,7 @@ $menu.css = `
       height:33px;
       z-index:2000;
       cursor:pointer;
-      min-width:130px;
+      min-width:145px;
       text-decoration:none;
       margin-top: 15px;
       line-height:36px;
@@ -813,18 +814,19 @@ $menu.css = `
       border-inline: none;
       border-block: none;
       border: 1px solid #AAA;
-      box-shadow: 0px 0px 5px #0003;
       height: 31px;
       border-radius: 5px;
       background: var(--xrf-lighter-gray);
+      padding: 0px 16px;
     }
 
     .xrf table tr td {
-       vertical-align:middle;
+      vertical-align:middle;
+      text-align:right;
     }
     .xrf table tr td:nth-child(1){
-      padding-right:35px;
-      min-width:80px;
+      min-width:95px;
+      padding-right:15px;
     }
 
 

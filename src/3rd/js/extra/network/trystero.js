@@ -14,7 +14,10 @@ window.trystero = (opts) => new Proxy({
   html: {
     generic: (opts) => `<table id="trystero">
           <tr>
-            <td><a href="${opts.url}" target="_blank" class="badge">P2P</a></td>
+            <td>
+              <button class="emoticon" id="randomize" aria-label="button" aria-title="randomize" onclick="$('#trystero #channelname').value = $connections.randomName()">🎲</button>
+              <a href="${opts.url}" target="_blank" class="badge nomargin">P2P</a>
+            </td>
             <td>
               <input type="text" id="channelname" placeholder="channel name"/>
             </td>
@@ -57,7 +60,8 @@ window.trystero = (opts) => new Proxy({
       if( this.html[i] ) html += this.html[i](opts)
     }
     el.innerHTML = html
-    el.addEventListener('mouseover', () => {
+    el.querySelector('#randomize').addEventListener('mouseover', () => window.notify("generate random channel name") )
+    el.querySelector('.badge').addEventListener('mouseover', () => {
       window.notify(`${opts.name} is ${opts.description} <br>by using a serverless technology called <a href="${opts.url}" target="_blank">trystero</a>.<br>You can basically make up your own channelname or choose an existing one`)
     })
     return el

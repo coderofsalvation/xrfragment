@@ -52,6 +52,7 @@ connectionsComponent = {
     },
 
     show(){
+      $chat.visible = true
       if( !network.connected ){
           $chat.send({message:"", el})
           this.renderSettings()
@@ -75,6 +76,20 @@ connectionsComponent = {
       if( theChatnetwork.plugin.name != theWebcam.plugin.name ) $settings.appendChild( theChatnetwork.config(opts) )
       if( theScene.plugin.name != theWebcam.plugin.name && theScene.plugin.name != theChatnetwork.plugin.name ) 
         $settings.appendChild( scene.config(opts) )
+    },
+
+    randomName(){
+      var names = []
+      let add = (s) => s.length < 6 && !s.match(/[0-9$]/) && !s.match(/_/) ? names.push(s) : false
+      for ( var i in window             ) add(i)
+      for ( var i in Object.prototype   ) add(i)
+      for ( var i in Function.prototype ) add(i)
+      for ( var i in Array.prototype    ) add(i)
+      for ( var i in String.prototype   ) add(i) 
+      var a = names[Math.floor(Math.random() * names.length)];
+      var b = names[Math.floor(Math.random() * names.length)];
+      var c = names[Math.floor(Math.random() * names.length)];
+      return String(`${a}-${b}-${c}`).toLowerCase()
     }
 
   },{

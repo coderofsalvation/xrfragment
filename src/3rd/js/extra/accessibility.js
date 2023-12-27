@@ -6,7 +6,6 @@ window.accessibility = (opts) => new Proxy({
   // features
   speak_movements: true,
   speak_keyboard: true,
-  speak_notifications: true,
 
   // audio settings
   speak_rate: 1,
@@ -59,14 +58,6 @@ window.accessibility = (opts) => new Proxy({
       this.speak(k,true)
     })
 
-    document.addEventListener('notify', (e) => {
-      let opts    = e.detail
-      let status  = `${opts.status} ` || ''
-      if( !this.enabled ) return
-      this.speak(opts.message)
-      $chat.send({message: opts.message, class:["info","guide"]})
-    })
-
     document.addEventListener('$menu:buttons:render', (e) => {
       let $    = e.detail
       let a = [...$.querySelectorAll('a')]
@@ -74,6 +65,10 @@ window.accessibility = (opts) => new Proxy({
       a.map( (btn) => {
         if( !btn.href ) btn.setAttribute("href","javascript:void(0)") // important!
         btn.setAttribute("aria-label","button")
+        btn.addEventListener('mouseover', (e) => {
+          let str = btn.getAttribute("aria-title") + btn.getAttribute('aria-description')
+          this.speak( str,true)
+        })
       })
     })
 
