@@ -17,6 +17,7 @@ window.accessibility = (opts) => new Proxy({
 
   settings(){
     this.toggle() // *TODO* should show settings screen 
+    if( this.enabled ) window.notify(`accessibility boosted, click <a href="#">here</a> to tweak settings`)
   },
 
   speak(str, override){

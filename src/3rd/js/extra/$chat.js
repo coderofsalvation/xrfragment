@@ -135,7 +135,8 @@ chatComponent.css = `
      button#showchat{
        z-index: 1500;
        position: fixed;
-       bottom: 20px;
+       bottom: 24px;
+       height: 34px;
        left: 20px;
        width: 48%;
        background: white;
@@ -158,6 +159,8 @@ chatComponent.css = `
        border:none;
        width:90%;
        box-sizing:border-box;
+       height: 24px;
+       font-size: var(--xrf-font-size-2);
      }
      #messages{
        position: absolute;
@@ -207,6 +210,9 @@ chatComponent.css = `
      #messages .msg.multiline {
        padding: 2px 14px;
      }
+     #messages .msg.config {
+background:#
+     }
      #messages button {
        text-decoration:none;
        margin: 0px 15px 10px 0px;
@@ -223,15 +229,6 @@ chatComponent.css = `
      #messages,#chatbar,#chatbar *, #messages *{
      }
 
-    #messages input{
-      padding: 7px 15px;
-      border-block: none;
-      border-inline: none;
-      border: 1px solid #888;
-      background: var(--xrf-lighter-gray);
-      height: 18px;
-      max-width:168px;
-    }
 
     #messages button.emoticon,
     #messages .btn.emoticon {
@@ -253,7 +250,7 @@ chatComponent.css = `
       background:#EEE;
     }
 
-    nomargin{
+    .nomargin{
       margin:0;
     }
    </style>`

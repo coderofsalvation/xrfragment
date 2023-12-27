@@ -5,6 +5,7 @@ window.trystero = (opts) => new Proxy({
     name: 'Peer2Peer',
     description: 'P2P using WebRTC over bittorrent for signaling & encryption',
     url: 'https://github.com/dmotz/trystero',
+    protocol: 'trystero://',
     video: true,
     audio: true,
     chat: true,
@@ -12,23 +13,12 @@ window.trystero = (opts) => new Proxy({
   },
 
   html: {
-    generic: (opts) => `<table id="trystero">
-          <tr>
-            <td>
-              <button class="emoticon" id="randomize" aria-label="button" aria-title="randomize" onclick="$('#trystero #channelname').value = $connections.randomName()">🎲</button>
-              <a href="${opts.url}" target="_blank" class="badge nomargin">P2P</a>
-            </td>
-            <td>
-              <input type="text" id="channelname" placeholder="channel name"/>
-            </td>
-          </tr>
-        </table>
-      </div>
-    `
+    generic: (opts) => ``
   },
 
   handle: null, // { selfId: .... } when connected
-  link:   null,
+  ip:     null,
+  roomid: '',
   selfId: null,
   connected: false,
   names:  {},
@@ -41,16 +31,31 @@ window.trystero = (opts) => new Proxy({
     $connections.webcam = $connections.webcam.concat([this])
     $connections.chatnetwork = $connections.chatnetwork.concat([this])
     $connections.scene       = $connections.scene.concat([this])
+    this.reactToConnectionHrefs()
   },
 
-  connect(){
+  connect(opts){
     // embedded https://github.com/dmotz/trystero (trystero-torrent.min.js build)
+    console.log("connecting "+this.plugin.name)
     console.dir(opts)
-    this.handle     = joinRoom( room.config, room.link )
-    this.send({message:'📡 [trystero] opening P2P WebRTC-channel via bittorrent',class:['info']})
+    //this.handle     = joinRoom( room.config, room.link )
+    //this.send({message:'📡 [trystero] opening P2P WebRTC-channel via bittorrent',class:['info']})
   },
 
   send(opts){ $chat.send({...opts, source: 'trystero'}) },
+
+  createLink(opts){
+    this.link = document.location.href.replace(/#.*/,'')
+    if( this.link.match(/localhost/) ){
+      fetch('https://api.duckduckgo.com/?q=my+ip&format=json')
+      .then( (res) => res.json() )
+      .then( (res) => {
+          const ipRegex = /Your IP address is ([0-9]+[.][0-9]+[.][0-9]+[.][0-9]+)/g;
+          const ip = ipRegex.exec(res.Answer)[1] 
+          this.link = this.link.replace(/localhost/, ip )
+      })
+    }
+  },
 
   config(opts){
     opts = {...opts, ...this.plugin }
@@ -59,12 +64,31 @@ window.trystero = (opts) => new Proxy({
     for( let i in opts ){
       if( this.html[i] ) html += this.html[i](opts)
     }
-    el.innerHTML = html
-    el.querySelector('#randomize').addEventListener('mouseover', () => window.notify("generate random channel name") )
-    el.querySelector('.badge').addEventListener('mouseover', () => {
-      window.notify(`${opts.name} is ${opts.description} <br>by using a serverless technology called <a href="${opts.url}" target="_blank">trystero</a>.<br>You can basically make up your own channelname or choose an existing one`)
-    })
+    window.notify(`${opts.name} is ${opts.description} <br>by using a serverless technology called <a href="https://webrtc.org/" target="_blank">webRTC</a> via <a href="${opts.url}" target="_blank">trystero</a>.<br>You can basically make up your own channelname or choose an existing one.<br>Use this for hasslefree anonymous meetings.`)
+    // resolve ip
+    if( !this.link ) this.createLink(opts)
     return el
+  },
+
+  reactToConnectionHrefs(){
+    xrf.addEventListener('href', (opts) => {
+      let {mesh} = opts
+      if( !opts.click ) return
+      if( mesh.userData.href.match(this.protocol) ){
+        let parts = mesh.userData.href.replace(this.plugin.protocol,'')
+        console.dir(parts)
+        if( parts[0] == 'r' ){ // room
+          this.roomid       = parts.split("/")[1].replace(/:.*/,'') 
+          this.server = parts.split("/")[1].replace(/.*:/,'')
+          if( this.server != 'bittorrent' ) window.notify("only bittorrent is supported for trystero (for now) :/") 
+          $connections.show()
+          $connections.$webcam.value      = this.plugin.name
+          $connections.$chatnetwork.value = this.plugin.name
+          $connections.$scene.value       = this.plugin.name
+          console.log("configured trystero")
+        }
+      }else window.notify("malformed connection URI: "+mesh.userData.href)
+    })
   }
 
 },
@@ -74,9 +98,9 @@ window.trystero = (opts) => new Proxy({
   set(data,k,v){
     let from   = data[k]
     data[k] = v
-    switch( k ){
-      default: trystero.opts.scene.dispatchEvent({type:`trystero.${k}.change`, from, to:v})
-    }
+    //switch( k ){
+    //  default: elcene.dispatchEvent({type:`trystero.${k}.change`, from, to:v})
+    //}
   }
 })
       

@@ -26,21 +26,25 @@ connectionsComponent = {
       <div id="settings"></div>
       <br>
       <button id="connect" onclick="$connections.connect()">📡 Connect!</button>
-      <br>
+      <br><br>
     </div>
   `,
 
   init: (el) => new Proxy({
 
-    webcam:       [{plugin:{name:"No thanks"},config(){}}],
-    chatnetwork:  [{plugin:{name:"No thanks"},config(){}}],
-    scene:        [{plugin:{name:"No thanks"},config(){}}],
+    webcam:       [{plugin:{name:"No thanks"},config: () => document.createElement('div')}],
+    chatnetwork:  [{plugin:{name:"No thanks"},config: () => document.createElement('div')}],
+    scene:        [{plugin:{name:"No thanks"},config: () => document.createElement('div')}],
+
+    selectedWebcam:     '',
+    selectedChatnetwork:'',
+    selectedScene:      '',
 
     $webcam:       $webcam      = el.querySelector("#webcam"),
     $chatnetwork:  $chatnetwork = el.querySelector("#chatnetwork"),
     $scene:        $scene       = el.querySelector("#scene"),
     $settings:     $settings    = el.querySelector("#settings"),
-
+    $connect:      $connect    = el.querySelector("#connect"),
     
     install(opts){
       this.opts  = opts
@@ -49,48 +53,61 @@ connectionsComponent = {
       $webcam.addEventListener('change',      () => this.renderSettings() ) 
       $chatnetwork.addEventListener('change', () => this.renderSettings() ) 
       $scene.addEventListener('change',       () => this.renderSettings() ) 
+
     },
 
     show(){
       $chat.visible = true
       if( !network.connected ){
+          if( el.parentElement ) el.parentElement.remove()
           $chat.send({message:"", el})
           this.renderSettings()
+          if( !network.meetinglink ){ // set default
+            $webcam.value      = 'Peer2Peer'
+            $chatnetwork.value = 'Peer2Peer'
+            $scene.value       = 'Peer2Peer'
+          }
       }else $chat.send({message:"you are already connected, refresh page to create new connection",class:['info']})
     },
 
     connect(){
-      navigator.share({
-        url: 'https://foo.com',
-        title: 'your meeting link'
-      })
+      this.update()
+      this.webcam.selected.connect({webcam:true})
+      this.chatnetwork.selected.connect({chat:true})
+      this.scene.selected.connect({scene:true})
+      this.$connect.setAttribute('disabled','disabled')
+      this.$connect.classList.add('disabled')
+      window.notify("🪐 connecting to awesomeness..")
+    },
+
+    update(){
+      this.selectedWebcam      = $webcam.value
+      this.selectedChatnetwork = $chatnetwork.value
+      this.selectedScene       = $scene.value
+    },
+
+    forSelectedPluginsDo(cb){
+      // this function looks weird but it's handy to prevent the same plugins rendering duplicate configurations
+      let plugins = {}
+      let select = (name) => (o) => o.plugin.name == name ? plugins[ o.plugin.name ] = o : ''
+      this.webcam.find( select(this.selectedWebcam) )
+      this.chatnetwork.find( select(this.selectedChatnetwork) )
+      this.scene.find( select(this.selectedScene) )
+      for( let i in plugins ){
+        try{ cb(plugins[i]) }catch(e){ console.error(e) }
+      }
     },
 
     renderSettings(){
       let opts = {webcam: $webcam.value, chatnetwork: $chatnetwork.value, scene: $scene.value }
-      let theWebcam      = this.webcam.find(      (p) => p.plugin.name == $webcam.value )
-      let theChatnetwork = this.chatnetwork.find( (p) => p.plugin.name == $chatnetwork.value )
-      let theScene       = this.scene.find(       (p) => p.plugin.name == $scene.value )
+      this.update()
       $settings.innerHTML = ''
-      $settings.appendChild(theWebcam.config(opts))
-      if( theChatnetwork.plugin.name != theWebcam.plugin.name ) $settings.appendChild( theChatnetwork.config(opts) )
-      if( theScene.plugin.name != theWebcam.plugin.name && theScene.plugin.name != theChatnetwork.plugin.name ) 
-        $settings.appendChild( scene.config(opts) )
+      this.forSelectedPluginsDo( (plugin) => {
+        console.log("configuring "+plugin.plugin.name)
+        console.dir(plugin)
+        $settings.appendChild( plugin.config(opts) )
+      })
     },
-
-    randomName(){
-      var names = []
-      let add = (s) => s.length < 6 && !s.match(/[0-9$]/) && !s.match(/_/) ? names.push(s) : false
-      for ( var i in window             ) add(i)
-      for ( var i in Object.prototype   ) add(i)
-      for ( var i in Function.prototype ) add(i)
-      for ( var i in Array.prototype    ) add(i)
-      for ( var i in String.prototype   ) add(i) 
-      var a = names[Math.floor(Math.random() * names.length)];
-      var b = names[Math.floor(Math.random() * names.length)];
-      var c = names[Math.floor(Math.random() * names.length)];
-      return String(`${a}-${b}-${c}`).toLowerCase()
-    }
 
   },{
 

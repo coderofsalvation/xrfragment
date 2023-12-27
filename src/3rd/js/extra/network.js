@@ -3,6 +3,7 @@
 window.network = (opts) => new Proxy({
 
   connected: false,
+  meetinglink: "",
   peers: {},
   plugin: {},
   opts,

@@ -352,6 +352,13 @@ let utils = {
       QR.canvas = document.getElementById('qrcode')
       QR.draw( url, QR.canvas )
     },0)
+    // mobile share
+    if( typeof navigator.share != 'undefined'){
+      navigator.share({
+        url,
+        title: 'your meeting link'
+      })
+    }
   }
 }
 
@@ -444,7 +451,7 @@ $menu.css = `
         --xrf-lighter-gray: #e4e2fb96;
         --xrf-font-sans-serif: system-ui, -apple-system, segoe ui, roboto, ubuntu, helvetica, cantarell, noto sans, sans-serif;
         --xrf-font-monospace: menlo, monaco, lucida console, liberation mono, dejavu sans mono, bitstream vera sans mono, courier new, monospace, serif;
-        --xrf-font-size-0: 12px;
+        --xrf-font-size-0: 11px;
         --xrf-font-size-1: 14px;
         --xrf-font-size-2: 17px;
         --xrf-font-size-3: 21px;
@@ -805,19 +812,42 @@ $menu.css = `
       font-size: var(--xrf-font-size-0);
       margin-right:10px
     }
+    .ruler{
+      width:97%; 
+      margin:7px 0px;
+    }
+
+
     a.badge {
       text-decoration:none;
     }
 
     .xrf select{
-      min-width: 200px;oborder-inline: none;
+      min-width: 200px;
+      border-inline: none;
       border-inline: none;
       border-block: none;
-      border: 1px solid #AAA;
-      height: 31px;
+      border: 3px solid var(--xrf-primary);
       border-radius: 5px;
-      background: var(--xrf-lighter-gray);
+      background: none;
+      border-radius:30px;
+    }
+    .xrf select,
+    .xrf option{
       padding: 0px 16px;
+      min-width: 200px;
+      height: 35px;
+    }
+
+    .xrf input{
+      border-radius:30px;
+      padding: 7px 15px;
+      border-block: none;
+      border-inline: none;
+      border: 1px solid #888;
+      background: transparent;
+      height: 18px;
+      max-width:168px;
     }
 
     .xrf table tr td {
@@ -825,8 +855,16 @@ $menu.css = `
       text-align:right;
     }
     .xrf table tr td:nth-child(1){
-      min-width:95px;
+      min-width:115px;
+      height:40px;
       padding-right:15px;
+    }
+
+    .xrf small{
+      font-size: var(--xrf-font-size-0);
+    }
+    .disabled{
+      opacity:0.5
     }
 
 
