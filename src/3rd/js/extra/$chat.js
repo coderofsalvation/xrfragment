@@ -50,6 +50,7 @@ chatComponent = {
 
     send(opts){
       opts = { linebreak:true, message:"", class:[], ...opts }
+      let div = document.createElement('div')
       let msg = document.createElement('div')
       let br  = document.createElement('br')
       msg.className = "msg"
@@ -62,8 +63,9 @@ chatComponent = {
         msg.classList.add.apply(msg.classList, opts.class)
         br.classList.add.apply(br.classList, opts.class)
       }
-      $messages.appendChild(msg)
-      if( opts.linebreak ) $messages.appendChild(br)
+      div.appendChild(msg)
+      $messages.appendChild(div)
+      if( opts.linebreak ) div.appendChild(br)
       $messages.scrollTop = $messages.scrollHeight // scroll down
       document.dispatchEvent( new CustomEvent("$chat:receive", {detail: opts}) )
       $messages.last = msg.innerHTML
@@ -161,6 +163,7 @@ chatComponent.css = `
        box-sizing:border-box;
        height: 24px;
        font-size: var(--xrf-font-size-2);
+       max-width:unset;
      }
      #messages{
        position: absolute;

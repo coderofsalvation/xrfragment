@@ -855,7 +855,7 @@ $menu.css = `
       text-align:right;
     }
     .xrf table tr td:nth-child(1){
-      min-width:115px;
+      min-width:70px;
       height:40px;
       padding-right:15px;
     }

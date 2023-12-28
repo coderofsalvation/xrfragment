@@ -37,9 +37,9 @@ window.matrix = (opts) => new Proxy({
             </td>
           </tr>
           <tr>
-            <td>authenticate</td> 
+            <td>auth</td> 
             <td>
-              <select>
+              <select id="auth">
                 <option>via password</option>
                 <option>via access token</option>
               </select> 
@@ -48,7 +48,7 @@ window.matrix = (opts) => new Proxy({
           <tr>
             <td></td> 
             <td>
-              <input type="text" id="secret" placeholder="password or token"/>
+              <input type="text" id="secret" placeholder="enter password"/>
             </td>
           </tr>
         </table>
@@ -79,6 +79,9 @@ window.matrix = (opts) => new Proxy({
       if( this.html[i] ) html += this.html[i](opts)
     }
     this.el.innerHTML = html
+    this.el.querySelector('#auth').addEventListener('change', (e) => {
+      this.el.querySelector('#secret').setAttribute('placeholder', `enter ${e.target.value.replace(/.* /,'')}`)
+    })
     window.notify(`${opts.name} is ${opts.description}, it is the hottest internet technology available at this moment.<br>Read more about it <a href="${opts.url}" target="_blank">here</a>.<br>You can basically make up a new channelname or use an existing one`)
     return this.el
   },
@@ -90,11 +93,11 @@ window.matrix = (opts) => new Proxy({
       if( mesh.userData.href.match(this.protocol) ){
         let parts = mesh.userData.href.replace(this.plugin.protocol,'')
         if( parts[0] == 'r' ){ // room
-          $connections.$chatnetwork.value = this.plugin.name
-          $connections.$scene.value       = this.plugin.name
-          $connections.show()
           let server  = parts.split("/")[1].replace(/:.*/,'') 
           let channel = parts.split("/")[1].replace(/.*:/,'')
+          $connections.show()
+          $connections.selectedChatnetwork        = this.plugin.name
+          $connections.selectedScene              = this.plugin.name
           this.el.querySelector('#channel').value = `#${channel}:${server}`
           this.el.querySelector('#server').value  = server 
           console.log("configured matrix")

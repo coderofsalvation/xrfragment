@@ -2,10 +2,10 @@ connectionsComponent = {
 
   html: `
    <div id="connections">
-      <h2>Network channels:</h2>
+      <h2>Connection layers:</h2>
       <table>
         <tr>
-          <td>Webcam</td>
+          <td>Webcam/Audio</td>
           <td>
             <select id="webcam"></select>
           </td>
@@ -59,7 +59,7 @@ connectionsComponent = {
     show(){
       $chat.visible = true
       if( !network.connected ){
-          if( el.parentElement ) el.parentElement.remove()
+          if( el.parentElement ) el.parentElement.parentElement.remove()
           $chat.send({message:"", el})
           this.renderSettings()
           if( !network.meetinglink ){ // set default
@@ -115,9 +115,13 @@ connectionsComponent = {
     set(data,k,v){ 
       data[k] = v 
       switch( k ){
-        case "webcam":      $webcam.innerHTML       = `<option>${data[k].map((p)=>p.plugin.name).join('</option><option>')}</option>`; break;
-        case "chatnetwork": $chatnetwork.innerHTML  = `<option>${data[k].map((p)=>p.plugin.name).join('</option><option>')}</option>`; break;
-        case "scene":       $scene.innerHTML        = `<option>${data[k].map((p)=>p.plugin.name).join('</option><option>')}</option>`; break;
+        case "webcam":              $webcam.innerHTML       = `<option>${data[k].map((p)=>p.plugin.name).join('</option><option>')}</option>`; break;
+        case "chatnetwork":         $chatnetwork.innerHTML  = `<option>${data[k].map((p)=>p.plugin.name).join('</option><option>')}</option>`; break;
+        case "scene":               $scene.innerHTML        = `<option>${data[k].map((p)=>p.plugin.name).join('</option><option>')}</option>`; break;
+        case "selectedScene":       $scene.value       = v; data.renderSettings(); break;
+        case "selectedWebcam":      $webcam.value      = v; data.renderSettings(); break;
+        case "selectedChatnetwork": $chatnetwork.value = v; data.renderSettings(); break;
+
       } 
     }
 

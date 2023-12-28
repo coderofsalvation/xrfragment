@@ -82,9 +82,9 @@ window.trystero = (opts) => new Proxy({
           this.server = parts.split("/")[1].replace(/.*:/,'')
           if( this.server != 'bittorrent' ) window.notify("only bittorrent is supported for trystero (for now) :/") 
           $connections.show()
-          $connections.$webcam.value      = this.plugin.name
-          $connections.$chatnetwork.value = this.plugin.name
-          $connections.$scene.value       = this.plugin.name
+          $connections.selectedWebcam     = this.plugin.name
+          $connections.selectedChatnetwork= this.plugin.name
+          $connections.selectedScene      = this.plugin.name
           console.log("configured trystero")
         }
       }else window.notify("malformed connection URI: "+mesh.userData.href)
