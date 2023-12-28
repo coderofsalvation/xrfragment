@@ -6,6 +6,6 @@ module.exports = {
       name: "matrix"
     },
     filename: "matrix-crdt.js",
-    path: require('path').resolve(__dirname, '../../../../../../dist')
+    path: require('path').resolve(__dirname, '.')
   }
 };

@@ -85,8 +85,10 @@ build(){
         src/3rd/js/aframe/*.js   \
         example/assets/js/qr.js  > dist/xrfragment.aframe.js
 
-    # html extras like menu & meetings
-    cat src/3rd/js/extra/*.js dist/matrix-crdt.js src/3rd/js/extra/network/*.js dist/trystero-torrent.min.js > dist/xrfragment.extras.js 
+    # plugins  
+    cat src/3rd/js/plugin/frontend/*.js                           > dist/xrfragment.plugin.frontend.js
+    cat src/3rd/js/plugin/matrix/{matrix-crdt,matrix}.js          > dist/xrfragment.plugin.matrix.js 
+    cat src/3rd/js/plugin/p2p/{trystero-torrent.min,trystero}.js  > dist/xrfragment.plugin.p2p.js 
     
     # fat all-in-one standalone xrf release
     test -f dist/aframe.min.js || {

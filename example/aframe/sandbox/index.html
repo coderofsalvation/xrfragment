@@ -5,15 +5,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-    <!-- <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>                                       -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js"></script> -->
-    <script src="./../../../dist/aframe.min.js"></script>
-    <script src="./../../../dist/aframe-blink-controls.min.js"></script>
+    <script src="./../../../dist/aframe.min.js"></script> <!-- v1.5.0 -->
+    <script src="./../../../dist/xrfragment.aframe.js"></script>
 
   </head>
   <body>
-    <script src="./../../../dist/xrfragment.aframe.js"></script>
-    <script src="./../../../dist/xrfragment.extras.js"></script>
 
     <a-scene xr-mode-ui="XRMode: xr"  renderer="colorManagement: true; highRefreshRate:true" light="defaultLightsEnabled: false">
       <a-entity id="player" wasd-controls look-controls>
@@ -30,9 +26,15 @@
       <a-entity id="home" xrf="index.glb" xrf-menu></a-entity>
     </a-scene>
 
+    <!-- OPTIONAL                                                                                            -->
+    <!--                                                                                                     -->
+    <!-- everything below is completely optional, but handy to add a quick menu / connectivity to your space -->
+    <!--                                                                                                     -->
+    <script src="./../../../dist/aframe-blink-controls.min.js"></script>  <!-- teleporting using controllers -->
+    <script src="./../../../dist/xrfragment.plugin.frontend.js"></script> <!-- menu + chat interface         -->
+    <script src="./../../../dist/xrfragment.plugin.p2p.js"></script>      <!-- serverless p2p connectivity   -->
+    <script src="./../../../dist/xrfragment.plugin.matrix.js"></script>   <!-- matrix connectivity           -->
     <script>
-      // xrfragment.extras.js is totally optional but can be handy
-      // to quickly add a menu, logo, buttons, serverless meeting-functionality etc
       $menu.logo      = 'logo_file_or_url_here'
       $menu.morelabel = '⚡'
       // add your menubuttons:
