@@ -14,12 +14,15 @@ chatComponent = {
 
   init: (el) => new Proxy({
 
-    scene:    null,
-    visible:  true,
-    messages: [],
+    scene:           null,
+    visible:         true,
+    visibleChatbar:  false,
+    messages:        [],
 
-    $messages: $messages = el.querySelector("#messages"),
-    $chatline: $chatline = el.querySelector("#chatline"),
+    $videos:         el.querySelector("#videos"),
+    $messages:       el.querySelector("#messages"),
+    $chatline:       el.querySelector("#chatline"),
+    $chatbar:        el.querySelector("#chatbar"),
     
     install(opts){
       this.opts  = opts
@@ -27,15 +30,18 @@ chatComponent = {
       el.className = "xrf"
       el.style.display = 'none' // start hidden 
       document.body.appendChild( el )
+      this.visibleChatbar = false
       document.dispatchEvent( new CustomEvent("$chat:ready", {detail: opts}) )
-      $chat.send({message:`Welcome to <b>${document.location.search.substr(1)}</b>, a 3D scene(file) which simply links to other ones.<br>You can start a solo offline exploration in XR right away.<br>Type /help below, or use the arrow- or WASD-keys on your keyboard, and mouse-drag to rotate.<br>`, class: ["info","multiline"] })
+      this.send({message:`Welcome to <b>${document.location.search.substr(1)}</b>, a 3D scene(file) which simply links to other ones.<br>You can start a solo offline exploration in XR right away.<br>Type /help below, or use the arrow- or WASD-keys on your keyboard, and mouse-drag to rotate.<br>`, class: ["info","guide","multiline"] })
     },
 
     initListeners(){
-      //opts.scene.addEventListener('meeting.peer.add',    () => console.log("$chat.peer.add") )
-      //opts.scene.addEventListener('meeting.peer.remove', () => console.log("$chat.peer.remove") )
+      let {$chatline} = this
       $chatline.addEventListener('keydown', (e) => {
         if (e.key == 'Enter' ){
+          if( $chatline.value[0] != '/' ){
+            document.dispatchEvent( new CustomEvent("network.send", {detail: {message:$chatline.value}} ) )
+          }
           this.send({message: $chatline.value })
           $chatline.value = ''
         }
@@ -49,10 +55,13 @@ chatComponent = {
     },
 
     send(opts){
+      let {$messages} = this
       opts = { linebreak:true, message:"", class:[], ...opts }
-      let div = document.createElement('div')
-      let msg = document.createElement('div')
-      let br  = document.createElement('br')
+      if( window.frontend && window.frontend.emit ) window.frontend.emit('$chat.send', opts )
+      let div  = document.createElement('div')
+      let msg  = document.createElement('div')
+      let br   = document.createElement('br')
+      let nick = document.createElement('div')
       msg.className = "msg"
       let html = `${ opts.message || ''}${ opts.html ? opts.html(opts) : ''}`
       if( $messages.last == html ) return
@@ -62,27 +71,47 @@ chatComponent = {
       if( opts.class ){
         msg.classList.add.apply(msg.classList, opts.class)
         br.classList.add.apply(br.classList, opts.class)
+        div.classList.add.apply(div.classList, opts.class.concat(["envelope"]))
+      }
+      if( !opts.from && !msg.className.match(/(info|guide)/) ) msg.classList.add('self')
+      if( opts.from ){
+        nick.className = "user"
+        nick.innerText = opts.from+' '
+        div.appendChild(nick)
+        if( opts.pos ){
+          let a = document.createElement("a")
+          a.href = a.innerText = `#pos=${opts.pos}`
+          nick.appendChild(a)
+        }
       }
       div.appendChild(msg)
       $messages.appendChild(div)
       if( opts.linebreak ) div.appendChild(br)
       $messages.scrollTop = $messages.scrollHeight // scroll down
-      document.dispatchEvent( new CustomEvent("$chat:receive", {detail: opts}) )
       $messages.last = msg.innerHTML
+    },
+
+    getChatLog(){
+        return ([...this.$messages.querySelectorAll('.envelope')])
+                .filter( (d) => !d.className.match(/(info|ui)/) ) 
+                .map( (d) => d.innerHTML )
+                .join('\n')
     }
 
   },{
 
-    get(data,k,v){ return data[k] },
-    set(data,k,v){ 
-      data[k] = v    
+    get(me,k,v){ return me[k] },
+    set(me,k,v){ 
+      me[k] = v    
       switch( k ){
-        case "visible": { 
-                           el.style.display = data.visible ? 'block' : 'none'
-                           if( !el.inited && (el.inited = true) ) data.initListeners()
-                           $menu.collapsed = !data.visible
-                           break;
-                        }
+        case "visible":         { 
+                                  el.style.display = me.visible ? 'block' : 'none'
+                                  if( !el.inited && (el.inited = true) ) me.initListeners()
+                                  break;
+                                }
+        case "visibleChatbar":  {
+                                  me.$chatbar.style.display = v ? 'block' : 'none' 
+                                }
       }
     }
 
@@ -93,7 +122,7 @@ chatComponent = {
 document.addEventListener('$menu:ready', (opts) => {
   opts = opts.detail
   document.head.innerHTML += chatComponent.css 
-  $chat = document.createElement('div')
+  window.$chat = document.createElement('div')
   $chat.innerHTML = chatComponent.html
   $chat = chatComponent.init($chat)
   $chat.install(opts)
@@ -167,29 +196,78 @@ chatComponent.css = `
      }
      #messages{
        position: absolute;
-       top: 100px;
+       transition:1s;
+       top: 0px;
        left: 0;
-       right: 0;
-       bottom: 88px;
+       bottom: 130px;
        padding: 15px;
-       pointer-events: none;
-       overflow-y:auto;
+       overflow:hidden;
+       pointer-events:none;
+       transition:1s;
+       width: 91%;
+       max-width: 500px;
+       z-index: 100;
+       -webkit-user-select:none;
+       -moz-user-select:-moz-none;
+       -ms-user-select:none;
+       user-select:none;
+     }
+     body.menu #messages{
+       top:50px;
+     }
+     #messages *{
+       pointer-events:all;
      }
      #messages .msg{
+       transition:all 1s ease;
        background: #fff;
        display: inline-block;
-       padding: 6px 17px;
-       border-radius: 20px;
+       padding: 1px 17px;
+       border-radius: 20px 0px 20px 20px;
        color: #000c;
        margin-bottom: 10px;
        line-height:23px;
        pointer-events:visible;
-       border: 1px solid #ccc8;
        line-height:33px;
+       cursor:grabbing;
+       border: 1px solid #0002;
+     }
+     #messages .msg.self{
+       border-radius: 0px 20px 20px 20px;
+       background:var(--xrf-primary);
+     }
+     #messages .msg.self,
+     #messages .msg.self div{
+       color:#FFF;
      }
      #messages .msg.info{
-       font-size: 14px;
-       padding: 3px 16px;
+       background: #473f7f;
+       border-radius: 20px;
+       color: #FFF;
+       text-align: right;
+       line-height: 19px;
+     }
+     #messages .msg.info,
+     #messages .msg.info *{
+       font-size: var(--xrf-font-size-0);
+     }
+     #messages .msg a {
+       text-decoration:underline;
+       color: #EEE;
+       font-weight:bold;
+       transition:1s;
+     }
+     #messages .msg a:hover{
+        color:#FFF;
+     }
+     #messages .msg.ui, 
+     #messages .msg.ui div{ 
+       background: white;
+       border:none;
+       color: #333;
+       border-radius: 20px;
+       margin:0;
+       padding:0px 5px 5px 5px;
      }
      #messages.guide, .guide{
       display:unset;
@@ -200,21 +278,12 @@ chatComponent.css = `
      br.guide{
        display:inline-block;
      }
-     #messages .msg.info a,
-     #messages .msg.info a:visited{
-       color: var(--xrf-primary);
-       text-decoration: underline;
-       transition:0.3s;
-     }
      #messages .msg.info a:hover,
      #messages button:hover{
        filter: brightness(1.4);
      }
      #messages .msg.multiline {
        padding: 2px 14px;
-     }
-     #messages .msg.config {
-background:#
      }
      #messages button {
        text-decoration:none;
@@ -255,5 +324,20 @@ background:#
 
     .nomargin{
       margin:0;
+    }
+
+    .envelope{
+      height:unset;
+      overflow:hidden;
+      transition:1s;
+    }
+
+    .user{
+      margin-left:13px;
+      font-weight: bold;
+      color: var(--xrf-dark-gray);
+    }
+    .user, .user *{ 
+      font-size: var(--xrf-font-size-0);
     }
    </style>`

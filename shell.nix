@@ -8,7 +8,7 @@
       haxe
       mmark
       xml2rfc
-      dendrite
+      esbuild
 
     ];
 

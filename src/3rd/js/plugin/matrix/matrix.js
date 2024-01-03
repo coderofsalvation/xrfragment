@@ -4,7 +4,7 @@ window.matrix = (opts) => new Proxy({
 
   plugin:{
     type: 'network',
-    name: '[matrix] channel',
+    name: '[Matrix]',
     description: 'a standardized decentralized privacy-friendly protocol',
     url: 'https://matrix.org',
     protocol: 'matrix://',
@@ -53,14 +53,13 @@ window.matrix = (opts) => new Proxy({
           </tr>
         </table>
         <small style="display:inline-block;float:right">Support for Oauth / OpenID is <a href="https://matrix.org/blog/#openid-connect" target="_blank">in progress</a></small>
-        <br><br>
+        <br>
       </div>
     `
   },
 
   init(){
-    let network = window.network
-    network.plugin['matrix'] = this
+    frontend.plugin['matrix'] = this
     $connections.chatnetwork = $connections.chatnetwork.concat([this])
     $connections.scene       = $connections.scene.concat([this])
     this.reactToConnectionHrefs()

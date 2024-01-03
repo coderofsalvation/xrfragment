@@ -8,9 +8,6 @@ xrf.frag.defaultPredefinedViews = (opts) => {
   })
 }
 
-// react to enduser typing url
-xrf.addEventListener('hash', (opts) => xrf.hashbus.pub( opts.hash ) )
-
 // clicking href url with predefined view 
 xrf.addEventListener('href', (opts) => {
   if( !opts.click || opts.xrf.string[0] != '#' ) return 

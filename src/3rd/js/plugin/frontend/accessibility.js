@@ -17,18 +17,20 @@ window.accessibility = (opts) => new Proxy({
 
   settings(){
     this.toggle() // *TODO* should show settings screen 
-    if( this.enabled ) window.notify(`accessibility boosted, click <a href="#">here</a> to tweak settings`)
   },
 
-  speak(str, override){
+  speak(str, opts){
+    opts = opts || {speaksigns:true}
     if( !this.enabled || !str) return
-    str = str.replace(/\/\//,' ')
-             .replace(/:/,'')
-             .replace(/\//,' slash ')
-             .replace(/\./,' dot ')
-             .replace(/#/,' hash ')
-             .replace(/&/,' and ')
-             .replace(/=/,' is ')
+    if( opts.speaksigns ){
+      str = str.replace(/\/\//,' ')
+               .replace(/:/,'')
+               .replace(/\//,' slash ')
+               .replace(/\./,' dot ')
+               .replace(/#/,' hash ')
+               .replace(/&/,' and ')
+               .replace(/=/,' is ')
+    }
     let speech = window.speechSynthesis
     let utterance = new SpeechSynthesisUtterance( str )
     if( this.speak_voice != -1) utterance.voice  = speech.getVoices()[ this.speak_voice ];
@@ -41,7 +43,7 @@ window.accessibility = (opts) => new Proxy({
     utterance.rate   = this.speak_rate
     utterance.pitch  = this.speak_pitch
     utterance.volume = this.speak_volume
-    if( override ) speech.cancel() 
+    if( opts.override ) speech.cancel() 
     speech.speak(utterance)
   },
 
@@ -56,7 +58,7 @@ window.accessibility = (opts) => new Proxy({
         case "ArrowRight": k = "right";    break;
         case "ArrowDown":  k = "backward"; break;
       } 
-      this.speak(k,true)
+      this.speak(k,{override:true})
     })
 
     document.addEventListener('$menu:buttons:render', (e) => {
@@ -66,36 +68,49 @@ window.accessibility = (opts) => new Proxy({
       a.map( (btn) => {
         if( !btn.href ) btn.setAttribute("href","javascript:void(0)") // important!
         btn.setAttribute("aria-label","button")
-        btn.addEventListener('mouseover', (e) => {
-          let str = btn.getAttribute("aria-title") + btn.getAttribute('aria-description')
-          this.speak( str,true)
-        })
+      })
+      document.addEventListener('mouseover', (e) => {
+        if( e.target.getAttribute("aria-title") ){
+          let lines = []
+          lines.push( e.target.getAttribute("aria-title") )
+          lines.push( e.target.getAttribute("aria-description") )
+          lines = lines.filter( (l) => l )
+          this.speak( lines.join("."), {override:true,speaksigns:false} )
+        }
       })
     })
 
-    document.addEventListener('$chat:receive', (e) => {
+    document.addEventListener('network.send', (e) => {
       let opts = e.detail
       opts.message = opts.message || ''
       if( opts.class && ~opts.class.indexOf('info') ) opts.message = `info: ${opts.message}`
-      this.speak(e.detail.message)
+      this.speak(opts.message)
     })
 
-    opts.addEventListener('pos', (opts) => {
-      let obj
-      let description
-      let msg = "You've teleported to "
-      let pos = opts.frag.pos
-      if( pos.string.match(',') ) msg += `coordinates <a href="#pos=${pos.string}">${pos.string}</a>`
-      else{
-        msg += `location <a href="#pos=${pos.string}">${pos.string}</a>`
-        obj = opts.scene.getObjectByName(pos.string)
-        if( obj ){
-          description = obj.userData['aria-label'] || ''
-        }else msg += ", but your teleportation was refused because it cannot be found within this world"
-      } 
-      $chat.send({html: () => msg, class:["info","guide"]})
+    opts.xrf.addEventListener('pos', (opts) => {
+      if( this.enabled ){
+        $chat.send({message: this.posToMessage(opts) })
+      }
+      network.send({message: this.posToMessage(opts), class:["info","guide"]})
+      network.pos = opts.frag.pos.string
     })
 
+  },
+
+  posToMessage(opts){
+    let obj
+    let description
+    let msg = "teleported to "
+    let pos = opts.frag.pos
+    if( pos.string.match(',') ) msg += `coordinates <a href="#pos=${pos.string}">${pos.string}</a>`
+    else{
+      msg += `location <a href="#pos=${pos.string}">${pos.string}</a>`
+      obj = opts.scene.getObjectByName(pos.string)
+      if( obj ){
+        description = obj.userData['aria-label'] || ''
+      }else msg += ", but the teleportation was refused because it cannot be found within this world"      
+    } 
+    return msg
   },
 
   sanitizeTranscript(){
@@ -114,7 +129,7 @@ window.accessibility = (opts) => new Proxy({
     data[k] = v 
     switch( k ){
       case "enabled": {
-                        let message = (v?"boosting":"unboosting") + " accessibility features"
+                        let message = "accessibility has been"+(v?"boosted":"lowered")
                         $('#accessibility.btn').style.filter= v ? 'brightness(1.0)' : 'brightness(0.5)'
                         if( v ) $chat.visible = true
                         $chat.send({message,class:['info','guide']})
@@ -131,9 +146,10 @@ window.accessibility = (opts) => new Proxy({
 })
 
 document.addEventListener('$menu:ready', (e) => {
-  window.accessibility = accessibility(e.detail) 
-  accessibility.init()
-  document.dispatchEvent( new CustomEvent("accessibility:ready", e ) )
-  $menu.buttons = $menu.buttons.concat([`<a class="btn" style="background:var(--xrf-dark-gray);filter: brightness(0.5);" aria-label="button" aria-description="enable all accessibility features" id="accessibility" onclick="accessibility.settings()">👩‍🚀 accessibility</a><br>`])
-
+  try{
+    accessibility = accessibility(e.detail) 
+    accessibility.init()
+    document.dispatchEvent( new CustomEvent("accessibility:ready", e ) )
+    $menu.buttons = $menu.buttons.concat([`<a class="btn" style="background:var(--xrf-dark-gray);filter: brightness(0.5);" aria-label="button" aria-description="enable all accessibility features" id="accessibility" onclick="accessibility.settings()"><i class="gg-yinyang"></i>accessibility</a><br>`])
+  }catch(e){console.error(e)}
 })

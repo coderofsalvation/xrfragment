@@ -3,32 +3,64 @@
 window.network = (opts) => new Proxy({
 
   connected: false,
+  pos: '',
   meetinglink: "",
   peers: {},
   plugin: {},
   opts,
 
-  start(url){
-    console.log("starting network with url "+(url?url:"default"))
+  init(){
+    document.addEventListener('network.disconnect', () => this.connected = false )
+    document.addEventListener('network.connected',  () => this.connected = true  )
+    setTimeout( () => window.frontend.emit('network.init'), 100 )
+    return this
+  },
+
+  connect(opts){
+    window.frontend.emit(`network.${this.connected?'disconnect':'connect'}`,opts)
   },
 
   add(peerid,data){
     data = {lastUpdated: new Date().getTime(), id: peerid, ...data }
     this.peers[peerid] = data 
-    opts.scene.dispatchEvent({type:'network.peer.add', peer})
+    window.frontend.emit(`network.peer.add`,{peer})
   },
 
   remove(peerid,data){
     delete this.peers[peerid]
-    opts.scene.dispatchEvent({type:'network.peer.remove', peer})
+    window.frontend.emit(`network.peer.remove`,{peer})
   },
 
   send(opts){
-
+    window.frontend.emit('network.send',opts)
   },
 
   receive(opts){
 
+  },
+
+  getMeetingFromUrl(url){
+    let hash = url.replace(/.*#/,'')
+    let parts = hash.split("&")
+    let meeting = ''
+    parts.map( (p) => {
+      if( p.split("=")[0] == 'meet' ) meeting = p.split("=")[1]
+    })
+    return meeting
+  },
+
+  randomRoom(){
+    var names = []
+    let add = (s) => s.length < 6 && !s.match(/[0-9$]/) && !s.match(/_/) ? names.push(s) : false
+    for ( var i in window             ) add(i)
+    for ( var i in Object.prototype   ) add(i)
+    for ( var i in Function.prototype ) add(i)
+    for ( var i in Array.prototype    ) add(i)
+    for ( var i in String.prototype   ) add(i) 
+    var a = names[Math.floor(Math.random() * names.length)];
+    var b = names[Math.floor(Math.random() * names.length)];
+    var c = names[Math.floor(Math.random() * names.length)];
+    return String(`${a}-${b}-${c}`).toLowerCase()
   }
 
 },
@@ -38,15 +70,10 @@ window.network = (opts) => new Proxy({
   set(data,k,v){
     let from   = data[k]
     data[k] = v
-    //switch( k ){
-    //  default: network.opts.scene.dispatchEvent({type:`network.${k}.change`, from, to:v})
-    //}
   }
 })
       
-document.addEventListener('$menu:ready', (e) => {
-  window.network = network(e.detail) 
+document.addEventListener('frontend:ready', (e) => {
+  window.network = network(e.detail).init()
   document.dispatchEvent( new CustomEvent("network:ready", e ) )
-  $menu.buttons = ([`<a class="btn" aria-label="button" aria-title="connect button" aria-description="start text/audio/video chat" id="meeting" onclick="$connections.show()">🧑‍🤝‍🧑 connect</a><br>`])
-                    .concat($menu.buttons)
 })

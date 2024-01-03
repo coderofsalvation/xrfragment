@@ -49,7 +49,9 @@ xrf.emit.normal = function(eventName, data) {
     var callbacks = xrf._listeners[eventName]
     if (callbacks) {
         for (var i = 0; i < callbacks.length; i++) {
+          try{
             callbacks[i](data);
+          }catch(e){ console.error(e) }
         }
     }
 };

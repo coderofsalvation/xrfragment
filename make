@@ -62,6 +62,9 @@ build(){
   }
 
   js(){
+
+    jscat(){ echo "(function(){"; cat "$@"; echo "}).apply({})"; }
+
     # add js module
     cat dist/xrfragment.js            >> dist/xrfragment.module.js
     echo "export default xrfragment;" >> dist/xrfragment.module.js
@@ -86,9 +89,9 @@ build(){
         example/assets/js/qr.js  > dist/xrfragment.aframe.js
 
     # plugins  
-    cat src/3rd/js/plugin/frontend/*.js                           > dist/xrfragment.plugin.frontend.js
-    cat src/3rd/js/plugin/matrix/{matrix-crdt,matrix}.js          > dist/xrfragment.plugin.matrix.js 
-    cat src/3rd/js/plugin/p2p/{trystero-torrent.min,trystero}.js  > dist/xrfragment.plugin.p2p.js 
+    jscat src/3rd/js/plugin/frontend/*.js                           > dist/xrfragment.plugin.frontend.js
+    jscat src/3rd/js/plugin/matrix/{matrix-crdt,matrix}.js          > dist/xrfragment.plugin.matrix.js 
+    jscat src/3rd/js/plugin/p2p/{trystero-torrent.min,trystero}.js  > dist/xrfragment.plugin.p2p.js 
     
     # fat all-in-one standalone xrf release
     test -f dist/aframe.min.js || {

@@ -9,7 +9,8 @@ xrf.navigator.to = (url,flags,loader,data) => {
   return new Promise( (resolve,reject) => {
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
     if( !file || (!data && xrf.model.file == file) ){ // we're already loaded
-      hashbus.pub( url, xrf.model, flags )    // and eval local URI XR fragments 
+      if( hash == document.location.hash.substr(1) ) return     // block duplicate calls
+      hashbus.pub( url, xrf.model, flags )            // and eval local URI XR fragments 
       xrf.navigator.updateHash(hash)
       return resolve(xrf.model) 
     }
@@ -72,7 +73,6 @@ xrf.navigator.updateHash = (hash,opts) => {
   if( hash.replace(/^#/,'') == document.location.hash.substr(1) || hash.match(/\|/) ) return  // skip unnecesary pushState triggers
   console.log(`URL: ${document.location.search.substr(1)}#${hash}`)
   document.location.hash = hash
-  xrf.emit('hash', {...opts, hash: `#${hash}` })
 }
 
 xrf.navigator.pushState = (file,hash) => {

@@ -13,81 +13,242 @@ window.trystero = (opts) => new Proxy({
   },
 
   html: {
-    generic: (opts) => ``
+    generic: (opts) => `<div>
+        <a href="${opts.url}" target="_blank" class="badge ruler">P2P</a>
+        <table>
+          <tr>
+            <td>nickname</td>
+            <td>
+              <input type="text" id="nickname" placeholder="your nickname" maxlength="18"/>
+            </td>
+          </tr>
+        </table>
+      </div>
+    `
   },
 
-  handle: null, // { selfId: .... } when connected
-  ip:     null,
-  roomid: '',
-  selfId: null,
-  connected: false,
+  room:       null, // { selfId: .... } when connected
+  link:       '',
+  selfId:     null,
+  selfStream: null,
+  nickname:   '',
+  connected:  false,
+
+  useWebcam: false,
+  useChat:   false,
+  useScene:  false,
+
+  videos:    {},
+
   names:  {},
+  ping:   { send: null, get: null },
   chat:   { send: null, get: null },
   name:   { send: null, get: null },
+  href:   { send: null, get: null },
 
   init(){
-    let network = window.network
-    network.plugin['trystero'] = this
-    $connections.webcam = $connections.webcam.concat([this])
+    frontend.plugin['trystero'] = this
+    $connections.webcam      = $connections.webcam.concat([this])
     $connections.chatnetwork = $connections.chatnetwork.concat([this])
     $connections.scene       = $connections.scene.concat([this])
+    if( localStorage.getItem("selfId") ){
+      this.selfId = localStorage.getItem("selfId")
+    }else{
+      this.selfId = String(Math.random()).substr(2)
+      localStorage.setItem("selfId",this.selfId)
+    }
     this.reactToConnectionHrefs()
+    this.nickname         = localStorage.getItem("nickname") || `human${String(Math.random()).substr(5,4)}`
+    document.addEventListener('network.connect', (e) => this.connect(e.detail) )
+    document.addEventListener('network.init', () => {
+      let meeting = network.getMeetingFromUrl(document.location.href)
+      if( meeting.match(this.plugin.protocol) ){
+        this.parseLink( meeting )
+      }
+    })
   },
 
-  connect(opts){
+  confirmConnected(){
+    if( !this.connected ){
+      this.connected = true
+      frontend.emit('network.connected',{plugin:this}) 
+      this.names[ this.selfId ] = this.nickname
+    }
+  },
+
+  async connect(opts){
     // embedded https://github.com/dmotz/trystero (trystero-torrent.min.js build)
     console.log("connecting "+this.plugin.name)
-    console.dir(opts)
-    //this.handle     = joinRoom( room.config, room.link )
-    //this.send({message:'📡 [trystero] opening P2P WebRTC-channel via bittorrent',class:['info']})
+    this.createLink() // ensure link 
+    if( opts.selectedWebcam      == this.plugin.name ) this.useWebcam = true
+    if( opts.selectedChatnetwork == this.plugin.name ) this.useChat   = true
+    if( opts.selectedScene       == this.plugin.name ) this.useScene  = true
+    if( this.useWebcam || this.useChat || this.useScene ){
+
+      console.log("trystero link: "+this.link)
+      this.room        = joinRoom( {appId: 'xrfragment'}, this.link )
+      
+      $chat.send({message:`Share the meeting link <a onclick="$menu.share()">by clicking here</a>`,class:['info']})
+      $chat.send({message:"waiting for other humans..",class:['info']})
+
+      // setup trystero events
+      const [sendPing, getPing] = this.room.makeAction('ping')
+      this.ping.send = sendPing
+      this.ping.get  = getPing
+
+      const [sendName, getName] = this.room.makeAction('name')
+      this.name.send = sendName
+      this.name.get  = getName
+
+      // start pinging
+      this.ping.pinger = setInterval( () => this.ping.send({ping:true}), 3000 )
+      this.ping.get((data,peerId) => this.confirmConnected() )
+
+      // listen for peers naming themselves
+      this.name.get((name, peerId) => {
+        this.confirmConnected()
+        this.names[peerId] = name
+      })
+      // send name to peers who join later
+      this.room.onPeerJoin( (peerId) => {
+        this.confirmConnected()
+        this.names[peerId] = name
+        this.name.send(this.nickname, peerId ) 
+        $chat.send({message:"a new human joined",class:['info']})
+      })
+      // delete name of people leaving
+      this.room.onPeerLeave( (peerId) => delete this.names[peerId] )
+  
+      if( this.useWebcam ) this.initWebcam()
+      if( this.useChat )   this.initChat()
+      if( this.useScene )   this.initScene()
+
+    }
+  },
+
+  initChat(){
+    const [sendChat, getChat] = this.room.makeAction('chat')
+    this.chat.send = sendChat
+    this.chat.get  = getChat
+
+    document.addEventListener('network.send', (e) => {
+      this.chat.send({...e.detail, from: this.nickname, pos: network.pos })                     // send to P2P network
+    })
+    // prime chatlog of other people joining
+    this.room.onPeerJoin( (peerId) => {
+      if( $chat.getChatLog().length > 0 ) this.chat.send({prime: $chat.getChatLog() }, peerId )
+    })
+    // listen for chatmsg 
+    this.chat.get((data, peerId) => {
+      if( data.prime ){   // first prime is 'truth'
+        if( this.chat.primed || $chat.getChatLog().length > 0 ) return // only prime once
+        $chat.$messages.innerHTML += data.prime
+        $chat.$messages.scrollTop = $chat.$messages.scrollHeight // scroll down
+        this.chat.primed = true
+      }else $chat.send({ ...data})          // send to screen
+    })
+
+  },
+
+  async initWebcam(){
+    // get a local audio stream from the microphone
+    this.selfStream = await navigator.mediaDevices.getUserMedia({
+      audio: $connections.$audioInput.value, 
+      video: $connections.$videoInput.value 
+    })
+    this.room.addStream(this.selfStream) 
+    this.videos[ this.selfId ] = this.getVideo(this.selfId,{stream: this.selfStream})
+
+    // send stream + chatlog to peers who join later
+    this.room.onPeerJoin( (peerId) => this.room.addStream( this.selfStream, peerId))
+
+    this.room.onPeerStream((stream, peerId) => {
+      let video = this.getVideo(peerId,{create:true, stream}) 
+      this.videos[ this.names[peerId] || peerId ] = video
+    })
+
+    this.room.onPeerLeave( (peerId) => {
+      let video = this.getVideo(peerId)
+      if( video ){
+        video.remove() 
+        delete this.videos[peerId]
+      }
+    })
+
+  },
+
+  initScene(){
+    // setup trystero events
+    const [sendHref, getHref] = this.room.makeAction('name')
+    this.href.send = sendHref
+    this.href.get  = getHref
+    this.href.get((data,peerId) => {
+      xrf.hashbus.pub(data.href)      
+    })
+  },
+
+  getVideo(peerId,opts){
+    opts = opts || {}
+    let video = this.videos[ this.names[peerId] ] || this.videos[ peerId ]
+    if (!video && opts.create) {
+      video = document.createElement('video')
+      video.autoplay = true
+
+      // add video element to the DOM
+      if( opts.stream ) video.srcObject = opts.stream 
+      console.log("creating video for peerId")
+      $chat.$videos.appendChild(video)
+    }
   },
 
   send(opts){ $chat.send({...opts, source: 'trystero'}) },
 
   createLink(opts){
-    this.link = document.location.href.replace(/#.*/,'')
-    if( this.link.match(/localhost/) ){
-      fetch('https://api.duckduckgo.com/?q=my+ip&format=json')
-      .then( (res) => res.json() )
-      .then( (res) => {
-          const ipRegex = /Your IP address is ([0-9]+[.][0-9]+[.][0-9]+[.][0-9]+)/g;
-          const ip = ipRegex.exec(res.Answer)[1] 
-          this.link = this.link.replace(/localhost/, ip )
-      })
+    let hash = document.location.hash 
+    if( !this.link ){
+      const meeting = network.getMeetingFromUrl(document.location.href)
+      this.link = meeting.match("trystero://") ? meeting : `trystero://r/${network.randomRoom()}:bittorrent`
     }
+    if( !hash.match('meet=') ) document.location.hash += `${hash.length > 1 ? '&' : '#'}meet=${this.link}`
   },
 
   config(opts){
     opts = {...opts, ...this.plugin }
-    let el   = document.createElement('div')
-    let html = this.html.generic(opts)
-    for( let i in opts ){
-      if( this.html[i] ) html += this.html[i](opts)
-    }
-    window.notify(`${opts.name} is ${opts.description} <br>by using a serverless technology called <a href="https://webrtc.org/" target="_blank">webRTC</a> via <a href="${opts.url}" target="_blank">trystero</a>.<br>You can basically make up your own channelname or choose an existing one.<br>Use this for hasslefree anonymous meetings.`)
+    this.el   = document.createElement('div')
+    this.el.innerHTML = this.html.generic(opts)
+//    window.notify(`${opts.name} is ${opts.description} <br>by using a serverless technology called <a href="https://webrtc.org/" target="_blank">webRTC</a> via <a href="${opts.url}" target="_blank">trystero</a>.<br>You can basically make up your own channelname or choose an existing one.<br>Use this for hasslefree anonymous meetings.`)
+    this.el.querySelector('#nickname').value = this.nickname
+    this.el.querySelector('#nickname').addEventListener('change', (e) => localStorage.setItem("nickname",e.target.value) )
     // resolve ip
-    if( !this.link ) this.createLink(opts)
-    return el
+    return this.el
+  },
+
+  parseLink(url){
+    if( !url.match(this.plugin.protocol) ) return
+    let parts = url.replace(this.plugin.protocol,'').split("/")
+    if( parts[0] == 'r' ){ // this.room
+      let roomid = parts[1].replace(/:.*/,'') 
+      let server = parts[1].replace(/.*:/,'')
+      if( server != 'bittorrent' ) return window.notify("only bittorrent is supported for trystero (for now) :/") 
+      this.link = url
+      $connections.show()
+      $connections.selectedWebcam     = this.plugin.name
+      $connections.selectedChatnetwork= this.plugin.name
+      $connections.selectedScene      = this.plugin.name
+      return true
+    }
+    return false
   },
 
   reactToConnectionHrefs(){
     xrf.addEventListener('href', (opts) => {
       let {mesh} = opts
       if( !opts.click ) return
-      if( mesh.userData.href.match(this.protocol) ){
-        let parts = mesh.userData.href.replace(this.plugin.protocol,'')
-        console.dir(parts)
-        if( parts[0] == 'r' ){ // room
-          this.roomid       = parts.split("/")[1].replace(/:.*/,'') 
-          this.server = parts.split("/")[1].replace(/.*:/,'')
-          if( this.server != 'bittorrent' ) window.notify("only bittorrent is supported for trystero (for now) :/") 
-          $connections.show()
-          $connections.selectedWebcam     = this.plugin.name
-          $connections.selectedChatnetwork= this.plugin.name
-          $connections.selectedScene      = this.plugin.name
-          console.log("configured trystero")
-        }
-      }else window.notify("malformed connection URI: "+mesh.userData.href)
+      this.parseLink(mesh.userData.href)
+      let href = mesh.userData.href
+      let isLocal    = href[0] == '#'
+      let isTeleport = href.match(/(pos=|http:)/)
+      if( isLocal && !isTeleport && this.href.send ) this.href.send({href})
     })
   }
 
@@ -109,12 +270,12 @@ document.addEventListener('$connections:ready', (e) => {
 })
 
 //window.meeting = window.meeting||{}
-//window.meeting.trystero = async function(el,com,data){
+//window.meeting.trystero = async function(el,this){
 //
 //  // embed https://github.com/dmotz/trystero (trystero-torrent.min.js build)
 //  const { joinRoom } = await import("./../../../dist/trystero-torrent.min.js");
 //  this.room  = {
-//    handle: null,
+//    this.room: null,
 //    link:   null,
 //    selfId: null,
 //    names:  {},
@@ -128,18 +289,18 @@ document.addEventListener('$connections:ready', (e) => {
 //  this.send = (opts) => com.send({...opts, source: 'trystero'})
 //
 //  el.addEventListener('remove', () => {
-//    if( this.room.handle ) this.room.handle.leave()
+//    if( this.room.room ) this.room.room.leave()
 //  })
 //
 //  el.addEventListener('connect', async () => {
-//    let room = this.room
+//    let this.room = this.room
 //    
-//    room.link = this.data.link
+//    this.room.link = this.data.link
 //    if( !room.linkmatch(/(#|&)meet/) ){
-//      room.link = room.link.match(/#/) ? '&meet' : '#meet'
+//      this.room.link = this.room.link.match(/#/) ? '&meet' : '#meet'
 //    }
-//    room.handle     = joinRoom( room.config, room.link )
-//    room.selfId     = room.handle.selfId
+//    this.room.room     = joinRoom( this.room.config, this.room.link )
+//    this.selfId     = this.room.selfId
 //
 //    this.send({
 //      message: "joined meeting at "+roomname.replace(/(#|&)meet/,''),  // dont trigger init()
@@ -154,56 +315,56 @@ document.addEventListener('$connections:ready', (e) => {
 //    })
 //
 //    // setup trystero events
-//    const [sendName, getName] = room.makeAction('name')
-//    const [sendChat, getChat] = room.makeAction('chat')
-//    room.chat.send = sendChat
-//    room.chat.get  = getChat
-//    room.name.send = sendName
-//    room.name.get  = getName
+//    const [sendName, getName] = this.room.makeAction('name')
+//    const [sendChat, getChat] = this.room.makeAction('chat')
+//    this.chat.send = sendChat
+//    this.chat.get  = getChat
+//    this.name.send = sendName
+//    this.name.get  = getName
 //
-//    // tell other peers currently in the room our name
-//    room.names[ room.selfId ] = com.data.visitorname.substr(0,15)
-//    room.name.send( com.data.visitorname )
+//    // tell other peers currently in the this.room our name
+//    this.names[ this.selfId ] = this.nickname.substr(0,15)
+//    this.name.send( this.nickname )
 //
 //    // listen for peers naming themselves
 //    this.name.get((name, peerId) => (room.names[peerId] = name))
 //
-//    // send self stream to peers currently in the room
-//    room.addStream(com.selfStream)
+//    // send self stream to peers currently in the this.room
+//    this.room.addStream(this.selfStream)
 //
 //    // send stream + chatlog to peers who join later
-//    room.onPeerJoin( (peerId) => {
-//      room.addStream( com.selfStream, peerId)
-//      room.name.send( com.data.visitorname, peerId)
-//      room.chat.send({prime: com.log}, peerId )
+//    this.room.onPeerJoin( (peerId) => {
+//      this.room.addStream( this.selfStream, peerId)
+//      this.name.send( this.nickname, peerId)
+//      this.chat.send({prime: com.log}, peerId )
 //    })
 //
-//    room.onPeerLeave( (peerId) => {
+//    this.room.onPeerLeave( (peerId) => {
 //      console.log(`${room.names[peerId] || 'a visitor'} left`)
 //      if( com.videos[peerId] ){
 //        com.videos[peerId].remove()
 //        delete com.videos[peerId]
 //      }
-//      delete room.names[peerId]
+//      delete this.names[peerId]
 //    })
 //
-//    // handle streams from other peers
-//    room.onPeerStream((stream, peerId) => {
+//    // this.room streams from other peers
+//    this.room.onPeerStream((stream, peerId) => {
 //      // create an audio instance and set the incoming stream
 //      const audio = new Audio()
 //      audio.srcObject = stream
 //      audio.autoplay = true
 //      // add the audio to peerAudio object if you want to address it for something
 //      // later (volume, etc.)
-//      com.data.audios[peerId] = audio
+//      this.audios[peerId] = audio
 //    })
 //
-//    room.onPeerStream((stream, peerId) => {
+//    this.room.onPeerStream((stream, peerId) => {
 //      com.createVideoElement(stream,peerId)
 //    })
 //
 //    // listen for chatmsg 
-//    room.chat.get((data, peerId) => {
+//    this.chat.get((data, peerId) => {
 //      if( data.prime ){
 //        if( com.log.length > 0 ) return                // only prime once
 //        console.log("receiving prime")

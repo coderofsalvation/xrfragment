@@ -49,8 +49,8 @@ xrf.frag.href = function(v, opts){
       const flags = v.string[0] == '#' ? xrf.XRF.PV_OVERRIDE : undefined
       let toFrag = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
       // *TODO* support for multiple protocols
-      if( !v.string.match(/^http/) ) return
-      // always commit current location (keep a trail of last positions before we navigate)
+      if( v.string[0] != '#' && !v.string.match(/^http/) ) return
+      // always commit current location in case of teleport (keep a trail of last positions before we navigate)
       if( !e.nocommit && !document.location.hash.match(lastPos) ) xrf.navigator.to(`#${lastPos}`)
       xrf.navigator.to(v.string)    // let's surf to HREF!
     }) 
