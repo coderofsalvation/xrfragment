@@ -30,42 +30,44 @@
     <!--                                                                                                     -->
     <!-- everything below is completely optional, but handy to add a quick menu / connectivity to your space -->
     <!--                                                                                                     -->
+    <script>
+
+      document.addEventListener('$menu:ready', (e) => {
+        let {$menu} = e.detail
+        // add your menubuttons:
+        $menu.buttons = $menu.buttons.concat([
+          `<a class="btn" aria-label="button" aria-title="menu button" onclick="$menu.showAbout()"><i class="gg-info"></i>&nbsp;&nbsp;&nbsp;about</a><br>`
+        ])
+        $menu.collapsed = false
+        $menu.showAbout = () => window.notify(`
+            <h1>💁 Hi there!</h1>
+
+            This XR fragments experience works almost anywhere.<br>
+            Allowing rich audiovisual events with(out)<br>
+            VR/AR headsets (it's awesome though ♥️)<br>
+            <br>
+            <b>This uses only open standards:</b><br>
+            📦 surf 3D models using URLs<br>
+            🧑‍🤝‍🧑 <b>instant</b> meetings inside hyperlinked 3D models<br>
+            🚫 <b>zero proprietary</b> tech/game engines or platforms<br>
+            🙈 unhosted, privacy-friendly, avatar-agnostic scenes<br> 
+            🔗 <a href="https://xrfragment.org" target="_blank">XR Fragments</a> for 3D <b>hyper-linking</b> & navigation<br> 
+            📷 Serverless & encrypted <a href="https://webrtc.org" target="_blank">P2P WebRTC</a> using <a href="https://github.com/dmotz/trystero" target="_blank">trystero</a><br> 
+            🦍 <a href="https://immersiveweb.dev" target="_blank">WebXR</a> using <a href="https://aframe.io" target="_blank">AFRAME</a> + <a href="https://three.org" target="_blank">Three.js</a><br>
+            🙉 go selfhost <a href="https://github.com/coderofsalvation/xrfragment-helloworld">worlds-in-a-webpage</a><br>
+            ♥️  Be sustainable: go 100% <a href="https://www.forbes.com/sites/adrianbridgwater/2023/02/06/the-future-for-open-source/" target="_blank">opensource</a>
+            <br><br>
+            <a href="https://nlnet.nl" target="_blank">
+              <img src="https://nlnet.nl/image/logo_nlnet.svg" width="100"/>
+            </a>
+            <br><br>
+            `,{timeout:false})
+      })
+    </script>
     <script src="./../../../dist/aframe-blink-controls.min.js"></script>  <!-- teleporting using controllers -->
     <script src="./../../../dist/xrfragment.plugin.frontend.js"></script> <!-- menu + chat interface         -->
     <script src="./../../../dist/xrfragment.plugin.p2p.js"></script>      <!-- serverless p2p connectivity   -->
     <script src="./../../../dist/xrfragment.plugin.matrix.js"></script>   <!-- matrix connectivity           -->
-    <script>
-      $menu.logo      = 'logo_file_or_url_here'
-      $menu.morelabel = '⚡'
-      // add your menubuttons:
-      $menu.buttons = $menu.buttons.concat([`<a class="btn" aria-label="button" aria-title="menu button" aria-description="about menu" onclick="$menu.showAbout()">💁 about</a><br>`])
-      $menu.collapsed = false
-      $menu.showAbout = () => window.notify(`
-          <h1>💁 Hi there!</h1>
-
-          This XR fragments experience works almost anywhere.<br>
-          Allowing rich audiovisual events with(out)<br>
-          VR/AR headsets (it's awesome though ♥️)<br>
-          <br>
-          <b>This uses only open standards:</b><br>
-          📦 surf 3D models using URLs<br>
-          🧑‍🤝‍🧑 <b>instant</b> meetings inside hyperlinked 3D models<br>
-          🚫 <b>zero proprietary</b> tech/game engines or platforms<br>
-          🙈 unhosted, privacy-friendly, avatar-agnostic scenes<br> 
-          🔗 <a href="https://xrfragment.org" target="_blank">XR Fragments</a> for 3D <b>hyper-linking</b> & navigation<br> 
-          📷 Serverless & encrypted <a href="https://webrtc.org" target="_blank">P2P WebRTC</a> using <a href="https://github.com/dmotz/trystero" target="_blank">trystero</a><br> 
-          🦍 <a href="https://immersiveweb.dev" target="_blank">WebXR</a> using <a href="https://aframe.io" target="_blank">AFRAME</a> + <a href="https://three.org" target="_blank">Three.js</a><br>
-          🙉 go selfhost <a href="https://github.com/coderofsalvation/xrfragment-helloworld">worlds-in-a-webpage</a><br>
-          ♥️  Be sustainable: go 100% <a href="https://www.forbes.com/sites/adrianbridgwater/2023/02/06/the-future-for-open-source/" target="_blank">opensource</a>
-          <br><br>
-          <a href="https://nlnet.nl" target="_blank">
-            <img src="https://nlnet.nl/image/logo_nlnet.svg" width="100"/>
-          </a>
-          <br><br>
-          `,{timeout:false})
-
-      $menu.install(xrf)
-    </script>
 
   </body>
 </html>
