@@ -124,7 +124,10 @@ window.AFRAME.registerComponent('xrf', {
     }
 
     if( typeof this.data == "string" ){
-      if( document.location.search || document.location.hash.length > 1 ){ // override url
+      let searchIsUri = document.location.search && 
+                        !document.location.search.match(/=/) &&
+                        document.location.search.match("://")
+      if( searchIsUri || document.location.hash.length > 1 ){ // override url
         this.data = `${document.location.search.substr(1)}${document.location.hash}`
       }
     }

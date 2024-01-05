@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Wed Jan  3 03:55:09 PM UTC 2024
+ * v0.5.1 generated at Fri Jan  5 11:36:46 AM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -2463,7 +2463,10 @@ window.AFRAME.registerComponent('xrf', {
     }
 
     if( typeof this.data == "string" ){
-      if( document.location.search || document.location.hash.length > 1 ){ // override url
+      let searchIsUri = document.location.search && 
+                        !document.location.search.match(/=/) &&
+                        document.location.search.match("://")
+      if( searchIsUri || document.location.hash.length > 1 ){ // override url
         this.data = `${document.location.search.substr(1)}${document.location.hash}`
       }
     }
