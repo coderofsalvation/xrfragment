@@ -14,12 +14,12 @@ window.trystero = (opts) => new Proxy({
 
   html: {
     generic: (opts) => `<div>
-        <a href="${opts.url}" target="_blank" class="badge ruler">P2P</a>
+        <div target="_blank" class="badge ruler">Peer2Peer WebRTC<a onclick="frontend.plugin.trystero.info()"><i class="gg-info right"></i></a></div>
         <table>
           <tr>
             <td>nickname</td>
             <td>
-              <input type="text" id="nickname" placeholder="your nickname" maxlength="18"/>
+              <input type="text" id="nickname" placeholder="your nickname" maxlength="18" onkeydown="trystero.nickname = this.value"/>
             </td>
           </tr>
         </table>
@@ -151,6 +151,8 @@ window.trystero = (opts) => new Proxy({
   },
 
   async initWebcam(){
+    if( !$connections.$audioInput.value && !$connections.$videInput.value ) return  // nothing to do
+
     // get a local audio stream from the microphone
     this.selfStream = await navigator.mediaDevices.getUserMedia({
       audio: $connections.$audioInput.value, 
@@ -216,11 +218,14 @@ window.trystero = (opts) => new Proxy({
     opts = {...opts, ...this.plugin }
     this.el   = document.createElement('div')
     this.el.innerHTML = this.html.generic(opts)
-//    window.notify(`${opts.name} is ${opts.description} <br>by using a serverless technology called <a href="https://webrtc.org/" target="_blank">webRTC</a> via <a href="${opts.url}" target="_blank">trystero</a>.<br>You can basically make up your own channelname or choose an existing one.<br>Use this for hasslefree anonymous meetings.`)
     this.el.querySelector('#nickname').value = this.nickname
     this.el.querySelector('#nickname').addEventListener('change', (e) => localStorage.setItem("nickname",e.target.value) )
     // resolve ip
     return this.el
+  },
+
+  info(opts){
+    window.notify(`${this.plugin.name} is ${this.plugin.description} <br>by using a serverless technology called <a href="https://webrtc.org/" target="_blank">webRTC</a> via <a href="${this.plugin.url}" target="_blank">trystero</a>.<br>You can basically make up your own channelname or choose an existing one.<br>Use this for hasslefree anonymous meetings.`)
   },
 
   parseLink(url){
@@ -250,6 +255,8 @@ window.trystero = (opts) => new Proxy({
       let isTeleport = href.match(/(pos=|http:)/)
       if( isLocal && !isTeleport && this.href.send ) this.href.send({href})
     })
+    let hashvars = xrf.URI.parse( document.location.hash )
+    if( hashvars.meet ) this.parseLink(hashvars.meet.string)
   }
 
 },

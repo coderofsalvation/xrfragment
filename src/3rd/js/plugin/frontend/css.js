@@ -46,6 +46,7 @@ document.head.innerHTML += `
       white-space:pre;
       min-width: 45px;
       box-shadow: 0px 0px 10px var(--xrf-box-shadow);
+      display:inline-block;
     }
 
     .xrf button:hover,
@@ -148,7 +149,7 @@ document.head.innerHTML += `
 
 
 
-    .menu .btn{
+    .footer > .menu .btn{
       display:inline-block;
       background: var(--xrf-primary);
       border-radius: 25px;
@@ -287,7 +288,8 @@ document.head.innerHTML += `
       text-align:right;
     }
 
-    .badge {
+    .badge,
+    #messages .msg.ui div.badge{
       display:inline-block;
       color: var(--xrf-white);
       font-weight: bold;
@@ -355,6 +357,22 @@ document.head.innerHTML += `
   body.menu .js-snackbar__wrapper {
     top: 64px; 
   }
+
+  .right { float:right }
+  .left  { float:left  }
+
+  /*
+   * tabs 
+   */ 
+  div.tab-frame > input{ display:none;}
+  div.tab-frame > label{ display:block; float:left;padding:5px 10px; cursor:pointer;  }
+  div.tab-frame > input:checked + label{ cursor:default; border-bottom:1px solid #888; font-weight:bold; }
+  div.tab-frame > div.tab{ display:none; padding:15px 10px 5px 10px;clear:left}
+
+  div.tab-frame > input:nth-of-type(1):checked ~ .tab:nth-of-type(1),
+  div.tab-frame > input:nth-of-type(2):checked ~ .tab:nth-of-type(2),
+  div.tab-frame > input:nth-of-type(3):checked ~ .tab:nth-of-type(3){ display:block;}
+
 
   /*
    * css icons from https://css.gg

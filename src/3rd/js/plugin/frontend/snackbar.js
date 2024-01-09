@@ -176,7 +176,7 @@ document.head.innerHTML += `
         height: auto;
         margin: 5px 0;
         transition: all ease .5s;
-        border-radius: 3px;
+        border-radius: 15px;
         box-shadow: 0 0 4px 0 var(--xrf-box-shadow);
         right: 20px;
         position: fixed;
@@ -236,8 +236,8 @@ document.head.innerHTML += `
     .js-snackbar__close {
         cursor: pointer;
         display: flex;
-        align-items: center;
-        padding: 0 10px;
+        align-items: top;
+        padding: 8px 13px 0px 0px;
         user-select: none;
     }
 

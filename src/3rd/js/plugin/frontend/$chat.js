@@ -44,6 +44,7 @@ chatComponent = {
           }
           this.send({message: $chatline.value })
           $chatline.value = ''
+          if( window.innerHeight < 600 ) $chatline.blur()
         }
       })
       console.dir(this.scene)
@@ -214,6 +215,11 @@ chatComponent.css = `
      }
      body.menu #messages{
        top:50px;
+     }
+     #messages:hover {
+       background: #FFF5;
+       pointer-events:all;
+       overflow-y: auto;
      }
      #messages *{
        pointer-events:all;

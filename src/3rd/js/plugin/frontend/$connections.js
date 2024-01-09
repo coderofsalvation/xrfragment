@@ -3,61 +3,80 @@ connectionsComponent = {
   html: `
    <div id="connections">
       <i class="gg-close-o" id="close" onclick="$connections.toggle()"></i>
-      <div id="networking">
-        <h2>Network channels:</h2>
-        <table>
-          <tr>
-            <td>Webcam</td>
-            <td>
-              <select id="webcam"></select>
-            </td>
-          </tr>
-          <tr>
-            <td>Chat</td>
-            <td>
-              <select id="chatnetwork"></select>
-            </td>
-          </tr>
-          <tr>
-            <td>World sync</td>
-            <td>
-              <select id="scene"></select>
-            </td>
-          </tr>
+      <br>
+      <div class="tab-frame">
+        <input type="radio" name="tab" id="login" checked>
+        <label for="login">login</label>
+
+        <input type="radio" name="tab" id="networks">
+        <label for="networks">networks</label>
+          
+        <input type="radio" name="tab" id="io">
+        <label for="io">devices</label>
+       
+        <div class="tab">
+          <div id="settings"></div>
+          <table>
+            <tr>
+              <td></td>
+              <td>
+                <button id="connect" onclick="network.connect( $connections )">📡 Connect!</button>
+              </td>
+            </tr>
         </table>
+        </div>
+
+        <div class="tab">
+          <div id="networking">
+            <table>
+              <tr>
+                <td>Webcam</td>
+                <td>
+                  <select id="webcam"></select>
+                </td>
+              </tr>
+              <tr>
+                <td>Chat</td>
+                <td>
+                  <select id="chatnetwork"></select>
+                </td>
+              </tr>
+              <tr>
+                <td>World sync</td>
+                <td>
+                  <select id="scene"></select>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="tab">
+          <div id="devices">
+            <a class="badge ruler">Webcam and/or Audio</a>
+            <table>
+              <tr>
+                <td>Video</td>
+                <td>
+                  <select id="videoInput"></select> 
+                </td>
+              </tr>
+              <tr>
+                <td>Mic</td>
+                <td>
+                  <select id="audioInput"></select> 
+                </td>
+              </tr>
+              <tr style="display:none"> <!-- not used (for now) -->
+                <td>Audio</td>
+                <td>
+                  <select id="audioOutput"></select> 
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
       </div>
-      <div id="devices">
-        <a class="badge ruler">Webcam</a>
-        <table>
-          <tr>
-            <td>Video</td>
-            <td>
-              <select id="videoInput"></select> 
-            </td>
-          </tr>
-          <tr>
-            <td>Mic</td>
-            <td>
-              <select id="audioInput"></select> 
-            </td>
-          </tr>
-          <tr style="display:none"> <!-- not used (for now) -->
-            <td>Audio</td>
-            <td>
-              <select id="audioOutput"></select> 
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div id="settings"></div>
-      <table>
-        <tr>
-          <td></td>
-          <td>
-            <button id="connect" onclick="network.connect( $connections )">📡 Connect!</button>
-          </td>
-        </tr>
-      </table>
     </div>
   `,
 
@@ -91,7 +110,6 @@ connectionsComponent = {
         `<a class="btn" aria-label="button" aria-title="connect button" aria-description="use this to talk or chat with other people" id="meeting" onclick="$connections.show()"><i class="gg-user-add"></i>&nbsp;connect</a><br>`
       ]).concat($menu.buttons)
 
-      // hide networking settings if entering thru meetinglink
       if( document.location.href.match(/meet=/) ) this.show()
 
       setTimeout( () => document.dispatchEvent( new CustomEvent("$connections:ready", {detail: opts}) ), 1 )
@@ -110,6 +128,7 @@ connectionsComponent = {
 
     show(){
       $chat.visible = true
+      // hide networking settings if entering thru meetinglink
       $networking.style.display = document.location.href.match(/meet=/) ? 'none' : 'block'
       if( !network.connected ){
           if( el.parentElement ) el.parentElement.parentElement.remove()
@@ -147,7 +166,7 @@ connectionsComponent = {
       let opts = {webcam: $webcam.value, chatnetwork: $chatnetwork.value, scene: $scene.value }
       this.update()
       $settings.innerHTML = ''
-      this.forSelectedPluginsDo( (plugin) => $settings.appendChild( plugin.config(opts) ) )
+      this.forSelectedPluginsDo( (plugin) => $settings.appendChild( plugin.config({...opts,plugin}) ) )
       this.renderInputs()
     },
 
@@ -276,9 +295,9 @@ connectionsComponent.css = `
       }
       #close{
         display: block;
-        margin-top: 16px;
         position: relative;
         float: right;
         margin-bottom: 7px;
       }
+      #messages .msg.ui  div.tab-frame > div.tab{ padding:25px 10px 5px 10px;}
    </style>`
