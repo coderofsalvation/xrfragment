@@ -535,7 +535,7 @@ document.head.innerHTML += `
       position: relative;
       display: inline-block;
       -moz-transform: rotate(-45deg) scale(var(--ggs,1));
-      transform: translate(4px,-5px) rotate(-45deg) scale(var(--ggs,1));
+      transform: translate(4px,1px) rotate(-45deg) scale(var(--ggs,1));
       width: 8px;
       height: 2px;
       background: currentColor;
@@ -701,14 +701,14 @@ document.head.innerHTML += `
       box-sizing: border-box;
       position: relative;
       display: inline-block;
-      transform: scale(var(--ggs,1)) translate(3px,2px); 
+      transform: scale(var(--ggs,1)) translate(3px,9px); 
       width: 16px;
       height: 6px;
       border: 2px solid;
       border-top: 0;
       border-bottom-left-radius: 2px;
       border-bottom-right-radius: 2px;
-      margin-top: 8px
+      line-height:15px;
   }
   .gg-software-download::after {
       content: "";

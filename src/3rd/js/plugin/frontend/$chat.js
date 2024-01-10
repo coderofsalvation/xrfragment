@@ -19,6 +19,8 @@ chatComponent = {
     visibleChatbar:  false,
     messages:        [],
 
+    username: '',    // configured by 'network.connected' event
+
     $videos:         el.querySelector("#videos"),
     $messages:       el.querySelector("#messages"),
     $chatline:       el.querySelector("#chatline"),
@@ -37,6 +39,8 @@ chatComponent = {
 
     initListeners(){
       let {$chatline} = this
+
+      $chatline.addEventListener('click', (e) => this.inform() )
       $chatline.addEventListener('keydown', (e) => {
         if (e.key == 'Enter' ){
           if( $chatline.value[0] != '/' ){
@@ -47,7 +51,18 @@ chatComponent = {
           if( window.innerHeight < 600 ) $chatline.blur()
         }
       })
+
+      document.addEventListener('network.connected', (e) => {
+        if( e.detail.username ) this.username = e.detail.username
+      })
+
       console.dir(this.scene)
+    },
+
+    inform(){
+      if( !this.inform.informed && (this.inform.informed = true) ){
+        window.notify("Here you can update your statusline.<br>Protocols like [Matrix] allow you to view the full transcript<br>in a dedicated client like <a href='https://element.io' target='_blank'>element.io</a>")
+      }
     },
 
     toggle(){
@@ -55,6 +70,15 @@ chatComponent = {
       if( this.visible && window.meeting.status == 'offline' ) window.meeting.start(this.opts)
     },
 
+    hyphenate(str){
+      return String(str).replace(/[^a-zA-Z0-9]/g,'-')
+    },
+
+    // sending messages to the #messages div 
+    // every user can post maximum one msg at a time 
+    // it's more like a 'status' which is more friendly 
+    // for accessibility reasons 
+    // for a fullfledged chat/transcript see matrix clients
     send(opts){
       let {$messages} = this
       opts = { linebreak:true, message:"", class:[], ...opts }
@@ -74,7 +98,12 @@ chatComponent = {
         br.classList.add.apply(br.classList, opts.class)
         div.classList.add.apply(div.classList, opts.class.concat(["envelope"]))
       }
-      if( !opts.from && !msg.className.match(/(info|guide)/) ) msg.classList.add('self')
+      if( !opts.from && !msg.className.match(/(info|guide)/) ){
+        let frag = xrf.URI.parse(document.location.hash)
+        opts.from = this.username
+        if( frag.pos ) opts.pos = frag.pos.string
+        msg.classList.add('self')
+      }
       if( opts.from ){
         nick.className = "user"
         nick.innerText = opts.from+' '
@@ -86,6 +115,15 @@ chatComponent = {
         }
       }
       div.appendChild(msg)
+      // force one message per user 
+      if( opts.from ){
+        div.id = this.hyphenate(opts.from)
+        let oldMsg = $messages.querySelector(`#${div.id}`)
+        if( oldMsg ) oldMsg.remove()
+      }
+      // remove after timeout
+      if( opts.timeout ) setTimeout( (div) => div.remove(), opts.timeout, div )
+      // finally add the message on top
       $messages.appendChild(div)
       if( opts.linebreak ) div.appendChild(br)
       $messages.scrollTop = $messages.scrollHeight // scroll down
@@ -196,12 +234,15 @@ chatComponent.css = `
        max-width:unset;
      }
      #messages{
+       display: flex;
+       flex-direction: column-reverse;
+       align-items: flex-start;
        position: absolute;
        transition:1s;
        top: 0px;
        left: 0;
-       bottom: 130px;
-       padding: 15px;
+       bottom: 49px;
+       padding: 20px;
        overflow:hidden;
        pointer-events:none;
        transition:1s;
@@ -217,9 +258,7 @@ chatComponent.css = `
        top:50px;
      }
      #messages:hover {
-       background: #FFF5;
        pointer-events:all;
-       overflow-y: auto;
      }
      #messages *{
        pointer-events:all;
@@ -229,7 +268,7 @@ chatComponent.css = `
        background: #fff;
        display: inline-block;
        padding: 1px 17px;
-       border-radius: 20px 0px 20px 20px;
+       border-radius: 20px;
        color: #000c;
        margin-bottom: 10px;
        line-height:23px;
@@ -239,8 +278,8 @@ chatComponent.css = `
        border: 1px solid #0002;
      }
      #messages .msg.self{
-       border-radius: 0px 20px 20px 20px;
-       background:var(--xrf-primary);
+       border-radius: 20px;
+       background:var(--xrf-box-shadow);
      }
      #messages .msg.self,
      #messages .msg.self div{
@@ -259,12 +298,16 @@ chatComponent.css = `
      }
      #messages .msg a {
        text-decoration:underline;
-       color: #EEE;
+       color: var(--xrf-primary);
        font-weight:bold;
-       transition:1s;
+       transition:0.3s;
+     }
+     #messages .msg.info a,
+     #messages .ruler a{
+       color:#FFF;
      }
      #messages .msg a:hover{
-        color:#FFF;
+        color:#000;
      }
      #messages .msg.ui, 
      #messages .msg.ui div{ 

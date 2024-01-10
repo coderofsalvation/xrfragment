@@ -83,16 +83,19 @@ window.accessibility = (opts) => new Proxy({
     document.addEventListener('network.send', (e) => {
       let opts = e.detail
       opts.message = opts.message || ''
-      if( opts.class && ~opts.class.indexOf('info') ) opts.message = `info: ${opts.message}`
       this.speak(opts.message)
     })
 
     opts.xrf.addEventListener('pos', (opts) => {
       if( this.enabled ){
         $chat.send({message: this.posToMessage(opts) })
+        network.send({message: this.posToMessage(opts), class:["info","guide"]})
       }
-      network.send({message: this.posToMessage(opts), class:["info","guide"]})
-      network.pos = opts.frag.pos.string
+      if( opts.frag.pos.string.match(/,/) ){
+        network.pos = opts.frag.pos.string
+      }else{
+        network.posName = opts.frag.pos.string
+      }
     })
 
   },

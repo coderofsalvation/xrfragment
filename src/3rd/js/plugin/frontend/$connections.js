@@ -82,9 +82,9 @@ connectionsComponent = {
 
   init: (el) => new Proxy({
 
-    webcam:       [{plugin:{name:"No thanks"},config: () => document.createElement('div')}],
-    chatnetwork:  [{plugin:{name:"No thanks"},config: () => document.createElement('div')}],
-    scene:        [{plugin:{name:"No thanks"},config: () => document.createElement('div')}],
+    webcam:       [{profile:{name:"No thanks"},config: () => document.createElement('div')}],
+    chatnetwork:  [{profile:{name:"No thanks"},config: () => document.createElement('div')}],
+    scene:        [{profile:{name:"No thanks"},config: () => document.createElement('div')}],
 
     selectedWebcam:     '',
     selectedChatnetwork:'',
@@ -126,21 +126,27 @@ connectionsComponent = {
       }
     },
 
-    show(){
-      $chat.visible = true
-      // hide networking settings if entering thru meetinglink
-      $networking.style.display = document.location.href.match(/meet=/) ? 'none' : 'block'
-      if( !network.connected ){
-          if( el.parentElement ) el.parentElement.parentElement.remove()
-          $chat.send({message:"", el, class:['ui']})
-          if( !network.meetinglink ){ // set default
-            $webcam.value      = 'Peer2Peer'
-            $chatnetwork.value = 'Peer2Peer'
-            $scene.value       = 'Peer2Peer'
-          }
-          this.renderSettings()
+    show(opts){
+      opts = opts || {}
+      if( opts.hide ){
+        el.parentElement.parentElement.style.display = 'none'
       }else{
-        $chat.send({message:"you are already connected, refresh page to create new connection",class:['info']})
+        $chat.visible = true
+        // hide networking settings if entering thru meetinglink
+        $networking.style.display = document.location.href.match(/meet=/) ? 'none' : 'block'
+        if( !network.connected ){
+            if( el.parentElement ) el.parentElement.parentElement.remove()
+            document.querySelector('body > .xrf').appendChild(el)
+            $chat.send({message:"", el, class:['ui']})
+            if( !network.meetinglink ){ // set default
+              $webcam.value      = 'Peer2Peer'
+              $chatnetwork.value = 'Peer2Peer'
+              $scene.value       = 'Peer2Peer'
+            }
+            this.renderSettings()
+        }else{
+          $chat.send({message:"you are already connected, refresh page to create new connection",class:['info']})
+        }
       }
     },
 
@@ -153,7 +159,7 @@ connectionsComponent = {
     forSelectedPluginsDo(cb){
       // this function looks weird but it's handy to prevent the same plugins rendering duplicate configurations
       let plugins = {}
-      let select = (name) => (o) => o.plugin.name == name ? plugins[ o.plugin.name ] = o : ''
+      let select = (name) => (o) => o.profile.name == name ? plugins[ o.profile.name ] = o : ''
       this.webcam.find( select(this.selectedWebcam) )
       this.chatnetwork.find( select(this.selectedChatnetwork) )
       this.scene.find( select(this.selectedScene) )
@@ -223,25 +229,18 @@ connectionsComponent = {
       })
     },
 
-    reactToNetwork(){
-      document.addEventListener('network.connected',    () => {
-        console.log("network.connected")
-        window.notify("🪐 connected to awesomeness..") 
-        $chat.visibleChatbar = true
-        $chat.send({message:`🎉 connected!`,class:['info']})
-      })
+    reactToNetwork(){ // *TODO* move to network?
+
       document.addEventListener('network.connect',    () => {
-        console.log("network.connect")
-        el.parentElement.classList.add('connecthide')
-        window.notify("🪐 connecting to awesomeness..") 
-        $connect.innerText = 'connecting..'
+        this.show({hide:true})
+        $connect.innerText = 'connecting..' 
       })
+
       document.addEventListener('network.disconnect', () => {
-        window.notify("🪐 disconnecting..") 
         $connect.innerText = 'disconnecting..'
         setTimeout( () => $connect.innerText = 'connect', 1000)
-        if( !window.accessibility.enabled ) $chat.visibleChatbar = false
       })
+
     }
 
   },{
@@ -250,9 +249,9 @@ connectionsComponent = {
     set(data,k,v){ 
       data[k] = v 
       switch( k ){
-        case "webcam":              $webcam.innerHTML       = `<option>${data[k].map((p)=>p.plugin.name).join('</option><option>')}</option>`; break;
-        case "chatnetwork":         $chatnetwork.innerHTML  = `<option>${data[k].map((p)=>p.plugin.name).join('</option><option>')}</option>`; break;
-        case "scene":               $scene.innerHTML        = `<option>${data[k].map((p)=>p.plugin.name).join('</option><option>')}</option>`; break;
+        case "webcam":              $webcam.innerHTML       = `<option>${data[k].map((p)=>p.profile.name).join('</option><option>')}</option>`; break;
+        case "chatnetwork":         $chatnetwork.innerHTML  = `<option>${data[k].map((p)=>p.profile.name).join('</option><option>')}</option>`; break;
+        case "scene":               $scene.innerHTML        = `<option>${data[k].map((p)=>p.profile.name).join('</option><option>')}</option>`; break;
         case "selectedScene":       $scene.value       = v; data.renderSettings(); break;
         case "selectedChatnetwork": $chatnetwork.value = v; data.renderSettings(); break;
         case "selectedWebcam":      {
@@ -297,7 +296,7 @@ connectionsComponent.css = `
         display: block;
         position: relative;
         float: right;
-        margin-bottom: 7px;
+        top: 16px;
       }
       #messages .msg.ui  div.tab-frame > div.tab{ padding:25px 10px 5px 10px;}
    </style>`

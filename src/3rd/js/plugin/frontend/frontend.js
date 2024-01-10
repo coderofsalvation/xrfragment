@@ -41,6 +41,7 @@ window.frontend = (opts) => new Proxy({
     .setupIframeUrlHandler()
     .setupCapture()
     .setupUserHints()
+    .setupNetworkListeners()
     .hidetopbarWhenMenuCollapse()
 
     window.notify   = this.notify
@@ -89,6 +90,37 @@ window.frontend = (opts) => new Proxy({
       setTimeout( () => window.notify("use WASD-keys and mouse-drag to move around",{timeout:false}),2000 )
       setTimeout( () => xrf.addEventListener('href', (data) => data.selected ? window.notify(`href: ${data.xrf.string}`) : false ), 5000)
     },100)
+    return this
+  },
+
+  setupNetworkListeners(){
+
+    document.addEventListener('network.connect',    (e) => {
+      console.log("network.connect")
+      window.notify("🪐 connecting to awesomeness..") 
+      $chat.send({message:`🪐 connecting to awesomeness..`,class:['info'], timeout:5000})
+    })
+
+    document.addEventListener('network.connected',    (e) => {
+      window.notify("🪐 connected to awesomeness..") 
+      $chat.visibleChatbar = true
+      $chat.send({message:`🎉 ${e.detail.plugin.profile.name||''} connected!`,class:['info'], timeout:5000})
+    })
+
+    document.addEventListener('network.disconnect', () => {
+      window.notify("🪐 disconnecting..") 
+    })
+
+    document.addEventListener('network.info',    (e) => {
+      window.notify(e.detail.message)
+      $chat.send({...e.detail, class:['info'], timeout:5000})
+    })
+
+    document.addEventListener('network.error',    (e) => {
+      window.notify(e.detail.message)
+      $chat.send({...e.detail, class:['info'], timeout:5000})
+    })
+
     return this
   },
 
@@ -185,12 +217,14 @@ window.frontend = (opts) => new Proxy({
   },
 
   share(opts){
-    opts = opts || {notify:true,qr:true,share:true}
+    opts = opts || {notify:true,qr:true,share:true,linkonly:false}
     if( network.connected && !document.location.hash.match(/meet=/) ){
-      let p = $connections.chatnetwork.find( (p) => p.plugin.name == $connections.selectedChatnetwork )
-      if( p.link ) document.location.hash += `&meet=${p.link}`
+      let p = $connections.chatnetwork.find( (p) => p.profile.name == $connections.selectedChatnetwork )
+      console.dir(p)
+      if( p.link ) document.location.hash = `${ network.pos ? `pos=${network.pos}` : ''}&meet=${p.link}`
     }
     let url = window.location.href
+    if( opts.linkonly ) return url 
     this.copyToClipboard( url )
     // End of *TODO* 
     if( opts.notify ){

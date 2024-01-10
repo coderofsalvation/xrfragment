@@ -1,9 +1,9 @@
 window.trystero = (opts) => new Proxy({
 
-  plugin:{
+  profile:{
     type: 'network',
     name: 'Peer2Peer',
-    description: 'P2P using WebRTC over bittorrent for signaling & encryption',
+    description: 'WebRTC over bittorrent for signaling & encryption',
     url: 'https://github.com/dmotz/trystero',
     protocol: 'trystero://',
     video: true,
@@ -14,7 +14,7 @@ window.trystero = (opts) => new Proxy({
 
   html: {
     generic: (opts) => `<div>
-        <div target="_blank" class="badge ruler">Peer2Peer WebRTC<a onclick="frontend.plugin.trystero.info()"><i class="gg-info right"></i></a></div>
+        <div target="_blank" class="badge ruler">Peer2Peer<a onclick="frontend.plugin.trystero.info()"><i class="gg-info right"></i></a></div>
         <table>
           <tr>
             <td>nickname</td>
@@ -62,7 +62,7 @@ window.trystero = (opts) => new Proxy({
     document.addEventListener('network.connect', (e) => this.connect(e.detail) )
     document.addEventListener('network.init', () => {
       let meeting = network.getMeetingFromUrl(document.location.href)
-      if( meeting.match(this.plugin.protocol) ){
+      if( meeting.match(this.profile.protocol) ){
         this.parseLink( meeting )
       }
     })
@@ -71,25 +71,25 @@ window.trystero = (opts) => new Proxy({
   confirmConnected(){
     if( !this.connected ){
       this.connected = true
-      frontend.emit('network.connected',{plugin:this}) 
+      frontend.emit('network.connected',{plugin:this,username: this.nickname}) 
       this.names[ this.selfId ] = this.nickname
     }
   },
 
   async connect(opts){
     // embedded https://github.com/dmotz/trystero (trystero-torrent.min.js build)
-    console.log("connecting "+this.plugin.name)
     this.createLink() // ensure link 
-    if( opts.selectedWebcam      == this.plugin.name ) this.useWebcam = true
-    if( opts.selectedChatnetwork == this.plugin.name ) this.useChat   = true
-    if( opts.selectedScene       == this.plugin.name ) this.useScene  = true
+    if( opts.selectedWebcam      == this.profile.name ) this.useWebcam = true
+    if( opts.selectedChatnetwork == this.profile.name ) this.useChat   = true
+    if( opts.selectedScene       == this.profile.name ) this.useScene  = true
     if( this.useWebcam || this.useChat || this.useScene ){
+      console.log("connecting "+this.profile.name)
 
       console.log("trystero link: "+this.link)
       this.room        = joinRoom( {appId: 'xrfragment'}, this.link )
       
-      $chat.send({message:`Share the meeting link <a onclick="$menu.share()">by clicking here</a>`,class:['info']})
-      $chat.send({message:"waiting for other humans..",class:['info']})
+      $chat.send({message:`Share the meeting link <a onclick="frontend.share()">by clicking here</a>`,class:['info'],timeout:10000})
+      $chat.send({message:"waiting for other humans..",class:['info'], timeout:5000})
 
       // setup trystero events
       const [sendPing, getPing] = this.room.makeAction('ping')
@@ -121,7 +121,7 @@ window.trystero = (opts) => new Proxy({
   
       if( this.useWebcam ) this.initWebcam()
       if( this.useChat )   this.initChat()
-      if( this.useScene )   this.initScene()
+      if( this.useScene )  this.initScene()
 
     }
   },
@@ -151,7 +151,7 @@ window.trystero = (opts) => new Proxy({
   },
 
   async initWebcam(){
-    if( !$connections.$audioInput.value && !$connections.$videInput.value ) return  // nothing to do
+    if( !$connections.$audioInput.value && !$connections.$videoInput.value ) return  // nothing to do
 
     // get a local audio stream from the microphone
     this.selfStream = await navigator.mediaDevices.getUserMedia({
@@ -215,7 +215,7 @@ window.trystero = (opts) => new Proxy({
   },
 
   config(opts){
-    opts = {...opts, ...this.plugin }
+    opts = {...opts, ...this.profile }
     this.el   = document.createElement('div')
     this.el.innerHTML = this.html.generic(opts)
     this.el.querySelector('#nickname').value = this.nickname
@@ -225,21 +225,21 @@ window.trystero = (opts) => new Proxy({
   },
 
   info(opts){
-    window.notify(`${this.plugin.name} is ${this.plugin.description} <br>by using a serverless technology called <a href="https://webrtc.org/" target="_blank">webRTC</a> via <a href="${this.plugin.url}" target="_blank">trystero</a>.<br>You can basically make up your own channelname or choose an existing one.<br>Use this for hasslefree anonymous meetings.`)
+    window.notify(`${this.profile.name} is ${this.profile.description} <br>by using a serverless technology called <a href="https://webrtc.org/" target="_blank">webRTC</a> via <a href="${this.profile.url}" target="_blank">trystero</a>.<br>You can basically make up your own channelname or choose an existing one.<br>Use this for hasslefree anonymous meetings.`)
   },
 
   parseLink(url){
-    if( !url.match(this.plugin.protocol) ) return
-    let parts = url.replace(this.plugin.protocol,'').split("/")
+    if( !url.match(this.profile.protocol) ) return
+    let parts = url.replace(this.profile.protocol,'').split("/")
     if( parts[0] == 'r' ){ // this.room
       let roomid = parts[1].replace(/:.*/,'') 
       let server = parts[1].replace(/.*:/,'')
       if( server != 'bittorrent' ) return window.notify("only bittorrent is supported for trystero (for now) :/") 
       this.link = url
       $connections.show()
-      $connections.selectedWebcam     = this.plugin.name
-      $connections.selectedChatnetwork= this.plugin.name
-      $connections.selectedScene      = this.plugin.name
+      $connections.selectedWebcam     = this.profile.name
+      $connections.selectedChatnetwork= this.profile.name
+      $connections.selectedScene      = this.profile.name
       return true
     }
     return false

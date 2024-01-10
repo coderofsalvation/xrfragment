@@ -52,7 +52,9 @@ window.AFRAME.registerComponent('xrf', {
             el.setAttribute("class","floor")
             $('a-scene').appendChild(el)
           })
-          blinkControls.components['blink-controls'].update({collisionEntities:true})
+          let com = blinkControls.components['blink-controls']
+          if( com ) com.update({collisionEntities:true})
+          else console.warn("xrfragments: blink-controls is not mounted, please run manually: $('[blink-controls]).components['blink-controls'].update({collisionEntities:true})")
         }
       })
 
