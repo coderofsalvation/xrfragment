@@ -89,6 +89,7 @@ window.matrix = (opts) => new Proxy({
   },
 
   connect(opts){
+    this.createLink() // ensure link 
     if( opts.selectedWebcam      == this.profile.name ) this.useWebcam = true
     if( opts.selectedChatnetwork == this.profile.name ) this.useChat   = true
     if( opts.selectedScene       == this.profile.name ) this.useScene  = true
@@ -229,8 +230,8 @@ window.matrix = (opts) => new Proxy({
     if( !url.match(this.profile.protocol) ) return
     let parts = url.replace(this.profile.protocol,'').split("/")
     if( parts[0] == 'r' ){ // room
-      let server  = parts.split("/")[1].replace(/:.*/,'') 
-      let channel = parts.split("/")[1].replace(/.*:/,'')
+      let server  = parts[1].replace(/:.*/,'') 
+      let channel = parts[1].replace(/.*:/,'')
       $connections.show()
       $connections.selectedChatnetwork        = this.profile.name
       $connections.selectedScene              = this.profile.name
@@ -241,7 +242,7 @@ window.matrix = (opts) => new Proxy({
     return false
   },
 
-  t0nkr0nst0nreateLink(opts){
+  createLink(opts){
     let hash = document.location.hash 
     if( !this.link ){
       const meeting = network.getMeetingFromUrl(document.location.href)
@@ -258,7 +259,6 @@ window.matrix = (opts) => new Proxy({
       let href = mesh.userData.href
       let isLocal    = href[0] == '#'
       let isTeleport = href.match(/(pos=|http:)/)
-      console.log("href detected")
       if( isLocal && !isTeleport && this.client && this.useScene ){
         console.log("sending href")
         this.yhref.set( document.location.hash )

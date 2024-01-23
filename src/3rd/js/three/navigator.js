@@ -8,19 +8,19 @@ xrf.navigator.to = (url,flags,loader,data) => {
 
   return new Promise( (resolve,reject) => {
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
-    if( !file || (!data && xrf.model.file == file) ){ // we're already loaded
-      if( hash == document.location.hash.substr(1) ) return     // block duplicate calls
-      hashbus.pub( url, xrf.model, flags )            // and eval local URI XR fragments 
+    if( (!file && hash) || (!data && xrf.model.file == file) ){       // we're already loaded
+      if( hash == document.location.hash.substr(1) ) return // block duplicate calls
+      hashbus.pub( url, xrf.model, flags )                  // and eval local URI XR fragments 
       xrf.navigator.updateHash(hash)
       return resolve(xrf.model) 
     }
 
-    if( xrf.model && xrf.model.scene ) xrf.model.scene.visible = false
     if( !loader ){  
       const Loader = xrf.loaders[ext]
-      if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 
+      if( !Loader ) return reject('xrfragment: no loader passed to xrfragment for extension .'+ext)
       loader = loader || new Loader().setPath( dir )
     }
+    if( xrf.model && xrf.model.scene ) xrf.model.scene.visible = false
 
     // force relative path for files which dont include protocol or relative path
     if( dir ) dir = dir[0] == '.' || dir.match("://") ? dir : `.${dir}`

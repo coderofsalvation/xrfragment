@@ -40,19 +40,25 @@ xrf.frag.href = function(v, opts){
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
       let {urlObj,dir,file,hash,ext} = xrf.parseUrl(v.string)
-      //if( !file.match(/\./) || file.match(/\.html/) ){
-      //  debugger
-      //  let inIframe
-      //  try { inIframe = window.self !== window.top; } catch (e) { inIframe = true; }
-      //  return inIframe ? window.parent.postMessage({ url: v.string }, '*') : window.open( v.string, '_blank')
-      //}
       const flags = v.string[0] == '#' ? xrf.XRF.PV_OVERRIDE : undefined
       let toFrag = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-      // *TODO* support for multiple protocols
-      if( v.string[0] != '#' && !v.string.match(/^http/) ) return
       // always commit current location in case of teleport (keep a trail of last positions before we navigate)
       if( !e.nocommit && !document.location.hash.match(lastPos) ) xrf.navigator.to(`#${lastPos}`)
       xrf.navigator.to(v.string)    // let's surf to HREF!
+      .catch( (e) => {              // not something we can load
+        let inIframe
+        try { inIframe = window.self !== window.top; } catch (e) { inIframe = true; }
+        return inIframe ? window.parent.postMessage({ url: v.string }, '*') : window.open( v.string, '_blank')
+        // in case you're running in an iframe, then use this in the parent page:
+        //
+        // window.addEventListener("message", (e) => {
+        //   if (e.data && e.data.url){
+        //     window.open( e.data.url, '_blank')
+        //   }
+        // },
+        //   false,
+        // );
+      })
     }) 
     .catch( console.error )
   }

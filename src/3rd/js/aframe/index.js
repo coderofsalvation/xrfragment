@@ -64,7 +64,6 @@ window.AFRAME.registerComponent('xrf', {
           let url     = opts.xrf.string
           let isLocal = url.match(/^#/)
           let hasPos  = url.match(/pos=/)
-          if( !isLocal && !url.match(/^http/) ) return // dont fade/load for custom protocol handlers
           if( isLocal && hasPos ){
             // local teleports only
             let fastFadeMs = 200
