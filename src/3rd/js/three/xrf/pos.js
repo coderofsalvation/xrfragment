@@ -1,19 +1,23 @@
 xrf.frag.pos = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
 
+  let pos = v
 
   // spec: indirect coordinate using objectname: https://xrfragment.org/#navigating%203D
-  if( v.x == undefined ){
+  if( pos.x == undefined ){
     let obj = scene.getObjectByName(v.string)
     if( !obj ) return 
-    let pos = obj.position.clone()
+    pos = obj.position.clone()
     obj.getWorldPosition(pos)
     camera.position.copy(pos)
   }else{ 
     // spec: direct coordinate: https://xrfragment.org/#navigating%203D
-    camera.position.x = v.x
-    camera.position.y = v.y
-    camera.position.z = v.z
+    camera.position.x = pos.x
+    camera.position.y = pos.y
+    camera.position.z = pos.z
   }
+
+  xrf.frag.pos.last = pos // remember
+
   camera.updateMatrixWorld()
 }

@@ -8,12 +8,12 @@ connectionsComponent = {
         <input type="radio" name="tab" id="login" checked>
         <label for="login">login</label>
 
-        <input type="radio" name="tab" id="networks">
-        <label for="networks">networks</label>
-          
         <input type="radio" name="tab" id="io">
         <label for="io">devices</label>
        
+        <input type="radio" name="tab" id="networks">
+        <label for="networks">advanced</label>
+          
         <div class="tab">
           <div id="settings"></div>
           <table>
@@ -24,31 +24,6 @@ connectionsComponent = {
               </td>
             </tr>
         </table>
-        </div>
-
-        <div class="tab">
-          <div id="networking">
-            <table>
-              <tr>
-                <td>Webcam</td>
-                <td>
-                  <select id="webcam"></select>
-                </td>
-              </tr>
-              <tr>
-                <td>Chat</td>
-                <td>
-                  <select id="chatnetwork"></select>
-                </td>
-              </tr>
-              <tr>
-                <td>World sync</td>
-                <td>
-                  <select id="scene"></select>
-                </td>
-              </tr>
-            </table>
-          </div>
         </div>
 
         <div class="tab">
@@ -71,6 +46,32 @@ connectionsComponent = {
                 <td>Audio</td>
                 <td>
                   <select id="audioOutput"></select> 
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="tab">
+          <div id="networking">
+            Networking a la carte:<br>
+            <table>
+              <tr>
+                <td>Webcam</td>
+                <td>
+                  <select id="webcam"></select>
+                </td>
+              </tr>
+              <tr>
+                <td>Chat</td>
+                <td>
+                  <select id="chatnetwork"></select>
+                </td>
+              </tr>
+              <tr>
+                <td>World sync</td>
+                <td>
+                  <select id="scene"></select>
                 </td>
               </tr>
             </table>

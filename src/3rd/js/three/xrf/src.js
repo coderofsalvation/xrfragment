@@ -19,7 +19,8 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
   let {mesh} = opts
   let scene = model.scene
   scene = xrf.frag.src.filterScene(scene,{...opts,frag})         // get filtered scene
-  if( mesh.material && !mesh.userData.src ) mesh.material.visible = false  // hide placeholder object
+  if( mesh.material && mesh.userData.src ) mesh.material.visible = false  // hide placeholder object
+
   //enableSourcePortation(scene)
   if( xrf.frag.src.renderAsPortal(mesh) ){
     // only add remote objects, because 

@@ -14,15 +14,17 @@
  *  xrf.emit('foo',123).then(...).catch(...).finally(...)
  */
 
-xrf.addEventListener = function(eventName, callback, scene) {
+xrf.addEventListener = function(eventName, callback, opts) {
   if( !this._listeners ) this._listeners = []
+  callback.opts = opts || {weight: this._listeners.length}
   if (!this._listeners[eventName]) {
       // create a new array for this event name if it doesn't exist yet
       this._listeners[eventName] = [];
   }
-  if( scene ) callback.scene = scene
   // add the callback to the listeners array for this event name
   this._listeners[eventName].push(callback);
+  // sort
+  this._listeners[eventName] = this._listeners[eventName].sort( (a,b) => a.opts.weight > b.opts.weight )
   return () => {
     this._listeners[eventName] = this._listeners[eventName].filter( (c) => c != callback )
   }
@@ -38,9 +40,6 @@ xrf.emit = function(eventName, data){
     console.groupEnd(label)
     if( xrf.debug > 1 ) debugger
   }
-  // forward to THREEjs eventbus if any
-  if( data.scene ) data.scene.dispatchEvent( eventName, data )
-  if( data.mesh  ) data.mesh.dispatchEvent( eventName, data )
   return xrf.emit.promise(eventName,data)
 }
 

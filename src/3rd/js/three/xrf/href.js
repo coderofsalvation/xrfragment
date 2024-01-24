@@ -39,26 +39,20 @@ xrf.frag.href = function(v, opts){
     xrf
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
+
       let {urlObj,dir,file,hash,ext} = xrf.parseUrl(v.string)
-      const flags = v.string[0] == '#' ? xrf.XRF.PV_OVERRIDE : undefined
+      const isLocal = v.string[0] == '#'
+      const hasPos  = isLocal && v.string.match(/pos=/)
+      const flags   = isLocal ? xrf.XRF.PV_OVERRIDE : undefined
+
       let toFrag = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
       // always commit current location in case of teleport (keep a trail of last positions before we navigate)
-      if( !e.nocommit && !document.location.hash.match(lastPos) ) xrf.navigator.to(`#${lastPos}`)
-      xrf.navigator.to(v.string)    // let's surf to HREF!
-      .catch( (e) => {              // not something we can load
-        let inIframe
-        try { inIframe = window.self !== window.top; } catch (e) { inIframe = true; }
-        return inIframe ? window.parent.postMessage({ url: v.string }, '*') : window.open( v.string, '_blank')
-        // in case you're running in an iframe, then use this in the parent page:
-        //
-        // window.addEventListener("message", (e) => {
-        //   if (e.data && e.data.url){
-        //     window.open( e.data.url, '_blank')
-        //   }
-        // },
-        //   false,
-        // );
-      })
+      if( isLocal && !hasPos ){
+        xrf.hashbus.pub( v.string, xrf.model ) // publish to hashbus
+      }else{
+        //if( !e.nocommit && !document.location.hash.match(lastPos) ) xrf.navigator.updateHash(`#${lastPos}`)
+        xrf.navigator.to(v.string)    // let's surf
+      }
     }) 
     .catch( console.error )
   }

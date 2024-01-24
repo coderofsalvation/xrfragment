@@ -2,47 +2,67 @@ xrf.navigator = {}
 
 xrf.navigator.to = (url,flags,loader,data) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
+  let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
+  let hashChange = (!file && hash) || !data && xrf.model.file == file
+  let hasPos     = String(hash).match(/pos=/)
+
 
   let hashbus = xrf.hashbus
-  xrf.emit('navigate', {url,loader,data})
 
   return new Promise( (resolve,reject) => {
-    let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
-    if( (!file && hash) || (!data && xrf.model.file == file) ){       // we're already loaded
-      if( hash == document.location.hash.substr(1) ) return // block duplicate calls
-      hashbus.pub( url, xrf.model, flags )                  // and eval local URI XR fragments 
-      xrf.navigator.updateHash(hash)
-      return resolve(xrf.model) 
-    }
+    xrf
+    .emit('navigate', {url,loader,data})
+    .then( () => {
 
-    if( !loader ){  
-      const Loader = xrf.loaders[ext]
-      if( !Loader ) return reject('xrfragment: no loader passed to xrfragment for extension .'+ext)
-      loader = loader || new Loader().setPath( dir )
-    }
-    if( xrf.model && xrf.model.scene ) xrf.model.scene.visible = false
+      if( ext && !loader ){  
+        const Loader = xrf.loaders[ext]
+        if( !Loader ) return resolve()
+        loader = loader || new Loader().setPath( dir )
+      }
 
-    // force relative path for files which dont include protocol or relative path
-    if( dir ) dir = dir[0] == '.' || dir.match("://") ? dir : `.${dir}`
-    url = url.replace(dir,"")
-    loader = loader || new Loader().setPath( dir )
-    const onLoad = (model) => {
-      xrf.reset() // clear xrf objects from scene
-      model.file = file
-      // only change url when loading *another* file
-      if( xrf.model ) xrf.navigator.pushState( `${dir}${file}`, hash )
-      xrf.model = model 
-      // spec: 1. generate the XRWG
-      xrf.XRWG.generate({model,scene:model.scene})
+      if( !hash && !file && !ext ) return resolve(xrf.model) // nothing we can do here
 
-      xrf.add( model.scene )
-      xrf.navigator.updateHash(hash)
-      xrf.emit('navigateLoaded',{url,model})
-      resolve(model)
-    }
+      if( hashChange && !hasPos ){
+        hashbus.pub( url, xrf.model, flags )     // eval local URI XR fragments 
+        xrf.navigator.updateHash(hash)           // which don't require 
+        return resolve(xrf.model)                // positional navigation
+      }
 
-    if( data ) loader.parse(data, "", onLoad )
-    else       loader.load(url, onLoad )
+      xrf
+      .emit('navigateLoading', {url,loader,data})
+      .then( () => {
+        if( hashChange && hasPos ){                 // we're already loaded
+          hashbus.pub( url, xrf.model, flags )     // and eval local URI XR fragments 
+          xrf.navigator.updateHash(hash)
+          xrf.emit('navigateLoaded',{url})
+          return resolve(xrf.model) 
+        }
+          
+        if( xrf.model && xrf.model.scene ) xrf.model.scene.visible = false
+
+        // force relative path for files which dont include protocol or relative path
+        if( dir ) dir = dir[0] == '.' || dir.match("://") ? dir : `.${dir}`
+        url = url.replace(dir,"")
+        loader = loader || new Loader().setPath( dir )
+        const onLoad = (model) => {
+          xrf.reset() // clear xrf objects from scene
+          model.file = file
+          // only change url when loading *another* file
+          if( xrf.model ) xrf.navigator.pushState( `${dir}${file}`, hash )
+          xrf.model = model 
+          // spec: 1. generate the XRWG
+          xrf.XRWG.generate({model,scene:model.scene})
+
+          xrf.add( model.scene )
+          if( hash ) xrf.navigator.updateHash(hash)
+          xrf.emit('navigateLoaded',{url,model})
+          resolve(model)
+        }
+
+        if( data ) loader.parse(data, "", onLoad )
+        else       loader.load(url, onLoad )
+      })
+    })
   })
 }
 
@@ -50,12 +70,16 @@ xrf.navigator.init = () => {
   if( xrf.navigator.init.inited ) return
 
   window.addEventListener('popstate', function (event){
-    xrf.navigator.to( document.location.search.substr(1) + document.location.hash )
+    if( !xrf.navigator.updateHash.active ){ // ignore programmatic hash updates (causes infinite recursion)
+      xrf.navigator.to( document.location.search.substr(1) + document.location.hash )
+    }
   })
   
   window.addEventListener('hashchange', function (e){
     xrf.emit('hash', {hash: document.location.hash })
   })
+
+  xrf.navigator.setupNavigateFallbacks()
 
   // this allows selectionlines to be updated according to the camera (renderloop)
   xrf.focusLine = new xrf.THREE.Group()
@@ -69,10 +93,36 @@ xrf.navigator.init = () => {
   xrf.navigator.init.inited = true
 }
 
+xrf.navigator.setupNavigateFallbacks = () => {
+
+  xrf.addEventListener('navigate', (opts) => {
+    let {url} = opts
+    let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
+    // handle http links
+    if( url.match(/^http/) && !xrf.loaders[ext] ){
+      let inIframe
+      try { inIframe = window.self !== window.top; } catch (e) { inIframe = true; }
+      return inIframe ? window.parent.postMessage({ url }, '*') : window.open( url, '_blank')
+      // in case you're running in an iframe, then use this in the parent page:
+      //
+      // window.addEventListener("message", (e) => {
+      //   if (e.data && e.data.url){
+      //     window.open( e.data.url, '_blank')
+      //   }
+      // },
+      //   false,
+      // );
+    }
+  })
+
+}
+
 xrf.navigator.updateHash = (hash,opts) => {
   if( hash.replace(/^#/,'') == document.location.hash.substr(1) || hash.match(/\|/) ) return  // skip unnecesary pushState triggers
   console.log(`URL: ${document.location.search.substr(1)}#${hash}`)
+  xrf.navigator.updateHash.active = true  // important to prevent recursion
   document.location.hash = hash
+  xrf.navigator.updateHash.active = false
 }
 
 xrf.navigator.pushState = (file,hash) => {

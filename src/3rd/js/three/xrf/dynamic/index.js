@@ -3,13 +3,11 @@ xrf.frag.defaultPredefinedViews = (opts) => {
   scene.traverse( (n) => {
     if( n.userData && n.userData['#'] ){
       let frag = xrf.URI.parse( n.userData['#'] )
-      xrf.hashbus.pub( n.userData['#'] )          // evaluate static XR fragments
+      if( n.parent && n.parent.parent.isScene && document.location.hash.length < 2 ){
+        xrf.navigator.to( n.userData['#'] )    // evaluate main scene XR fragments and update URL
+      }else{
+        xrf.hashbus.pub( n.userData['#'] )     // evaluate static XR fragments
+      }
     }
   })
 }
-
-// clicking href url with predefined view 
-xrf.addEventListener('href', (opts) => {
-  if( !opts.click || opts.xrf.string[0] != '#' ) return 
-  xrf.hashbus.pub( opts.xrf.string )
-}) 

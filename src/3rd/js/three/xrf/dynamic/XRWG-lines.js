@@ -2,6 +2,7 @@ xrf.addEventListener('dynamicKey', (opts) => {
   let {scene,id,match,v} = opts
   if( !scene ) return 
   let remove = []
+
   // erase previous lines
   xrf.focusLine.lines.map( (line) => line.parent && (line.parent.remove(line))  )
   xrf.focusLine.points = []

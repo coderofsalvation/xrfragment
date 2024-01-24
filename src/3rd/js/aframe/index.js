@@ -33,8 +33,16 @@ window.AFRAME.registerComponent('xrf', {
       if( ARbutton ) ARbutton.addEventListener('click', () => AFRAME.XRF.hashbus.pub( '#AR' ) )
       if( VRbutton ) VRbutton.addEventListener('click', () => AFRAME.XRF.hashbus.pub( '#VR' ) )
 
-      xrf.addEventListener('navigateLoaded', () => {
+      aScene.addEventListener('enter-vr', () => {
+        // sometimes AFRAME resets the user position to 0,0,0 when entering VR (not sure why)
+        let pos = xrf.frag.pos.last
+        if( pos ){ AFRAME.XRF.camera.position.set(pos.x, pos.y, pos.z) }
+      })
+
+      xrf.addEventListener('navigateLoaded', (opts) => {
         setTimeout( () => AFRAME.fade.out(),500) 
+        let isLocal = opts.url.match(/^#/)
+        if( isLocal ) return 
 
         // *TODO* this does not really belong here perhaps
         let blinkControls = document.querySelector('[blink-controls]')
@@ -58,29 +66,28 @@ window.AFRAME.registerComponent('xrf', {
         }
       })
 
-      xrf.addEventListener('href', (opts) => {
-        if( opts.click){ 
-          let p       = opts.promise()
-          let url     = opts.xrf.string
-          let isLocal = url.match(/^#/)
-          let hasPos  = url.match(/pos=/)
-          if( isLocal && hasPos ){
+      xrf.addEventListener('navigateLoading', (opts) => {
+        let p       = opts.promise()
+        let url     = opts.url 
+        let isLocal = url.match(/^#/)
+        let hasPos  = url.match(/pos=/)
+        let fastFadeMs = 200
+
+        if( isLocal ){
+          if( hasPos ){
             // local teleports only
-            let fastFadeMs = 200
             AFRAME.fade.in(fastFadeMs)
             setTimeout( () => {
               p.resolve()
-              AFRAME.fade.out(fastFadeMs)
             }, fastFadeMs)
-          }else if( !isLocal ){
-            AFRAME.fade.in()
-            setTimeout( () => {
-              p.resolve()
-              setTimeout( () => AFRAME.fade.out(), 1000 ) // allow one second to load textures e.g.
-            }, AFRAME.fade.data.fadetime )
-          }else p.resolve()
+          }
+        }else{
+          AFRAME.fade.in(fastFadeMs)
+          setTimeout( () => {
+            p.resolve()
+          }, AFRAME.fade.data.fadetime )
         }
-      })
+      },{weight:-1000})
 
       // convert href's to a-entity's so AFRAME
       // raycaster can find & execute it
