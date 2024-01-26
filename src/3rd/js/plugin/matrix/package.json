@@ -11,7 +11,9 @@
   "license": "ISC",
   "dependencies": {
     "matrix-crdt": "^0.2.1-alpha.1",
+    "matrix-js-sdk":"19.4.0",
     "webpack-cli": "^5.1.4",
-    "yjs": "^13.6.10"
+    "yjs": "^13.6.10",
+    "buffer": "6.0.3"
   }
 }

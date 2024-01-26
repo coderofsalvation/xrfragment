@@ -78,11 +78,11 @@ window.trystero = (opts) => new Proxy({
 
   async connect(opts){
     // embedded https://github.com/dmotz/trystero (trystero-torrent.min.js build)
-    this.createLink() // ensure link 
     if( opts.selectedWebcam      == this.profile.name ) this.useWebcam = true
     if( opts.selectedChatnetwork == this.profile.name ) this.useChat   = true
     if( opts.selectedScene       == this.profile.name ) this.useScene  = true
     if( this.useWebcam || this.useChat || this.useScene ){
+      this.createLink() // ensure link 
       console.log("connecting "+this.profile.name)
 
       console.log("trystero link: "+this.link)
@@ -236,10 +236,11 @@ window.trystero = (opts) => new Proxy({
       let server = parts[1].replace(/.*:/,'')
       if( server != 'bittorrent' ) return window.notify("only bittorrent is supported for trystero (for now) :/") 
       this.link = url
-      $connections.show()
-      $connections.selectedWebcam     = this.profile.name
-      $connections.selectedChatnetwork= this.profile.name
-      $connections.selectedScene      = this.profile.name
+      $connections.show({
+        chatnetwork:this.profile.name,
+        scene:      this.profile.name,
+        webcam:     this.profile.name 
+      })
       return true
     }
     return false

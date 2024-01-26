@@ -11,7 +11,7 @@ window.matrix = (opts) => new Proxy({
     video: false,
     audio: false,
     chat: true,
-    scene: false
+    scene: true
   },
 
   useWebcam: false,
@@ -37,7 +37,7 @@ window.matrix = (opts) => new Proxy({
           <tr>
             <td>channel</td>
             <td>
-              <input type="text" id="channel" placeholder="#xrfragment:matrix.org" value="${opts.plugin.channel}"/>
+              <input type="text" id="channel" placeholder="${opts.plugin.channel}" value="${opts.plugin.channel}"/>
             </td>
           </tr>
           <tr>
@@ -76,9 +76,9 @@ window.matrix = (opts) => new Proxy({
   init(){
     frontend.plugin['matrix'] = this
     $connections.chatnetwork = $connections.chatnetwork.concat([this])
+    $connections.scene       = $connections.chatnetwork.concat([this])
     this.reactToConnectionHrefs()
 
-    this.nickname         = localStorage.getItem("nickname") || `human${String(Math.random()).substr(5,4)}`
     document.addEventListener('network.connect', (e) => this.connect(e.detail) )
     document.addEventListener('network.init', () => {
       let meeting = network.getMeetingFromUrl(document.location.href)
@@ -89,61 +89,84 @@ window.matrix = (opts) => new Proxy({
   },
 
   connect(opts){
-    this.createLink() // ensure link 
     if( opts.selectedWebcam      == this.profile.name ) this.useWebcam = true
     if( opts.selectedChatnetwork == this.profile.name ) this.useChat   = true
     if( opts.selectedScene       == this.profile.name ) this.useScene  = true
     if( this.useWebcam || this.useScene || this.useChat ){
+      this.createLink() // ensure link 
       this.link = `matrix://r/${this.channel.replace(/^#/,'')}`
-      console.log("connecting "+this.profile.name)
       this.channel  = document.querySelector("#matrix input#channel").value
       this.server   = document.querySelector("#matrix input#server").value
       this.username = document.querySelector("#matrix input#username").value
       this.auth     = document.querySelector("#matrix select#auth").value
-      let secret = document.querySelector("#matrix input#secret").value
+
+      localStorage.setItem("matrix.username",this.username)
+      let secret    = document.querySelector("#matrix input#secret").value
       document.querySelector("#matrix input#secret").value = ''
 
-      let credentials =  { baseUrl: this.server }
+      let clientOpts =  { 
+        baseUrl: this.server.match(/^http/) ? this.server : `https://${this.server}`,
+        lazyLoadMembers: true,
+      }
 
       if( this.auth == 'via access token'){
-        credentials.accessToken = secret 
-        credentials.userId      = this.username
+        clientOpts.accessToken = secret 
+        clientOpts.userId      = this.username
       }
-      this.client = Matrix.sdk.createClient(credentials)
-      // Extra configuration needed for certain matrix-js-sdk
-      // calls to work without calling sync start functions
-      this.client.canSupportVoip = false;
-      this.client.clientOpts = {
-        lazyLoadMembers: true,
-      };
 
+      this.client = Matrix.sdk.createClient(clientOpts)
       // auth
       if( this.auth == 'via password'){
+        //this.client.loginWithPassword(this.username, secret)
         this.client.login("m.login.password",{"user": this.username, password: secret})
         .then( () => this.onMatrixConnect() )
-        .catch( () => window.notify("authentication was not succesful 😞"))
-      }else this.onMatrixConnect()
+        .catch( () => {
+           window.notify("authentication was not succesful 😞") 
+        })
+      }else {
+        this.onMatrixConnect()
+        //this.client.loginWithToken(clientOpts.accessToken)
+        //.then( () => this.onMatrixConnect() )
+        //.catch( () => {
+        //   window.notify("authentication was not succesful 😞") 
+        //})
+      }
+
     }
   },
 
   onMatrixConnect(){
+    // Extra configuration needed for certain matrix-js-sdk (we don't call start)
+    // calls to work without calling sync start functions
+    this.client.canSupportVoip = false;
+    this.client.clientOpts = {
+      lazyLoadMembers: true
+    }
+    //this.client.startClient({ initialSyncLimit: 4 }) // show last 4 messages?
+    //.then( () => {
+    //.catch( (e) => window.notify("could not start matrix client 😞"))
+
+    console.log("onmatrix connect")
     // token: this.matrixclient.getAccessToken()
     frontend.emit('network.info',{message:'🛰 syncing with Matrix (might take a while)',plugin:this}) 
+    //this.client.once("sync", function (state, prevState, res) { });
     frontend.emit('network.connected',{plugin:this,username: this.username}) 
-    this.client.startClient({ initialSyncLimit: 4 }) // show last 4 messages?
     // get roomId of channel
     this.client.getRoomIdForAlias(this.channel)
     .then( (o) => {
+      console.log(`${this.channel} has id ${o.room_id}`)
       this.roomId = o.room_id
       this.setupListeners()
     })
     .catch((e) => {
+      console.error(e)
       frontend.emit('network.error',{plugin:this,message:`channel ${this.channel} cannot be joined: `+String(e)}) 
     })
   },
 
   setupCRDT(){
     // Create a new Y.Doc and connect the MatrixProvider
+    var Buffer = window.Buffer = Matrix.Buffer // expose to MatrixProvider
     this.ydoc = new Matrix.Y.Doc();
     const provider = new Matrix.MatrixProvider(this.ydoc, this.client, {
       type: "alias",
@@ -151,12 +174,28 @@ window.matrix = (opts) => new Proxy({
     });
     provider.initialize();
 
-    this.yhref = this.ydoc.getText('href')
+    this.ydoc.scene = this.ydoc.getMap('scene')
     // observe changes of the sum
-    this.yhref.observe((event) => {
-      console.log("new yhref: " + yhref.toString );
-    });
-    debugger
+    this.ydoc.scene.observe(ymapEvent => {
+
+      // Find out what changed: 
+      // Option 1: A set of keys that changed
+      ymapEvent.keysChanged // => Set<strings>
+      // Option 2: Compute the differences
+      ymapEvent.changes.keys // => Map<string, { action: 'add'|'update'|'delete', oldValue: any}>
+
+      // sample code.
+      ymapEvent.changes.keys.forEach((change, key) => {
+        console.dir({key,change})
+        if ( key == 'href' && change.action != "delete" ){
+          let href = this.ydoc.scene.get('href')
+          if( href.match(/pos=/) ) return // no shared teleporting
+          xrf.hashbus.pub(href)
+        } else if (change.action === 'delete') {
+          console.log(`Property "${key}" was deleted. New value: undefined. Previous value: "${change.oldValue}".`)
+        }
+      })
+    })
 
   },
 
@@ -166,7 +205,7 @@ window.matrix = (opts) => new Proxy({
 
   setupListeners(){
     if( this.useChat ) this.setupChat()
-    //if( this.useScene ) this.setupCRDT() /* throws weird errors, perhaps matrix-sdk-js is too new */
+    if( this.useScene ) this.setupCRDT() /* throws weird errors, perhaps matrix-sdk-js is too new */
     return this
   },
 
@@ -228,16 +267,23 @@ window.matrix = (opts) => new Proxy({
 
   parseLink(url){
     if( !url.match(this.profile.protocol) ) return
-    let parts = url.replace(this.profile.protocol,'').split("/")
-    if( parts[0] == 'r' ){ // room
-      let server  = parts[1].replace(/:.*/,'') 
-      let channel = parts[1].replace(/.*:/,'')
-      $connections.show()
-      $connections.selectedChatnetwork        = this.profile.name
-      $connections.selectedScene              = this.profile.name
+    if( url.match('/r/') ){
+      this.link = url
+      let parts = url.split("/r/")
+      let channel = parts[1].replace(/:.*/,'') 
+      let server  = parts[1].replace(/.*:/,'')
+      $connections.show({
+        chatnetwork:this.profile.name,
+        scene:      this.profile.name,
+        webcam:     "No thanks"
+      })
       this.el.querySelector('#channel').value = `#${channel}:${server}`
       this.el.querySelector('#server').value  = server 
+      if( window.localStorage.getItem("matrix.username") ){
+        this.el.querySelector('#username').value = window.localStorage.getItem("matrix.username")
+      }
       console.log("configured matrix")
+      return true
     }
     return false
   },
@@ -255,13 +301,13 @@ window.matrix = (opts) => new Proxy({
     xrf.addEventListener('href', (opts) => {
       let {mesh} = opts
       if( !opts.click ) return
-      this.parseLink(mesh.userData.href)
+      let detected = this.parseLink(mesh.userData.href)
+      if( detected ) opts.promise() // don't resolve, ignore other listeners
       let href = mesh.userData.href
       let isLocal    = href[0] == '#'
       let isTeleport = href.match(/(pos=|http:)/)
-      if( isLocal && !isTeleport && this.client && this.useScene ){
-        console.log("sending href")
-        this.yhref.set( document.location.hash )
+      if( isLocal && !isTeleport && this.client && this.useScene && this.ydoc ){
+        this.ydoc.scene.set('href',document.location.hash )
       } 
     })
     let hashvars = xrf.URI.parse( document.location.hash )

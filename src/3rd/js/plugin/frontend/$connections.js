@@ -140,9 +140,9 @@ connectionsComponent = {
             document.querySelector('body > .xrf').appendChild(el)
             $chat.send({message:"", el, class:['ui']})
             if( !network.meetinglink ){ // set default
-              $webcam.value      = 'Peer2Peer'
-              $chatnetwork.value = 'Peer2Peer'
-              $scene.value       = 'Peer2Peer'
+              $webcam.value      = opts.webcam      || 'Peer2Peer'
+              $chatnetwork.value = opts.chatnetwork || 'Peer2Peer'
+              $scene.value       = opts.scene       || 'Peer2Peer'
             }
             this.renderSettings()
         }else{
@@ -178,7 +178,7 @@ connectionsComponent = {
     },
 
     renderInputs(){
-      if( this.selectedWebcam == 'No thanks' ){
+      if( !this.selectedWebcam || this.selectedWebcam == 'No thanks' ){
         return this.$devices.style.display = 'none' 
       }else this.$devices.style.display = ''
 
@@ -234,12 +234,9 @@ connectionsComponent = {
 
       document.addEventListener('network.connect',    () => {
         this.show({hide:true})
-        $connect.innerText = 'connecting..' 
       })
-
-      document.addEventListener('network.disconnect', () => {
-        $connect.innerText = 'disconnecting..'
-        setTimeout( () => $connect.innerText = 'connect', 1000)
+      document.addEventListener('network.disconnect',    () => {
+        this.connected = false 
       })
 
     }
