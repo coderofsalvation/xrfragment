@@ -38,20 +38,32 @@ xrf.navigator.to = (url,flags,loader,data) => {
           return resolve(xrf.model) 
         }
           
+        // clear xrf objects from scene
         if( xrf.model && xrf.model.scene ) xrf.model.scene.visible = false
+        xrf.reset() 
 
         // force relative path for files which dont include protocol or relative path
         if( dir ) dir = dir[0] == '.' || dir.match("://") ? dir : `.${dir}`
         url = url.replace(dir,"")
         loader = loader || new Loader().setPath( dir )
         const onLoad = (model) => {
-          xrf.reset() // clear xrf objects from scene
+
           model.file = file
           // only change url when loading *another* file
           if( xrf.model ) xrf.navigator.pushState( `${dir}${file}`, hash )
           xrf.model = model 
+          if(xrf.debug ) model.animations.map( (a) => console.log("anim: "+a.name) )
+          // spec: 2. init metadata inside model for non-SRC data
+          if( !model.isSRC ){ 
+            model.scene.traverse( (mesh) => xrf.hashbus.pub.mesh(mesh,model) )
+          }
           // spec: 1. generate the XRWG
           xrf.XRWG.generate({model,scene:model.scene})
+
+          // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
+          xrf.frag.defaultPredefinedViews({model,scene:model.scene})
+          // spec: predefined view(s) & objects-of-interest-in-XRWG from URL (https://xrfragment.org/#predefined_view)
+          let frag = xrf.hashbus.pub( url, model) // and eval URI XR fragments 
 
           xrf.add( model.scene )
           if( hash ) xrf.navigator.updateHash(hash)
@@ -59,8 +71,9 @@ xrf.navigator.to = (url,flags,loader,data) => {
           resolve(model)
         }
 
-        if( data ) loader.parse(data, "", onLoad )
-        else       loader.load(url, onLoad )
+        if( data ){  // file upload
+          loader.parse(data, "", onLoad )
+        }else       loader.load(url, onLoad )
       })
     })
   })

@@ -60,8 +60,7 @@ window.network = (opts) => new Proxy({
     for ( var i in String.prototype   ) add(i) 
     var a = names[Math.floor(Math.random() * names.length)];
     var b = names[Math.floor(Math.random() * names.length)];
-    var c = names[Math.floor(Math.random() * names.length)];
-    return String(`${a}-${b}-${c}`).toLowerCase()
+    return String(`${a}-${b}-${String(Math.random()).substr(13)}`).toLowerCase()
   }
 
 },

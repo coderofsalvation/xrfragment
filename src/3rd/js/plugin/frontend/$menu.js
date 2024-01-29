@@ -16,8 +16,8 @@ menuComponent = (el) => new Proxy({
   $buttons:   $buttons = el.querySelector('#buttons'),
   $btnMore:   $btnMore = el.querySelector('#more'),
 
-  toggle(){   
-    this.collapsed = !this.collapsed 
+  toggle(state){   
+    this.collapsed = state !== undefined ? state : !this.collapsed 
     el.querySelector("i#icon").className = this.collapsed ? 'gg-close' : 'gg-menu'
     document.body.classList[ this.collapsed ? 'add' : 'remove' ](['menu'])
   },

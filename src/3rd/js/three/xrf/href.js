@@ -47,12 +47,12 @@ xrf.frag.href = function(v, opts){
 
       let toFrag = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
       // always commit current location in case of teleport (keep a trail of last positions before we navigate)
-      if( isLocal && !hasPos ){
-        xrf.hashbus.pub( v.string, xrf.model ) // publish to hashbus
-      }else{
+      //if( isLocal && !hasPos ){
+      //  xrf.hashbus.pub( v.string, xrf.model ) // publish to hashbus
+      //}else{
         //if( !e.nocommit && !document.location.hash.match(lastPos) ) xrf.navigator.updateHash(`#${lastPos}`)
         xrf.navigator.to(v.string)    // let's surf
-      }
+      //}
     }) 
     .catch( console.error )
   }

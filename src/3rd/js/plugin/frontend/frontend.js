@@ -43,6 +43,7 @@ window.frontend = (opts) => new Proxy({
     .setupUserHints()
     .setupNetworkListeners()
     .hidetopbarWhenMenuCollapse()
+    .hideUIWhenNavigating()
 
     window.notify   = this.notify
     setTimeout( () => {
@@ -128,6 +129,29 @@ window.frontend = (opts) => new Proxy({
     // hide topbar when menu collapse button is pressed
     document.addEventListener('$menu:collapse', (e) => this.el.querySelector("#topbar").style.display = e.detail === true ? 'block' : 'none')
     return this
+  },
+
+  hideUIWhenNavigating(){
+    // hide ui when user is navigating the scene using mouse/touch
+    let showUI = (show) => (e) => {
+      let isChatMsg        = e.target.closest('.msg')
+      let isChatLine       = e.target.id == 'chatline'
+      let isChatEmptySpace = e.target.id == 'messages'
+      let isUI             = e.target.closest('.ui')
+      //console.dir({class: e.target.className, id: e.target.id, isChatMsg,isChatLine,isChatEmptySpace,isUI, tagName: e.target.tagName})
+      if( isUI || e.target.tagName.match(/^(BUTTON|TEXTAREA|INPUT|A)/) || e.target.className.match(/(btn)/) ) return
+      if( show ){
+        $chat.visible = true
+      }else{
+        $chat.visible = false 
+        $menu.toggle(false)
+      }
+      return true
+    }
+    document.addEventListener('mousedown',  showUI(false) )
+    document.addEventListener('mouseup',    showUI(true)  )
+    document.addEventListener('touchstart', showUI(false) )
+    document.addEventListener('touchend',   showUI(true)  )
   },
 
   loadFile(contentLoaders, multiple){
@@ -218,10 +242,11 @@ window.frontend = (opts) => new Proxy({
 
   share(opts){
     opts = opts || {notify:true,qr:true,share:true,linkonly:false}
-    if( network.connected && !document.location.hash.match(/meet=/) ){
-      let p = $connections.chatnetwork.find( (p) => p.profile.name == $connections.selectedChatnetwork )
-      console.dir(p)
-      if( p.link ) document.location.hash = `${ network.pos ? `pos=${network.pos}` : ''}&meet=${p.link}`
+    if( network.meetingLink && !document.location.hash.match(/meet=/) ){
+      document.location.hash += `&meet=${network.meetingLink}`
+    }
+    if( !document.location.hash.match(/pos=/) ){
+      document.location.hash += `&pos=${ network.posName || network.pos }`
     }
     let url = window.location.href
     if( opts.linkonly ) return url 

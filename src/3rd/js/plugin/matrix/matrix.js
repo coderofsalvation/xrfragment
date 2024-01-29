@@ -49,7 +49,7 @@ window.matrix = (opts) => new Proxy({
           <tr>
             <td>user</td> 
             <td>
-              <input type="text" id="username" placeholder="@you:matrix.org"/>
+              <input type="text" id="username" placeholder="@you:matrix.org" value="${opts.plugin.username}"/>
             </td>
           </tr>
           <tr>
@@ -76,7 +76,8 @@ window.matrix = (opts) => new Proxy({
   init(){
     frontend.plugin['matrix'] = this
     $connections.chatnetwork = $connections.chatnetwork.concat([this])
-    $connections.scene       = $connections.chatnetwork.concat([this])
+    $connections.scene       = $connections.scene.concat([this])
+    if( window.localStorage.getItem("username") ) this.username = window.localStorage.getItem("username")
     this.reactToConnectionHrefs()
 
     document.addEventListener('network.connect', (e) => this.connect(e.detail) )
@@ -93,8 +94,8 @@ window.matrix = (opts) => new Proxy({
     if( opts.selectedChatnetwork == this.profile.name ) this.useChat   = true
     if( opts.selectedScene       == this.profile.name ) this.useScene  = true
     if( this.useWebcam || this.useScene || this.useChat ){
-      this.createLink() // ensure link 
       this.link = `matrix://r/${this.channel.replace(/^#/,'')}`
+      this.createLink() // ensure link 
       this.channel  = document.querySelector("#matrix input#channel").value
       this.server   = document.querySelector("#matrix input#server").value
       this.username = document.querySelector("#matrix input#username").value
@@ -156,7 +157,10 @@ window.matrix = (opts) => new Proxy({
     .then( (o) => {
       console.log(`${this.channel} has id ${o.room_id}`)
       this.roomId = o.room_id
-      this.setupListeners()
+      // join room if we haven't already
+      this.client.joinRoom(this.roomId)
+      .then( () => this.setupListeners() )
+      .catch( () => this.setupListeners() )
     })
     .catch((e) => {
       console.error(e)
@@ -242,7 +246,7 @@ window.matrix = (opts) => new Proxy({
         formatted_body: message,
         msgtype:"m.text" 
       }
-      this.client.sendEvent( this.roomId, "m.room.message", content, "", (err,res) =>  console.error(err) )
+      this.client.sendEvent( this.roomId, "m.room.message", content, "", (err,res) =>  console.error({err,res}) )
     })
 
   },
@@ -292,7 +296,7 @@ window.matrix = (opts) => new Proxy({
     let hash = document.location.hash 
     if( !this.link ){
       const meeting = network.getMeetingFromUrl(document.location.href)
-      this.link = meeting.match("matrix://") ? meeting  : ''
+      this.link = network.meetingLink = meeting.match("matrix://") ? meeting  : ''
     }
     if( !hash.match('meet=') ) document.location.hash += `${hash.length > 1 ? '&' : '#'}meet=${this.link}`
   },

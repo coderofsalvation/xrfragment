@@ -2,7 +2,7 @@ connectionsComponent = {
 
   html: `
    <div id="connections">
-      <i class="gg-close-o" id="close" onclick="$connections.toggle()"></i>
+      <i class="gg-close-o" id="close" onclick="$connections.visible = false"></i>
       <br>
       <div class="tab-frame">
         <input type="radio" name="tab" id="login" checked>
@@ -83,6 +83,8 @@ connectionsComponent = {
 
   init: (el) => new Proxy({
 
+    visible: true,
+
     webcam:       [{profile:{name:"No thanks"},config: () => document.createElement('div')}],
     chatnetwork:  [{profile:{name:"No thanks"},config: () => document.createElement('div')}],
     scene:        [{profile:{name:"No thanks"},config: () => document.createElement('div')}],
@@ -117,8 +119,7 @@ connectionsComponent = {
     },
 
     toggle(){
-      let parent = el.closest('.envelope')
-      parent.style.display = parent.style.display == 'none' ? parent.style.display = '' : 'none'
+      $chat.visible = !$chat.visible 
     },
 
     change(id,e){
@@ -130,13 +131,14 @@ connectionsComponent = {
     show(opts){
       opts = opts || {}
       if( opts.hide ){
-        el.parentElement.parentElement.style.display = 'none'
+        if( el.parentElement ) el.parentElement.parentElement.style.display = 'none' // hide along with wrapper elements
+        if( !opts.showChat ) $chat.visible = false
       }else{
         $chat.visible = true
+        this.visible  = true
         // hide networking settings if entering thru meetinglink
         $networking.style.display = document.location.href.match(/meet=/) ? 'none' : 'block'
         if( !network.connected ){
-            if( el.parentElement ) el.parentElement.parentElement.remove()
             document.querySelector('body > .xrf').appendChild(el)
             $chat.send({message:"", el, class:['ui']})
             if( !network.meetinglink ){ // set default
@@ -233,7 +235,7 @@ connectionsComponent = {
     reactToNetwork(){ // *TODO* move to network?
 
       document.addEventListener('network.connect',    () => {
-        this.show({hide:true})
+        this.show({hide:true, showChat: true})
       })
       document.addEventListener('network.disconnect',    () => {
         this.connected = false 
@@ -247,6 +249,7 @@ connectionsComponent = {
     set(data,k,v){ 
       data[k] = v 
       switch( k ){
+        case "visible":             el.style.display = v ? '' : 'none'; break;
         case "webcam":              $webcam.innerHTML       = `<option>${data[k].map((p)=>p.profile.name).join('</option><option>')}</option>`; break;
         case "chatnetwork":         $chatnetwork.innerHTML  = `<option>${data[k].map((p)=>p.profile.name).join('</option><option>')}</option>`; break;
         case "scene":               $scene.innerHTML        = `<option>${data[k].map((p)=>p.profile.name).join('</option><option>')}</option>`; break;

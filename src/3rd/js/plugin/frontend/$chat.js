@@ -1,11 +1,12 @@
 chatComponent = {
 
   html: `
+    <div id="chat">
      <div id="videos" style="pointer-events:none"></div>
      <div id="messages" aria-live="assertive" aria-relevant></div>
      <div id="chatfooter">
        <div id="chatbar">
-           <input id="chatline" type="text" placeholder="type here"></input>
+           <input id="chatline" type="text" placeholder="chat here"></input>
        </div>
        <button id="showchat" class="btn">show chat</button>
      </div>
@@ -14,10 +15,10 @@ chatComponent = {
 
   init: (el) => new Proxy({
 
-    scene:           null,
-    visible:         true,
-    visibleChatbar:  false,
-    messages:        [],
+    scene:             null,
+    visible:           true,
+    messages:          [],
+    oneMessagePerUser: false,
 
     username: '',    // configured by 'network.connected' event
 
@@ -29,10 +30,10 @@ chatComponent = {
     install(opts){
       this.opts  = opts
       this.scene = opts.scene 
+      this.$chatbar.style.display = 'none'
       el.className = "xrf"
       el.style.display = 'none' // start hidden 
       document.body.appendChild( el )
-      this.visibleChatbar = false
       document.dispatchEvent( new CustomEvent("$chat:ready", {detail: opts}) )
       this.send({message:`Welcome to <b>${document.location.search.substr(1)}</b>, a 3D scene(file) which simply links to other ones.<br>You can start a solo offline exploration in XR right away.<br>Type /help below, or use the arrow- or WASD-keys on your keyboard, and mouse-drag to rotate.<br>`, class: ["info","guide","multiline"] })
     },
@@ -41,6 +42,7 @@ chatComponent = {
       let {$chatline} = this
 
       $chatline.addEventListener('click', (e) => this.inform() )
+
       $chatline.addEventListener('keydown', (e) => {
         if (e.key == 'Enter' ){
           if( $chatline.value[0] != '/' ){
@@ -52,16 +54,20 @@ chatComponent = {
         }
       })
 
+      document.addEventListener('network.connect', (e) => {
+        this.visible = true
+        this.$chatbar.style.display = '' // show
+      })
+
       document.addEventListener('network.connected', (e) => {
         if( e.detail.username ) this.username = e.detail.username
       })
 
-      console.dir(this.scene)
     },
 
     inform(){
       if( !this.inform.informed && (this.inform.informed = true) ){
-        window.notify("Here you can update your statusline.<br>Protocols like [Matrix] allow you to view the full transcript<br>in a dedicated client like <a href='https://element.io' target='_blank'>element.io</a>")
+        window.notify("Connected via P2P. You can now type message which will be visible to others.")
       }
     },
 
@@ -83,6 +89,7 @@ chatComponent = {
       let {$messages} = this
       opts = { linebreak:true, message:"", class:[], ...opts }
       if( window.frontend && window.frontend.emit ) window.frontend.emit('$chat.send', opts )
+      opts.pos  = opts.pos || network.posName || network.pos
       let div  = document.createElement('div')
       let msg  = document.createElement('div')
       let br   = document.createElement('br')
@@ -98,9 +105,9 @@ chatComponent = {
         br.classList.add.apply(br.classList, opts.class)
         div.classList.add.apply(div.classList, opts.class.concat(["envelope"]))
       }
-      if( !opts.from && !msg.className.match(/(info|guide)/) ){
+      if( !msg.className.match(/(info|guide|ui)/) ){
         let frag = xrf.URI.parse(document.location.hash)
-        opts.from = this.username
+        opts.from = 'you'
         if( frag.pos ) opts.pos = frag.pos.string
         msg.classList.add('self')
       }
@@ -116,7 +123,7 @@ chatComponent = {
       }
       div.appendChild(msg)
       // force one message per user 
-      if( opts.from ){
+      if( this.oneMessagePerUser && opts.from ){
         div.id = this.hyphenate(opts.from)
         let oldMsg = $messages.querySelector(`#${div.id}`)
         if( oldMsg ) oldMsg.remove()
@@ -147,9 +154,6 @@ chatComponent = {
                                   el.style.display = me.visible ? 'block' : 'none'
                                   if( !el.inited && (el.inited = true) ) me.initListeners()
                                   break;
-                                }
-        case "visibleChatbar":  {
-                                  me.$chatbar.style.display = v ? 'block' : 'none' 
                                 }
       }
     }
@@ -234,25 +238,25 @@ chatComponent.css = `
        max-width:unset;
      }
      #messages{
+       /*
        display: flex;
-       flex-direction: column-reverse;
+       flex-direction: column;
+       width: 91%;
+       max-width: 500px;
+       */
+       width:100%;
        align-items: flex-start;
        position: absolute;
        transition:1s;
-       top: 0px;
+       top: 77px;
        left: 0;
        bottom: 49px;
        padding: 20px;
        overflow:hidden;
+       overflow-y: scroll;
        pointer-events:none;
        transition:1s;
-       width: 91%;
-       max-width: 500px;
        z-index: 100;
-       -webkit-user-select:none;
-       -moz-user-select:-moz-none;
-       -ms-user-select:none;
-       user-select:none;
      }
      body.menu #messages{
        top:50px;
@@ -261,7 +265,11 @@ chatComponent.css = `
        pointer-events:all;
      }
      #messages *{
-       pointer-events:all;
+       pointer-events:none;
+       -webkit-user-select:none;
+       -moz-user-select:-moz-none;
+       -ms-user-select:none;
+       user-select:none;
      }
      #messages .msg{
        transition:all 1s ease;
@@ -272,11 +280,18 @@ chatComponent.css = `
        color: #000c;
        margin-bottom: 10px;
        line-height:23px;
-       pointer-events:visible;
        line-height:33px;
        cursor:grabbing;
        border: 1px solid #0002;
      }
+     #messages .msg *{
+       pointer-events:all;
+       -webkit-user-select:text;
+       -moz-user-select:-moz-text;
+       -ms-user-select:text;
+       user-select:text;
+    }
+
      #messages .msg.self{
        border-radius: 20px;
        background:var(--xrf-box-shadow);
@@ -303,7 +318,7 @@ chatComponent.css = `
        transition:0.3s;
      }
      #messages .msg.info a,
-     #messages .ruler a{
+     #messages a.ruler{
        color:#FFF;
      }
      #messages .msg a:hover{
@@ -375,10 +390,19 @@ chatComponent.css = `
       margin:0;
     }
 
-    .envelope{
-      height:unset;
+    .envelope,
+    .envelope * {
       overflow:hidden;
       transition:1s;
+      pointer-events:none;
+    }
+    .envelope a,
+    .envelope button,
+    .envelope input,
+    .envelope textarea,
+    .envelope msg,
+    .envelope msg * {
+      pointer-events:all;
     }
 
     .user{

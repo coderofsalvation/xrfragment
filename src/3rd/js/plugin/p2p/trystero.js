@@ -88,8 +88,8 @@ window.trystero = (opts) => new Proxy({
       console.log("trystero link: "+this.link)
       this.room        = joinRoom( {appId: 'xrfragment'}, this.link )
       
-      $chat.send({message:`Share the meeting link <a onclick="frontend.share()">by clicking here</a>`,class:['info'],timeout:10000})
-      $chat.send({message:"waiting for other humans..",class:['info'], timeout:5000})
+      $chat.send({message:`Share the meeting link <a onclick="frontend.share()">by clicking here</a>`,class:['info']})
+      $chat.send({message:"waiting for other humans..",class:['info']})
 
       // setup trystero events
       const [sendPing, getPing] = this.room.makeAction('ping')
@@ -132,6 +132,7 @@ window.trystero = (opts) => new Proxy({
     this.chat.get  = getChat
 
     document.addEventListener('network.send', (e) => {
+      console.log("trystero")
       this.chat.send({...e.detail, from: this.nickname, pos: network.pos })                     // send to P2P network
     })
     // prime chatlog of other people joining
@@ -159,7 +160,7 @@ window.trystero = (opts) => new Proxy({
       video: $connections.$videoInput.value 
     })
     this.room.addStream(this.selfStream) 
-    this.videos[ this.selfId ] = this.getVideo(this.selfId,{stream: this.selfStream})
+    this.getVideo(this.selfId,{create:true,stream: this.selfStream})
 
     // send stream + chatlog to peers who join later
     this.room.onPeerJoin( (peerId) => this.room.addStream( this.selfStream, peerId))
@@ -198,7 +199,8 @@ window.trystero = (opts) => new Proxy({
 
       // add video element to the DOM
       if( opts.stream ) video.srcObject = opts.stream 
-      console.log("creating video for peerId")
+      console.log("creating video for peerId "+this.selfId)
+      this.videos[ this.selfId ] = video
       $chat.$videos.appendChild(video)
     }
   },
@@ -209,7 +211,7 @@ window.trystero = (opts) => new Proxy({
     let hash = document.location.hash 
     if( !this.link ){
       const meeting = network.getMeetingFromUrl(document.location.href)
-      this.link = meeting.match("trystero://") ? meeting : `trystero://r/${network.randomRoom()}:bittorrent`
+      this.link = network.meetingLink = meeting.match("trystero://") ? meeting : `trystero://r/${network.randomRoom()}:bittorrent`
     }
     if( !hash.match('meet=') ) document.location.hash += `${hash.length > 1 ? '&' : '#'}meet=${this.link}`
   },

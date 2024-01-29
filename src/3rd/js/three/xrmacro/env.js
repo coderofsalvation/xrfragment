@@ -9,7 +9,7 @@ xrf.addEventListener('env', (opts) => {
     //scene.texture = env.material.map    
  //   renderer.toneMapping = THREE.ACESFilmicToneMapping;
  //   renderer.toneMappingExposure = 2;
-    console.log(`   └ applied image '${frag.env.string}' as environment map`)
+  //  console.log(`   └ applied image '${frag.env.string}' as environment map`)
   }
 
 })
