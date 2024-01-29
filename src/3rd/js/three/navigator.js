@@ -72,6 +72,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
         }
 
         if( data ){  // file upload
+              console.dir(loader)
           loader.parse(data, "", onLoad )
         }else       loader.load(url, onLoad )
       })

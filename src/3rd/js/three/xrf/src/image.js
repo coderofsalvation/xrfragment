@@ -10,7 +10,7 @@ xrf.frag.src.type['image/png'] = function(url,opts){
 
   mesh.material = new xrf.THREE.MeshBasicMaterial({ 
     map: null, 
-    transparent: url.match(/(png|gif)/) ? true : false,
+    transparent: url.match(/\.(png|gif)/) ? true : false,
     side: THREE.DoubleSide,
     color: 0xFFFFFF,
     opacity:1
@@ -31,6 +31,7 @@ xrf.frag.src.type['image/png'] = function(url,opts){
       }
     }
     mesh.material.map = texture
+    mesh.material.needsUpdate = true 
     mesh.needsUpdate = true
   } 
 

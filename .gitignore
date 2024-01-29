@@ -1,4 +1,6 @@
 dist/*.pyc
 src/spec/tmp.json
 tags
-example/assets/*.blend
+example/assets/*.blend*
+2wa.gitlab.io/*
+

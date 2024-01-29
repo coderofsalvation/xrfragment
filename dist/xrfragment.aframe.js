@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Fri Jan  5 11:36:46 AM UTC 2024
+ * v0.5.1 generated at Mon Jan 29 08:11:09 PM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -552,10 +552,10 @@ xrfragment_XRF.isNumber = new EReg("^[0-9\\.]+$","");
 })({});
 var xrfragment = $hx_exports["xrfragment"];
 // the core project uses #vanillajs #proxies #clean #noframework
-$      = typeof $   != 'undefined' ? $  : (s) => document.querySelector(s)            // respect jquery
-$$     = typeof $$  != 'undefined' ? $$ : (s) => [...document.querySelectorAll(s)]    // zepto etc.
+var $      = typeof $   != 'undefined' ? $  : (s) => document.querySelector(s)            // respect jquery
+var $$     = typeof $$  != 'undefined' ? $$ : (s) => [...document.querySelectorAll(s)]    // zepto etc.
 
-$el = (html,tag) => {
+var $el = (html,tag) => {
   let el = document.createElement('div')
   el.innerHTML = html
   return el.children[0]
@@ -627,15 +627,17 @@ for ( let i in xrfragment ) xrf[i] = xrfragment[i]
  *  xrf.emit('foo',123).then(...).catch(...).finally(...)
  */
 
-xrf.addEventListener = function(eventName, callback, scene) {
+xrf.addEventListener = function(eventName, callback, opts) {
   if( !this._listeners ) this._listeners = []
+  callback.opts = opts || {weight: this._listeners.length}
   if (!this._listeners[eventName]) {
       // create a new array for this event name if it doesn't exist yet
       this._listeners[eventName] = [];
   }
-  if( scene ) callback.scene = scene
   // add the callback to the listeners array for this event name
   this._listeners[eventName].push(callback);
+  // sort
+  this._listeners[eventName] = this._listeners[eventName].sort( (a,b) => a.opts.weight > b.opts.weight )
   return () => {
     this._listeners[eventName] = this._listeners[eventName].filter( (c) => c != callback )
   }
@@ -651,9 +653,6 @@ xrf.emit = function(eventName, data){
     console.groupEnd(label)
     if( xrf.debug > 1 ) debugger
   }
-  // forward to THREEjs eventbus if any
-  if( data.scene ) data.scene.dispatchEvent( eventName, data )
-  if( data.mesh  ) data.mesh.dispatchEvent( eventName, data )
   return xrf.emit.promise(eventName,data)
 }
 
@@ -905,15 +904,6 @@ xrf.getFile = (url) => url.split("/").pop().replace(/#.*/,'')
 xrf.parseModel = function(model,url){
   let file               = xrf.getFile(url)
   model.file             = file
-  model.animations.map( (a) => console.log("anim: "+a.name) )
-  // spec: 2. init metadata inside model for non-SRC data
-  if( !model.isSRC ){ 
-    model.scene.traverse( (mesh) => xrf.hashbus.pub.mesh(mesh,model) )
-  }
-  // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
-  xrf.frag.defaultPredefinedViews({model,scene:model.scene})
-  // spec: predefined view(s) & objects-of-interest-in-XRWG from URL (https://xrfragment.org/#predefined_view)
-  let frag = xrf.hashbus.pub( url, model) // and eval URI XR fragments 
 
   xrf.emit('parseModel',{model,url,file})
 }
@@ -945,6 +935,8 @@ xrf.reset = () => {
   // remove mixers
   xrf.mixers.map( (m) => m.stop())
   xrf.mixers = []
+  // set the player to position 0,0,0
+  xrf.camera.position.set(0,0,0)
 }
 
 xrf.parseUrl = (url) => {
@@ -979,47 +971,81 @@ xrf.navigator = {}
 
 xrf.navigator.to = (url,flags,loader,data) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
+  let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
+  let hashChange = (!file && hash) || !data && xrf.model.file == file
+  let hasPos     = String(hash).match(/pos=/)
+
 
   let hashbus = xrf.hashbus
-  xrf.emit('navigate', {url,loader,data})
 
   return new Promise( (resolve,reject) => {
-    let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
-    if( !file || (!data && xrf.model.file == file) ){ // we're already loaded
-      if( hash == document.location.hash.substr(1) ) return     // block duplicate calls
-      hashbus.pub( url, xrf.model, flags )            // and eval local URI XR fragments 
-      xrf.navigator.updateHash(hash)
-      return resolve(xrf.model) 
-    }
+    xrf
+    .emit('navigate', {url,loader,data})
+    .then( () => {
 
-    if( xrf.model && xrf.model.scene ) xrf.model.scene.visible = false
-    if( !loader ){  
-      const Loader = xrf.loaders[ext]
-      if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 
-      loader = loader || new Loader().setPath( dir )
-    }
+      if( ext && !loader ){  
+        const Loader = xrf.loaders[ext]
+        if( !Loader ) return resolve()
+        loader = loader || new Loader().setPath( dir )
+      }
 
-    // force relative path for files which dont include protocol or relative path
-    if( dir ) dir = dir[0] == '.' || dir.match("://") ? dir : `.${dir}`
-    url = url.replace(dir,"")
-    loader = loader || new Loader().setPath( dir )
-    const onLoad = (model) => {
-      xrf.reset() // clear xrf objects from scene
-      model.file = file
-      // only change url when loading *another* file
-      if( xrf.model ) xrf.navigator.pushState( `${dir}${file}`, hash )
-      xrf.model = model 
-      // spec: 1. generate the XRWG
-      xrf.XRWG.generate({model,scene:model.scene})
+      if( !hash && !file && !ext ) return resolve(xrf.model) // nothing we can do here
 
-      xrf.add( model.scene )
-      xrf.navigator.updateHash(hash)
-      xrf.emit('navigateLoaded',{url,model})
-      resolve(model)
-    }
+      if( hashChange && !hasPos ){
+        hashbus.pub( url, xrf.model, flags )     // eval local URI XR fragments 
+        xrf.navigator.updateHash(hash)           // which don't require 
+        return resolve(xrf.model)                // positional navigation
+      }
 
-    if( data ) loader.parse(data, "", onLoad )
-    else       loader.load(url, onLoad )
+      xrf
+      .emit('navigateLoading', {url,loader,data})
+      .then( () => {
+        if( hashChange && hasPos ){                 // we're already loaded
+          hashbus.pub( url, xrf.model, flags )     // and eval local URI XR fragments 
+          xrf.navigator.updateHash(hash)
+          xrf.emit('navigateLoaded',{url})
+          return resolve(xrf.model) 
+        }
+          
+        // clear xrf objects from scene
+        if( xrf.model && xrf.model.scene ) xrf.model.scene.visible = false
+        xrf.reset() 
+
+        // force relative path for files which dont include protocol or relative path
+        if( dir ) dir = dir[0] == '.' || dir.match("://") ? dir : `.${dir}`
+        url = url.replace(dir,"")
+        loader = loader || new Loader().setPath( dir )
+        const onLoad = (model) => {
+
+          model.file = file
+          // only change url when loading *another* file
+          if( xrf.model ) xrf.navigator.pushState( `${dir}${file}`, hash )
+          xrf.model = model 
+          if(xrf.debug ) model.animations.map( (a) => console.log("anim: "+a.name) )
+          // spec: 2. init metadata inside model for non-SRC data
+          if( !model.isSRC ){ 
+            model.scene.traverse( (mesh) => xrf.hashbus.pub.mesh(mesh,model) )
+          }
+          // spec: 1. generate the XRWG
+          xrf.XRWG.generate({model,scene:model.scene})
+
+          // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
+          xrf.frag.defaultPredefinedViews({model,scene:model.scene})
+          // spec: predefined view(s) & objects-of-interest-in-XRWG from URL (https://xrfragment.org/#predefined_view)
+          let frag = xrf.hashbus.pub( url, model) // and eval URI XR fragments 
+
+          xrf.add( model.scene )
+          if( hash ) xrf.navigator.updateHash(hash)
+          xrf.emit('navigateLoaded',{url,model})
+          resolve(model)
+        }
+
+        if( data ){  // file upload
+              console.dir(loader)
+          loader.parse(data, "", onLoad )
+        }else       loader.load(url, onLoad )
+      })
+    })
   })
 }
 
@@ -1027,12 +1053,16 @@ xrf.navigator.init = () => {
   if( xrf.navigator.init.inited ) return
 
   window.addEventListener('popstate', function (event){
-    xrf.navigator.to( document.location.search.substr(1) + document.location.hash )
+    if( !xrf.navigator.updateHash.active ){ // ignore programmatic hash updates (causes infinite recursion)
+      xrf.navigator.to( document.location.search.substr(1) + document.location.hash )
+    }
   })
   
   window.addEventListener('hashchange', function (e){
     xrf.emit('hash', {hash: document.location.hash })
   })
+
+  xrf.navigator.setupNavigateFallbacks()
 
   // this allows selectionlines to be updated according to the camera (renderloop)
   xrf.focusLine = new xrf.THREE.Group()
@@ -1046,10 +1076,36 @@ xrf.navigator.init = () => {
   xrf.navigator.init.inited = true
 }
 
+xrf.navigator.setupNavigateFallbacks = () => {
+
+  xrf.addEventListener('navigate', (opts) => {
+    let {url} = opts
+    let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
+    // handle http links
+    if( url.match(/^http/) && !xrf.loaders[ext] ){
+      let inIframe
+      try { inIframe = window.self !== window.top; } catch (e) { inIframe = true; }
+      return inIframe ? window.parent.postMessage({ url }, '*') : window.open( url, '_blank')
+      // in case you're running in an iframe, then use this in the parent page:
+      //
+      // window.addEventListener("message", (e) => {
+      //   if (e.data && e.data.url){
+      //     window.open( e.data.url, '_blank')
+      //   }
+      // },
+      //   false,
+      // );
+    }
+  })
+
+}
+
 xrf.navigator.updateHash = (hash,opts) => {
   if( hash.replace(/^#/,'') == document.location.hash.substr(1) || hash.match(/\|/) ) return  // skip unnecesary pushState triggers
   console.log(`URL: ${document.location.search.substr(1)}#${hash}`)
+  xrf.navigator.updateHash.active = true  // important to prevent recursion
   document.location.hash = hash
+  xrf.navigator.updateHash.active = false
 }
 
 xrf.navigator.pushState = (file,hash) => {
@@ -1068,7 +1124,7 @@ xrf.addEventListener('env', (opts) => {
     //scene.texture = env.material.map    
  //   renderer.toneMapping = THREE.ACESFilmicToneMapping;
  //   renderer.toneMappingExposure = 2;
-    console.log(`   └ applied image '${frag.env.string}' as environment map`)
+  //  console.log(`   └ applied image '${frag.env.string}' as environment map`)
   }
 
 })
@@ -1113,20 +1169,20 @@ xrf.frag.href = function(v, opts){
     xrf
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
+
       let {urlObj,dir,file,hash,ext} = xrf.parseUrl(v.string)
-      //if( !file.match(/\./) || file.match(/\.html/) ){
-      //  debugger
-      //  let inIframe
-      //  try { inIframe = window.self !== window.top; } catch (e) { inIframe = true; }
-      //  return inIframe ? window.parent.postMessage({ url: v.string }, '*') : window.open( v.string, '_blank')
-      //}
-      const flags = v.string[0] == '#' ? xrf.XRF.PV_OVERRIDE : undefined
+      const isLocal = v.string[0] == '#'
+      const hasPos  = isLocal && v.string.match(/pos=/)
+      const flags   = isLocal ? xrf.XRF.PV_OVERRIDE : undefined
+
       let toFrag = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-      // *TODO* support for multiple protocols
-      if( v.string[0] != '#' && !v.string.match(/^http/) ) return
       // always commit current location in case of teleport (keep a trail of last positions before we navigate)
-      if( !e.nocommit && !document.location.hash.match(lastPos) ) xrf.navigator.to(`#${lastPos}`)
-      xrf.navigator.to(v.string)    // let's surf to HREF!
+      //if( isLocal && !hasPos ){
+      //  xrf.hashbus.pub( v.string, xrf.model ) // publish to hashbus
+      //}else{
+        //if( !e.nocommit && !document.location.hash.match(lastPos) ) xrf.navigator.updateHash(`#${lastPos}`)
+        xrf.navigator.to(v.string)    // let's surf
+      //}
     }) 
     .catch( console.error )
   }
@@ -1183,20 +1239,24 @@ xrf.frag.href = function(v, opts){
 xrf.frag.pos = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
 
+  let pos = v
 
   // spec: indirect coordinate using objectname: https://xrfragment.org/#navigating%203D
-  if( v.x == undefined ){
+  if( pos.x == undefined ){
     let obj = scene.getObjectByName(v.string)
     if( !obj ) return 
-    let pos = obj.position.clone()
+    pos = obj.position.clone()
     obj.getWorldPosition(pos)
     camera.position.copy(pos)
   }else{ 
     // spec: direct coordinate: https://xrfragment.org/#navigating%203D
-    camera.position.x = v.x
-    camera.position.y = v.y
-    camera.position.z = v.z
+    camera.position.x = pos.x
+    camera.position.y = pos.y
+    camera.position.z = pos.z
   }
+
+  xrf.frag.pos.last = pos // remember
+
   camera.updateMatrixWorld()
 }
 xrf.frag.rot = function(v, opts){
@@ -1240,7 +1300,8 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
   let {mesh} = opts
   let scene = model.scene
   scene = xrf.frag.src.filterScene(scene,{...opts,frag})         // get filtered scene
-  if( mesh.material && !mesh.userData.src ) mesh.material.visible = false  // hide placeholder object
+  if( mesh.material && mesh.userData.src ) mesh.material.visible = false  // hide placeholder object
+
   //enableSourcePortation(scene)
   if( xrf.frag.src.renderAsPortal(mesh) ){
     // only add remote objects, because 
@@ -1820,16 +1881,14 @@ xrf.frag.defaultPredefinedViews = (opts) => {
   scene.traverse( (n) => {
     if( n.userData && n.userData['#'] ){
       let frag = xrf.URI.parse( n.userData['#'] )
-      xrf.hashbus.pub( n.userData['#'] )          // evaluate static XR fragments
+      if( n.parent && n.parent.parent.isScene && document.location.hash.length < 2 ){
+        xrf.navigator.to( n.userData['#'] )     // evaluate static XR fragments
+      }else{
+        xrf.hashbus.pub( n.userData['#'] )     // evaluate static XR fragments
+      }
     }
   })
 }
-
-// clicking href url with predefined view 
-xrf.addEventListener('href', (opts) => {
-  if( !opts.click || opts.xrf.string[0] != '#' ) return 
-  xrf.hashbus.pub( opts.xrf.string )
-}) 
 xrf.addEventListener('dynamicKeyValue', (opts) => {
   let {scene,match,v} = opts
   let objname         = v.fragment
@@ -1864,6 +1923,7 @@ xrf.addEventListener('dynamicKey', (opts) => {
   let {scene,id,match,v} = opts
   if( !scene ) return 
   let remove = []
+
   // erase previous lines
   xrf.focusLine.lines.map( (line) => line.parent && (line.parent.remove(line))  )
   xrf.focusLine.points = []
@@ -2055,7 +2115,7 @@ xrf.frag.src.type['image/png'] = function(url,opts){
 
   mesh.material = new xrf.THREE.MeshBasicMaterial({ 
     map: null, 
-    transparent: url.match(/(png|gif)/) ? true : false,
+    transparent: url.match(/\.(png|gif)/) ? true : false,
     side: THREE.DoubleSide,
     color: 0xFFFFFF,
     opacity:1
@@ -2076,6 +2136,7 @@ xrf.frag.src.type['image/png'] = function(url,opts){
       }
     }
     mesh.material.map = texture
+    mesh.material.needsUpdate = true 
     mesh.needsUpdate = true
   } 
 
@@ -2372,8 +2433,16 @@ window.AFRAME.registerComponent('xrf', {
       if( ARbutton ) ARbutton.addEventListener('click', () => AFRAME.XRF.hashbus.pub( '#AR' ) )
       if( VRbutton ) VRbutton.addEventListener('click', () => AFRAME.XRF.hashbus.pub( '#VR' ) )
 
-      xrf.addEventListener('navigateLoaded', () => {
+      aScene.addEventListener('enter-vr', () => {
+        // sometimes AFRAME resets the user position to 0,0,0 when entering VR (not sure why)
+        let pos = xrf.frag.pos.last
+        if( pos ){ AFRAME.XRF.camera.position.set(pos.x, pos.y, pos.z) }
+      })
+
+      xrf.addEventListener('navigateLoaded', (opts) => {
         setTimeout( () => AFRAME.fade.out(),500) 
+        let isLocal = opts.url.match(/^#/)
+        if( isLocal ) return 
 
         // *TODO* this does not really belong here perhaps
         let blinkControls = document.querySelector('[blink-controls]')
@@ -2391,34 +2460,34 @@ window.AFRAME.registerComponent('xrf', {
             el.setAttribute("class","floor")
             $('a-scene').appendChild(el)
           })
-          blinkControls.components['blink-controls'].update({collisionEntities:true})
+          let com = blinkControls.components['blink-controls']
+          if( com ) com.update({collisionEntities:true})
+          else console.warn("xrfragments: blink-controls is not mounted, please run manually: $('[blink-controls]).components['blink-controls'].update({collisionEntities:true})")
         }
       })
 
-      xrf.addEventListener('href', (opts) => {
-        if( opts.click){ 
-          let p       = opts.promise()
-          let url     = opts.xrf.string
-          let isLocal = url.match(/^#/)
-          let hasPos  = url.match(/pos=/)
-          if( !isLocal && !url.match(/^http/) ) return // dont fade/load for custom protocol handlers
-          if( isLocal && hasPos ){
+      xrf.addEventListener('navigateLoading', (opts) => {
+        let p       = opts.promise()
+        let url     = opts.url 
+        let isLocal = url.match(/^#/)
+        let hasPos  = url.match(/pos=/)
+        let fastFadeMs = 200
+
+        if( isLocal ){
+          if( hasPos ){
             // local teleports only
-            let fastFadeMs = 200
             AFRAME.fade.in(fastFadeMs)
             setTimeout( () => {
               p.resolve()
-              AFRAME.fade.out(fastFadeMs)
             }, fastFadeMs)
-          }else if( !isLocal ){
-            AFRAME.fade.in()
-            setTimeout( () => {
-              p.resolve()
-              setTimeout( () => AFRAME.fade.out(), 1000 ) // allow one second to load textures e.g.
-            }, AFRAME.fade.data.fadetime )
-          }else p.resolve()
+          }
+        }else{
+          AFRAME.fade.in(fastFadeMs)
+          setTimeout( () => {
+            p.resolve()
+          }, AFRAME.fade.data.fadetime )
         }
-      })
+      },{weight:-1000})
 
       // convert href's to a-entity's so AFRAME
       // raycaster can find & execute it

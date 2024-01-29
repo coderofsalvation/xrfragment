@@ -4,24 +4,14 @@
 		<title>THREE.js - xrfragment sandbox</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="stylesheet" href="./../../assets/css/axist.min.css" />
-    <link type="text/css" rel="stylesheet" href="./../../assets/css/style.css"/>
-    <script src="./../../assets/js/qr.js"></script>
+
 	</head>
-	<body>
-    <div id="overlay" x-data="{ urls: ['#pos=0,1.6,15','#pos=0,1.6,15&rot=0,360,0'] }">
-      <img src="./../../assets/logo.png" class="logo"/>
-			<input type="submit" value="load 3D file"></input>
-      <input type="text" id="uri" value="" onchange="XRF.navigator.to( $('#uri').value )" style="display:none"/> 
+	<body style="margin:0">
+    <div id="overlay" style="text-align:right;position:absolute;width:100%;height:100%;top:0;left:0;bottom:0;right:0">
+      <b>NOTE:</b> this is a THREE barebones example (AFRAME viewer has more features)<br><Br>
+      <input type="submit" value="load 3D asset"/>
     </div>
 
-    <a class="btn-foot" id="source" target="_blank" href="https://github.com/coderofsalvation/xrfragment-helloworld">➕ clone project</a> 
-    <a class="btn-foot" id="embed" target="_blank" onclick="embed()">🔗 share</a> 
-    <a class="btn-foot" id="model" target="_blank" href="index.glb">⬇️  scene</a> 
-    <a class="btn-foot" id="more" target="_blank" >XRF</a> 
-		<textarea style="display:none"></textarea>
-    <canvas id="qrcode" style="display:none" width="300" height="300"></canvas>
-		
 		<!-- Import maps polyfill -->
 		<!-- Remove this when import maps will be widely supported -->
 		<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
@@ -39,7 +29,6 @@
 
 			import xrf from "./../../../dist/xrfragment.three.module.js";
 
-			import { loadFile, setupConsole, setupUrlBar, notify } from "./../../assets/js/utils.js";
 			import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 			import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
 			import { BoxLineGeometry } from 'three/addons/geometries/BoxLineGeometry.js';
@@ -66,7 +55,6 @@
 			};
 
 			init();
-      notify("NOTE: only AFRAME demo has immersive back-button (for now)")
 
 			function init() {
 
@@ -174,10 +162,6 @@
 				controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
 				cameraRig.add( controllerGrip2 );
 
-         
-        setupConsole()
-        setupUrlBar( $('input#uri'), XRF )
-
 				// Add stats.js
 				stats = new Stats();
 				stats.dom.style.width = '80px';
@@ -198,11 +182,33 @@
           XRF.interactive.add( statsMesh );
         })
 
+        // util func to bind uploaded files to a loader
+        let loadFile = function(contentLoaders, multiple){
+          return function(){
+            alert("if you're on Meta browser, file-uploads might be disabled")
+            let input = document.createElement('input');
+            input.type = 'file';
+            input.multiple = multiple;
+            input.accept = Object.keys(contentLoaders).join(",");
+            input.onchange = function(){
+                let files = Array.from(input.files);
+                let file = files.slice ? files[0] : files 
+                for( var i in contentLoaders ){
+                  let r = new RegExp('\\'+i+'$')
+                  if( file.name.match(r) ) return contentLoaders[i](file)
+                }
+                alert(file.name+" is not supported")
+            };
+            input.click();
+          }
+        }
+
+
 				let fileLoaders = loadFile({
-          ".gltf": (file) => file.arrayBuffer().then( (data) => xrf.navigator.to(file.name,null,xrf.loaders.gltf,data) ),
-          ".glb": (file) => file.arrayBuffer().then( (data) => xrf.navigator.to(file.name,null,xrf.loaders.gltf,data) )
+          ".gltf": (file) => file.arrayBuffer().then( (data) => XRF.navigator.to(file.name,null,XRF.loaders.gltf,data) ),
+          ".glb": (file) => file.arrayBuffer().then( (data) => XRF.navigator.to(file.name,null, XRF.loaders.gltf,data) )
 				})
-				$("#overlay > input[type=submit]").addEventListener("click", fileLoaders )
+				$("input[type=submit]").addEventListener("click", fileLoaders )
 
 			}
 

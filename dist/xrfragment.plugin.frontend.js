@@ -2,11 +2,12 @@
 chatComponent = {
 
   html: `
+    <div id="chat">
      <div id="videos" style="pointer-events:none"></div>
      <div id="messages" aria-live="assertive" aria-relevant></div>
      <div id="chatfooter">
        <div id="chatbar">
-           <input id="chatline" type="text" placeholder="type here"></input>
+           <input id="chatline" type="text" placeholder="chat here"></input>
        </div>
        <button id="showchat" class="btn">show chat</button>
      </div>
@@ -15,10 +16,12 @@ chatComponent = {
 
   init: (el) => new Proxy({
 
-    scene:           null,
-    visible:         true,
-    visibleChatbar:  false,
-    messages:        [],
+    scene:             null,
+    visible:           true,
+    messages:          [],
+    oneMessagePerUser: false,
+
+    username: '',    // configured by 'network.connected' event
 
     $videos:         el.querySelector("#videos"),
     $messages:       el.querySelector("#messages"),
@@ -28,16 +31,19 @@ chatComponent = {
     install(opts){
       this.opts  = opts
       this.scene = opts.scene 
+      this.$chatbar.style.display = 'none'
       el.className = "xrf"
       el.style.display = 'none' // start hidden 
       document.body.appendChild( el )
-      this.visibleChatbar = false
       document.dispatchEvent( new CustomEvent("$chat:ready", {detail: opts}) )
       this.send({message:`Welcome to <b>${document.location.search.substr(1)}</b>, a 3D scene(file) which simply links to other ones.<br>You can start a solo offline exploration in XR right away.<br>Type /help below, or use the arrow- or WASD-keys on your keyboard, and mouse-drag to rotate.<br>`, class: ["info","guide","multiline"] })
     },
 
     initListeners(){
       let {$chatline} = this
+
+      $chatline.addEventListener('click', (e) => this.inform() )
+
       $chatline.addEventListener('keydown', (e) => {
         if (e.key == 'Enter' ){
           if( $chatline.value[0] != '/' ){
@@ -45,9 +51,25 @@ chatComponent = {
           }
           this.send({message: $chatline.value })
           $chatline.value = ''
+          if( window.innerHeight < 600 ) $chatline.blur()
         }
       })
-      console.dir(this.scene)
+
+      document.addEventListener('network.connect', (e) => {
+        this.visible = true
+        this.$chatbar.style.display = '' // show
+      })
+
+      document.addEventListener('network.connected', (e) => {
+        if( e.detail.username ) this.username = e.detail.username
+      })
+
+    },
+
+    inform(){
+      if( !this.inform.informed && (this.inform.informed = true) ){
+        window.notify("Connected via P2P. You can now type message which will be visible to others.")
+      }
     },
 
     toggle(){
@@ -55,10 +77,20 @@ chatComponent = {
       if( this.visible && window.meeting.status == 'offline' ) window.meeting.start(this.opts)
     },
 
+    hyphenate(str){
+      return String(str).replace(/[^a-zA-Z0-9]/g,'-')
+    },
+
+    // sending messages to the #messages div 
+    // every user can post maximum one msg at a time 
+    // it's more like a 'status' which is more friendly 
+    // for accessibility reasons 
+    // for a fullfledged chat/transcript see matrix clients
     send(opts){
       let {$messages} = this
       opts = { linebreak:true, message:"", class:[], ...opts }
       if( window.frontend && window.frontend.emit ) window.frontend.emit('$chat.send', opts )
+      opts.pos  = opts.pos || network.posName || network.pos
       let div  = document.createElement('div')
       let msg  = document.createElement('div')
       let br   = document.createElement('br')
@@ -74,7 +106,12 @@ chatComponent = {
         br.classList.add.apply(br.classList, opts.class)
         div.classList.add.apply(div.classList, opts.class.concat(["envelope"]))
       }
-      if( !opts.from && !msg.className.match(/(info|guide)/) ) msg.classList.add('self')
+      if( !msg.className.match(/(info|guide|ui)/) ){
+        let frag = xrf.URI.parse(document.location.hash)
+        opts.from = 'you'
+        if( frag.pos ) opts.pos = frag.pos.string
+        msg.classList.add('self')
+      }
       if( opts.from ){
         nick.className = "user"
         nick.innerText = opts.from+' '
@@ -86,6 +123,15 @@ chatComponent = {
         }
       }
       div.appendChild(msg)
+      // force one message per user 
+      if( this.oneMessagePerUser && opts.from ){
+        div.id = this.hyphenate(opts.from)
+        let oldMsg = $messages.querySelector(`#${div.id}`)
+        if( oldMsg ) oldMsg.remove()
+      }
+      // remove after timeout
+      if( opts.timeout ) setTimeout( (div) => div.remove(), opts.timeout, div )
+      // finally add the message on top
       $messages.appendChild(div)
       if( opts.linebreak ) div.appendChild(br)
       $messages.scrollTop = $messages.scrollHeight // scroll down
@@ -109,9 +155,6 @@ chatComponent = {
                                   el.style.display = me.visible ? 'block' : 'none'
                                   if( !el.inited && (el.inited = true) ) me.initListeners()
                                   break;
-                                }
-        case "visibleChatbar":  {
-                                  me.$chatbar.style.display = v ? 'block' : 'none' 
                                 }
       }
     }
@@ -196,46 +239,63 @@ chatComponent.css = `
        max-width:unset;
      }
      #messages{
-       position: absolute;
-       transition:1s;
-       top: 0px;
-       left: 0;
-       bottom: 130px;
-       padding: 15px;
-       overflow:hidden;
-       pointer-events:none;
-       transition:1s;
+       /*
+       display: flex;
+       flex-direction: column;
        width: 91%;
        max-width: 500px;
+       */
+       width:100%;
+       align-items: flex-start;
+       position: absolute;
+       transition:1s;
+       top: 77px;
+       left: 0;
+       bottom: 49px;
+       padding: 20px;
+       overflow:hidden;
+       overflow-y: scroll;
+       pointer-events:none;
+       transition:1s;
        z-index: 100;
-       -webkit-user-select:none;
-       -moz-user-select:-moz-none;
-       -ms-user-select:none;
-       user-select:none;
      }
      body.menu #messages{
        top:50px;
      }
-     #messages *{
+     #messages:hover {
        pointer-events:all;
+     }
+     #messages *{
+       pointer-events:none;
+       -webkit-user-select:none;
+       -moz-user-select:-moz-none;
+       -ms-user-select:none;
+       user-select:none;
      }
      #messages .msg{
        transition:all 1s ease;
        background: #fff;
        display: inline-block;
        padding: 1px 17px;
-       border-radius: 20px 0px 20px 20px;
+       border-radius: 20px;
        color: #000c;
        margin-bottom: 10px;
        line-height:23px;
-       pointer-events:visible;
        line-height:33px;
        cursor:grabbing;
        border: 1px solid #0002;
      }
+     #messages .msg *{
+       pointer-events:all;
+       -webkit-user-select:text;
+       -moz-user-select:-moz-text;
+       -ms-user-select:text;
+       user-select:text;
+    }
+
      #messages .msg.self{
-       border-radius: 0px 20px 20px 20px;
-       background:var(--xrf-primary);
+       border-radius: 20px;
+       background:var(--xrf-box-shadow);
      }
      #messages .msg.self,
      #messages .msg.self div{
@@ -254,12 +314,16 @@ chatComponent.css = `
      }
      #messages .msg a {
        text-decoration:underline;
-       color: #EEE;
+       color: var(--xrf-primary);
        font-weight:bold;
-       transition:1s;
+       transition:0.3s;
+     }
+     #messages .msg.info a,
+     #messages a.ruler{
+       color:#FFF;
      }
      #messages .msg a:hover{
-        color:#FFF;
+        color:#000;
      }
      #messages .msg.ui, 
      #messages .msg.ui div{ 
@@ -327,10 +391,19 @@ chatComponent.css = `
       margin:0;
     }
 
-    .envelope{
-      height:unset;
+    .envelope,
+    .envelope * {
       overflow:hidden;
       transition:1s;
+      pointer-events:none;
+    }
+    .envelope a,
+    .envelope button,
+    .envelope input,
+    .envelope textarea,
+    .envelope msg,
+    .envelope msg * {
+      pointer-events:all;
     }
 
     .user{
@@ -346,70 +419,92 @@ connectionsComponent = {
 
   html: `
    <div id="connections">
-      <i class="gg-close-o" id="close" onclick="$connections.toggle()"></i>
-      <div id="networking">
-        <h2>Network channels:</h2>
-        <table>
-          <tr>
-            <td>Webcam</td>
-            <td>
-              <select id="webcam"></select>
-            </td>
-          </tr>
-          <tr>
-            <td>Chat</td>
-            <td>
-              <select id="chatnetwork"></select>
-            </td>
-          </tr>
-          <tr>
-            <td>World sync</td>
-            <td>
-              <select id="scene"></select>
-            </td>
-          </tr>
+      <i class="gg-close-o" id="close" onclick="$connections.visible = false"></i>
+      <br>
+      <div class="tab-frame">
+        <input type="radio" name="tab" id="login" checked>
+        <label for="login">login</label>
+
+        <input type="radio" name="tab" id="io">
+        <label for="io">devices</label>
+       
+        <input type="radio" name="tab" id="networks">
+        <label for="networks">advanced</label>
+          
+        <div class="tab">
+          <div id="settings"></div>
+          <table>
+            <tr>
+              <td></td>
+              <td>
+                <button id="connect" onclick="network.connect( $connections )">📡 Connect!</button>
+              </td>
+            </tr>
         </table>
+        </div>
+
+        <div class="tab">
+          <div id="devices">
+            <a class="badge ruler">Webcam and/or Audio</a>
+            <table>
+              <tr>
+                <td>Video</td>
+                <td>
+                  <select id="videoInput"></select> 
+                </td>
+              </tr>
+              <tr>
+                <td>Mic</td>
+                <td>
+                  <select id="audioInput"></select> 
+                </td>
+              </tr>
+              <tr style="display:none"> <!-- not used (for now) -->
+                <td>Audio</td>
+                <td>
+                  <select id="audioOutput"></select> 
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="tab">
+          <div id="networking">
+            Networking a la carte:<br>
+            <table>
+              <tr>
+                <td>Webcam</td>
+                <td>
+                  <select id="webcam"></select>
+                </td>
+              </tr>
+              <tr>
+                <td>Chat</td>
+                <td>
+                  <select id="chatnetwork"></select>
+                </td>
+              </tr>
+              <tr>
+                <td>World sync</td>
+                <td>
+                  <select id="scene"></select>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
       </div>
-      <div id="devices">
-        <a class="badge ruler">Webcam</a>
-        <table>
-          <tr>
-            <td>Video</td>
-            <td>
-              <select id="videoInput"></select> 
-            </td>
-          </tr>
-          <tr>
-            <td>Mic</td>
-            <td>
-              <select id="audioInput"></select> 
-            </td>
-          </tr>
-          <tr style="display:none"> <!-- not used (for now) -->
-            <td>Audio</td>
-            <td>
-              <select id="audioOutput"></select> 
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div id="settings"></div>
-      <table>
-        <tr>
-          <td></td>
-          <td>
-            <button id="connect" onclick="network.connect( $connections )">📡 Connect!</button>
-          </td>
-        </tr>
-      </table>
     </div>
   `,
 
   init: (el) => new Proxy({
 
-    webcam:       [{plugin:{name:"No thanks"},config: () => document.createElement('div')}],
-    chatnetwork:  [{plugin:{name:"No thanks"},config: () => document.createElement('div')}],
-    scene:        [{plugin:{name:"No thanks"},config: () => document.createElement('div')}],
+    visible: true,
+
+    webcam:       [{profile:{name:"No thanks"},config: () => document.createElement('div')}],
+    chatnetwork:  [{profile:{name:"No thanks"},config: () => document.createElement('div')}],
+    scene:        [{profile:{name:"No thanks"},config: () => document.createElement('div')}],
 
     selectedWebcam:     '',
     selectedChatnetwork:'',
@@ -435,15 +530,13 @@ connectionsComponent = {
         `<a class="btn" aria-label="button" aria-title="connect button" aria-description="use this to talk or chat with other people" id="meeting" onclick="$connections.show()"><i class="gg-user-add"></i>&nbsp;connect</a><br>`
       ]).concat($menu.buttons)
 
-      // hide networking settings if entering thru meetinglink
       if( document.location.href.match(/meet=/) ) this.show()
 
       setTimeout( () => document.dispatchEvent( new CustomEvent("$connections:ready", {detail: opts}) ), 1 )
     },
 
     toggle(){
-      let parent = el.closest('.envelope')
-      parent.style.display = parent.style.display == 'none' ? parent.style.display = '' : 'none'
+      $chat.visible = !$chat.visible 
     },
 
     change(id,e){
@@ -452,20 +545,28 @@ connectionsComponent = {
       }
     },
 
-    show(){
-      $chat.visible = true
-      $networking.style.display = document.location.href.match(/meet=/) ? 'none' : 'block'
-      if( !network.connected ){
-          if( el.parentElement ) el.parentElement.parentElement.remove()
-          $chat.send({message:"", el, class:['ui']})
-          if( !network.meetinglink ){ // set default
-            $webcam.value      = 'Peer2Peer'
-            $chatnetwork.value = 'Peer2Peer'
-            $scene.value       = 'Peer2Peer'
-          }
-          this.renderSettings()
+    show(opts){
+      opts = opts || {}
+      if( opts.hide ){
+        if( el.parentElement ) el.parentElement.parentElement.style.display = 'none' // hide along with wrapper elements
+        if( !opts.showChat ) $chat.visible = false
       }else{
-        $chat.send({message:"you are already connected, refresh page to create new connection",class:['info']})
+        $chat.visible = true
+        this.visible  = true
+        // hide networking settings if entering thru meetinglink
+        $networking.style.display = document.location.href.match(/meet=/) ? 'none' : 'block'
+        if( !network.connected ){
+            document.querySelector('body > .xrf').appendChild(el)
+            $chat.send({message:"", el, class:['ui']})
+            if( !network.meetinglink ){ // set default
+              $webcam.value      = opts.webcam      || 'Peer2Peer'
+              $chatnetwork.value = opts.chatnetwork || 'Peer2Peer'
+              $scene.value       = opts.scene       || 'Peer2Peer'
+            }
+            this.renderSettings()
+        }else{
+          $chat.send({message:"you are already connected, refresh page to create new connection",class:['info']})
+        }
       }
     },
 
@@ -478,7 +579,7 @@ connectionsComponent = {
     forSelectedPluginsDo(cb){
       // this function looks weird but it's handy to prevent the same plugins rendering duplicate configurations
       let plugins = {}
-      let select = (name) => (o) => o.plugin.name == name ? plugins[ o.plugin.name ] = o : ''
+      let select = (name) => (o) => o.profile.name == name ? plugins[ o.profile.name ] = o : ''
       this.webcam.find( select(this.selectedWebcam) )
       this.chatnetwork.find( select(this.selectedChatnetwork) )
       this.scene.find( select(this.selectedScene) )
@@ -491,12 +592,12 @@ connectionsComponent = {
       let opts = {webcam: $webcam.value, chatnetwork: $chatnetwork.value, scene: $scene.value }
       this.update()
       $settings.innerHTML = ''
-      this.forSelectedPluginsDo( (plugin) => $settings.appendChild( plugin.config(opts) ) )
+      this.forSelectedPluginsDo( (plugin) => $settings.appendChild( plugin.config({...opts,plugin}) ) )
       this.renderInputs()
     },
 
     renderInputs(){
-      if( this.selectedWebcam == 'No thanks' ){
+      if( !this.selectedWebcam || this.selectedWebcam == 'No thanks' ){
         return this.$devices.style.display = 'none' 
       }else this.$devices.style.display = ''
 
@@ -548,25 +649,15 @@ connectionsComponent = {
       })
     },
 
-    reactToNetwork(){
-      document.addEventListener('network.connected',    () => {
-        console.log("network.connected")
-        window.notify("🪐 connected to awesomeness..") 
-        $chat.visibleChatbar = true
-        $chat.send({message:`🎉 connected!`,class:['info']})
-      })
+    reactToNetwork(){ // *TODO* move to network?
+
       document.addEventListener('network.connect',    () => {
-        console.log("network.connect")
-        el.parentElement.classList.add('connecthide')
-        window.notify("🪐 connecting to awesomeness..") 
-        $connect.innerText = 'connecting..'
+        this.show({hide:true, showChat: true})
       })
-      document.addEventListener('network.disconnect', () => {
-        window.notify("🪐 disconnecting..") 
-        $connect.innerText = 'disconnecting..'
-        setTimeout( () => $connect.innerText = 'connect', 1000)
-        if( !window.accessibility.enabled ) $chat.visibleChatbar = false
+      document.addEventListener('network.disconnect',    () => {
+        this.connected = false 
       })
+
     }
 
   },{
@@ -575,9 +666,10 @@ connectionsComponent = {
     set(data,k,v){ 
       data[k] = v 
       switch( k ){
-        case "webcam":              $webcam.innerHTML       = `<option>${data[k].map((p)=>p.plugin.name).join('</option><option>')}</option>`; break;
-        case "chatnetwork":         $chatnetwork.innerHTML  = `<option>${data[k].map((p)=>p.plugin.name).join('</option><option>')}</option>`; break;
-        case "scene":               $scene.innerHTML        = `<option>${data[k].map((p)=>p.plugin.name).join('</option><option>')}</option>`; break;
+        case "visible":             el.style.display = v ? '' : 'none'; break;
+        case "webcam":              $webcam.innerHTML       = `<option>${data[k].map((p)=>p.profile.name).join('</option><option>')}</option>`; break;
+        case "chatnetwork":         $chatnetwork.innerHTML  = `<option>${data[k].map((p)=>p.profile.name).join('</option><option>')}</option>`; break;
+        case "scene":               $scene.innerHTML        = `<option>${data[k].map((p)=>p.profile.name).join('</option><option>')}</option>`; break;
         case "selectedScene":       $scene.value       = v; data.renderSettings(); break;
         case "selectedChatnetwork": $chatnetwork.value = v; data.renderSettings(); break;
         case "selectedWebcam":      {
@@ -620,11 +712,11 @@ connectionsComponent.css = `
       }
       #close{
         display: block;
-        margin-top: 16px;
         position: relative;
         float: right;
-        margin-bottom: 7px;
+        top: 16px;
       }
+      #messages .msg.ui  div.tab-frame > div.tab{ padding:25px 10px 5px 10px;}
    </style>`
 // reactive component for displaying the menu 
 menuComponent = (el) => new Proxy({
@@ -644,8 +736,8 @@ menuComponent = (el) => new Proxy({
   $buttons:   $buttons = el.querySelector('#buttons'),
   $btnMore:   $btnMore = el.querySelector('#more'),
 
-  toggle(){   
-    this.collapsed = !this.collapsed 
+  toggle(state){   
+    this.collapsed = state !== undefined ? state : !this.collapsed 
     el.querySelector("i#icon").className = this.collapsed ? 'gg-close' : 'gg-menu'
     document.body.classList[ this.collapsed ? 'add' : 'remove' ](['menu'])
   },
@@ -777,16 +869,19 @@ window.accessibility = (opts) => new Proxy({
     document.addEventListener('network.send', (e) => {
       let opts = e.detail
       opts.message = opts.message || ''
-      if( opts.class && ~opts.class.indexOf('info') ) opts.message = `info: ${opts.message}`
       this.speak(opts.message)
     })
 
     opts.xrf.addEventListener('pos', (opts) => {
       if( this.enabled ){
         $chat.send({message: this.posToMessage(opts) })
+        network.send({message: this.posToMessage(opts), class:["info","guide"]})
       }
-      network.send({message: this.posToMessage(opts), class:["info","guide"]})
-      network.pos = opts.frag.pos.string
+      if( opts.frag.pos.string.match(/,/) ){
+        network.pos = opts.frag.pos.string
+      }else{
+        network.posName = opts.frag.pos.string
+      }
     })
 
   },
@@ -895,6 +990,7 @@ document.head.innerHTML += `
       white-space:pre;
       min-width: 45px;
       box-shadow: 0px 0px 10px var(--xrf-box-shadow);
+      display:inline-block;
     }
 
     .xrf button:hover,
@@ -997,7 +1093,7 @@ document.head.innerHTML += `
 
 
 
-    .menu .btn{
+    .footer > .menu .btn{
       display:inline-block;
       background: var(--xrf-primary);
       border-radius: 25px;
@@ -1136,7 +1232,8 @@ document.head.innerHTML += `
       text-align:right;
     }
 
-    .badge {
+    .badge,
+    #messages .msg.ui div.badge{
       display:inline-block;
       color: var(--xrf-white);
       font-weight: bold;
@@ -1204,6 +1301,22 @@ document.head.innerHTML += `
   body.menu .js-snackbar__wrapper {
     top: 64px; 
   }
+
+  .right { float:right }
+  .left  { float:left  }
+
+  /*
+   * tabs 
+   */ 
+  div.tab-frame > input{ display:none;}
+  div.tab-frame > label{ display:block; float:left;padding:5px 10px; cursor:pointer;  }
+  div.tab-frame > input:checked + label{ cursor:default; border-bottom:1px solid #888; font-weight:bold; }
+  div.tab-frame > div.tab{ display:none; padding:15px 10px 5px 10px;clear:left}
+
+  div.tab-frame > input:nth-of-type(1):checked ~ .tab:nth-of-type(1),
+  div.tab-frame > input:nth-of-type(2):checked ~ .tab:nth-of-type(2),
+  div.tab-frame > input:nth-of-type(3):checked ~ .tab:nth-of-type(3){ display:block;}
+
 
   /*
    * css icons from https://css.gg
@@ -1366,7 +1479,7 @@ document.head.innerHTML += `
       position: relative;
       display: inline-block;
       -moz-transform: rotate(-45deg) scale(var(--ggs,1));
-      transform: translate(4px,-5px) rotate(-45deg) scale(var(--ggs,1));
+      transform: translate(4px,1px) rotate(-45deg) scale(var(--ggs,1));
       width: 8px;
       height: 2px;
       background: currentColor;
@@ -1532,14 +1645,14 @@ document.head.innerHTML += `
       box-sizing: border-box;
       position: relative;
       display: inline-block;
-      transform: scale(var(--ggs,1)) translate(3px,2px); 
+      transform: scale(var(--ggs,1)) translate(3px,9px); 
       width: 16px;
       height: 6px;
       border: 2px solid;
       border-top: 0;
       border-bottom-left-radius: 2px;
       border-bottom-right-radius: 2px;
-      margin-top: 8px
+      line-height:15px;
   }
   .gg-software-download::after {
       content: "";
@@ -1643,7 +1756,9 @@ window.frontend = (opts) => new Proxy({
     .setupIframeUrlHandler()
     .setupCapture()
     .setupUserHints()
+    .setupNetworkListeners()
     .hidetopbarWhenMenuCollapse()
+    .hideUIWhenNavigating()
 
     window.notify   = this.notify
     setTimeout( () => {
@@ -1694,10 +1809,64 @@ window.frontend = (opts) => new Proxy({
     return this
   },
 
+  setupNetworkListeners(){
+
+    document.addEventListener('network.connect',    (e) => {
+      console.log("network.connect")
+      window.notify("🪐 connecting to awesomeness..") 
+      $chat.send({message:`🪐 connecting to awesomeness..`,class:['info'], timeout:5000})
+    })
+
+    document.addEventListener('network.connected',    (e) => {
+      window.notify("🪐 connected to awesomeness..") 
+      $chat.visibleChatbar = true
+      $chat.send({message:`🎉 ${e.detail.plugin.profile.name||''} connected!`,class:['info'], timeout:5000})
+    })
+
+    document.addEventListener('network.disconnect', () => {
+      window.notify("🪐 disconnecting..") 
+    })
+
+    document.addEventListener('network.info',    (e) => {
+      window.notify(e.detail.message)
+      $chat.send({...e.detail, class:['info'], timeout:5000})
+    })
+
+    document.addEventListener('network.error',    (e) => {
+      window.notify(e.detail.message)
+      $chat.send({...e.detail, class:['info'], timeout:5000})
+    })
+
+    return this
+  },
+
   hidetopbarWhenMenuCollapse(){
     // hide topbar when menu collapse button is pressed
     document.addEventListener('$menu:collapse', (e) => this.el.querySelector("#topbar").style.display = e.detail === true ? 'block' : 'none')
     return this
+  },
+
+  hideUIWhenNavigating(){
+    // hide ui when user is navigating the scene using mouse/touch
+    let showUI = (show) => (e) => {
+      let isChatMsg        = e.target.closest('.msg')
+      let isChatLine       = e.target.id == 'chatline'
+      let isChatEmptySpace = e.target.id == 'messages'
+      let isUI             = e.target.closest('.ui')
+      //console.dir({class: e.target.className, id: e.target.id, isChatMsg,isChatLine,isChatEmptySpace,isUI, tagName: e.target.tagName})
+      if( isUI || e.target.tagName.match(/^(BUTTON|TEXTAREA|INPUT|A)/) || e.target.className.match(/(btn)/) ) return
+      if( show ){
+        $chat.visible = true
+      }else{
+        $chat.visible = false 
+        $menu.toggle(false)
+      }
+      return true
+    }
+    document.addEventListener('mousedown',  showUI(false) )
+    document.addEventListener('mouseup',    showUI(true)  )
+    document.addEventListener('touchstart', showUI(false) )
+    document.addEventListener('touchend',   showUI(true)  )
   },
 
   loadFile(contentLoaders, multiple){
@@ -1787,23 +1956,27 @@ window.frontend = (opts) => new Proxy({
   },
 
   share(opts){
-    opts = opts || {notify:true,qr:true,share:true}
-    if( network.connected && !document.location.hash.match(/meet=/) ){
-      let p = $connections.chatnetwork.find( (p) => p.plugin.name == $connections.selectedChatnetwork )
-      if( p.link ) document.location.hash += `&meet=${p.link}`
+    opts = opts || {notify:true,qr:true,share:true,linkonly:false}
+    if( network.meetingLink && !document.location.hash.match(/meet=/) ){
+      document.location.hash += `&meet=${network.meetingLink}`
+    }
+    if( !document.location.hash.match(/pos=/) ){
+      document.location.hash += `&pos=${ network.posName || network.pos }`
     }
     let url = window.location.href
+    if( opts.linkonly ) return url 
     this.copyToClipboard( url )
     // End of *TODO* 
     if( opts.notify ){
-      window.notify(`<h2>${ network.connected ? 'Meeting link ' : 'Link'} copied to clipboard!</h2> <br>Now share it with your friends ❤️<br>
+      window.notify(`<h2>${ network.connected ? 'Meeting link ' : 'Link'} copied to clipboard!</h2>
+        Now share it with your friends ❤️<br>
         <canvas id="qrcode" width="121" height="121"></canvas><br>
         <button onclick="frontend.download()"><i class="gg-software-download"></i>&nbsp;&nbsp;&nbsp;download scene file</button> <br>
         <button onclick="alert('this might take a while'); $('a-scene').components.screenshot.capture('equirectangular')"><i class="gg-image"></i>&nbsp;&nbsp;download 360 screenshot</button> <br>
         <a class="btn" target="_blank" href="https://github.com/coderofsalvation/xrfragment-helloworld"><i class="gg-serverless"></i>&nbsp;&nbsp;&nbsp;clone & selfhost this experience</a><br>
-        <br>
         To embed this experience in your blog,<br>
         copy/paste the following into your HTML:<br><input type="text" value="&lt;iframe src='${document.location.href}'&gt;&lt;/iframe&gt;" id="share"/>
+        <br>
         <br>
       `,{timeout:false})
     }
@@ -1846,6 +2019,7 @@ window.network = (opts) => new Proxy({
 
   connected: false,
   pos: '',
+  posName: '',
   meetinglink: "",
   peers: {},
   plugin: {},
@@ -1901,8 +2075,7 @@ window.network = (opts) => new Proxy({
     for ( var i in String.prototype   ) add(i) 
     var a = names[Math.floor(Math.random() * names.length)];
     var b = names[Math.floor(Math.random() * names.length)];
-    var c = names[Math.floor(Math.random() * names.length)];
-    return String(`${a}-${b}-${c}`).toLowerCase()
+    return String(`${a}-${b}-${String(Math.random()).substr(13)}`).toLowerCase()
   }
 
 },
@@ -2097,7 +2270,7 @@ document.head.innerHTML += `
         height: auto;
         margin: 5px 0;
         transition: all ease .5s;
-        border-radius: 3px;
+        border-radius: 15px;
         box-shadow: 0 0 4px 0 var(--xrf-box-shadow);
         right: 20px;
         position: fixed;
@@ -2157,8 +2330,8 @@ document.head.innerHTML += `
     .js-snackbar__close {
         cursor: pointer;
         display: flex;
-        align-items: center;
-        padding: 0 10px;
+        align-items: top;
+        padding: 8px 13px 0px 0px;
         user-select: none;
     }
 
