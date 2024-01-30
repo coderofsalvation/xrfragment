@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 try(){ set +e; "$@" 2>/dev/null; set -e; }
 trace(){ set -x; "$@"; set +x; }
