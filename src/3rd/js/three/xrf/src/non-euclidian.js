@@ -93,7 +93,7 @@ xrf.portalNonEuclidian = function(opts){
         let cam = xrf.camera.getCam ? xrf.camera.getCam() : camera
         cam.getWorldPosition(cameraPosition)
         cam.getWorldDirection(cameraDirection)
-        if( cameraPosition.distanceTo(newPos) > 20.0 ) return // dont render far portals 
+        if( cameraPosition.distanceTo(newPos) > 10.0 ) return // dont render far portals 
 
         // init
         if( !mesh.portal.isLocal || mesh.portal.isLens ) stencilObject.visible = true 

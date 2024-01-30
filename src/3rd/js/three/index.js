@@ -50,10 +50,12 @@ xrf.patchLoader = function(loader){
 
 xrf.getFile = (url) => url.split("/").pop().replace(/#.*/,'')
 
+// parseModel event is essential for src.js to hook into embedded loaded models
 xrf.parseModel = function(model,url){
   let file               = xrf.getFile(url)
   model.file             = file
-
+  model.isXRF            = true
+  model.scene.traverse( (n) => n.isXRF = true ) // mark for deletion during reset()
   xrf.emit('parseModel',{model,url,file})
 }
 
@@ -79,7 +81,7 @@ xrf.reset = () => {
   xrf.add( xrf.interactive )
   xrf.layers = 0
 
-  // reset certain events 
+  // allow others to reset certain events 
   xrf.emit('reset',{})
   // remove mixers
   xrf.mixers.map( (m) => m.stop())

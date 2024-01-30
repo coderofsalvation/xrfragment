@@ -37,7 +37,7 @@ window.AFRAME.registerComponent('xrf-get', {
             mesh.scale.copy(world.scale)
             mesh.setRotationFromQuaternion(world.quat);
           }else{
-            // add() will reparent the mesh so lets create a dummy
+            // lets create a dummy add function so that the mesh won't get reparented 
             this.el.object3D.add = (a) => a 
           }
           this.el.setObject3D('mesh',mesh)
@@ -48,6 +48,10 @@ window.AFRAME.registerComponent('xrf-get', {
     })
 
     this.el.emit("update",{timeout:0})
+
+    AFRAME.XRF.addEventListener('reset', () => {
+      this.el.remove()
+    })
 
   }
 

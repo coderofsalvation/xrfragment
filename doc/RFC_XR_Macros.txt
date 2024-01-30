@@ -3,7 +3,7 @@
 
 
 Internet Engineering Task Force                          L.R. van Kammen
-Internet-Draft                                           6 December 2023
+Internet-Draft                                           30 January 2024
 Intended status: Informational                                          
 
 
@@ -38,11 +38,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 8 June 2024.
+   This Internet-Draft will expire on 2 August 2024.
 
 Copyright Notice
 
-   Copyright (c) 2023 IETF Trust and the persons identified as the
+   Copyright (c) 2024 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-van Kammen                 Expires 8 June 2024                  [Page 1]
+van Kammen                Expires 2 August 2024                 [Page 1]
 
-Internet-Draft                  XR Macros                  December 2023
+Internet-Draft                  XR Macros                   January 2024
 
 
    extracted from this document must include Revised BSD License text as
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-van Kammen                 Expires 8 June 2024                  [Page 2]
+van Kammen                Expires 2 August 2024                 [Page 2]
 
-Internet-Draft                  XR Macros                  December 2023
+Internet-Draft                  XR Macros                   January 2024
 
 
    3.  Metadata-values can contain the | symbol to 🎲 roundrobin variable
@@ -165,9 +165,9 @@ Internet-Draft                  XR Macros                  December 2023
 
 
 
-van Kammen                 Expires 8 June 2024                  [Page 3]
+van Kammen                Expires 2 August 2024                 [Page 3]
 
-Internet-Draft                  XR Macros                  December 2023
+Internet-Draft                  XR Macros                   January 2024
 
 
    +=========+======+===================+=================+=============+
@@ -221,9 +221,9 @@ Internet-Draft                  XR Macros                  December 2023
 
 
 
-van Kammen                 Expires 8 June 2024                  [Page 4]
+van Kammen                Expires 2 August 2024                 [Page 4]
 
-Internet-Draft                  XR Macros                  December 2023
+Internet-Draft                  XR Macros                   January 2024
 
 
                                   Table 3
@@ -277,9 +277,9 @@ Internet-Draft                  XR Macros                  December 2023
 
 
 
-van Kammen                 Expires 8 June 2024                  [Page 5]
+van Kammen                Expires 2 August 2024                 [Page 5]
 
-Internet-Draft                  XR Macros                  December 2023
+Internet-Draft                  XR Macros                   January 2024
 
 
 4.5.  Usecase: present context menu with options
@@ -333,9 +333,9 @@ click object with (`!clickme`:`!foo|!bar|!flop` e.g.)
 
 
 
-van Kammen                 Expires 8 June 2024                  [Page 6]
+van Kammen                Expires 2 August 2024                 [Page 6]
 
-Internet-Draft                  XR Macros                  December 2023
+Internet-Draft                  XR Macros                   January 2024
 
 
    |  Note that only macro's can trigger roundrobin values or
@@ -389,4 +389,4 @@ Internet-Draft                  XR Macros                  December 2023
 
 
 
-van Kammen                 Expires 8 June 2024                  [Page 7]
+van Kammen                Expires 2 August 2024                 [Page 7]

@@ -4,6 +4,17 @@ window.AFRAME.registerComponent('xrf', {
     https: { type:'string'},
   },
   init: function () {
+
+    // override this.data when URL has passed (`://....com/?https://foo.com/index.glb` e.g.)
+    if( typeof this.data == "string" ){
+      let searchIsUri = document.location.search && 
+                        !document.location.search.match(/=/) &&
+                        document.location.search.match("://")
+      if( searchIsUri || document.location.hash.length > 1 ){ // override url
+        this.data = `${document.location.search.substr(1)}${document.location.hash}`
+      }
+    }
+
     if( !AFRAME.XRF ){
 
       let camera = document.querySelector('[camera]')
@@ -129,15 +140,6 @@ window.AFRAME.registerComponent('xrf', {
       // enable gaze-click on Mobile VR
       aScene.setAttribute('xrf-gaze','')
 
-    }
-
-    if( typeof this.data == "string" ){
-      let searchIsUri = document.location.search && 
-                        !document.location.search.match(/=/) &&
-                        document.location.search.match("://")
-      if( searchIsUri || document.location.hash.length > 1 ){ // override url
-        this.data = `${document.location.search.substr(1)}${document.location.hash}`
-      }
     }
   },
 

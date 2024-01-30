@@ -37,7 +37,7 @@ xrf.addEventListener('parseModel', (opts) => {
 
   model.animations.map( (anim) => { 
     anim.optimize()
-    console.log("action: "+anim.name)
+    if( xrf.debug ) console.log("action: "+anim.name)
     mixer.actions.push( mixer.clipAction( anim, model.scene ) )
   })
 

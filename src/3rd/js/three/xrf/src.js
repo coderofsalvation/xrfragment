@@ -56,7 +56,7 @@ xrf.frag.src.enableSourcePortation = (src) => {
   mat.metalness = 1
   mat.opacity = 0
   const cube = new THREE.Mesh( geo, mat )
-  console.log("todo: sourceportate")
+  // *TODO* sourceportate?
   return xrf.frag.src
 }
 

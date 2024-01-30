@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Mon Jan 29 08:11:09 PM UTC 2024
+ * v0.5.1 generated at Tue Jan 30 09:55:47 AM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -901,10 +901,12 @@ xrf.patchLoader = function(loader){
 
 xrf.getFile = (url) => url.split("/").pop().replace(/#.*/,'')
 
+// parseModel event is essential for src.js to hook into embedded loaded models
 xrf.parseModel = function(model,url){
   let file               = xrf.getFile(url)
   model.file             = file
-
+  model.isXRF            = true
+  model.scene.traverse( (n) => n.isXRF = true ) // mark for deletion during reset()
   xrf.emit('parseModel',{model,url,file})
 }
 
@@ -930,7 +932,7 @@ xrf.reset = () => {
   xrf.add( xrf.interactive )
   xrf.layers = 0
 
-  // reset certain events 
+  // allow others to reset certain events 
   xrf.emit('reset',{})
   // remove mixers
   xrf.mixers.map( (m) => m.stop())
@@ -1041,9 +1043,8 @@ xrf.navigator.to = (url,flags,loader,data) => {
         }
 
         if( data ){  // file upload
-              console.dir(loader)
           loader.parse(data, "", onLoad )
-        }else       loader.load(url, onLoad )
+        }else loader.load(url, onLoad )
       })
     })
   })
@@ -1337,7 +1338,7 @@ xrf.frag.src.enableSourcePortation = (src) => {
   mat.metalness = 1
   mat.opacity = 0
   const cube = new THREE.Mesh( geo, mat )
-  console.log("todo: sourceportate")
+  // *TODO* sourceportate?
   return xrf.frag.src
 }
 
@@ -1471,7 +1472,7 @@ xrf.addEventListener('parseModel', (opts) => {
 
   model.animations.map( (anim) => { 
     anim.optimize()
-    console.log("action: "+anim.name)
+    if( xrf.debug ) console.log("action: "+anim.name)
     mixer.actions.push( mixer.clipAction( anim, model.scene ) )
   })
 
@@ -1823,7 +1824,7 @@ xrf.filter.process = function(frag,scene,opts){
     let obj 
     frag.target = firstFilter
     scene.traverse( (n) => hasName(n, firstFilter.key,firstFilter) && (obj = n) )
-    console.log("reparent "+firstFilter.key+" "+((opts.copyScene)?"copy":"inplace"))
+    if( xrf.debug ) console.log("reparent "+firstFilter.key+" "+((opts.copyScene)?"copy":"inplace"))
     if(obj ){
       obj.position.set(0,0,0)
       if( opts.copyScene ) {
@@ -1881,7 +1882,7 @@ xrf.frag.defaultPredefinedViews = (opts) => {
   scene.traverse( (n) => {
     if( n.userData && n.userData['#'] ){
       let frag = xrf.URI.parse( n.userData['#'] )
-      if( n.parent && n.parent.parent.isScene && document.location.hash.length < 2 ){
+      if( !n.parent && document.location.hash.length < 2){
         xrf.navigator.to( n.userData['#'] )     // evaluate static XR fragments
       }else{
         xrf.hashbus.pub( n.userData['#'] )     // evaluate static XR fragments
@@ -2249,7 +2250,7 @@ xrf.portalNonEuclidian = function(opts){
         let cam = xrf.camera.getCam ? xrf.camera.getCam() : camera
         cam.getWorldPosition(cameraPosition)
         cam.getWorldDirection(cameraDirection)
-        if( cameraPosition.distanceTo(newPos) > 20.0 ) return // dont render far portals 
+        if( cameraPosition.distanceTo(newPos) > 10.0 ) return // dont render far portals 
 
         // init
         if( !mesh.portal.isLocal || mesh.portal.isLens ) stencilObject.visible = true 

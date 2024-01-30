@@ -10,7 +10,7 @@
 <workgroup>Internet Engineering Task Force</workgroup>
 
 <abstract>
-<t>This draft is a specification for 4D URLs &amp; <eref target="https://github.com/coderofsalvation/hypermediatic">hypermediatic</eref> navigation, which links together space, time &amp; text together, for hypermedia browsers with- or without a network-connection.<br />
+<t>This draft is a specification for 4D URI's &amp; <eref target="https://github.com/coderofsalvation/hypermediatic">hypermediatic</eref> navigation, which links together space, time &amp; text together, for hypermedia browsers with- or without a network-connection.<br />
 
 The specification promotes spatial addressibility, sharing, navigation, filtering and databinding objects for (XR) Browsers.<br />
 
@@ -30,22 +30,84 @@ Historically, there's many attempts to create the ultimate markuplanguage or 3D 
 The lowest common denominator is: designers describing/tagging/naming things using <strong>plain text</strong>.<br />
 
 XR Fragments exploits the fact that all 3D models already contain such metadata:</t>
-<t><strong>XR Fragments allows controlling of metadata in 3D scene(files) using URLs</strong></t>
-<t>Or more detailed:</t>
+<t><strong>XR Fragments allows controlling of metadata in 3D scene(files) using URI's</strong></t>
+<t>It solves:</t>
 
 <ol spacing="compact">
 <li>addressibility and <eref target="https://github.com/coderofsalvation/hypermediatic">hypermediatic</eref> navigation of 3D scenes/objects: <eref target="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</eref> + src/href spatial metadata</li>
-<li>Interlinking (text)objects by collapsing space into a Word Graph (XRWG) to show <eref target="#visible-links">visible links</eref></li>
+<li>Interlinking text &amp; spatial objects by collapsing space into a Word Graph (XRWG) to show <eref target="#visible-links">visible links</eref></li>
 <li>unlocking spatial potential of the (originally 2D) hashtag (which jumps to a chapter) for navigating XR documents</li>
 </ol>
 <blockquote><t>NOTE: The chapters in this document are ordered from highlevel to lowlevel (technical) as much as possible</t>
 </blockquote></section>
 
 <section anchor="core-principle"><name>Core principle</name>
-<t><strong>XR Fragments allows controlling of metadata in 3D scene(files) using URLs</strong></t>
+<t><strong>XR Fragments allows controlling 3D models using URLs, based on (non)existing metadata via URI's</strong></t>
 <t>XR Fragments tries to seek to connect the world of text (semantical web / RDF), and the world of pixels.<br />
 
-Instead of combining them (in a game-editor e.g.), XR Fragments <strong>integrates all</strong>, by collecting metadata into an XRWG and control it via URL:</t>
+Instead of forcing authors to combine 3D/2D objects programmatically (publishing thru a game-editor e.g.), XR Fragments <strong>integrates all</strong> which allows a universal viewing experience.<br />
+</t>
+
+<artwork><![CDATA[  +───────────────────────────────────────────────────────────────────────────────────────────────+
+  │                                                                                               │
+  │                          U R N                                                                │
+  │ U R L                      |                                                                  │
+  │  |       |-----------------+--------|                                                         │
+  │  +--------------------------------------------------|                                         │
+  │  |                                                                                            │
+  │  + https://foo.com/some/foo/scene.glb#someview             <-- http URI (=URL and has URN)    │
+  │  |                                                                                            │
+  │  + ipfs://cfe0987ec9r9098ecr/cats.fbx#someview             <-- an IPFS URI (=URL and has URN) │
+  │                                                                                               │
+  │  ec09f7e9cf8e7f09c8e7f98e79c09ef89e000efece8f7ecfe9fe      <-- an interpeer URI               │
+  │                                                                                               │
+  │                                                                                               │
+  │  |------------------------+-------------------------|                                         │
+  │                           |                                                                   │
+  │                         U R I                                                                 │
+  │                                                                                               │
+  +───────────────────────────────────────────────────────────────────────────────────────────────+
+
+]]>
+</artwork>
+<t>Fact: our typical browser URL's are just <strong>a possible implementation</strong> of URI's (for untapped humancentric potential of URI's <eref target="https://interpeer.io">see interpeer.io</eref>)</t>
+<blockquote><t>XR Fragments does not look at XR (or the web) thru the lens of HTML or URLs.<br />
+But approaches things from a higherlevel feedbackloop/hypermedia browser-perspective.</t>
+</blockquote><t>Below you can see how this translates back into good-old URLs:</t>
+
+<artwork><![CDATA[ +───────────────────────────────────────────────────────────────────────────────────────────────+
+ │                                                                                               │
+ │   the soul of any URL:       ://macro        /meso           ?micro      #nano                │
+ │                                                                                               │
+ │                2D URL:       ://library.com  /document       ?search     #chapter             │
+ │                                                                                               │
+ │                4D URL:       ://park.com     /4Dscene.fbx ─> ?other.glb ─> #view ───> hashbus │
+ │                                                │                           #filter     │      │
+ │                                                │                           #tag        │      │
+ │                                                │     (hypermediatic)       #material   │      │
+ │                                                │     (  feedback   )       #animation  │      │
+ │                                                │     (    loop     )       #texture    │      │
+ │                                                │                           #variable   │      │
+ │                                                │                                       │      │
+ │                                               XRWG <─────────────────────<─────────────+      │
+ │                                                │                                       │      │
+ │                                                └─ objects  ──────────────>─────────────+      │
+ │                                                                                               │
+ │                                                                                               │
+ +───────────────────────────────────────────────────────────────────────────────────────────────+
+
+]]>
+</artwork>
+<blockquote><t>?-linked and #-linked navigation allows a Hypermediatic FeedbackLoop (HFL) between external and internal 4D navigation.</t>
+</blockquote><t>Traditional webbrowsers can become 4D document-ready by:</t>
+
+<ul spacing="compact">
+<li><eref target="https://github.com/coderofsalvation/hypermediatic">hypermediatic</eref> loading 3D assets (gltf/fbx e.g.) natively (with or without using HTML).</li>
+<li>allowing assets to publish hashtags to themselves (the scene) using the hashbus (like hashtags controlling the scrollbar).</li>
+<li>collapsing the 3D scene to an wordgraph (for essential navigation purposes) controllable thru a hash(tag)bus</li>
+<li>completely bypasses the security-trap of loading external scripts (by loading 3D model-files, not HTML-javascriptable resources)</li>
+</ul>
+<t>XR Fragments itself are <eref target="https://github.com/coderofsalvation/hypermediatic">hypermediatic</eref> and HTML-agnostic, though pseudo-XR Fragment browsers <strong>can</strong> be implemented on top of HTML/Javascript.</t>
 <table>
 <thead>
 <tr>
@@ -104,46 +166,13 @@ Instead of combining them (in a game-editor e.g.), XR Fragments <strong>integrat
 <td>n/a</td>
 </tr>
 </tbody>
-</table><blockquote><t>XR Fragments does not look at XR (or the web) thru the lens of HTML.<br />
-But approaches things from a higherlevel feedbackloop/hypermedia browser-perspective:</t>
-</blockquote>
-<artwork><![CDATA[ +──────────────────────────────────────────────────────────────────────────────────────────────+
- │                                                                                              │
- │   the soul of any URL:       ://macro        /meso            ?micro      #nano              │
- │                                                                                              │
- │                2D URL:       ://library.com  /document        ?search     #chapter           │
- │                                                                                              │
- │                4D URL:       ://park.com     /4Dscene.fbx ──> ?misc  ──>  #view ───> hashbus │
- │                                                │                          #filter     │      │
- │                                                │                          #tag        │      │
- │                                                │                          #material   │      │
- │                                                │                          #animation  │      │
- │                                                │                          #texture    │      │
- │                                                │                          #variable   │      │
- │                                                │                                      │      │
- │                                               XRWG <─────────────────────<────────────+      │
- │                                                │                                      │      │
- │                                                └─ objects  ──────────────>────────────+      │
- │                                                                                              │
- │                                                                                              │
- +──────────────────────────────────────────────────────────────────────────────────────────────+
-
-]]>
-</artwork>
-<t>Traditional webbrowsers can become 4D document-ready by:</t>
-
-<ul spacing="compact">
-<li><eref target="https://github.com/coderofsalvation/hypermediatic">hypermediatic</eref> loading 3D assets (gltf/fbx e.g.) natively (with or without using HTML).</li>
-<li>allowing assets to publish hashtags to themselves (the scene) using the hashbus (like hashtags controlling the scrollbar).</li>
-<li>collapsing the 3D scene to an wordgraph (for essential navigation purposes) controllable thru a hash(tag)bus</li>
-</ul>
-<t>XR Fragments itself are <eref target="https://github.com/coderofsalvation/hypermediatic">hypermediatic</eref> and HTML-agnostic, though pseudo-XR Fragment browsers <strong>can</strong> be implemented on top of HTML/Javascript.</t>
-</section>
+</table></section>
 
 <section anchor="conventions-and-definitions"><name>Conventions and Definitions</name>
 <t>See appendix below in case certain terms are not clear.</t>
 
-<section anchor="xr-fragment-uri-grammar"><name>XR Fragment URI Grammar</name>
+<section anchor="xr-fragment-url-grammar"><name>XR Fragment URL Grammar</name>
+<t>For typical HTTP-like browsers/applications:</t>
 
 <artwork><![CDATA[reserved    = gen-delims / sub-delims
 gen-delims  = "#" / "&"
@@ -171,7 +200,12 @@ sub-delims  = "," / "="
 </tr>
 </tbody>
 </table><blockquote><t>this is already implemented in all browsers</t>
-</blockquote></section>
+</blockquote><t>Pseudo (non-native) browser-implementations (supporting XR Fragments using HTML+JS e.g.) can use the <tt>?</tt> search-operator to address outbound content.<br />
+
+In other words, the URL updates to: <tt>https://me.com?https://me.com/other.glb</tt> when navigating to <tt>https://me.com/other.glb</tt> from inside a <tt>https://me.com</tt> WebXR experience e.g.<br />
+
+That way, if the link gets shared, the XR Fragments implementation at <tt>https://me.com</tt> can load the latter (and still indicates which XR Fragments entrypoint-experience/client was used).</t>
+</section>
 </section>
 
 <section anchor="list-of-uri-fragments"><name>List of URI Fragments</name>
@@ -1247,6 +1281,16 @@ Non-HTML Hypermedia browsers should make browser extensions the right place, to 
 <tr>
 <td>3D object</td>
 <td>an object inside a scene characterized by vertex-, face- and customproperty data.</td>
+</tr>
+
+<tr>
+<td>URI</td>
+<td>some resource at something somewhere via someprotocol (<tt>http://me.com/foo.glb#foo</tt> or <tt>e76f8efec8efce98e6f</tt> <eref target="https://interpeer.io">see interpeer.io</eref>)</td>
+</tr>
+
+<tr>
+<td>URL</td>
+<td>something somewhere via someprotocol (<tt>http://me.com/foo.glb</tt>)</td>
 </tr>
 
 <tr>

@@ -72,7 +72,7 @@ xrf.filter.process = function(frag,scene,opts){
     let obj 
     frag.target = firstFilter
     scene.traverse( (n) => hasName(n, firstFilter.key,firstFilter) && (obj = n) )
-    console.log("reparent "+firstFilter.key+" "+((opts.copyScene)?"copy":"inplace"))
+    if( xrf.debug ) console.log("reparent "+firstFilter.key+" "+((opts.copyScene)?"copy":"inplace"))
     if(obj ){
       obj.position.set(0,0,0)
       if( opts.copyScene ) {
