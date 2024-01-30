@@ -42,7 +42,7 @@ jobs:
         run: cp example/assets/*.{gltf,glb} .
       #  working-directory: ./
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v2
         with:
           path: '.'
       - name: Deploy to GitHub Pages
