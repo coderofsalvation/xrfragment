@@ -99,7 +99,7 @@ build(){
       wget "https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js" -O dist/aframe-blink-controls.min.js
     }
 
-    cat dist/aframe.min.js dist/aframe-blink-controls.min.js dist/xrfragment.aframe.js dist/xrfragment.extras.js > dist/xrfragment.aframe.all.js
+    cat dist/aframe.min.js dist/aframe-blink-controls.min.js dist/xrfragment.aframe.js > dist/xrfragment.aframe.all.js
     
     # add license headers
     for file in dist/xrfragment.{aframe,module,three,three.module,aframe.all}.js; do
