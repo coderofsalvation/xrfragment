@@ -77,6 +77,12 @@ window.AFRAME.registerComponent('xrf', {
           if( com ) com.update({collisionEntities:true})
           else console.warn("xrfragments: blink-controls is not mounted, please run manually: $('[blink-controls]).components['blink-controls'].update({collisionEntities:true})")
         }
+
+        // give headset users way to debug without a cumbersome usb-tapdance
+        if( xrf.debug || document.location.hostname.match(/^(localhost|[1-9])/) && !aScene.getAttribute("vconsole") ){
+          aScene.setAttribute('vconsole','')
+        }
+
       })
 
       xrf.addEventListener('navigateLoading', (opts) => {

@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Wed Jan 31 11:37:04 AM UTC 2024
+ * v0.5.1 generated at Wed Jan 31 02:59:52 PM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -2480,6 +2480,12 @@ window.AFRAME.registerComponent('xrf', {
           if( com ) com.update({collisionEntities:true})
           else console.warn("xrfragments: blink-controls is not mounted, please run manually: $('[blink-controls]).components['blink-controls'].update({collisionEntities:true})")
         }
+
+        // give headset users way to debug without a cumbersome usb-tapdance
+        if( xrf.debug || document.location.hostname.match(/^(localhost|[1-9])/) && !aScene.getAttribute("vconsole") ){
+          aScene.setAttribute('vconsole','')
+        }
+
       })
 
       xrf.addEventListener('navigateLoading', (opts) => {
@@ -2640,10 +2646,9 @@ window.AFRAME.registerComponent('xrf-button', {
             depth: 0.005
         });
         el.setAttribute('material', {
-            shader: "flat",
             color: this.color, 
             transparent:true,
-            opacity:0.7
+            opacity:0.3
         });
         el.setAttribute('pressable', '');
         labelEl.setAttribute('position', '0 0 0.01');
@@ -2711,6 +2716,33 @@ window.AFRAME.registerComponent('xrf-button', {
         });
     }
 });
+AFRAME.registerComponent('vconsole', {
+  init: function () {  
+      //AFRAME.XRF.navigator.to("https://coderofsalvation.github.io/xrsh-media/assets/background.glb")
+    document.head.innerHTML += `
+      <style type="text/css">
+        .vc-panel  {
+          right:unset !important;
+          width:100%;
+          max-width:900px;
+          z-index:100 !important;
+        }
+        .vc-mask{ display:none !important; }
+      </style>
+    `
+    let script = document.createElement("script")
+    script.src = "https://unpkg.com/vconsole@latest/dist/vconsole.min.js"
+    script.setAttribute('async','true')
+    script.onload = function(){
+      this.vConsole = new window.VConsole() 
+      document.querySelector('.vc-switch').style.right = 'unset'
+      document.querySelector('.vc-switch').style.left  = '20px'
+    }
+    document.body.appendChild(script)
+  }
+
+});
+
 AFRAME.registerComponent('xrf-fade', {
   schema:{
     fadetime:{type:"number", default: 1000}, 
