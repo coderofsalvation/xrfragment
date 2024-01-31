@@ -52,6 +52,9 @@ xrf.navigator.to = (url,flags,loader,data) => {
           // only change url when loading *another* file
           if( xrf.model ) xrf.navigator.pushState( `${dir}${file}`, hash )
           xrf.model = model 
+
+          if( !model.isXRF ) xrf.emit('parseModel',{model,url,file}) // loader.load() does this automatically (but not loader.parse) 
+
           if(xrf.debug ) model.animations.map( (a) => console.log("anim: "+a.name) )
           // spec: 2. init metadata inside model for non-SRC data
           if( !model.isSRC ){ 

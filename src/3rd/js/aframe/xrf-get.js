@@ -50,7 +50,9 @@ window.AFRAME.registerComponent('xrf-get', {
     this.el.emit("update",{timeout:0})
 
     AFRAME.XRF.addEventListener('reset', () => {
-      this.el.remove()
+      try{
+        if( this.el ) this.el.remove()
+      }catch(e){}
     })
 
   }
