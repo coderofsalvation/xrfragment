@@ -36,6 +36,8 @@ window.AFRAME.registerComponent('xrf', {
           obj: THREE.OBJLoader
         }
       })
+      aScene.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      aScene.renderer.toneMappingExposure = 1.5;
       if( !XRF.camera ) throw 'xrfragment: no camera detected, please declare <a-entity camera..> ABOVE entities with xrf-attributes'
 
       // this is just for convenience (not part of spec): hide/show stuff based on VR/AR tags in 3D model 
