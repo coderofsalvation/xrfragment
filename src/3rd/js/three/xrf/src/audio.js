@@ -23,6 +23,8 @@ let loadAudio = (mimetype) => function(url,opts){
   let sound = isPositionalAudio ? new THREE.PositionalAudio( camera.listener) 
                                 : new THREE.Audio( camera.listener )
 
+  mesh.audio = {}
+
   audioLoader.load( url.replace(/#.*/,''), function( buffer ) {
 
     sound.setBuffer( buffer );
@@ -62,7 +64,11 @@ let loadAudio = (mimetype) => function(url,opts){
         }
       }catch(e){ console.warn(e) }
     }
+
+    // autoplay if user already requested play
+    let autoplay = mesh.audio && mesh.audio.autoplay
     mesh.audio = sound
+    if( autoplay ) xrf.hashbus.pub(mesh.audio.autoplay) 
   });
 }
 
@@ -79,5 +85,9 @@ audioMimeTypes.map( (mimetype) =>  xrf.frag.src.type[ mimetype ] = loadAudio(mim
 // listen to t XR fragment changes
 xrf.addEventListener('t', (opts) => {
   let t = opts.frag.t
-  xrf.scene.traverse( (n) => n.audio && n.audio.playXRF && (n.audio.playXRF(t)) )
+  xrf.scene.traverse( (n) => {
+    if( !n.audio ) return 
+    if( !n.audio.playXRF ) n.audio.autoplay = t 
+    else n.audio.playXRF(t)
+  })
 })

@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Wed Jan 31 02:59:52 PM UTC 2024
+ * v0.5.1 generated at Wed Jan 31 06:46:04 PM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -645,7 +645,7 @@ xrf.addEventListener = function(eventName, callback, opts) {
 
 xrf.emit = function(eventName, data){
   if( typeof data != 'object' ) throw 'emit() requires passing objects'
-  if( xrf.debug && ( eventName != "render" || xrf.debug == eventName ) ){
+  if( xrf.debug && ( !eventName.match(/^render/) || xrf.debug == eventName ) ){
     let label = String(`xrf.emit('${eventName}')`).padEnd(35," ");
     label +=  data.mesh && data.mesh.name ? '#'+data.mesh.name : ''
     console.groupCollapsed(label)
@@ -913,6 +913,10 @@ xrf.parseModel = function(model,url){
 xrf.getLastModel = ()           => xrf.model.last 
 
 xrf.reset = () => {
+  // remove mixers
+  xrf.mixers.map( (m) => m.stop()) // stop animations *TODO* move to t.js
+  xrf.mixers = []
+
   const disposeObject = (obj) => {
     if (obj.children.length > 0) obj.children.forEach((child) => disposeObject(child));
     if (obj.geometry) obj.geometry.dispose();
@@ -925,7 +929,7 @@ xrf.reset = () => {
     return true
   };
   let nodes = []
-  xrf.scene.traverse( (n)     => n.audio && (n.audio.remove()) )
+  xrf.scene.traverse( (n)     => n.audio && (n.audio.playXRF({x:0})) && (n.audio.remove()) ) // *TODO* move to src/audio.js
   xrf.scene.traverse( (child) => child.isXRF && (nodes.push(child)) )
   nodes.map( disposeObject ) // leave non-XRF objects intact
   xrf.interactive = xrf.interactiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
@@ -934,9 +938,6 @@ xrf.reset = () => {
 
   // allow others to reset certain events 
   xrf.emit('reset',{})
-  // remove mixers
-  xrf.mixers.map( (m) => m.stop())
-  xrf.mixers = []
   // set the player to position 0,0,0
   xrf.camera.position.set(0,0,0)
 }
@@ -1023,6 +1024,9 @@ xrf.navigator.to = (url,flags,loader,data) => {
           // only change url when loading *another* file
           if( xrf.model ) xrf.navigator.pushState( `${dir}${file}`, hash )
           xrf.model = model 
+
+          if( !model.isXRF ) xrf.emit('parseModel',{model,url,file}) // loader.load() does this automatically (but not loader.parse) 
+
           if(xrf.debug ) model.animations.map( (a) => console.log("anim: "+a.name) )
           // spec: 2. init metadata inside model for non-SRC data
           if( !model.isSRC ){ 
@@ -2010,6 +2014,8 @@ let loadAudio = (mimetype) => function(url,opts){
   let sound = isPositionalAudio ? new THREE.PositionalAudio( camera.listener) 
                                 : new THREE.Audio( camera.listener )
 
+  mesh.audio = {}
+
   audioLoader.load( url.replace(/#.*/,''), function( buffer ) {
 
     sound.setBuffer( buffer );
@@ -2049,7 +2055,11 @@ let loadAudio = (mimetype) => function(url,opts){
         }
       }catch(e){ console.warn(e) }
     }
+
+    // autoplay if user already requested play
+    let autoplay = mesh.audio && mesh.audio.autoplay
     mesh.audio = sound
+    if( autoplay ) xrf.hashbus.pub(mesh.audio.autoplay) 
   });
 }
 
@@ -2066,7 +2076,11 @@ audioMimeTypes.map( (mimetype) =>  xrf.frag.src.type[ mimetype ] = loadAudio(mim
 // listen to t XR fragment changes
 xrf.addEventListener('t', (opts) => {
   let t = opts.frag.t
-  xrf.scene.traverse( (n) => n.audio && n.audio.playXRF && (n.audio.playXRF(t)) )
+  xrf.scene.traverse( (n) => {
+    if( !n.audio ) return 
+    if( !n.audio.playXRF ) n.audio.autoplay = t 
+    else n.audio.playXRF(t)
+  })
 })
 /*
  * mimetype: model/gltf+json
@@ -2869,7 +2883,9 @@ window.AFRAME.registerComponent('xrf-get', {
     this.el.emit("update",{timeout:0})
 
     AFRAME.XRF.addEventListener('reset', () => {
-      this.el.remove()
+      try{
+        if( this.el ) this.el.remove()
+      }catch(e){}
     })
 
   }

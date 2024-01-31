@@ -62,6 +62,10 @@ xrf.parseModel = function(model,url){
 xrf.getLastModel = ()           => xrf.model.last 
 
 xrf.reset = () => {
+  // remove mixers
+  xrf.mixers.map( (m) => m.stop()) // stop animations *TODO* move to t.js
+  xrf.mixers = []
+
   const disposeObject = (obj) => {
     if (obj.children.length > 0) obj.children.forEach((child) => disposeObject(child));
     if (obj.geometry) obj.geometry.dispose();
@@ -74,7 +78,7 @@ xrf.reset = () => {
     return true
   };
   let nodes = []
-  xrf.scene.traverse( (n)     => n.audio && (n.audio.remove()) )
+  xrf.scene.traverse( (n)     => n.audio && (n.audio.playXRF({x:0})) && (n.audio.remove()) ) // *TODO* move to src/audio.js
   xrf.scene.traverse( (child) => child.isXRF && (nodes.push(child)) )
   nodes.map( disposeObject ) // leave non-XRF objects intact
   xrf.interactive = xrf.interactiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
@@ -83,9 +87,6 @@ xrf.reset = () => {
 
   // allow others to reset certain events 
   xrf.emit('reset',{})
-  // remove mixers
-  xrf.mixers.map( (m) => m.stop())
-  xrf.mixers = []
   // set the player to position 0,0,0
   xrf.camera.position.set(0,0,0)
 }
