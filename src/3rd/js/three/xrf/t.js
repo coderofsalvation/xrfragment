@@ -158,9 +158,15 @@ xrf.addEventListener('dynamicKey', (opts) => {
   match.map( (w) => {
     w.nodes.map( (node) => {
       if( node.isCamera ){ 
-        console.log("setting camera to "+node.name)
+        console.log("switching camera to cam: "+node.name)
         xrf.model.camera = node 
       }
     })
   })
+})
+
+// remove mixers and stop mixers when loading another scene
+xrf.addEventListener('reset', (opts) => {
+  xrf.mixers.map( (m) => m.stop())
+  xrf.mixers = []
 })

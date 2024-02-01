@@ -10,6 +10,8 @@ xrf.frag.src = function(v, opts){
   opts.isPortal = xrf.frag.src.renderAsPortal(mesh)
   opts.isSRC   = true
 
+  if(xrf.debug) console.log(`src.js: instancing ${opts.isLocal?'local':'remote'} object ${url}`)
+
   if( opts.isLocal ){
         xrf.frag.src.localSRC(url,srcFrag,opts)     // local
   }else xrf.frag.src.externalSRC(url,srcFrag,opts)  // external file

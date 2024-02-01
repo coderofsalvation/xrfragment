@@ -61,7 +61,7 @@ xrf.portalNonEuclidian = function(opts){
     mesh.portal.stencilObjects.children = stencilObjects 
 
     xrf.portalNonEuclidian.stencilRef += 1 // each portal has unique stencil id
-    console.log(`enabling portal for object '${mesh.name}' (stencilRef:${mesh.portal.stencilRef})`)
+    if( xrf.debug ) console.log(`enabling portal for object '${mesh.name}' (stencilRef:${mesh.portal.stencilRef})`)
   
     return this
   }
@@ -93,7 +93,7 @@ xrf.portalNonEuclidian = function(opts){
         let cam = xrf.camera.getCam ? xrf.camera.getCam() : camera
         cam.getWorldPosition(cameraPosition)
         cam.getWorldDirection(cameraDirection)
-        if( cameraPosition.distanceTo(newPos) > 10.0 ) return // dont render far portals 
+        if( cameraPosition.distanceTo(newPos) > 15.0 ) return // dont render far portals 
 
         // init
         if( !mesh.portal.isLocal || mesh.portal.isLens ) stencilObject.visible = true 

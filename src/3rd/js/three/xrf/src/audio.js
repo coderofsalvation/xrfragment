@@ -68,9 +68,16 @@ let loadAudio = (mimetype) => function(url,opts){
     // autoplay if user already requested play
     let autoplay = mesh.audio && mesh.audio.autoplay
     mesh.audio = sound
-    if( autoplay ) xrf.hashbus.pub(mesh.audio.autoplay) 
+    if( autoplay ){
+      xrf.hashbus.pub(mesh.audio.autoplay) 
+    }
   });
 }
+
+// stop playing audio when loading another scene
+xrf.addEventListener('reset', () => {
+  xrf.scene.traverse( (n)  => n.audio && (n.audio.playXRF({x:0})) && (n.audio.remove()) )
+})
 
 let audioMimeTypes = [
   'audio/wav',
@@ -87,7 +94,8 @@ xrf.addEventListener('t', (opts) => {
   let t = opts.frag.t
   xrf.scene.traverse( (n) => {
     if( !n.audio ) return 
-    if( !n.audio.playXRF ) n.audio.autoplay = t 
-    else n.audio.playXRF(t)
+    if( !n.audio.playXRF ){
+      n.audio.autoplay = t 
+    }else n.audio.playXRF(t)
   })
 })

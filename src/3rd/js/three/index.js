@@ -3,7 +3,6 @@ xrf.model  = {}
 xrf.mixers = []
 
 xrf.init = ((init) => function(opts){
-  console.log("add #debug to URL to see XR Fragment debuglog")
   let scene = new opts.THREE.Group()
   opts.scene.add(scene)
   opts.scene = scene
@@ -62,9 +61,9 @@ xrf.parseModel = function(model,url){
 xrf.getLastModel = ()           => xrf.model.last 
 
 xrf.reset = () => {
-  // remove mixers
-  xrf.mixers.map( (m) => m.stop()) // stop animations *TODO* move to t.js
-  xrf.mixers = []
+
+  // allow others to reset certain events 
+  xrf.emit('reset',{})
 
   const disposeObject = (obj) => {
     if (obj.children.length > 0) obj.children.forEach((child) => disposeObject(child));
@@ -78,17 +77,11 @@ xrf.reset = () => {
     return true
   };
   let nodes = []
-  xrf.scene.traverse( (n)     => n.audio && (n.audio.playXRF({x:0})) && (n.audio.remove()) ) // *TODO* move to src/audio.js
   xrf.scene.traverse( (child) => child.isXRF && (nodes.push(child)) )
   nodes.map( disposeObject ) // leave non-XRF objects intact
   xrf.interactive = xrf.interactiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
   xrf.add( xrf.interactive )
   xrf.layers = 0
-
-  // allow others to reset certain events 
-  xrf.emit('reset',{})
-  // set the player to position 0,0,0
-  xrf.camera.position.set(0,0,0)
 }
 
 xrf.parseUrl = (url) => {

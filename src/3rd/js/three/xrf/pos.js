@@ -17,7 +17,14 @@ xrf.frag.pos = function(v, opts){
     camera.position.z = pos.z
   }
 
+  if( xrf.debug ) console.log(`#pos.js: setting camera to position ${pos.x},${pos.y},${pos.z}`)
+
   xrf.frag.pos.last = pos // remember
 
   camera.updateMatrixWorld()
 }
+
+xrf.addEventListener('reset', (opts) => {
+  // set the player to position 0,0,0
+  xrf.camera.position.set(0,0,0)
+})
