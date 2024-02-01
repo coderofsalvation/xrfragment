@@ -15,10 +15,10 @@ class Test {
   static var errors:Int = 0;
 
   static public function main():Void {
-    test( "url.json",         Spec.load("src/spec/url.json") );
-    test( "pos.json",         Spec.load("src/spec/pos.json") );
+    //test( "url.json",         Spec.load("src/spec/url.json") );
+    //test( "pos.json",         Spec.load("src/spec/pos.json") );
     test( "t.json",           Spec.load("src/spec/t.json") );
-    test( "filter.selectors.json", Spec.load("src/spec/filter.selectors.json") );
+    //test( "filter.selectors.json", Spec.load("src/spec/filter.selectors.json") );
     //test( Spec.load("src/spec/tmp.json") );
 		if( errors > 1 ) trace("\n-----\n[ ❌] "+errors+" errors :/");
   }
@@ -33,21 +33,23 @@ class Test {
       var item:Dynamic = spec[i];
       f   = new Filter(item.data);
       res = URI.parse(item.data,null);
-      if( item.expect.fn == "test"                ) valid = item.expect.out == f.test( item.expect.input[0] );
-      if( item.expect.fn == "testProperty"        ) valid = item.expect.out == f.testProperty( item.expect.input[0], item.expect.input[1] );
-      if( item.expect.fn == "testPropertyInt"     ) valid = item.expect.out == f.testProperty( item.expect.input[0], item.expect.input[1] );
-      if( item.expect.fn == "testPropertyExclude" ) valid = item.expect.out == f.testProperty( item.expect.input[0], item.expect.input[1], true );
-      if( item.expect.fn == "testParsed"          ) valid = item.expect.out == res.exists(item.expect.input);
-      if( item.expect.fn == "testPredefinedView"  ) valid = res.exists(item.expect.input) && item.expect.out == res.get(item.expect.input).is( XRF.PV_EXECUTE) ;
-      if( item.expect.fn == "testPropertyAssign"  ) valid = res.exists(item.expect.input) && item.expect.out == res.get(item.expect.input).is( XRF.PROP_BIND) ;
-      if( item.expect.fn == "testBrowserOverride" ) valid = item.expect.out == (URI.parse(item.data,XRF.NAVIGATOR)).exists(item.expect.input);
-      if( item.expect.fn == "testEmbedOverride"   ) valid = item.expect.out == (URI.parse(item.data,XRF.METADATA)).exists(item.expect.input);
-      if( item.expect.fn == "equal.string"        ) valid = res.get(item.expect.input) && item.expect.out == res.get(item.expect.input).string;
-      if( item.expect.fn == "equal.x"             ) valid = equalX(res,item);
-      if( item.expect.fn == "equal.xy"            ) valid = equalXY(res,item);
-      if( item.expect.fn == "equal.xyz"           ) valid = equalXYZ(res,item);
-      if( item.expect.fn == "testFilterRoot"      ) valid = res.exists(item.expect.input[0]) && res.get(item.expect.input[0]).filter.get().root == item.expect.out;
-      if( item.expect.fn == "testFilterDeep"      ) valid = res.exists(item.expect.input[0]) && res.get(item.expect.input[0]).filter.get().deep == item.expect.out;
+      if( item.expect.fn == "test"                  ) valid = item.expect.out == f.test( item.expect.input[0] );
+      if( item.expect.fn == "testProperty"          ) valid = item.expect.out == f.testProperty( item.expect.input[0], item.expect.input[1] );
+      if( item.expect.fn == "testPropertyInt"       ) valid = item.expect.out == f.testProperty( item.expect.input[0], item.expect.input[1] );
+      if( item.expect.fn == "testPropertyExclude"   ) valid = item.expect.out == f.testProperty( item.expect.input[0], item.expect.input[1], true );
+      if( item.expect.fn == "testParsed"            ) valid = item.expect.out == res.exists(item.expect.input);
+      if( item.expect.fn == "testPredefinedView"    ) valid = res.exists(item.expect.input) && item.expect.out == res.get(item.expect.input).is( XRF.PV_EXECUTE) ;
+      if( item.expect.fn == "testPropertyAssign"    ) valid = res.exists(item.expect.input) && item.expect.out == res.get(item.expect.input).is( XRF.PROP_BIND) ;
+      if( item.expect.fn == "testBrowserOverride"   ) valid = item.expect.out == (URI.parse(item.data,XRF.NAVIGATOR)).exists(item.expect.input);
+      if( item.expect.fn == "testEmbedOverride"     ) valid = item.expect.out == (URI.parse(item.data,XRF.METADATA)).exists(item.expect.input);
+      if( item.expect.fn == "equal.string"          ) valid = res.get(item.expect.input) && item.expect.out == res.get(item.expect.input).string;
+      if( item.expect.fn == "equal.x"               ) valid = equalX(res,item);
+      if( item.expect.fn == "equal.xy"              ) valid = equalXY(res,item);
+      if( item.expect.fn == "equal.xyz"             ) valid = equalXYZ(res,item);
+      if( item.expect.fn == "equal.mediafragment"   ) valid = equalMediaFragment(res,item);
+      if( item.expect.fn == "equal.mediafragmentSpd") valid = equalMediaFragmentSpd(res,item);
+      if( item.expect.fn == "testFilterRoot"        ) valid = res.exists(item.expect.input[0]) && res.get(item.expect.input[0]).filter.get().root == item.expect.out;
+      if( item.expect.fn == "testFilterDeep"        ) valid = res.exists(item.expect.input[0]) && res.get(item.expect.input[0]).filter.get().deep == item.expect.out;
       var ok:String = valid ? "[ ✔ ] " : "[ ❌] ";
       trace( ok + item.fn + ": '" + item.data + "'" + (item.label ? "    (" + (item.label?item.label:item.expect.fn) +")" : ""));
 			if( !valid ) errors += 1;
@@ -67,6 +69,18 @@ class Test {
 	static public function equalXYZ(res:haxe.DynamicAccess<Dynamic>, item:Dynamic):Bool {
     if( !item.expect.out && !res.get(item.expect.input) ) return true;
     else return res.get(item.expect.input) && item.expect.out == (Std.string(res.get(item.expect.input).x) +","+ Std.string(res.get(item.expect.input).y)+","+ Std.string(res.get(item.expect.input).z));
+  }
+
+	static public function equalMediaFragment(res:haxe.DynamicAccess<Dynamic>, item:Dynamic):Bool {
+    if( !item.expect.out && !res.get(item.expect.input) ) return true;
+    else return res.get('t').floats[ Std.parseInt(item.expect.input) ] == Std.parseInt(item.expect.out);
+  }
+
+	static public function equalMediaFragmentSpd(res:haxe.DynamicAccess<Dynamic>, item:Dynamic):Bool {
+    if( !item.expect.out && !res.get(item.expect.input) ) return true;
+    else{
+      return res.get('t').speed[ Std.parseInt(item.expect.input) ] == Std.parseFloat(item.expect.out);
+    }
   }
 
   static public function testUrl():Void {

@@ -105,7 +105,7 @@ class XRF {
         if( xyzn.length > 2 ) v.z = Std.parseFloat(xyzn[2]);               //  
         for( i in 0...xyzn.length ){
           v.floats.push( Std.parseFloat(xyzn[i]) );
-        }  
+        }
       }                                                                    //  > the xrfragment specification should stay simple enough
                                                                            //  > for anyone to write a parser using either regexes or grammar/lexers
       if( isColor.match(str) ) v.color = str;                         //  > therefore expressions/comprehensions are not supported (max wildcard/comparison operators for queries e.g.)
@@ -120,8 +120,8 @@ class XRF {
       if( isMediaFrag.match(str) ){
         var speed:Array<String> = str.split("*");
         v.speed = new Array<Float>();
-        if( speed.length > 0 ){
-          var values:Array<String> = str.split(",");
+        if( speed.length > 1 ){
+          var values:Array<String> = speed[1].split(",");
           for( i in 0...values.length ){
             v.speed.push( Std.parseFloat(values[i]) );
           }
