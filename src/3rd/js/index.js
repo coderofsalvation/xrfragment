@@ -6,7 +6,7 @@ var xrf = {}
 xrf.init = function(opts){
   opts      = opts || {}
 
-  xrf.debug = document.location.hostname.match(/^(localhost|[0-9])/) ? true : false
+  xrf.debug = document.location.hostname.match(/^(localhost|[0-9])/) ? 0 : false
   if( !xrf.debug ){
     console.log("add #debug=[0-9] to URL to see XR Fragment debuglog")
     xrf.debug = parseInt( ( document.location.hash.match(/debug=([0-9])/) || [0,'0'] )[1] )

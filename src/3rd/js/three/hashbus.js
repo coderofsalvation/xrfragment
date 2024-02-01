@@ -36,7 +36,8 @@ pub.mesh     = (mesh,model) => {
 pub.fragment = (k, opts ) => { // evaluate one fragment
   let frag = opts.frag[k];
 
-  if( !opts.skipXRWG && frag.is( xrf.XRF.PV_EXECUTE ) ) pub.XRWG(opts)
+  let isPVorMediaFrag = frag.is( xrf.XRF.PV_EXECUTE ) || frag.is( xrf.XRF.T_MEDIAFRAG)
+  if( !opts.skipXRWG && isPVorMediaFrag ) pub.XRWG(opts)
 
   // call native function (xrf/env.js e.g.), or pass it to user decorator
   xrf.emit(k,opts)
@@ -55,12 +56,11 @@ pub.XRWG = (opts) => {
   if( !isSRC ){                             // spec : https://xrfragment.org/#src
     for ( let i in frag  ) {
       let v = frag[i]
-      let id = v.string || v.fragment
+      let id = v.is( xrf.XRF.T_DYNAMIC ) ? v.fragment : v.string || v.fragment
       if( id == '#' || !id ) return
       let match = xrf.XRWG.match(id)
 
-      if( v.is( xrf.XRF.PV_EXECUTE ) ){
-        scene.XRF_PV_ORIGIN = v.string
+      if( v.is( xrf.XRF.PV_EXECUTE ) && !v.is( xrf.XRF.T_DYNAMIC ) ){
         // evaluate aliases 
         match.map( (w) => {
           if( w.key == `#${id}` ){

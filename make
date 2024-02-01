@@ -53,7 +53,7 @@ server(){
 build(){
 
   parser(){
-    try rm dist/* 
+    try rm dist/xrfragment.* 
     haxe build.hxml || exit 1
     sed -i 's|.*nonlocal .*||g' dist/xrfragment.py
     ls -lah dist/*
@@ -152,7 +152,7 @@ repos(){
   sed -i 's|<script src="https:\/\/aframe.*||g' ../xrfragment-helloworld/index.html
   sed -i 's|<script src=".*extras.*||g'         ../xrfragment-helloworld/index.html
   sed -i 's|<script src=".*blink-controls.*||g' ../xrfragment-helloworld/index.html
-  sed -i 's|aframe\.js|aframe.all.js|g'         ../xrfragment-helloworld/index.html
+  sed -i 's|aframe\.js|aframe.js|g'         ../xrfragment-helloworld/index.html
 }
 
 test -z $1 && build 

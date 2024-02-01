@@ -32,7 +32,7 @@ xrf.addEventListener = function(eventName, callback, opts) {
 
 xrf.emit = function(eventName, data){
   if( typeof data != 'object' ) throw 'emit() requires passing objects'
-  if( xrf.debug && ( !eventName.match(/^render/) || xrf.debug == eventName ) ){
+  if( xrf.debug && xrf.debug > 1 && ( !eventName.match(/^render/) || xrf.debug == eventName ) ){
     let label = String(`xrf.emit('${eventName}')`).padEnd(35," ");
     label +=  data.mesh && data.mesh.name ? '#'+data.mesh.name : ''
     console.groupCollapsed(label)

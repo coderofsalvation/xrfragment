@@ -54,6 +54,7 @@ class Parser {
 			if( isPVDynamic ){ //|| isPVDefault ){      //  1. add keys without values to store as [predefined view](predefined_view)
 				var v:XRF  = new XRF(key, XRF.PV_EXECUTE | XRF.NAVIGATOR, index );
         v.validate(value); // ignore failures (empty values are allowed)
+        v.flags = XRF.set( XRF.T_DYNAMIC, v.flags );
 				store.set( keyStripped, v );
 				return true;
 			}

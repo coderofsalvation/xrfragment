@@ -56,12 +56,14 @@ xrf.navigator.to = (url,flags,loader,data) => {
           if( !model.isXRF ) xrf.emit('parseModel',{model,url,file}) // loader.load() does this automatically (but not loader.parse) 
 
           if(xrf.debug ) model.animations.map( (a) => console.log("anim: "+a.name) )
+
+          // spec: 1. generate the XRWG
+          xrf.XRWG.generate({model,scene:model.scene})
+
           // spec: 2. init metadata inside model for non-SRC data
           if( !model.isSRC ){ 
             model.scene.traverse( (mesh) => xrf.hashbus.pub.mesh(mesh,model) )
           }
-          // spec: 1. generate the XRWG
-          xrf.XRWG.generate({model,scene:model.scene})
 
           // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
           xrf.frag.defaultPredefinedViews({model,scene:model.scene})

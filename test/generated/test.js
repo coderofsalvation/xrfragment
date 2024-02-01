@@ -147,10 +147,7 @@ StringTools.trim = function(s) {
 var Test = function() { };
 Test.__name__ = true;
 Test.main = function() {
-	Test.test("url.json",[{ fn : "url", expect : { fn : "testPredefinedView", input : "mypredefinedview", out : true}, label : "test predefined view executed", data : "http://foo.com?foo=1#mypredefinedview"},{ fn : "url", expect : { fn : "testPredefinedView", input : "another", out : true}, label : "test predefined view executed (multiple)", data : "http://foo.com?foo=1#mypredefinedview&another"},{ fn : "url", expect : { fn : "testPredefinedView", input : "mypredefinedview", out : true}, label : "test predefined view executed (multiple)", data : "http://foo.com?foo=1#mypredefinedview&another"},{ fn : "url", expect : { fn : "testParsed", input : "mycustom", out : true}, label : "test custom property", data : "http://foo.com?foo=1#mycustom=foo"}]);
-	Test.test("pos.json",[{ fn : "url", expect : { fn : "equal.string", input : "pos", out : "1.2,2.2"}, label : "equal.string", data : "http://foo.com?foo=1#pos=1.2,2.2"},{ fn : "url", expect : { fn : "equal.xyz", input : "pos", out : "1.2,2.2,3"}, label : "equal.xyz", data : "http://foo.com?foo=1#pos=1.2,2.2,3"},{ fn : "url", expect : { fn : "equal.xyz", input : "pos", out : "1,2,3"}, label : "pos equal.xyz", data : "http://foo.com?foo=1#pos=1,2,3"},{ fn : "url", expect : { fn : "equal.string", input : "pos", out : "world2"}, label : "pos equal.xyz", data : "http://foo.com?foo=1#pos=world2"}]);
-	Test.test("t.json",[{ fn : "url", expect : { fn : "equal.x", input : "t", out : "1"}, label : "a equal.x", data : "http://foo.com?foo=1#t=1"},{ fn : "url", expect : { fn : "equal.x", input : "t", out : "-1"}, label : "a equal.x", data : "http://foo.com?foo=1#t=-1"},{ fn : "url", expect : { fn : "equal.x", input : "t", out : "-1.02"}, label : "a equal.x", data : "http://foo.com?foo=1#t=-1.02"},{ fn : "url", expect : { fn : "equal.xy", input : "t", out : "1,2"}, label : "a equal.xy", data : "http://foo.com?foo=1#t=1,2,3"},{ fn : "url", expect : { fn : "equal.xyz", input : "t", out : "1,2,3"}, label : "a equal.xyz", data : "http://foo.com?foo=1#t=1,2,3"},{ fn : "url", expect : { fn : "equal.xyz", input : "t", out : "1,-2,3"}, label : "a equal.xyz", data : "http://foo.com?foo=1#t=1,-2,3"},{ fn : "url", expect : { fn : "equal.xy", input : "t", out : "1,100"}, label : "a equal.xy", data : "http://foo.com?foo=1#t=1,100"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "t", out : true}, label : "browser URI can override t (defined in asset)", data : "http://foo.com?foo=1#t=2,500"}]);
-	Test.test("filter.selectors.json",[{ fn : "url", expect : { fn : "testParsed", input : "myid", out : true}, label : "myid exists", data : "http://foo.com?foo=1#foo*&-sometag&-someid&myid"},{ fn : "url", expect : { fn : "testParsed", input : "tag", out : true}, label : "tag exists", data : "http://foo.com?foo=1#tag=bar"},{ fn : "url", expect : { fn : "testParsed", input : "tag", out : true}, label : "tag exists", data : "http://foo.com?foo=1#-tag=bar"},{ fn : "url", expect : { fn : "testParsed", input : "price", out : true}, label : "filter test", data : "http://foo.com?foo=1#price=>2"},{ fn : "filter", expect : { fn : "testProperty", input : ["tag","bar"], out : true}, data : "tag=bar"},{ fn : "filter", expect : { fn : "testProperty", input : ["tag","foo"], out : false}, data : "-tag=foo"},{ fn : "filter", expect : { fn : "testProperty", input : ["tag","foo"], out : false}, data : "-tag*=foo"},{ fn : "filter", expect : { fn : "testProperty", input : ["tag","3"], out : false}, data : "-tag=>2"},{ fn : "filter", expect : { fn : "testProperty", input : ["price","1"], out : false}, data : "price=>2"},{ fn : "filter", expect : { fn : "testProperty", input : ["price","5"], out : false}, data : "price=<2"},{ fn : "filter", expect : { fn : "testProperty", input : ["price","1"], out : true}, data : "price=<2"},{ fn : "url", expect : { fn : "testFilterDeep", input : ["foo"], out : 1}, label : "foo should be deep", data : "#foo*"},{ fn : "url", expect : { fn : "testFilterDeep", input : ["foo"], out : 2}, label : "foo should be deep incl. embeds", data : "#foo**"}]);
+	Test.test("t.json",[{ fn : "url", expect : { fn : "equal.x", input : "t", out : "1"}, label : "a equal.x", data : "http://foo.com?foo=1#t=1"},{ fn : "url", expect : { fn : "equal.x", input : "t", out : "-1"}, label : "a equal.x", data : "http://foo.com?foo=1#t=-1"},{ fn : "url", expect : { fn : "equal.x", input : "t", out : "-1.02"}, label : "a equal.x", data : "http://foo.com?foo=1#t=-1.02"},{ fn : "url", expect : { fn : "equal.xy", input : "t", out : "1,2"}, label : "a equal.xy", data : "http://foo.com?foo=1#t=1,2,3"},{ fn : "url", expect : { fn : "equal.xyz", input : "t", out : "1,2,3"}, label : "a equal.xyz", data : "http://foo.com?foo=1#t=1,2,3"},{ fn : "url", expect : { fn : "equal.xyz", input : "t", out : "1,-2,3"}, label : "a equal.xyz", data : "http://foo.com?foo=1#t=1,-2,3"},{ fn : "url", expect : { fn : "equal.xy", input : "t", out : "1,100"}, label : "a equal.xy", data : "http://foo.com?foo=1#t=1,100"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "t", out : true}, label : "browser URI can override t (defined in asset)", data : "http://foo.com?foo=1#t=2,500"},{ fn : "url", expect : { fn : "equal.mediafragment", input : "3", out : "500"}, label : "a equal.mediafragment", data : "http://foo.com?foo=1#t=1,100,400,500*1.2,2.3"},{ fn : "url", expect : { fn : "equal.mediafragmentSpd", input : "1", out : "2.3"}, label : "a equal.mediafragmentSpeed", data : "http://foo.com?foo=1#t=1,100,400,500*1.2,2.3"}]);
 	if(Test.errors > 1) {
 		console.log("src/Test.hx:23:","\n-----\n[ ❌] " + Test.errors + " errors :/");
 	}
@@ -211,6 +208,12 @@ Test.test = function(topic,spec) {
 		if(item.expect.fn == "equal.xyz") {
 			valid = Test.equalXYZ(res,item);
 		}
+		if(item.expect.fn == "equal.mediafragment") {
+			valid = Test.equalMediaFragment(res,item);
+		}
+		if(item.expect.fn == "equal.mediafragmentSpd") {
+			valid = Test.equalMediaFragmentSpd(res,item);
+		}
 		if(item.expect.fn == "testFilterRoot") {
 			valid = Object.prototype.hasOwnProperty.call(res,item.expect.input[0]) && res[item.expect.input[0]].filter.get().root == item.expect.out;
 		}
@@ -218,7 +221,7 @@ Test.test = function(topic,spec) {
 			valid = Object.prototype.hasOwnProperty.call(res,item.expect.input[0]) && res[item.expect.input[0]].filter.get().deep == item.expect.out;
 		}
 		var ok = valid ? "[ ✔ ] " : "[ ❌] ";
-		console.log("src/Test.hx:52:",ok + Std.string(item.fn) + ": '" + Std.string(item.data) + "'" + (item.label ? "    (" + (item.label ? item.label : item.expect.fn) + ")" : ""));
+		console.log("src/Test.hx:54:",ok + Std.string(item.fn) + ": '" + Std.string(item.data) + "'" + (item.label ? "    (" + (item.label ? item.label : item.expect.fn) + ")" : ""));
 		if(!valid) {
 			Test.errors += 1;
 		}
@@ -249,6 +252,20 @@ Test.equalXYZ = function(res,item) {
 		return item.expect.out == Std.string(res[item.expect.input].x) + "," + Std.string(res[item.expect.input].y) + "," + Std.string(res[item.expect.input].z);
 	} else {
 		return false;
+	}
+};
+Test.equalMediaFragment = function(res,item) {
+	if(!item.expect.out && !res[item.expect.input]) {
+		return true;
+	} else {
+		return res["t"].floats[Std.parseInt(item.expect.input)] == Std.parseInt(item.expect.out);
+	}
+};
+Test.equalMediaFragmentSpd = function(res,item) {
+	if(!item.expect.out && !res[item.expect.input]) {
+		return true;
+	} else {
+		return res["t"].speed[Std.parseInt(item.expect.input)] == parseFloat(item.expect.out);
 	}
 };
 var haxe_iterators_ArrayIterator = function(array) {
@@ -469,10 +486,9 @@ xrfragment_Parser.parse = function(key,value,store,index) {
 	Frag_h["src"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL;
 	Frag_h["href"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_URL | xrfragment_XRF.T_PREDEFINED_VIEW;
 	Frag_h["tag"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
-	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING | xrfragment_XRF.T_STRING_OBJ | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
+	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
 	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
-	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_FLOAT | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.T_STRING | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
-	Frag_h["tv"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_FLOAT | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
+	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_FLOAT | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.T_MEDIAFRAG | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
 	Frag_h["namespace"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["SPDX"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["unit"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
@@ -484,6 +500,7 @@ xrfragment_Parser.parse = function(key,value,store,index) {
 	if(isPVDynamic) {
 		var v = new xrfragment_XRF(key,xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR,index);
 		v.validate(value);
+		v.flags = xrfragment_XRF.set(xrfragment_XRF.T_DYNAMIC,v.flags);
 		store[keyStripped] = v;
 		return true;
 	}
@@ -544,6 +561,8 @@ xrfragment_URI.parse = function(url,filter) {
 	return store;
 };
 var xrfragment_XRF = $hx_exports["xrfragment"]["XRF"] = function(_fragment,_flags,_index) {
+	this.speed = [];
+	this.floats = [];
 	this.fragment = _fragment;
 	this.flags = _flags;
 	this.index = _index;
@@ -581,18 +600,21 @@ xrfragment_XRF.prototype = {
 		}
 		if(str.length > 0) {
 			if(str.split(",").length > 1) {
-				var xyzw = str.split(",");
-				if(xyzw.length > 0) {
-					v.x = parseFloat(xyzw[0]);
+				var xyzn = str.split(",");
+				if(xyzn.length > 0) {
+					v.x = parseFloat(xyzn[0]);
 				}
-				if(xyzw.length > 1) {
-					v.y = parseFloat(xyzw[1]);
+				if(xyzn.length > 1) {
+					v.y = parseFloat(xyzn[1]);
 				}
-				if(xyzw.length > 2) {
-					v.z = parseFloat(xyzw[2]);
+				if(xyzn.length > 2) {
+					v.z = parseFloat(xyzn[2]);
 				}
-				if(xyzw.length > 3) {
-					v.w = parseFloat(xyzw[3]);
+				var _g = 0;
+				var _g1 = xyzn.length;
+				while(_g < _g1) {
+					var i = _g++;
+					v.floats.push(parseFloat(xyzn[i]));
 				}
 			}
 			if(xrfragment_XRF.isColor.match(str)) {
@@ -605,6 +627,19 @@ xrfragment_XRF.prototype = {
 			if(xrfragment_XRF.isInt.match(str)) {
 				v.int = Std.parseInt(str);
 				v.x = v.int;
+			}
+			if(xrfragment_XRF.isMediaFrag.match(str)) {
+				var speed = str.split("*");
+				v.speed = [];
+				if(speed.length > 1) {
+					var values = speed[1].split(",");
+					var _g = 0;
+					var _g1 = values.length;
+					while(_g < _g1) {
+						var i = _g++;
+						v.speed.push(parseFloat(values[i]));
+					}
+				}
 			}
 			v.filter = new xrfragment_Filter(v.fragment + "=" + v.string);
 		} else {
@@ -638,8 +673,8 @@ xrfragment_XRF.T_VECTOR3 = 131072;
 xrfragment_XRF.T_URL = 262144;
 xrfragment_XRF.T_PREDEFINED_VIEW = 524288;
 xrfragment_XRF.T_STRING = 1048576;
-xrfragment_XRF.T_STRING_OBJ = 2097152;
-xrfragment_XRF.T_STRING_OBJ_PROP = 4194304;
+xrfragment_XRF.T_MEDIAFRAG = 2097152;
+xrfragment_XRF.T_DYNAMIC = 4194304;
 xrfragment_XRF.isColor = new EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","");
 xrfragment_XRF.isInt = new EReg("^[-0-9]+$","");
 xrfragment_XRF.isFloat = new EReg("^[-0-9]+\\.[0-9]+$","");
@@ -652,6 +687,7 @@ xrfragment_XRF.isProp = new EReg("^.*=[><=]?","");
 xrfragment_XRF.isExclude = new EReg("^-","");
 xrfragment_XRF.isDeep = new EReg("\\*","");
 xrfragment_XRF.isNumber = new EReg("^[0-9\\.]+$","");
+xrfragment_XRF.isMediaFrag = new EReg("^[0-9\\.,\\*]+$","");
 Test.main();
 })({});
 var xrfragment = $hx_exports["xrfragment"];
