@@ -319,9 +319,9 @@ That way, if the link gets shared, the XR Fragments implementation at <code>http
 
 <tr>
 <td><code>#t</code></td>
-<td>timevector</td>
-<td><code>#t=2,2000,1</code></td>
-<td>play animation-loop range between frame 2 and 2000 at (normal) speed 1</td>
+<td><a href="#media%20fragments%20and%20datatypes">media fragment</a></td>
+<td><code>#t=0,2</code></td>
+<td>play/loop 3D animation from 0 seconds till 2 seconds</td>
 </tr>
 </tbody>
 </table>
@@ -370,66 +370,6 @@ That way, if the link gets shared, the XR Fragments implementation at <code>http
 <p>Supported popular compatible 3D fileformats: <code>.gltf</code>, <code>.obj</code>, <code>.fbx</code>, <code>.usdz</code>, <code>.json</code> (THREE.js), <code>.dae</code> and so on.</p>
 </blockquote>
 
-<h2 id="vector-datatypes">vector datatypes</h2>
-
-<p>| type       | syntax | example | info |</p>
-
-<table>
-<tbody>
-<tr>
-<td>vector2</td>
-</tr>
-
-<tr>
-<td>vector3</td>
-</tr>
-
-<tr>
-<td>timevector</td>
-</tr>
-
-<tr>
-<td></td>
-</tr>
-
-<tr>
-<td></td>
-</tr>
-
-<tr>
-<td></td>
-</tr>
-
-<tr>
-<td></td>
-</tr>
-
-<tr>
-<td></td>
-</tr>
-
-<tr>
-<td></td>
-</tr>
-
-<tr>
-<td></td>
-</tr>
-
-<tr>
-<td></td>
-</tr>
-
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-<blockquote>
-<p>NOTE: XR Fragments are optional but also file- and protocol-agnostic, which means that programmatic 3D scene(nodes) can also use the mechanism/metadata.</p>
-</blockquote>
-
 <h2 id="dynamic-xr-fragments-databindings">Dynamic XR Fragments (+databindings)</h2>
 
 <p>These are automatic fragment-to-metadata mappings, which only trigger if the 3D scene metadata matches a specific identifier (<code>aliasname</code> e.g.)</p>
@@ -460,10 +400,17 @@ That way, if the link gets shared, the XR Fragments implementation at <code>http
 </tr>
 
 <tr>
+<td><code>#[-]&lt;tag_or_objectname&gt;</code></td>
+<td>string</td>
+<td><code>#person</code> (<code>#-person</code>)</td>
+<td>focus/show (or hide) object(s) with <code>tag: person</code> or name <code>person</code> by looking up XRWG</td>
+</tr>
+
+<tr>
 <td><code>#&lt;cameraname&gt;</code></td>
 <td>string</td>
 <td><code>#cam01</code></td>
-<td>set camera as active camera</td>
+<td>set camera with name <code>cam01</code> as active camera</td>
 </tr>
 
 <tr>
@@ -484,21 +431,142 @@ That way, if the link gets shared, the XR Fragments implementation at <code>http
 <td><code>#&lt;objectname&gt;=&lt;mediafrag&gt;</code></td>
 <td>string=<a href="https://www.w3.org/TR/media-frags/#valid-uri">media frag</a></td>
 <td><code>#foo=0,1</code></td>
-<td>play media <code>src</code> using <a href="https://www.w3.org/TR/media-frags/#valid-uri">media fragment URI</a></td>
+<td>play 3D animation (or <code>src</code> media) using <a href="https://www.w3.org/TR/media-frags/#valid-uri">media fragment URI</a> with <a href="#media%20fragments%20and%20datatypes">looping/speed/texturescroll abilities</a></td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="media-fragments-and-datatypes">media fragments and datatypes</h2>
+
+<table>
+<thead>
+<tr>
+<th>type</th>
+<th>syntax</th>
+<th>example</th>
+<th>info</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>vector2</td>
+<td>x,y</td>
+<td>2,3.0</td>
+<td>2-dimensional vector</td>
 </tr>
 
 <tr>
-<td><code>#&lt;objectname&gt;=&lt;timevector&gt;</code></td>
-<td>string=timevector</td>
-<td><code>#sky=0,0.5,0.1,0</code></td>
-<td>sets 1D/2D/3D time(line) vectors (uv-position e.g.) to <code>0,0.5</code> (and autoscroll x with max <code>0.1</code> every second)</td>
+<td>vector3</td>
+<td>x,y,z</td>
+<td>2,3.0,4</td>
+<td>3-dimensional vector</td>
 </tr>
 
 <tr>
+<td>media fragment</td>
+<td>x</td>
+<td>0</td>
+<td>1D timeline: play from 0 seconds to end (and stop)</td>
+</tr>
+
+<tr>
+<td>media fragment</td>
+<td>x,y</td>
+<td>0,2</td>
+<td>1D timeline: play from 0 seconds till 2 seconds (and stop)</td>
+</tr>
+
+<tr>
+<td>media fragment</td>
+<td>u,v</td>
+<td>0,0.5</td>
+<td>2D texture: set uv-coordinate at <code>0,0.5</code></td>
+</tr>
+
+<tr>
+<td>media fragment *</td>
+<td>u,v, &hellip; [*speed, &hellip;]</td>
+<td>0*2</td>
+<td>1D timeline: play from 0 seconds till end (and loop) at double (2) speed</td>
+</tr>
+
+<tr>
+<td>*</td>
 <td></td>
+<td>0,1*2</td>
+<td>1D timeline: play from 0 seconds till 2 seconds (and loop) at double (2) speed</td>
+</tr>
+
+<tr>
+<td>*</td>
 <td></td>
-<td><code>#music=1,2</code></td>
-<td>play media of object (<code>src: podcast.mp3</code> e.g.) from beginning (<code>1</code>) at double speed (<code>2</code>)</td>
+<td>0,1*0.1</td>
+<td>2D texture:  set uvcoordinates at <code>0,1</code> and scroll them <code>0.1</code> per second (interpolating)</td>
+</tr>
+</tbody>
+</table>
+
+<blockquote>
+<p>* = this is extending the <a href="https://www.w3.org/TR/media-frags/#mf-advanced">W3C media fragments</a> with multidimensionality and loop(speed). The multidimensional (nonspeed) values will be forwarded to shaders as <strong>uniforms</strong> as following:</p>
+</blockquote>
+
+<table>
+<thead>
+<tr>
+<th>value</th>
+<th>uniform name</th>
+<th>implementation</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>u</td>
+<td>u</td>
+<td>sets U of UV-coordinate</td>
+</tr>
+
+<tr>
+<td>v</td>
+<td>v</td>
+<td>sets V of UV-coordinate</td>
+</tr>
+
+<tr>
+<td>&hellip;</td>
+<td>vendorId</td>
+<td>shader library identifier (7447 e.g.)</td>
+</tr>
+
+<tr>
+<td>&hellip;</td>
+<td>preset</td>
+<td>shader presetnumber</td>
+</tr>
+
+<tr>
+<td>&hellip;</td>
+<td>presetVersion</td>
+<td>targeted version of preset (so libraries can version/update their presets)</td>
+</tr>
+
+<tr>
+<td>&hellip;</td>
+<td>preset0</td>
+<td>preset parameter 0</td>
+</tr>
+
+<tr>
+<td>&hellip;</td>
+<td>preset1</td>
+<td>preset parameter 1</td>
+</tr>
+
+<tr>
+<td>&hellip;</td>
+<td>&hellip;</td>
+<td>and so on</td>
 </tr>
 </tbody>
 </table>

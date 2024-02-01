@@ -233,7 +233,7 @@ That way, if the link gets shared, the XR Fragments implementation at `https://m
 |-------------------|------------|--------------------|----------------------------------------------------------------------|
 | `#pos`            | vector3    | `#pos=0.5,0,0`     | positions camera (or XR floor) to xyz-coord 0.5,0,0,                 |
 | `#rot`            | vector3    | `#rot=0,90,0`      | rotates camera to xyz-coord 0.5,0,0                                  |
-| `#t`              | timevector | `#t=2,2000,1`      | play animation-loop range between frame 2 and 2000 at (normal) speed 1 |
+| `#t`              | [media fragment](#media%20fragments%20and%20datatypes) | `#t=0,2`           | play/loop 3D animation from 0 seconds till 2 seconds |
 
 ## List of metadata for 3D nodes 
 
@@ -245,25 +245,6 @@ That way, if the link gets shared, the XR Fragments implementation at `https://m
 
 > Supported popular compatible 3D fileformats: `.gltf`, `.obj`, `.fbx`, `.usdz`, `.json` (THREE.js), `.dae` and so on.
 
-## vector datatypes 
-
-| type       | syntax | example | info |
-|------
-| vector2    | x,y                              | 2,3.0           | 2-dimensional vector |
-| vector3    | x,y,z                            | 2,3.0,4         | 3-dimensional vector |
-| timevector | speed                            | 1               | 1D timeline: play    |
-|            |                                  | 0               | 1D timeline: stop    |
-|            | x,speed                          | 1,2             | 1D timeline: play at offset `1` at (normal) speed `2`                |
-|            |                                  | 0,0             | 1D timeline: stop (stopoffset-startoffset == 0)  |
-|            |                                  | 0,1             | 1D timeline: unpause with (normal) speed `1`                            | 
-|            |                                  | 1..100,1        | 1D timeline: play (loop) between offset `1` and `100` at normal speed (`1`) |
-|            | x,y,xspeed,yspeed                | 0,0.5,0,0       | 2D timeline: stop uv-coordinate at `0,0.5`                                     |
-|            |                                  | 0,0.5,0.2,0     | 2D timeline: play uv-coordinate at offset `0,0.5` and scroll `x` (=u) `0.2` within each second |
-|            |                                  | 0,0..0.5,0.2,0  | 2D timeline: play uv-coordinate between offset `0,0` and `0,0.5` (loop) and scroll `x` (=u) `0.2` within each second |
-|            | x,y,z,xspeed,yspeed,zspeed       | 0,0.5,1,0.2,0,2 | XD timeline: play uv-coordinate at `0,0.5` and scroll `x` (=u) `0.2` within each second and pass `1` and `2` as custom data to shader uniforms `za` and `zb` |
-
-> NOTE: XR Fragments are optional but also file- and protocol-agnostic, which means that programmatic 3D scene(nodes) can also use the mechanism/metadata.
-
 ## Dynamic XR Fragments (+databindings)
 
 These are automatic fragment-to-metadata mappings, which only trigger if the 3D scene metadata matches a specific identifier (`aliasname` e.g.)
@@ -272,12 +253,42 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 |------------------------|----------|-------------------|-------------------------------------------------------------------------------|
 | `#<aliasname>`               | string   | `#cubes`          | evaluate predefined views (`#cubes: #foo&bar` e.g.)                     |
 | `#<tag_or_objectname>`       | string   | `#person`         | focus object(s) with `tag: person` or name `person` by looking up XRWG  |
-| `#<cameraname>`              | string   | `#cam01`          | set camera as active camera                                             |
+| `#[-]<tag_or_objectname>`    | string   | `#person` (`#-person`) | focus/show (or hide) object(s) with `tag: person` or name `person` by looking up XRWG  |
+| `#<cameraname>`              | string   | `#cam01`          | set camera with name `cam01` as active camera                                             |
 | `#<objectname>=<material>`   | string=string     | `#car=metallic`| set material of car to material with name `metallic` |
 |                              | string=string     | `#product=metallic`| set material of objects tagged with `product` to material with name `metallic` |
-| `#<objectname>=<mediafrag>`  | string=[media frag](https://www.w3.org/TR/media-frags/#valid-uri) | `#foo=0,1`| play media `src` using [media fragment URI](https://www.w3.org/TR/media-frags/#valid-uri) |
-| `#<objectname>=<timevector>` | string=timevector | `#sky=0,0.5,0.1,0`| sets 1D/2D/3D time(line) vectors (uv-position e.g.) to `0,0.5` (and autoscroll x with max `0.1` every second)|
-|                              |                   | `#music=1,2`| play media of object (`src: podcast.mp3` e.g.) from beginning (`1`) at double speed (`2`) |
+| `#<objectname>=<mediafrag>`  | string=[media frag](https://www.w3.org/TR/media-frags/#valid-uri) | `#foo=0,1`| play 3D animation (or `src` media) using [media fragment URI](https://www.w3.org/TR/media-frags/#valid-uri) with [looping/speed/texturescroll abilities](#media%20fragments%20and%20datatypes) |
+
+## media fragments and datatypes
+
+> NOTE: below the word 'play' applies to 3D animations embedded in the 3D scene(file) **but also** media defined in `src`-metadata like audio/video-files (mp3/mp4 e.g.)
+
+| type       | syntax | example | info |
+|------------|--------|---------|------|
+| vector2    | x,y                              | 2,3.0           | 2-dimensional vector |
+| vector3    | x,y,z                            | 2,3.0,4         | 3-dimensional vector |
+| media fragment | x                            | 0               | 1D timeline: play from 0 seconds to end (and stop) |
+| media fragment | x,y                          | 0,2             | 1D timeline: play from 0 seconds till 2 seconds (and stop) |
+| media fragment | u,v                          | 0,0.5           | 2D texture: set uv-coordinate at `0,0.5` |
+| media fragment * | u,v, ... [*speed, ...]     | 0*2             | 1D timeline: play from 0 seconds till end (and loop) at double (2) speed |
+|                * |                            | 0,1*2           | 1D timeline: play from 0 seconds till 2 seconds (and loop) at double (2) speed |
+|                * |                            | 0,1*0.1         | 2D texture:  set uvcoordinates at `0,1` and scroll U with `0.1` per second (interpolating) |
+|                * |                            | 0,1*0.1*0.2     | 2D texture:  set uvcoordinates at `0,1` and scroll U with `0.1` and V with `0.2` per second (interpolating) |
+
+> \* = this is extending the [W3C media fragments](https://www.w3.org/TR/media-frags/#mf-advanced) with multidimensionality and loop(speed). The multidimensional (nonspeed) values will be forwarded to shaders as **uniforms** as following:
+
+| value     | uniform name | implementation |
+|-----------|--------------|----------------|
+| u         | u            | sets U of UV-coordinate |
+| v         | v            | sets V of UV-coordinate |
+| ...       | vendor       | shader library identifier (7447 e.g.) |
+| ...       | preset       | shader presetnumber (0 e.g.)          |
+| ...       | presetVersion| targeted version of preset (so libraries can version/update their presets)| 
+| ...       | preset0      | preset parameter 0          |
+| ...       | preset1      | preset parameter 1          |
+| ...       | ...          | and so on |
+
+> This allows 3D objects to hint the viewer which shader to (not load). If the shader does not support a certain shader-library (7447), then it will simply set the u/v coordinates on a flat shader.
 
 # Spatial Referencing 3D 
 XR Fragments assume the following objectname-to-URIFragment mapping:

@@ -21,12 +21,11 @@ class Parser {
       Frag.set("tag",           XRF.ASSET | XRF.T_STRING          );
 
       // spatial category: query selector / object manipulation
-      Frag.set("pos",           XRF.PV_OVERRIDE    | XRF.T_VECTOR3 | XRF.T_STRING | XRF.T_STRING_OBJ | XRF.METADATA | XRF.NAVIGATOR );
+      Frag.set("pos",           XRF.PV_OVERRIDE    | XRF.T_VECTOR3 | XRF.T_STRING | XRF.METADATA | XRF.NAVIGATOR );
       Frag.set("rot",           XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE  | XRF.T_VECTOR3 | XRF.METADATA | XRF.NAVIGATOR );
 
       // category: animation
-      Frag.set("t",             XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_FLOAT | XRF.T_VECTOR2 | XRF.T_STRING  | XRF.NAVIGATOR | XRF.METADATA);
-      Frag.set("tv",            XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_FLOAT | XRF.T_VECTOR2 | XRF.T_VECTOR3 | XRF.NAVIGATOR | XRF.METADATA);
+      Frag.set("t",             XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_FLOAT | XRF.T_VECTOR2 | XRF.T_MEDIAFRAG  | XRF.NAVIGATOR | XRF.METADATA);
 
       // category: author / metadata
       Frag.set("namespace",     XRF.ASSET | XRF.T_STRING                                  );

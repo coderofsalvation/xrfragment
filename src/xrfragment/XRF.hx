@@ -32,8 +32,7 @@ class XRF {
 	public static var T_URL:Int               = 262144;
 	public static var T_PREDEFINED_VIEW:Int   = 524288;
 	public static var T_STRING:Int            = 1048576;
-	public static var T_STRING_OBJ:Int        = 2097152;
-	public static var T_STRING_OBJ_PROP:Int   = 4194304;
+	public static var T_MEDIAFRAG:Int         = 2097152;
 
   // regexes
   public static var isColor:EReg   = ~/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/; //  1. hex colors are detected using regex `/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/`
@@ -41,13 +40,14 @@ class XRF {
   public static var isFloat:EReg   = ~/^[-0-9]+\.[0-9]+$/;                  //  1. floats are detected using regex `/^[0-9]+\.[0-9]+$/`
   public static var isVector:EReg  = ~/([,]+|\w)/;                          //  1. vectors are detected using regex `/[,]/` (but can also be an string referring to an entity-ID in the asset)
   public static var isUrl:EReg     = ~/(:\/\/)?\..*/;                       //  1. url/file */` 
-  public static var isUrlOrPretypedView:EReg = ~/(^#|:\/\/)?\..*/;                       //  1. url/file */` 
+  public static var isUrlOrPretypedView:EReg = ~/(^#|:\/\/)?\..*/;          //  1. url/file */` 
   public static var isString:EReg  = ~/.*/;                                 //  1. anything else is string  `/.*/`
   public static var operators:EReg = ~/(^-|[\*]+)/;                         //  1. detect operators so you can easily strip keys (reference regex= `~/(^-)?(\/)?(\*)?/` )
   public static var isProp:EReg    = ~/^.*=[><=]?/;                         //  1. detect object id's & properties `foo=1` and `foo` (reference regex= `~/^.*=[><=]?/`  )
   public static var isExclude:EReg = ~/^-/;                                 //  1. detect excluders like `-foo`,`-foo=1`,`-.foo`,`-/foo` (reference regex= `/^-/` )
   public static var isDeep:EReg    = ~/\*/;                                 //  1. detect deep selectors like `foo*` (reference regex= `/\*$/` )
   public static var isNumber:EReg  = ~/^[0-9\.]+$/;                         //  1. detect number values like `foo=1` (reference regex= `/^[0-9\.]+$/` )
+  public static var isMediaFrag:EReg = ~/^[0-9\.,\*]+$/;                    //  1. detect (extended) media fragment
 
   // value holder(s)                                                       //  |------|------|--------|----------------------------------|
   public var fragment:String;
@@ -56,7 +56,8 @@ class XRF {
   public var x:Float;                                                      //  |vector| x,y,z| comma-separated    | #pos=1,2,3           |
   public var y:Float;
   public var z:Float;
-  public var w:Float;
+  public var floats:Array<Float> = new Array<Float>();
+  public var speed:Array<Float>  = new Array<Float>();
   public var color:String;                                                 //  |string| color| FFFFFF (hex)      | #fog=5m,FFAACC        |
   public var string:String;                                                //  |string|      |                   | #q=-sun               |
   public var int:Int;                                                      //  |int   |      | [-]x[xxxxx]       | #price:>=100          |
@@ -98,11 +99,13 @@ class XRF {
     if( !Std.isOfType(str,String) ) return;
     if( str.length > 0 ){
       if( str.split(",").length > 1){                                      //  1. `,` assumes 1D/2D/3D vector-values like x[,y[,z]]
-        var xyzw:Array<String> = str.split(",");                           //  1. parseFloat(..) and parseInt(..) is applied to vector/float and int values 
-        if( xyzw.length > 0 ) v.x = Std.parseFloat(xyzw[0]);               //  1. anything else will be treated as string-value 
-        if( xyzw.length > 1 ) v.y = Std.parseFloat(xyzw[1]);               //  1. incompatible value-types will be dropped / not used
-        if( xyzw.length > 2 ) v.z = Std.parseFloat(xyzw[2]);               //  
-        if( xyzw.length > 3 ) v.w = Std.parseFloat(xyzw[3]);               //  
+        var xyzn:Array<String> = str.split(",");                           //  1. parseFloat(..) and parseInt(..) is applied to vector/float and int values 
+        if( xyzn.length > 0 ) v.x = Std.parseFloat(xyzn[0]);               //  1. anything else will be treated as string-value 
+        if( xyzn.length > 1 ) v.y = Std.parseFloat(xyzn[1]);               //  1. incompatible value-types will be dropped / not used
+        if( xyzn.length > 2 ) v.z = Std.parseFloat(xyzn[2]);               //  
+        for( i in 0...xyzn.length ){
+          v.floats.push( Std.parseFloat(xyzn[i]) );
+        }  
       }                                                                    //  > the xrfragment specification should stay simple enough
                                                                            //  > for anyone to write a parser using either regexes or grammar/lexers
       if( isColor.match(str) ) v.color = str;                         //  > therefore expressions/comprehensions are not supported (max wildcard/comparison operators for queries e.g.)
@@ -113,6 +116,16 @@ class XRF {
       if( isInt.match(str)   ){
         v.int = Std.parseInt(str);
         v.x   = cast(v.int);
+      }
+      if( isMediaFrag.match(str) ){
+        var speed:Array<String> = str.split("*");
+        v.speed = new Array<Float>();
+        if( speed.length > 0 ){
+          var values:Array<String> = str.split(",");
+          for( i in 0...values.length ){
+            v.speed.push( Std.parseFloat(values[i]) );
+          }
+        }
       }
       v.filter = new Filter(v.fragment+"="+v.string);
     }else v.filter = new Filter(v.fragment);
