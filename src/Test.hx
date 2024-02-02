@@ -19,6 +19,7 @@ class Test {
     test( "pos.json",         Spec.load("src/spec/pos.json") );
     test( "t.json",           Spec.load("src/spec/t.json") );
     test( "xywh.json",           Spec.load("src/spec/xywh.json") );
+    test( "speed.json",           Spec.load("src/spec/speed.json") );
     test( "filter.selectors.json", Spec.load("src/spec/filter.selectors.json") );
     //test( Spec.load("src/spec/tmp.json") );
 		if( errors > 1 ) trace("\n-----\n[ ❌] "+errors+" errors :/");
@@ -49,8 +50,7 @@ class Test {
       if( item.expect.fn == "equal.xyz"             ) valid = equalXYZ(res,item);
       if( item.expect.fn == "equal.mediafragmentT"   ) valid = equalMediaFragment(res,item,"t");
       if( item.expect.fn == "equal.mediafragmentXYWH") valid = equalMediaFragment(res,item,"xywh");
-      if( item.expect.fn == "equal.mediafragmentTSpd") valid = equalMediaFragmentSpd(res,item,"t");
-      if( item.expect.fn == "equal.mediafragmentXYWHSpd") valid = equalMediaFragmentSpd(res,item,"xywh");
+      if( item.expect.fn == "equal.mediafragmentSpeed") valid = equalMediaFragment(res,item,"speed");
       if( item.expect.fn == "testFilterRoot"        ) valid = res.exists(item.expect.input[0]) && res.get(item.expect.input[0]).filter.get().root == item.expect.out;
       if( item.expect.fn == "testFilterDeep"        ) valid = res.exists(item.expect.input[0]) && res.get(item.expect.input[0]).filter.get().deep == item.expect.out;
       var ok:String = valid ? "[ ✔ ] " : "[ ❌] ";
@@ -76,14 +76,7 @@ class Test {
 
 	static public function equalMediaFragment(res:haxe.DynamicAccess<Dynamic>, item:Dynamic, key:String):Bool {
     if( !item.expect.out && !res.get(item.expect.input) ) return true;
-    else return res.get( key ).floats[ Std.parseInt(item.expect.input) ] == Std.parseInt(item.expect.out);
-  }
-
-	static public function equalMediaFragmentSpd(res:haxe.DynamicAccess<Dynamic>, item:Dynamic, key:String ):Bool {
-    if( !item.expect.out && !res.get(item.expect.input) ) return true;
-    else{
-      return res.get( key ).speed[ Std.parseInt(item.expect.input) ] == Std.parseFloat(item.expect.out);
-    }
+    else return res.get( key ).floats[ Std.parseInt(item.expect.input) ] == Std.parseFloat(item.expect.out);
   }
 
   static public function testUrl():Void {

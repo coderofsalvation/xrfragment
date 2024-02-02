@@ -1,5 +1,4 @@
 [
   {"fn":"url","data":"http://foo.com?foo=1#xywh=0,0,1,1", "expect":{ "fn":"equal.mediafragmentXYWH", "input":"2","out":"1"},"label":"xywh"},
-  {"fn":"url","data":"http://foo.com?foo=1#xywh=1,100,400,500*1.2,2.3", "expect":{ "fn":"equal.mediafragmentXYWH",    "input":"3","out":"500"},"label":"a equal.mediafragment"},
-  {"fn":"url","data":"http://foo.com?foo=1#xywh=1,100,400,500*1.2,2.3", "expect":{ "fn":"equal.mediafragmentXYWHSpd",    "input":"1","out":"2.3"},"label":"a equal.mediafragmentSpeed"}
+  {"fn":"url","data":"http://foo.com?foo=1#xywh=1,100,400,500", "expect":{ "fn":"equal.mediafragmentXYWH",    "input":"3","out":"500"},"label":"a equal.mediafragment"}
 ]

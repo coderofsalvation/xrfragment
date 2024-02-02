@@ -266,23 +266,29 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 > NOTE: below the word 'play' applies to 3D animations embedded in the 3D scene(file) **but also** media defined in `src`-metadata like audio/video-files (mp3/mp4 e.g.)
 
 | type       | syntax | example | info |
-|-------------------------------|-----------------------------|-----------------|----------------------|
-| vector2                       | x,y                         | 2,3.0           | 2-dimensional vector |
-| vector3                       | x,y,z                       | 2,3.0,4         | 3-dimensional vector |
-| temporal W3C media fragment   | t=x                         | 0               | 1D parameters: play from 0 seconds to end (and stop) |
-| temporal W3C media fragment   | t=x,y                       | 0,2             | 1D parameters: play from 0 seconds till 2 seconds (and stop) |
-| temporal W3C media fragment * | t=x,y, ...                  | 0,1,4,5         | XD parameters: pass values as positional uniform values to shader (if loaded with `src`) |
-| temporal W3C media fragment * | s=x,y, ...                  | 1,1,1,1         | XD speed: set playback speed of audio/video (or uv-coordinate texturescroll) |
+|-------------------------------|------------------------|-----------------|----------------------|
+| vector2                       | x,y                    | 2,3.0           | 2-dimensional vector |
+| vector3                       | x,y,z                  | 2,3.0,4         | 3-dimensional vector |
+| temporal W3C media fragment   | t=x                    | 0               | 1D parameters: play from 0 seconds to end (and stop) |
+| temporal W3C media fragment   | t=x,y                  | 0,2             | 1D parameters: play from 0 seconds till 2 seconds (and stop) |
+| temporal W3C media fragment * | t=[uv:][l:]x,y,...     | l:0,1,4,5       | XD parameters: play [or scroll uvcoordinates] [as loop] between `x` and `y`  |
+|                               |                        |                 | more args (`...`) means passing all values as positional uniform values to shader in case its loaded with `src`) |
+|                               |                        |                 | uv-coordinate playback equals `U = xywh.x + (t.x*(s.x/fps))` and `V = t.y*(s.y/fps)` |
+| temporal W3C media fragment * | s=[uv:]x, ...          | 1,1,1,1         | XD speed: set playback speed of audio/video [or uv-coordinates] |
+|                               |                        | uv:1,1          | (texture)scroll uv-coordinates with `0.1` units/per second |
+| temporal W3C media fragment   | xywh=x,y,w,h           | 0,0,1,1         | crop (uv) coordinates (default for uv-coordinates is `0,0,1,1`) |
+
 
 > \* = this is extending the [W3C media fragments](https://www.w3.org/TR/media-frags/#mf-advanced) with:
 
 
 | extension        | info    |
 |------------------|---------|
-| multidimensional values beyond `t=x,y` | allows passing temporal mediafragment values as shader-uniforms (like [IFS parameters](https://isf.video/)). |
-|                  | The temporal relationship is that shaders are 'players' too, but which require loose-coupled positional values (parameters) for temporal control (like [IFS parameters](https://isf.video/))  |
-| `~` specifies loop | `t=0,2` specifies oneshot-play (default) whereas `t=~0,2` indicates looped-play |
+| `l:` specifices loop | `t=0,2` specifies oneshot-play (default) whereas `t=l:0,2` indicates looped-play |
+| `uv:` specifies uv-coordinates | `t=0,2` specifies `src` loaded media (or 3D animations in 3D models) whereas `t=uv:0,1` plays uv-coordinate texturescroller |
 | `s` specifies speed | being able to specify loop(speed) of audio/video/uv timeline-coordinates which is `1,[[1],[1]]` by default (translates to uv-coordinate `0.1` units p/second) |
+| `t=x,y,...` forwarded as shadervalues | `t=x,y,...` values are forwarded as positional shader-uniform values (like [IFS parameters](https://isf.video/)). |
+|                  | The rationale that shaders are temporal 'players' too, but which require loose-coupled positional values (parameters) for temporal control (like [IFS parameters](https://isf.video/))  |
 
 
 ```
@@ -297,23 +303,22 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
   │    │      └ href: #media.play&wall.calm                  │ trigger #play on object 'media' and #calm on 'wall' 
   │    │                                                     │ 
   │    ├── ◻ plane                                           │    
-  │    │      └ src: foo.jpg#t=~0,0.2&xywh=0.2,0.2,0.4,0.4   │ texturescroll between uv-coordinate `0.2,0.2` and `0.4,0.4`
+  │    │      └ src: foo.jpg#t=uv:l:0,0.2&s=1                │ infinite texturescroll `v` of uv-coordinates with 0.2/fps
   │    │                                                     │ with u-speed `0.1` and v-speed `0.1` (`#s` defaults) units p/second
-  │    │                                                     │ 
   │    ├── ◻ media                                           │   
   │    │      ├ play: #t=0                                   │ play cat.mp4 from 0 sec
   │    │      ├ stop: #t=0,0                                 │ stop 
-  │    │      ├ loop: #t=~1,2&s=2                            │ loop cat.mp4 between 1 and 2 sec with double speed
+  │    │      ├ loop: #t=l:1,2&s=2                           │ loop cat.mp4 between 1 and 2 sec with double speed
   │    │      ├ crop: #xywh=0,0,0.5,0.5                      │ crop uv-coordinates
   │    │      ├ #: #play                                     │ apply default XR fragment (on load)
   │    │      │                                              │
-  │    │      └ src:  cat.mp4#t=~2,10                        │ loop cat.mp4 (or mp3/wav/jpg) between 2 and 10 seconds
+  │    │      └ src:  cat.mp4#t=l:2,10                       │ loop cat.mp4 (or mp3/wav/jpg) between 2 and 10 seconds
   │    │                                                     │ 
   │    └── ◻ wall                                            │        
   │           ├ href: #calm                                  │ 
-  │           ├ calm: #t=1,2,3,4                       >-----+--> updates uniform values (IFS shader e.g.)
-  │           ├ #: #calm                                     │ apply default XR Fragment (on load)
-  │           └ src: ://a.com/art.fs#t=0,0,0,0               │ .fs/.vs/.glsl/.wgsl etc
+  │           ├ calm: #t=1,2,3,4                       >--+--+--> updates uniform values (IFS shader e.g.)
+  │           ├ #: #calm                                  |  │ apply default XR Fragment (on load)
+  │           └ src: ://a.com/art.fs#t=0,0,0,0         >---  │ .fs/.vs/.glsl/.wgsl etc
   │                                                          │    
   │                                                          │
   +──────────────────────────────────────────────────────────+

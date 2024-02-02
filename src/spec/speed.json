@@ -1,0 +1,3 @@
+[
+  {"fn":"url","data":"http://foo.com?foo=1#speed=0,0,1.2,1", "expect":{ "fn":"equal.mediafragmentSpeed", "input":"2","out":"1.2"},"label":"speed"}
+]

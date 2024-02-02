@@ -118,16 +118,6 @@ class XRF {
         v.int = Std.parseInt(str);
         v.x   = cast(v.int);
       }
-      if( isMediaFrag.match(str) ){
-        var speed:Array<String> = str.split("*");
-        v.speed = new Array<Float>();
-        if( speed.length > 1 ){
-          var values:Array<String> = speed[1].split(",");
-          for( i in 0...values.length ){
-            v.speed.push( Std.parseFloat(values[i]) );
-          }
-        }
-      }
       v.filter = new Filter(v.fragment+"="+v.string);
     }else v.filter = new Filter(v.fragment);
   }

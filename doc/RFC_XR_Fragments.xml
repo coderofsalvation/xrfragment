@@ -403,16 +403,44 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
 
 <tr>
 <td>temporal W3C media fragment *</td>
-<td>t=x,y, ...</td>
-<td>0,1,4,5</td>
-<td>XD parameters: pass values as positional uniform values to shader (if loaded with <tt>src</tt>)</td>
+<td>t=[uv:][l:][pl:]x,y,...</td>
+<td><sub>0,1,4,5</sub></td>
+<td>XD parameters: play [or scroll uvcoordinates] [as loop] or [as pingpongloop] between <tt>x</tt> and <tt>y</tt></td>
+</tr>
+
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>more args (<tt>...</tt>) means passing all values as positional uniform values to shader in case its loaded with <tt>src</tt>)</td>
+</tr>
+
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>uv-coordinate playback equals <tt>U = xywh.x + (t.x*(s.x/fps))</tt> and <tt>V = t.y*(s.y/fps)</tt></td>
 </tr>
 
 <tr>
 <td>temporal W3C media fragment *</td>
-<td>s=x,y, ...</td>
-<td>1,1,1,1</td>
-<td>XD speed: set playback speed of audio/video (or uv-coordinate texturescroll)</td>
+<td>s=[uv:]x, ...</td>
+<td><sub>1,1,1,1</sub></td>
+<td>XD speed: set playback speed of audio/video [or uv-coordinates]</td>
+</tr>
+
+<tr>
+<td></td>
+<td></td>
+<td>uv:1,1</td>
+<td>(texture)scroll uv-coordinates with <tt>0.1</tt> units/per second</td>
+</tr>
+
+<tr>
+<td>temporal W3C media fragment</td>
+<td>xywh=x,y,w,h</td>
+<td>0,0,1,1</td>
+<td>crop (uv) coordinates (default for uv-coordinates is <tt>0,0,1,1</tt>)</td>
 </tr>
 </tbody>
 </table><blockquote><t>* = this is extending the <eref target="https://www.w3.org/TR/media-frags/#mf-advanced">W3C media fragments</eref> with:</t>
@@ -426,23 +454,33 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
 
 <tbody>
 <tr>
-<td>multidimensional values beyond <tt>t=x,y</tt></td>
-<td>allows passing temporal mediafragment values as shader-uniforms (like <eref target="https://isf.video/">IFS parameters</eref>).</td>
+<td><tt>l:</tt> specifices loop</td>
+<td><tt>t=0,2</tt> specifies oneshot-play (default) whereas <tt>t=l:0,2</tt> indicates looped-play</td>
 </tr>
 
 <tr>
-<td></td>
-<td>The temporal relationship is that shaders are 'players' too, but which require loose-coupled positional values (parameters) for temporal control (like <eref target="https://isf.video/">IFS parameters</eref>)</td>
+<td><tt>pl:</tt> specifices pingpongloop</td>
+<td><tt>t=0,2</tt> specifies oneshot-play (default) whereas <tt>t=pl:0,2</tt> indicates looped-play</td>
 </tr>
 
 <tr>
-<td><tt>~</tt> specifies loop</td>
-<td><tt>t=0,2</tt> specifies oneshot-play (default) whereas <tt>t=~0,2</tt> indicates looped-play</td>
+<td><tt>uv:</tt> specifies uv-coordinates</td>
+<td><tt>t=0,2</tt> specifies <tt>src</tt> loaded media (or 3D animations in 3D models) whereas <tt>t=uv:0,1</tt> plays uv-coordinate texturescroller</td>
 </tr>
 
 <tr>
 <td><tt>s</tt> specifies speed</td>
 <td>being able to specify loop(speed) of audio/video/uv timeline-coordinates which is <tt>1,[[1],[1]]</tt> by default (translates to uv-coordinate <tt>0.1</tt> units p/second)</td>
+</tr>
+
+<tr>
+<td><tt>t=x,y,...</tt> forwarded as shadervalues</td>
+<td><tt>t=x,y,...</tt> values are forwarded as positional shader-uniform values (like <eref target="https://isf.video/">IFS parameters</eref>).</td>
+</tr>
+
+<tr>
+<td></td>
+<td>The rationale that shaders are temporal 'players' too, but which require loose-coupled positional values (parameters) for temporal control (like <eref target="https://isf.video/">IFS parameters</eref>)</td>
 </tr>
 </tbody>
 </table>
@@ -457,23 +495,22 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
   │    │      └ href: #media.play&wall.calm                  │ trigger #play on object 'media' and #calm on 'wall' 
   │    │                                                     │ 
   │    ├── ◻ plane                                           │    
-  │    │      └ src: foo.jpg#t=~0,0.2&xywh=0.2,0.2,0.4,0.4   │ texturescroll between uv-coordinate `0.2,0.2` and `0.4,0.4`
+  │    │      └ src: foo.jpg#t=uv:l:0,0.2&s=1                │ infinite texturescroll `v` of uv-coordinates with 0.2/fps
   │    │                                                     │ with u-speed `0.1` and v-speed `0.1` (`#s` defaults) units p/second
-  │    │                                                     │ 
   │    ├── ◻ media                                           │   
   │    │      ├ play: #t=0                                   │ play cat.mp4 from 0 sec
   │    │      ├ stop: #t=0,0                                 │ stop 
-  │    │      ├ loop: #t=~1,2&s=2                            │ loop cat.mp4 between 1 and 2 sec with double speed
+  │    │      ├ loop: #t=l:1,2&s=2                           │ loop cat.mp4 between 1 and 2 sec with double speed
   │    │      ├ crop: #xywh=0,0,0.5,0.5                      │ crop uv-coordinates
   │    │      ├ #: #play                                     │ apply default XR fragment (on load)
   │    │      │                                              │
-  │    │      └ src:  cat.mp4#t=~2,10                        │ loop cat.mp4 (or mp3/wav/jpg) between 2 and 10 seconds
+  │    │      └ src:  cat.mp4#t=l:2,10                       │ loop cat.mp4 (or mp3/wav/jpg) between 2 and 10 seconds
   │    │                                                     │ 
   │    └── ◻ wall                                            │        
   │           ├ href: #calm                                  │ 
-  │           ├ calm: #t=1,2,3,4                       >-----+--> updates uniform values (IFS shader e.g.)
-  │           ├ #: #calm                                     │ apply default XR Fragment (on load)
-  │           └ src: ://a.com/art.fs#t=0,0,0,0               │ .fs/.vs/.glsl/.wgsl etc
+  │           ├ calm: #t=1,2,3,4                       >--+--+--> updates uniform values (IFS shader e.g.)
+  │           ├ #: #calm                                  |  │ apply default XR Fragment (on load)
+  │           └ src: ://a.com/art.fs#t=0,0,0,0         >---  │ .fs/.vs/.glsl/.wgsl etc
   │                                                          │    
   │                                                          │
   +──────────────────────────────────────────────────────────+

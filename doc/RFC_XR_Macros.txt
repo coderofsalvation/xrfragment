@@ -3,7 +3,7 @@
 
 
 Internet Engineering Task Force                          L.R. van Kammen
-Internet-Draft                                           1 February 2024
+Internet-Draft                                           2 February 2024
 Intended status: Informational                                          
 
 
@@ -38,7 +38,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 4 August 2024.
+   This Internet-Draft will expire on 5 August 2024.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-van Kammen                Expires 4 August 2024                 [Page 1]
+van Kammen                Expires 5 August 2024                 [Page 1]
 
 Internet-Draft                  XR Macros                  February 2024
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-van Kammen                Expires 4 August 2024                 [Page 2]
+van Kammen                Expires 5 August 2024                 [Page 2]
 
 Internet-Draft                  XR Macros                  February 2024
 
@@ -165,7 +165,7 @@ Internet-Draft                  XR Macros                  February 2024
 
 
 
-van Kammen                Expires 4 August 2024                 [Page 3]
+van Kammen                Expires 5 August 2024                 [Page 3]
 
 Internet-Draft                  XR Macros                  February 2024
 
@@ -221,7 +221,7 @@ Internet-Draft                  XR Macros                  February 2024
 
 
 
-van Kammen                Expires 4 August 2024                 [Page 4]
+van Kammen                Expires 5 August 2024                 [Page 4]
 
 Internet-Draft                  XR Macros                  February 2024
 
@@ -277,7 +277,7 @@ Internet-Draft                  XR Macros                  February 2024
 
 
 
-van Kammen                Expires 4 August 2024                 [Page 5]
+van Kammen                Expires 5 August 2024                 [Page 5]
 
 Internet-Draft                  XR Macros                  February 2024
 
@@ -333,7 +333,7 @@ click object with (`!clickme`:`!foo|!bar|!flop` e.g.)
 
 
 
-van Kammen                Expires 4 August 2024                 [Page 6]
+van Kammen                Expires 5 August 2024                 [Page 6]
 
 Internet-Draft                  XR Macros                  February 2024
 
@@ -389,4 +389,4 @@ Internet-Draft                  XR Macros                  February 2024
 
 
 
-van Kammen                Expires 4 August 2024                 [Page 7]
+van Kammen                Expires 5 August 2024                 [Page 7]
