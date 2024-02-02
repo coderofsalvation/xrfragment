@@ -235,10 +235,17 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
 </tr>
 
 <tr>
-<td><tt>#t</tt></td>
+<td><eref target="https://www.w3.org/TR/media-frags/">W3C Media Fragments</eref></td>
 <td><eref target="#media%20fragments%20and%20datatypes">media fragment</eref></td>
-<td><tt>#t=0,2</tt></td>
+<td><tt>#t=0,2</tt> <tt>#xywh</tt></td>
 <td>play/loop 3D animation from 0 seconds till 2 seconds</td>
+</tr>
+
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>but can also crop, animate &amp; configure uv-coordinates/shader uniforms</td>
 </tr>
 </tbody>
 </table>
@@ -299,7 +306,7 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
 <td><tt>#&lt;aliasname&gt;</tt></td>
 <td>string</td>
 <td><tt>#cubes</tt></td>
-<td>evaluate predefined views (<tt>#cubes: #foo&amp;bar</tt> e.g.)</td>
+<td>evaluate predefined view (<tt>#foo&amp;bar</tt>) defined in 3D Object metadata (<tt>#cubes: #foo&amp;bar</tt> e.g.)</td>
 </tr>
 
 <tr>
@@ -324,7 +331,7 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
 </tr>
 
 <tr>
-<td><tt>#&lt;objectname&gt;=&lt;material&gt;</tt></td>
+<td><tt>#&lt;tag_or_objectname&gt;=&lt;material&gt;</tt></td>
 <td>string=string</td>
 <td><tt>#car=metallic</tt></td>
 <td>set material of car to material with name <tt>metallic</tt></td>
@@ -332,22 +339,30 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
 
 <tr>
 <td></td>
-<td>string=string</td>
+<td></td>
 <td><tt>#product=metallic</tt></td>
 <td>set material of objects tagged with <tt>product</tt> to material with name <tt>metallic</tt></td>
 </tr>
 
 <tr>
-<td><tt>#&lt;objectname&gt;=&lt;mediafrag&gt;</tt></td>
+<td><tt>#&lt;tag_or_objectname&gt;=&lt;mediafrag&gt;</tt></td>
 <td>string=<eref target="https://www.w3.org/TR/media-frags/#valid-uri">media frag</eref></td>
-<td><tt>#foo=0,1</tt></td>
+<td><tt>#foo=0,1</tt> `</td>
 <td>play 3D animation (or <tt>src</tt> media) using <eref target="https://www.w3.org/TR/media-frags/#valid-uri">media fragment URI</eref> with <eref target="#media%20fragments%20and%20datatypes">looping/speed/texturescroll abilities</eref></td>
+</tr>
+
+<tr>
+<td></td>
+<td></td>
+<td><tt>#foo=uv:0,0.5</tt> `</td>
+<td>texturescroll to uv-coordinate <tt>0,0.05</tt> (see <eref target="#media%20fragments%20and%20datatypes">looping/speed/texturescroll abilities here</eref></td>
 </tr>
 </tbody>
 </table></section>
 
 <section anchor="media-fragments-and-datatypes"><name>media fragments and datatypes</name>
-<table>
+<blockquote><t>NOTE: below the word 'play' applies to 3D animations embedded in the 3D scene(file) <strong>but also</strong> media defined in <tt>src</tt>-metadata like audio/video-files (mp3/mp4 e.g.)</t>
+</blockquote><table>
 <thead>
 <tr>
 <th>type</th>
@@ -373,107 +388,98 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
 </tr>
 
 <tr>
-<td>media fragment</td>
-<td>x</td>
+<td>temporal W3C media fragment</td>
+<td>t=x</td>
 <td>0</td>
-<td>1D timeline: play from 0 seconds to end (and stop)</td>
+<td>1D parameters: play from 0 seconds to end (and stop)</td>
 </tr>
 
 <tr>
-<td>media fragment</td>
-<td>x,y</td>
+<td>temporal W3C media fragment</td>
+<td>t=x,y</td>
 <td>0,2</td>
-<td>1D timeline: play from 0 seconds till 2 seconds (and stop)</td>
+<td>1D parameters: play from 0 seconds till 2 seconds (and stop)</td>
 </tr>
 
 <tr>
-<td>media fragment</td>
-<td>u,v</td>
-<td>0,0.5</td>
-<td>2D texture: set uv-coordinate at <tt>0,0.5</tt></td>
+<td>temporal W3C media fragment *</td>
+<td>t=x,y, ...</td>
+<td>0,1,4,5</td>
+<td>XD parameters: pass values as positional uniform values to shader (if loaded with <tt>src</tt>)</td>
 </tr>
 
 <tr>
-<td>media fragment *</td>
-<td>u,v, ... [*speed, ...]</td>
-<td>0*2</td>
-<td>1D timeline: play from 0 seconds till end (and loop) at double (2) speed</td>
-</tr>
-
-<tr>
-<td>*</td>
-<td></td>
-<td>0,1*2</td>
-<td>1D timeline: play from 0 seconds till 2 seconds (and loop) at double (2) speed</td>
-</tr>
-
-<tr>
-<td>*</td>
-<td></td>
-<td>0,1*0.1</td>
-<td>2D texture:  set uvcoordinates at <tt>0,1</tt> and scroll them <tt>0.1</tt> per second (interpolating)</td>
+<td>temporal W3C media fragment *</td>
+<td>s=x,y, ...</td>
+<td>1,1,1,1</td>
+<td>XD speed: set playback speed of audio/video (or uv-coordinate texturescroll)</td>
 </tr>
 </tbody>
-</table><blockquote><t>* = this is extending the <eref target="https://www.w3.org/TR/media-frags/#mf-advanced">W3C media fragments</eref> with multidimensionality and loop(speed). The multidimensional (nonspeed) values will be forwarded to shaders as <strong>uniforms</strong> as following:</t>
+</table><blockquote><t>* = this is extending the <eref target="https://www.w3.org/TR/media-frags/#mf-advanced">W3C media fragments</eref> with:</t>
 </blockquote><table>
 <thead>
 <tr>
-<th>value</th>
-<th>uniform name</th>
-<th>implementation</th>
+<th>extension</th>
+<th>info</th>
 </tr>
 </thead>
 
 <tbody>
 <tr>
-<td>u</td>
-<td>u</td>
-<td>sets U of UV-coordinate</td>
+<td>multidimensional values beyond <tt>t=x,y</tt></td>
+<td>allows passing temporal mediafragment values as shader-uniforms (like <eref target="https://isf.video/">IFS parameters</eref>).</td>
 </tr>
 
 <tr>
-<td>v</td>
-<td>v</td>
-<td>sets V of UV-coordinate</td>
+<td></td>
+<td>The temporal relationship is that shaders are 'players' too, but which require loose-coupled positional values (parameters) for temporal control (like <eref target="https://isf.video/">IFS parameters</eref>)</td>
 </tr>
 
 <tr>
-<td>...</td>
-<td>vendorId</td>
-<td>shader library identifier (7447 e.g.)</td>
+<td><tt>~</tt> specifies loop</td>
+<td><tt>t=0,2</tt> specifies oneshot-play (default) whereas <tt>t=~0,2</tt> indicates looped-play</td>
 </tr>
 
 <tr>
-<td>...</td>
-<td>preset</td>
-<td>shader presetnumber</td>
-</tr>
-
-<tr>
-<td>...</td>
-<td>presetVersion</td>
-<td>targeted version of preset (so libraries can version/update their presets)</td>
-</tr>
-
-<tr>
-<td>...</td>
-<td>preset0</td>
-<td>preset parameter 0</td>
-</tr>
-
-<tr>
-<td>...</td>
-<td>preset1</td>
-<td>preset parameter 1</td>
-</tr>
-
-<tr>
-<td>...</td>
-<td>...</td>
-<td>and so on</td>
+<td><tt>s</tt> specifies speed</td>
+<td>being able to specify loop(speed) of audio/video/uv timeline-coordinates which is <tt>1,[[1],[1]]</tt> by default (translates to uv-coordinate <tt>0.1</tt> units p/second)</td>
 </tr>
 </tbody>
-</table></section>
+</table>
+<artwork><![CDATA[  +──────────────────────────────────────────────────────────+  
+  │                                                          │ 
+  │  index.gltf#playall                                      │ 
+  │    │                                                     │ 
+  │    ├ #       : #playall                                  │ apply default XR Fragment on load 
+  │    ├ #playall: #media.play&wall.calm&t=1                 │ here `t` plays the 3D animations inside index.gltf from 1 seconds
+  │    │                                                     │ 
+  │    ├── ◻ playbutton                                      │    
+  │    │      └ href: #media.play&wall.calm                  │ trigger #play on object 'media' and #calm on 'wall' 
+  │    │                                                     │ 
+  │    ├── ◻ plane                                           │    
+  │    │      └ src: foo.jpg#t=~0,0.2&xywh=0.2,0.2,0.4,0.4   │ texturescroll between uv-coordinate `0.2,0.2` and `0.4,0.4`
+  │    │                                                     │ with u-speed `0.1` and v-speed `0.1` (`#s` defaults) units p/second
+  │    │                                                     │ 
+  │    ├── ◻ media                                           │   
+  │    │      ├ play: #t=0                                   │ play cat.mp4 from 0 sec
+  │    │      ├ stop: #t=0,0                                 │ stop 
+  │    │      ├ loop: #t=~1,2&s=2                            │ loop cat.mp4 between 1 and 2 sec with double speed
+  │    │      ├ crop: #xywh=0,0,0.5,0.5                      │ crop uv-coordinates
+  │    │      ├ #: #play                                     │ apply default XR fragment (on load)
+  │    │      │                                              │
+  │    │      └ src:  cat.mp4#t=~2,10                        │ loop cat.mp4 (or mp3/wav/jpg) between 2 and 10 seconds
+  │    │                                                     │ 
+  │    └── ◻ wall                                            │        
+  │           ├ href: #calm                                  │ 
+  │           ├ calm: #t=1,2,3,4                       >-----+--> updates uniform values (IFS shader e.g.)
+  │           ├ #: #calm                                     │ apply default XR Fragment (on load)
+  │           └ src: ://a.com/art.fs#t=0,0,0,0               │ .fs/.vs/.glsl/.wgsl etc
+  │                                                          │    
+  │                                                          │
+  +──────────────────────────────────────────────────────────+
+]]>
+</artwork>
+</section>
 </section>
 
 <section anchor="spatial-referencing-3d"><name>Spatial Referencing 3D</name>
@@ -524,12 +530,6 @@ For example, to render a portal with a preview-version of the scene, create an 3
 <td>&lt;b&gt;#pos&lt;/b&gt;=0,0,0</td>
 <td>vector3 or string</td>
 <td>(re)position camera based on coordinates directly, or indirectly using objectname (its worldposition)</td>
-</tr>
-
-<tr>
-<td>&lt;b&gt;#t&lt;/b&gt;=0,100</td>
-<td>vector3</td>
-<td>set playback speed, and (re)position looprange of scene-animation or <tt>src</tt>-mediacontent</td>
 </tr>
 
 <tr>
