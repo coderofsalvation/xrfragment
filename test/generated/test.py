@@ -422,7 +422,11 @@ class Test:
 
     @staticmethod
     def main():
-        Test.test("t.json",[_hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.x", 'input': "t", 'out': "1"}), 'label': "a equal.x", 'data': "http://foo.com?foo=1#t=1"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.x", 'input': "t", 'out': "-1"}), 'label': "a equal.x", 'data': "http://foo.com?foo=1#t=-1"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.x", 'input': "t", 'out': "-1.02"}), 'label': "a equal.x", 'data': "http://foo.com?foo=1#t=-1.02"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xy", 'input': "t", 'out': "1,2"}), 'label': "a equal.xy", 'data': "http://foo.com?foo=1#t=1,2,3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xyz", 'input': "t", 'out': "1,2,3"}), 'label': "a equal.xyz", 'data': "http://foo.com?foo=1#t=1,2,3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xyz", 'input': "t", 'out': "1,-2,3"}), 'label': "a equal.xyz", 'data': "http://foo.com?foo=1#t=1,-2,3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xy", 'input': "t", 'out': "1,100"}), 'label': "a equal.xy", 'data': "http://foo.com?foo=1#t=1,100"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testBrowserOverride", 'input': "t", 'out': True}), 'label': "browser URI can override t (defined in asset)", 'data': "http://foo.com?foo=1#t=2,500"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.mediafragment", 'input': "3", 'out': "500"}), 'label': "a equal.mediafragment", 'data': "http://foo.com?foo=1#t=1,100,400,500*1.2,2.3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.mediafragmentSpd", 'input': "1", 'out': "2.3"}), 'label': "a equal.mediafragmentSpeed", 'data': "http://foo.com?foo=1#t=1,100,400,500*1.2,2.3"})])
+        Test.test("url.json",[_hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testPredefinedView", 'input': "mypredefinedview", 'out': True}), 'label': "test predefined view executed", 'data': "http://foo.com?foo=1#mypredefinedview"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testPredefinedView", 'input': "another", 'out': True}), 'label': "test predefined view executed (multiple)", 'data': "http://foo.com?foo=1#mypredefinedview&another"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testPredefinedView", 'input': "mypredefinedview", 'out': True}), 'label': "test predefined view executed (multiple)", 'data': "http://foo.com?foo=1#mypredefinedview&another"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testParsed", 'input': "mycustom", 'out': True}), 'label': "test custom property", 'data': "http://foo.com?foo=1#mycustom=foo"})])
+        Test.test("pos.json",[_hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.string", 'input': "pos", 'out': "1.2,2.2"}), 'label': "equal.string", 'data': "http://foo.com?foo=1#pos=1.2,2.2"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xyz", 'input': "pos", 'out': "1.2,2.2,3"}), 'label': "equal.xyz", 'data': "http://foo.com?foo=1#pos=1.2,2.2,3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xyz", 'input': "pos", 'out': "1,2,3"}), 'label': "pos equal.xyz", 'data': "http://foo.com?foo=1#pos=1,2,3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.string", 'input': "pos", 'out': "world2"}), 'label': "pos equal.xyz", 'data': "http://foo.com?foo=1#pos=world2"})])
+        Test.test("t.json",[_hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.x", 'input': "t", 'out': "1"}), 'label': "a equal.x", 'data': "http://foo.com?foo=1#t=1"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.x", 'input': "t", 'out': "-1"}), 'label': "a equal.x", 'data': "http://foo.com?foo=1#t=-1"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.x", 'input': "t", 'out': "-1.02"}), 'label': "a equal.x", 'data': "http://foo.com?foo=1#t=-1.02"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xy", 'input': "t", 'out': "1,2"}), 'label': "a equal.xy", 'data': "http://foo.com?foo=1#t=1,2,3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xyz", 'input': "t", 'out': "1,2,3"}), 'label': "a equal.xyz", 'data': "http://foo.com?foo=1#t=1,2,3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xyz", 'input': "t", 'out': "1,-2,3"}), 'label': "a equal.xyz", 'data': "http://foo.com?foo=1#t=1,-2,3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.xy", 'input': "t", 'out': "1,100"}), 'label': "a equal.xy", 'data': "http://foo.com?foo=1#t=1,100"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testBrowserOverride", 'input': "t", 'out': True}), 'label': "browser URI can override t (defined in asset)", 'data': "http://foo.com?foo=1#t=2,500"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.mediafragmentT", 'input': "3", 'out': "500"}), 'label': "a equal.mediafragment", 'data': "http://foo.com?foo=1#t=1,100,400,500*1.2,2.3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.mediafragmentTSpd", 'input': "1", 'out': "2.3"}), 'label': "a equal.mediafragmentSpeed", 'data': "http://foo.com?foo=1#t=1,100,400,500*1.2,2.3"})])
+        Test.test("xywh.json",[_hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.mediafragmentXYWH", 'input': "2", 'out': "1"}), 'label': "xywh", 'data': "http://foo.com?foo=1#xywh=0,0,1,1"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.mediafragmentXYWH", 'input': "3", 'out': "500"}), 'label': "a equal.mediafragment", 'data': "http://foo.com?foo=1#xywh=1,100,400,500*1.2,2.3"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "equal.mediafragmentXYWHSpd", 'input': "1", 'out': "2.3"}), 'label': "a equal.mediafragmentSpeed", 'data': "http://foo.com?foo=1#xywh=1,100,400,500*1.2,2.3"})])
+        Test.test("filter.selectors.json",[_hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testParsed", 'input': "myid", 'out': True}), 'label': "myid exists", 'data': "http://foo.com?foo=1#foo*&-sometag&-someid&myid"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testParsed", 'input': "tag", 'out': True}), 'label': "tag exists", 'data': "http://foo.com?foo=1#tag=bar"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testParsed", 'input': "tag", 'out': True}), 'label': "tag exists", 'data': "http://foo.com?foo=1#-tag=bar"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testParsed", 'input': "price", 'out': True}), 'label': "filter test", 'data': "http://foo.com?foo=1#price=>2"}), _hx_AnonObject({'fn': "filter", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "bar"], 'out': True}), 'data': "tag=bar"}), _hx_AnonObject({'fn': "filter", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': False}), 'data': "-tag=foo"}), _hx_AnonObject({'fn': "filter", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "foo"], 'out': False}), 'data': "-tag*=foo"}), _hx_AnonObject({'fn': "filter", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["tag", "3"], 'out': False}), 'data': "-tag=>2"}), _hx_AnonObject({'fn': "filter", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "1"], 'out': False}), 'data': "price=>2"}), _hx_AnonObject({'fn': "filter", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "5"], 'out': False}), 'data': "price=<2"}), _hx_AnonObject({'fn': "filter", 'expect': _hx_AnonObject({'fn': "testProperty", 'input': ["price", "1"], 'out': True}), 'data': "price=<2"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testFilterDeep", 'input': ["foo"], 'out': 1}), 'label': "foo should be deep", 'data': "#foo*"}), _hx_AnonObject({'fn': "url", 'expect': _hx_AnonObject({'fn': "testFilterDeep", 'input': ["foo"], 'out': 2}), 'label': "foo should be deep incl. embeds", 'data': "#foo**"})])
         if (Test.errors > 1):
             print(str((("\n-----\n[ ❌] " + Std.string(Test.errors)) + " errors :/")))
 
@@ -467,10 +471,14 @@ class Test:
                 valid = Test.equalXY(res,item)
             if (Reflect.field(Reflect.field(item,"expect"),"fn") == "equal.xyz"):
                 valid = Test.equalXYZ(res,item)
-            if (Reflect.field(Reflect.field(item,"expect"),"fn") == "equal.mediafragment"):
-                valid = Test.equalMediaFragment(res,item)
-            if (Reflect.field(Reflect.field(item,"expect"),"fn") == "equal.mediafragmentSpd"):
-                valid = Test.equalMediaFragmentSpd(res,item)
+            if (Reflect.field(Reflect.field(item,"expect"),"fn") == "equal.mediafragmentT"):
+                valid = Test.equalMediaFragment(res,item,"t")
+            if (Reflect.field(Reflect.field(item,"expect"),"fn") == "equal.mediafragmentXYWH"):
+                valid = Test.equalMediaFragment(res,item,"xywh")
+            if (Reflect.field(Reflect.field(item,"expect"),"fn") == "equal.mediafragmentTSpd"):
+                valid = Test.equalMediaFragmentSpd(res,item,"t")
+            if (Reflect.field(Reflect.field(item,"expect"),"fn") == "equal.mediafragmentXYWHSpd"):
+                valid = Test.equalMediaFragmentSpd(res,item,"xywh")
             if (Reflect.field(Reflect.field(item,"expect"),"fn") == "testFilterRoot"):
                 valid = (python_Boot.hasField(res,HxOverrides.arrayGet(Reflect.field(Reflect.field(item,"expect"),"input"), 0)) and (HxOverrides.eq(Reflect.field(Reflect.field(Reflect.field(Reflect.field(res,HxOverrides.arrayGet(Reflect.field(Reflect.field(item,"expect"),"input"), 0)),"filter"),"get")(),"root"),Reflect.field(Reflect.field(item,"expect"),"out"))))
             if (Reflect.field(Reflect.field(item,"expect"),"fn") == "testFilterDeep"):
@@ -511,18 +519,18 @@ class Test:
             return False
 
     @staticmethod
-    def equalMediaFragment(res,item):
+    def equalMediaFragment(res,item,key):
         if ((not Reflect.field(Reflect.field(item,"expect"),"out")) and (not Reflect.field(res,Reflect.field(Reflect.field(item,"expect"),"input")))):
             return True
         else:
-            return (HxOverrides.arrayGet(Reflect.field(Reflect.field(res,"t"),"floats"), Std.parseInt(Reflect.field(Reflect.field(item,"expect"),"input"))) == Std.parseInt(Reflect.field(Reflect.field(item,"expect"),"out")))
+            return (HxOverrides.arrayGet(Reflect.field(Reflect.field(res,key),"floats"), Std.parseInt(Reflect.field(Reflect.field(item,"expect"),"input"))) == Std.parseInt(Reflect.field(Reflect.field(item,"expect"),"out")))
 
     @staticmethod
-    def equalMediaFragmentSpd(res,item):
+    def equalMediaFragmentSpd(res,item,key):
         if ((not Reflect.field(Reflect.field(item,"expect"),"out")) and (not Reflect.field(res,Reflect.field(Reflect.field(item,"expect"),"input")))):
             return True
         else:
-            return (HxOverrides.arrayGet(Reflect.field(Reflect.field(res,"t"),"speed"), Std.parseInt(Reflect.field(Reflect.field(item,"expect"),"input"))) == Std.parseFloat(Reflect.field(Reflect.field(item,"expect"),"out")))
+            return (HxOverrides.arrayGet(Reflect.field(Reflect.field(res,key),"speed"), Std.parseInt(Reflect.field(Reflect.field(item,"expect"),"input"))) == Std.parseFloat(Reflect.field(Reflect.field(item,"expect"),"out")))
 
 
 class haxe_IMap:
@@ -1547,8 +1555,8 @@ class xrfragment_Filter:
         fails = 0
         qualify = 0
         def _hx_local_2(expr):
-            nonlocal fails
             nonlocal conds
+            nonlocal fails
             conds = (conds + 1)
             fails = (fails + (0 if expr else 1))
             return expr
@@ -1590,6 +1598,7 @@ class xrfragment_Parser:
         Frag.h["pos"] = ((((xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.T_STRING) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
         Frag.h["rot"] = ((((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
         Frag.h["t"] = ((((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_FLOAT) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.T_MEDIAFRAG) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
+        Frag.h["xywh"] = ((((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_FLOAT) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.T_MEDIAFRAG) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
         Frag.h["namespace"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
         Frag.h["SPDX"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
         Frag.h["unit"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)

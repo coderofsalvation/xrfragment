@@ -147,13 +147,17 @@ StringTools.trim = function(s) {
 var Test = function() { };
 Test.__name__ = true;
 Test.main = function() {
-	Test.test("t.json",[{ fn : "url", expect : { fn : "equal.x", input : "t", out : "1"}, label : "a equal.x", data : "http://foo.com?foo=1#t=1"},{ fn : "url", expect : { fn : "equal.x", input : "t", out : "-1"}, label : "a equal.x", data : "http://foo.com?foo=1#t=-1"},{ fn : "url", expect : { fn : "equal.x", input : "t", out : "-1.02"}, label : "a equal.x", data : "http://foo.com?foo=1#t=-1.02"},{ fn : "url", expect : { fn : "equal.xy", input : "t", out : "1,2"}, label : "a equal.xy", data : "http://foo.com?foo=1#t=1,2,3"},{ fn : "url", expect : { fn : "equal.xyz", input : "t", out : "1,2,3"}, label : "a equal.xyz", data : "http://foo.com?foo=1#t=1,2,3"},{ fn : "url", expect : { fn : "equal.xyz", input : "t", out : "1,-2,3"}, label : "a equal.xyz", data : "http://foo.com?foo=1#t=1,-2,3"},{ fn : "url", expect : { fn : "equal.xy", input : "t", out : "1,100"}, label : "a equal.xy", data : "http://foo.com?foo=1#t=1,100"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "t", out : true}, label : "browser URI can override t (defined in asset)", data : "http://foo.com?foo=1#t=2,500"},{ fn : "url", expect : { fn : "equal.mediafragment", input : "3", out : "500"}, label : "a equal.mediafragment", data : "http://foo.com?foo=1#t=1,100,400,500*1.2,2.3"},{ fn : "url", expect : { fn : "equal.mediafragmentSpd", input : "1", out : "2.3"}, label : "a equal.mediafragmentSpeed", data : "http://foo.com?foo=1#t=1,100,400,500*1.2,2.3"}]);
+	Test.test("url.json",[{ fn : "url", expect : { fn : "testPredefinedView", input : "mypredefinedview", out : true}, label : "test predefined view executed", data : "http://foo.com?foo=1#mypredefinedview"},{ fn : "url", expect : { fn : "testPredefinedView", input : "another", out : true}, label : "test predefined view executed (multiple)", data : "http://foo.com?foo=1#mypredefinedview&another"},{ fn : "url", expect : { fn : "testPredefinedView", input : "mypredefinedview", out : true}, label : "test predefined view executed (multiple)", data : "http://foo.com?foo=1#mypredefinedview&another"},{ fn : "url", expect : { fn : "testParsed", input : "mycustom", out : true}, label : "test custom property", data : "http://foo.com?foo=1#mycustom=foo"}]);
+	Test.test("pos.json",[{ fn : "url", expect : { fn : "equal.string", input : "pos", out : "1.2,2.2"}, label : "equal.string", data : "http://foo.com?foo=1#pos=1.2,2.2"},{ fn : "url", expect : { fn : "equal.xyz", input : "pos", out : "1.2,2.2,3"}, label : "equal.xyz", data : "http://foo.com?foo=1#pos=1.2,2.2,3"},{ fn : "url", expect : { fn : "equal.xyz", input : "pos", out : "1,2,3"}, label : "pos equal.xyz", data : "http://foo.com?foo=1#pos=1,2,3"},{ fn : "url", expect : { fn : "equal.string", input : "pos", out : "world2"}, label : "pos equal.xyz", data : "http://foo.com?foo=1#pos=world2"}]);
+	Test.test("t.json",[{ fn : "url", expect : { fn : "equal.x", input : "t", out : "1"}, label : "a equal.x", data : "http://foo.com?foo=1#t=1"},{ fn : "url", expect : { fn : "equal.x", input : "t", out : "-1"}, label : "a equal.x", data : "http://foo.com?foo=1#t=-1"},{ fn : "url", expect : { fn : "equal.x", input : "t", out : "-1.02"}, label : "a equal.x", data : "http://foo.com?foo=1#t=-1.02"},{ fn : "url", expect : { fn : "equal.xy", input : "t", out : "1,2"}, label : "a equal.xy", data : "http://foo.com?foo=1#t=1,2,3"},{ fn : "url", expect : { fn : "equal.xyz", input : "t", out : "1,2,3"}, label : "a equal.xyz", data : "http://foo.com?foo=1#t=1,2,3"},{ fn : "url", expect : { fn : "equal.xyz", input : "t", out : "1,-2,3"}, label : "a equal.xyz", data : "http://foo.com?foo=1#t=1,-2,3"},{ fn : "url", expect : { fn : "equal.xy", input : "t", out : "1,100"}, label : "a equal.xy", data : "http://foo.com?foo=1#t=1,100"},{ fn : "url", expect : { fn : "testBrowserOverride", input : "t", out : true}, label : "browser URI can override t (defined in asset)", data : "http://foo.com?foo=1#t=2,500"},{ fn : "url", expect : { fn : "equal.mediafragmentT", input : "3", out : "500"}, label : "a equal.mediafragment", data : "http://foo.com?foo=1#t=1,100,400,500*1.2,2.3"},{ fn : "url", expect : { fn : "equal.mediafragmentTSpd", input : "1", out : "2.3"}, label : "a equal.mediafragmentSpeed", data : "http://foo.com?foo=1#t=1,100,400,500*1.2,2.3"}]);
+	Test.test("xywh.json",[{ fn : "url", expect : { fn : "equal.mediafragmentXYWH", input : "2", out : "1"}, label : "xywh", data : "http://foo.com?foo=1#xywh=0,0,1,1"},{ fn : "url", expect : { fn : "equal.mediafragmentXYWH", input : "3", out : "500"}, label : "a equal.mediafragment", data : "http://foo.com?foo=1#xywh=1,100,400,500*1.2,2.3"},{ fn : "url", expect : { fn : "equal.mediafragmentXYWHSpd", input : "1", out : "2.3"}, label : "a equal.mediafragmentSpeed", data : "http://foo.com?foo=1#xywh=1,100,400,500*1.2,2.3"}]);
+	Test.test("filter.selectors.json",[{ fn : "url", expect : { fn : "testParsed", input : "myid", out : true}, label : "myid exists", data : "http://foo.com?foo=1#foo*&-sometag&-someid&myid"},{ fn : "url", expect : { fn : "testParsed", input : "tag", out : true}, label : "tag exists", data : "http://foo.com?foo=1#tag=bar"},{ fn : "url", expect : { fn : "testParsed", input : "tag", out : true}, label : "tag exists", data : "http://foo.com?foo=1#-tag=bar"},{ fn : "url", expect : { fn : "testParsed", input : "price", out : true}, label : "filter test", data : "http://foo.com?foo=1#price=>2"},{ fn : "filter", expect : { fn : "testProperty", input : ["tag","bar"], out : true}, data : "tag=bar"},{ fn : "filter", expect : { fn : "testProperty", input : ["tag","foo"], out : false}, data : "-tag=foo"},{ fn : "filter", expect : { fn : "testProperty", input : ["tag","foo"], out : false}, data : "-tag*=foo"},{ fn : "filter", expect : { fn : "testProperty", input : ["tag","3"], out : false}, data : "-tag=>2"},{ fn : "filter", expect : { fn : "testProperty", input : ["price","1"], out : false}, data : "price=>2"},{ fn : "filter", expect : { fn : "testProperty", input : ["price","5"], out : false}, data : "price=<2"},{ fn : "filter", expect : { fn : "testProperty", input : ["price","1"], out : true}, data : "price=<2"},{ fn : "url", expect : { fn : "testFilterDeep", input : ["foo"], out : 1}, label : "foo should be deep", data : "#foo*"},{ fn : "url", expect : { fn : "testFilterDeep", input : ["foo"], out : 2}, label : "foo should be deep incl. embeds", data : "#foo**"}]);
 	if(Test.errors > 1) {
-		console.log("src/Test.hx:23:","\n-----\n[ ❌] " + Test.errors + " errors :/");
+		console.log("src/Test.hx:24:","\n-----\n[ ❌] " + Test.errors + " errors :/");
 	}
 };
 Test.test = function(topic,spec) {
-	console.log("src/Test.hx:27:","\n[.] running " + topic);
+	console.log("src/Test.hx:28:","\n[.] running " + topic);
 	var Filter = xrfragment_Filter;
 	var _g = 0;
 	var _g1 = spec.length;
@@ -208,11 +212,17 @@ Test.test = function(topic,spec) {
 		if(item.expect.fn == "equal.xyz") {
 			valid = Test.equalXYZ(res,item);
 		}
-		if(item.expect.fn == "equal.mediafragment") {
-			valid = Test.equalMediaFragment(res,item);
+		if(item.expect.fn == "equal.mediafragmentT") {
+			valid = Test.equalMediaFragment(res,item,"t");
 		}
-		if(item.expect.fn == "equal.mediafragmentSpd") {
-			valid = Test.equalMediaFragmentSpd(res,item);
+		if(item.expect.fn == "equal.mediafragmentXYWH") {
+			valid = Test.equalMediaFragment(res,item,"xywh");
+		}
+		if(item.expect.fn == "equal.mediafragmentTSpd") {
+			valid = Test.equalMediaFragmentSpd(res,item,"t");
+		}
+		if(item.expect.fn == "equal.mediafragmentXYWHSpd") {
+			valid = Test.equalMediaFragmentSpd(res,item,"xywh");
 		}
 		if(item.expect.fn == "testFilterRoot") {
 			valid = Object.prototype.hasOwnProperty.call(res,item.expect.input[0]) && res[item.expect.input[0]].filter.get().root == item.expect.out;
@@ -221,7 +231,7 @@ Test.test = function(topic,spec) {
 			valid = Object.prototype.hasOwnProperty.call(res,item.expect.input[0]) && res[item.expect.input[0]].filter.get().deep == item.expect.out;
 		}
 		var ok = valid ? "[ ✔ ] " : "[ ❌] ";
-		console.log("src/Test.hx:54:",ok + Std.string(item.fn) + ": '" + Std.string(item.data) + "'" + (item.label ? "    (" + (item.label ? item.label : item.expect.fn) + ")" : ""));
+		console.log("src/Test.hx:57:",ok + Std.string(item.fn) + ": '" + Std.string(item.data) + "'" + (item.label ? "    (" + (item.label ? item.label : item.expect.fn) + ")" : ""));
 		if(!valid) {
 			Test.errors += 1;
 		}
@@ -254,18 +264,18 @@ Test.equalXYZ = function(res,item) {
 		return false;
 	}
 };
-Test.equalMediaFragment = function(res,item) {
+Test.equalMediaFragment = function(res,item,key) {
 	if(!item.expect.out && !res[item.expect.input]) {
 		return true;
 	} else {
-		return res["t"].floats[Std.parseInt(item.expect.input)] == Std.parseInt(item.expect.out);
+		return res[key].floats[Std.parseInt(item.expect.input)] == Std.parseInt(item.expect.out);
 	}
 };
-Test.equalMediaFragmentSpd = function(res,item) {
+Test.equalMediaFragmentSpd = function(res,item,key) {
 	if(!item.expect.out && !res[item.expect.input]) {
 		return true;
 	} else {
-		return res["t"].speed[Std.parseInt(item.expect.input)] == parseFloat(item.expect.out);
+		return res[key].speed[Std.parseInt(item.expect.input)] == parseFloat(item.expect.out);
 	}
 };
 var haxe_iterators_ArrayIterator = function(array) {
@@ -489,6 +499,7 @@ xrfragment_Parser.parse = function(key,value,store,index) {
 	Frag_h["pos"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.T_STRING | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
 	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
 	Frag_h["t"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_FLOAT | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.T_MEDIAFRAG | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
+	Frag_h["xywh"] = xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_FLOAT | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.T_MEDIAFRAG | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
 	Frag_h["namespace"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["SPDX"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
 	Frag_h["unit"] = xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING;
@@ -507,12 +518,12 @@ xrfragment_Parser.parse = function(key,value,store,index) {
 	var v = new xrfragment_XRF(key,Frag_h[key],index);
 	if(Object.prototype.hasOwnProperty.call(Frag_h,key)) {
 		if(!v.validate(value)) {
-			console.log("src/xrfragment/Parser.hx:66:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
+			console.log("src/xrfragment/Parser.hx:67:","⚠ fragment '" + key + "' has incompatible value (" + value + ")");
 			return false;
 		}
 		store[keyStripped] = v;
 		if(xrfragment_Parser.debug) {
-			console.log("src/xrfragment/Parser.hx:70:","✔ " + key + ": " + v.string);
+			console.log("src/xrfragment/Parser.hx:71:","✔ " + key + ": " + v.string);
 		}
 	} else {
 		if(typeof(value) == "string") {
