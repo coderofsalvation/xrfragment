@@ -76,7 +76,7 @@ let loadAudio = (mimetype) => function(url,opts){
 
 // stop playing audio when loading another scene
 xrf.addEventListener('reset', () => {
-  xrf.scene.traverse( (n)  => n.audio && (n.audio.playXRF({x:0})) && (n.audio.remove()) )
+  xrf.scene.traverse( (n)  => n.audio && (n.audio.playXRF({x:0,y:0})) && (n.audio.remove()) )
 })
 
 let audioMimeTypes = [
@@ -88,14 +88,3 @@ let audioMimeTypes = [
   'application/ogg'
 ]
 audioMimeTypes.map( (mimetype) =>  xrf.frag.src.type[ mimetype ] = loadAudio(mimetype) )
-
-// listen to t XR fragment changes
-xrf.addEventListener('t', (opts) => {
-  let t = opts.frag.t
-  xrf.scene.traverse( (n) => {
-    if( !n.audio ) return 
-    if( !n.audio.playXRF ){
-      n.audio.autoplay = t 
-    }else n.audio.playXRF(t)
-  })
-})

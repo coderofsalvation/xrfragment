@@ -48,7 +48,7 @@ class XRF {
   public static var isExclude:EReg = ~/^-/;                                 //  1. detect excluders like `-foo`,`-foo=1`,`-.foo`,`-/foo` (reference regex= `/^-/` )
   public static var isDeep:EReg    = ~/\*/;                                 //  1. detect deep selectors like `foo*` (reference regex= `/\*$/` )
   public static var isNumber:EReg  = ~/^[0-9\.]+$/;                         //  1. detect number values like `foo=1` (reference regex= `/^[0-9\.]+$/` )
-  public static var isMediaFrag:EReg = ~/^[0-9\.,\*]+$/;                    //  1. detect (extended) media fragment
+  public static var isMediaFrag:EReg = ~/^(uv:)?(l:)?([0-9\.,\*]+)$/;       //  1. detect (extended) media fragment
 
   // value holder(s)                                                       //  |------|------|--------|----------------------------------|
   public var fragment:String;
@@ -65,6 +65,8 @@ class XRF {
   public var float:Float;                                                  //  |float |      | [-]x[.xxxx] (ieee)| #prio=-20             |
   public var filter:Filter;
   public var noXRF:Bool;
+  public var loop:Bool;
+  public var uv:Bool;
                                                                            //
   public function new(_fragment:String,_flags:Int,?_index:Int){
     fragment = _fragment;
@@ -99,6 +101,14 @@ class XRF {
     v.string = str;
     if( !Std.isOfType(str,String) ) return;
     if( str.length > 0 ){
+      if( str.split("l:").length > 1 ){
+        str    = str.split("l:")[1];
+        v.loop = true;
+      }
+      if( str.split("uv:").length > 1 ){
+        str    = str.split("uv:")[1];
+        v.uv   = true;
+      }
       if( str.split(",").length > 1){                                      //  1. `,` assumes 1D/2D/3D vector-values like x[,y[,z]]
         var xyzn:Array<String> = str.split(",");                           //  1. parseFloat(..) and parseInt(..) is applied to vector/float and int values 
         if( xyzn.length > 0 ) v.x = Std.parseFloat(xyzn[0]);               //  1. anything else will be treated as string-value 

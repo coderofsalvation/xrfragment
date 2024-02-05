@@ -19,7 +19,8 @@ class Test {
     test( "pos.json",         Spec.load("src/spec/pos.json") );
     test( "t.json",           Spec.load("src/spec/t.json") );
     test( "xywh.json",           Spec.load("src/spec/xywh.json") );
-    test( "speed.json",           Spec.load("src/spec/speed.json") );
+    test( "s.json",           Spec.load("src/spec/s.json") );
+    test( "sxy.json",           Spec.load("src/spec/sxy.json") );
     test( "filter.selectors.json", Spec.load("src/spec/filter.selectors.json") );
     //test( Spec.load("src/spec/tmp.json") );
 		if( errors > 1 ) trace("\n-----\n[ ❌] "+errors+" errors :/");
@@ -50,7 +51,8 @@ class Test {
       if( item.expect.fn == "equal.xyz"             ) valid = equalXYZ(res,item);
       if( item.expect.fn == "equal.mediafragmentT"   ) valid = equalMediaFragment(res,item,"t");
       if( item.expect.fn == "equal.mediafragmentXYWH") valid = equalMediaFragment(res,item,"xywh");
-      if( item.expect.fn == "equal.mediafragmentSpeed") valid = equalMediaFragment(res,item,"speed");
+      if( item.expect.fn == "equal.mediafragmentS") valid = equalMediaFragment(res,item,"s");
+      if( item.expect.fn == "equal.mediafragmentSXY") valid = equalMediaFragment(res,item,"sxy");
       if( item.expect.fn == "testFilterRoot"        ) valid = res.exists(item.expect.input[0]) && res.get(item.expect.input[0]).filter.get().root == item.expect.out;
       if( item.expect.fn == "testFilterDeep"        ) valid = res.exists(item.expect.input[0]) && res.get(item.expect.input[0]).filter.get().deep == item.expect.out;
       var ok:String = valid ? "[ ✔ ] " : "[ ❌] ";

@@ -1,3 +1,4 @@
 [
-  {"fn":"url","data":"http://foo.com?foo=1#speed=0,0,1.2,1", "expect":{ "fn":"equal.mediafragmentSpeed", "input":"2","out":"1.2"},"label":"speed"}
+  {"fn":"url","data":"http://foo.com?foo=1#sxy=l:0,0.1", "expect":{ "fn":"equal.mediafragmentSXY", "input":"1","out":"0.2"},"label":"sxy"},
+  {"fn":"url","data":"http://foo.com?foo=1#sxy=0,0.1", "expect":{ "fn":"equal.mediafragmentSXY", "input":"1","out":"0.2"},"label":"sxy looped"}
 ]

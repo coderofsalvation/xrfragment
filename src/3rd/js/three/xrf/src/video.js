@@ -37,6 +37,11 @@ let loadVideo = (mimetype) => function(url,opts){
   }
 }
 
+// stop playing audio when loading another scene
+xrf.addEventListener('reset', () => {
+  xrf.scene.traverse( (n)  => n.video && (n.video.playXRF({x:0,y:0})) && (n.video.remove()) )
+})
+
 let videoMimeTypes = [
   'video/ogg',
   'video/mp4'
