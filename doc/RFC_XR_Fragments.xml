@@ -449,17 +449,17 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
 </tr>
 
 <tr>
-<td><tt>s:</tt> specifies playback speed</td>
-<td>being able to specify loop(speed) of audio/video/uv timeline-coordinates (default: <tt>1[,1]</tt> which translates to uv-coordinate <tt>0.1,0.1</tt> units p/second)</td>
+<td><tt>#s</tt> specifies playback speed</td>
+<td>being able to specify loop(speed) of audio/video</td>
 </tr>
 
 <tr>
-<td><tt>sxy=</tt> specifies lerping of xy(wh) values</td>
+<td><tt>#sxy=</tt> specifies lerping of xy(wh) values</td>
 <td>allows animated cropping and infinite texturescroll with configurable speed for u/v coordinates</td>
 </tr>
 
 <tr>
-<td><tt>u:&lt;uniform&gt;=</tt></td>
+<td><tt>#u:&lt;uniform&gt;=</tt></td>
 <td>specifies updating a uniform value</td>
 </tr>
 </tbody>

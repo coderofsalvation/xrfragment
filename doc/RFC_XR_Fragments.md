@@ -283,9 +283,9 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 | extension        | info    |
 |------------------|---------|
 | `l:` specifices loop | `t=0,2` specifies oneshot-play (default) whereas `t=l:0,2` indicates looped-play |
-| `s:` specifies playback speed | being able to specify loop(speed) of audio/video/uv timeline-coordinates (default: `1[,1]` which translates to uv-coordinate `0.1,0.1` units p/second) |
-| `sxy=` specifies lerping of xy(wh) values | allows animated cropping and infinite texturescroll with configurable speed for u/v coordinates | 
-| `u:<uniform>=` | specifies updating a uniform value |
+| `#s` specifies playback speed | being able to specify loop(speed) of audio/video |
+| `#sxy=` specifies lerping of xy(wh) values | allows animated cropping and infinite texturescroll with configurable speed for u/v coordinates | 
+| `#u:<uniform>=` | specifies updating a uniform value |
 
 Example URI's:
 

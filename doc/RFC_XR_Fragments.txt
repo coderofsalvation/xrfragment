@@ -573,27 +573,23 @@ Internet-Draft                XR Fragments                 February 2024
    |  (https://www.w3.org/TR/media-frags/#mf-advanced) with finer
    |  playback/viewport-control:
 
-         +===============+=======================================+
-         | extension     | info                                  |
-         +===============+=======================================+
-         | l: specifices | t=0,2 specifies oneshot-play          |
-         | loop          | (default) whereas t=l:0,2 indicates   |
-         |               | looped-play                           |
-         +---------------+---------------------------------------+
-         | s: specifies  | being able to specify loop(speed) of  |
-         | playback      | audio/video/uv timeline-coordinates   |
-         | speed         | (default: 1[,1] which translates to   |
-         |               | uv-coordinate 0.1,0.1 units p/second) |
-         +---------------+---------------------------------------+
-         | sxy=          | allows animated cropping and infinite |
-         | specifies     | texturescroll with configurable speed |
-         | lerping of    | for u/v coordinates                   |
-         | xy(wh) values |                                       |
-         +---------------+---------------------------------------+
-         | u:<uniform>=  | specifies updating a uniform value    |
-         +---------------+---------------------------------------+
+   +=========================+========================================+
+   | extension               | info                                   |
+   +=========================+========================================+
+   | l: specifices loop      | t=0,2 specifies oneshot-play (default) |
+   |                         | whereas t=l:0,2 indicates looped-play  |
+   +-------------------------+----------------------------------------+
+   | #s specifies playback   | being able to specify loop(speed) of   |
+   | speed                   | audio/video                            |
+   +-------------------------+----------------------------------------+
+   | #sxy= specifies lerping | allows animated cropping and infinite  |
+   | of xy(wh) values        | texturescroll with configurable speed  |
+   |                         | for u/v coordinates                    |
+   +-------------------------+----------------------------------------+
+   | #u:<uniform>=           | specifies updating a uniform value     |
+   +-------------------------+----------------------------------------+
 
-                                  Table 7
+                                 Table 7
 
    Example URI's:
 
@@ -604,6 +600,10 @@ Internet-Draft                XR Fragments                 February 2024
    *  https://video.org/
       organogram.mp4#t=0&sxy:0.1,0.1&xywh=500,500,480,640 (animated zoom
       towards region in video)
+
+
+
+
 
 
 
