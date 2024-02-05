@@ -275,7 +275,7 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 | temporal W3C media fragment * | t=[l:]x,y              | l:0,1           | play [as loop] between `x` and `y`  |
 | temporal W3C media fragment * | s=x[,y]                | 1               | set playback speed of audio/video/3D anim |
 | temporal W3C media fragment * | sxy=[l:]x,y            | 0.1,0.2         | xy scrollspeed of new xywh viewport/uvcoordinates (default `1,1` is instant): allows lerping to new `xywh` values [or infinite texturescrolling] |
-| temporal W3C media fragment * | u:<uniform>=<string|float|vec2|vec3|vec4> | u.color=1,0,0   | set shader uniform value |
+| temporal W3C media fragment * | u:<uniform>=<string|float|vec2|vec3|vec4> | u:color=1,0,0   | set shader uniform value |
 
 > \* = this is extending the [W3C media fragments](https://www.w3.org/TR/media-frags/#mf-advanced) with finer playback/viewport-control:
 
@@ -289,7 +289,7 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 
 Example URI's:
 
-* `https://shaders.org/plasma.glsl#t=0&u.col1=1,0,0&u.col2=0,1,0` (red-green shader plasma starts playing from time-offset 0)
+* `https://shaders.org/plasma.glsl#t=0&u:col1=1,0,0&u:col2=0,1,0` (red-green shader plasma starts playing from time-offset 0)
 * `https://images.org/credits.jpg#t=0&sxy=l:0,0.1` (infinite vertical texturescrolling)
 * `https://video.org/organogram.mp4#t=0&sxy:0.1,0.1&xywh=500,500,480,640` (animated zoom towards region in video)
 

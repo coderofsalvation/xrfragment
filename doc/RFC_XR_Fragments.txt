@@ -593,7 +593,7 @@ Internet-Draft                XR Fragments                 February 2024
 
    Example URI's:
 
-   *  https://shaders.org/plasma.glsl#t=0&u.col1=1,0,0&u.col2=0,1,0
+   *  https://shaders.org/plasma.glsl#t=0&u:col1=1,0,0&u:col2=0,1,0
       (red-green shader plasma starts playing from time-offset 0)
    *  https://images.org/credits.jpg#t=0&sxy=l:0,0.1 (infinite vertical
       texturescrolling)
