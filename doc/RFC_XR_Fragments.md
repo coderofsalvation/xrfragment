@@ -269,26 +269,29 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 |-------------------------------|------------------------|-----------------|----------------------|
 | vector2                       | x,y                    | 2,3.0           | 2-dimensional vector |
 | vector3                       | x,y,z                  | 2,3.0,4         | 3-dimensional vector |
-| temporal W3C media fragment   | t=x                    | 0               | 1D parameters: play from 0 seconds to end (and stop) |
-| temporal W3C media fragment   | t=x,y                  | 0,2             | 1D parameters: play from 0 seconds till 2 seconds (and stop) |
-| temporal W3C media fragment * | t=[uv:][l:]x,y,...     | l:0,1,4,5       | XD parameters: play [or scroll uvcoordinates] [as loop] between `x` and `y`  |
-|                               |                        |                 | more args (`...`) means passing all values as positional uniform values to shader in case its loaded with `src`) |
-|                               |                        |                 | uv-coordinate playback equals `U = xywh.x + (t.x*(s.x/fps))` and `V = t.y*(s.y/fps)` |
-| temporal W3C media fragment * | s=[uv:]x, ...          | 1,1,1,1         | XD speed: set playback speed of audio/video [or uv-coordinates] |
-|                               |                        | uv:1,1          | (texture)scroll uv-coordinates with `0.1` units/per second |
+| temporal W3C media fragment   | t=x                    | 0               | play from 0 seconds to end (and stop) |
+| temporal W3C media fragment   | t=x,y                  | 0,2             | play from 0 seconds till 2 seconds (and stop) |
 | temporal W3C media fragment   | xywh=x,y,w,h           | 0,0,1,1         | crop (uv) coordinates (default for uv-coordinates is `0,0,1,1`) |
+| temporal W3C media fragment * | t=[l:]x,y              | l:0,1           | play [as loop] between `x` and `y`  |
+| temporal W3C media fragment * | s=x[,y]                | 1               | set playback speed of audio/video/3D anim |
+| temporal W3C media fragment * | sxy=[l:]x,y            | 0.1,0.2         | xy scrollspeed of new xywh viewport/uvcoordinates (default `1,1` is instant): allows lerping to new `xywh` values [or infinite texturescrolling] |
+| temporal W3C media fragment * | u:<uniform>=<string|float|vec2|vec3|vec4> | u.color=1,0,0   | set shader uniform value |
 
-
-> \* = this is extending the [W3C media fragments](https://www.w3.org/TR/media-frags/#mf-advanced) with:
+> \* = this is extending the [W3C media fragments](https://www.w3.org/TR/media-frags/#mf-advanced) with finer playback/viewport-control:
 
 
 | extension        | info    |
 |------------------|---------|
 | `l:` specifices loop | `t=0,2` specifies oneshot-play (default) whereas `t=l:0,2` indicates looped-play |
-| `uv:` specifies uv-coordinates | `t=0,2` specifies `src` loaded media (or 3D animations in 3D models) whereas `t=uv:0,1` plays uv-coordinate texturescroller |
-| `s` specifies speed | being able to specify loop(speed) of audio/video/uv timeline-coordinates which is `1,[[1],[1]]` by default (translates to uv-coordinate `0.1` units p/second) |
-| `t=x,y,...` forwarded as shadervalues | `t=x,y,...` values are forwarded as positional shader-uniform values (like [IFS parameters](https://isf.video/)). |
-|                  | The rationale that shaders are temporal 'players' too, but which require loose-coupled positional values (parameters) for temporal control (like [IFS parameters](https://isf.video/))  |
+| `s:` specifies playback speed | being able to specify loop(speed) of audio/video/uv timeline-coordinates (default: `1[,1]` which translates to uv-coordinate `0.1,0.1` units p/second) |
+| `sxy=` specifies lerping of xy(wh) values | allows animated cropping and infinite texturescroll with configurable speed for u/v coordinates | 
+| `u:<uniform>=` | specifies updating a uniform value |
+
+Example URI's:
+
+* `https://shaders.org/plasma.glsl#t=0&u.col1=1,0,0&u.col2=0,1,0` (red-green shader plasma starts playing from time-offset 0)
+* `https://images.org/credits.jpg#t=0&sxy=l:0,0.1` (infinite vertical texturescrolling)
+* `https://video.org/organogram.mp4#t=0&sxy:0.1,0.1&xywh=500,500,480,640` (animated zoom towards region in video)
 
 
 ```
@@ -297,31 +300,32 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
   │  index.gltf#playall                                      │ 
   │    │                                                     │ 
   │    ├ #       : #playall                                  │ apply default XR Fragment on load 
-  │    ├ #playall: #media.play&wall.calm&t=1                 │ here `t` plays the 3D animations inside index.gltf from 1 seconds
+  │    ├ #playall: #media=play&wall=calm&t=1                 │ here `t` plays the 3D animations inside index.gltf from 1 seconds
   │    │                                                     │ 
   │    ├── ◻ playbutton                                      │    
-  │    │      └ href: #media.play&wall.calm                  │ trigger #play on object 'media' and #calm on 'wall' 
-  │    │                                                     │ 
-  │    ├── ◻ plane                                           │    
-  │    │      └ src: foo.jpg#t=uv:l:0,0.2&s=1                │ infinite texturescroll `v` of uv-coordinates with 0.2/fps
-  │    │                                                     │ with u-speed `0.1` and v-speed `0.1` (`#s` defaults) units p/second
-  │    ├── ◻ media                                           │   
-  │    │      ├ play: #t=0                                   │ play cat.mp4 from 0 sec
-  │    │      ├ stop: #t=0,0                                 │ stop 
-  │    │      ├ loop: #t=l:1,2&s=2                           │ loop cat.mp4 between 1 and 2 sec with double speed
-  │    │      ├ crop: #xywh=0,0,0.5,0.5                      │ crop uv-coordinates
-  │    │      ├ #: #play                                     │ apply default XR fragment (on load)
-  │    │      │                                              │
-  │    │      └ src:  cat.mp4#t=l:2,10                       │ loop cat.mp4 (or mp3/wav/jpg) between 2 and 10 seconds
-  │    │                                                     │ 
-  │    └── ◻ wall                                            │        
-  │           ├ href: #calm                                  │ 
-  │           ├ calm: #t=1,2,3,4                       >--+--+--> updates uniform values (IFS shader e.g.)
-  │           ├ #: #calm                                  |  │ apply default XR Fragment (on load)
-  │           └ src: ://a.com/art.fs#t=0,0,0,0         >---  │ .fs/.vs/.glsl/.wgsl etc
+  │    │      └ href: #media=play&wall=calm   ·······        │ (re)trigger `play` on object 'media' and `calm` on 'wall' 
+  │    │                                            ·        │ 
+  │    ├── ◻ plane                                  ·        │    
+  │    │      └ src: foo.jpg#sxy=l:0,0.1            ·        │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
+  │    │                                            ·        │ with u·speed `0.1` and v·speed `0.1` (`#s` defaults) units p/second
+  │    ├── ◻ media                                  ·        │   
+  │    │      ├ play: #t=0       ················   ·        │ play cat.mp4 from 0 sec
+  │    │      ├ #:    #play   ···^              ·   ·        │ apply default XR fragment (on load)
+  │    │      ├ stop: #t=0,0          ···········   ·        │ stop 
+  │    │      ├ loop: #t=l:1,2&s=2       ············        │ loop cat.mp4 between 1 and 2 sec with double speed
+  │    │      ├ crop: #xywh=0,0,0.5,0.5     ·····   ·        │ crop viewport/uv·coordinates
+  │    │      └ src:  cat.mp4#t=l:2,10  <<·······   ·        │ loop cat.mp4 (or mp3/wav/jpg) between 2 and 10 seconds
+  │    │                                            ·        │ 
+  │    └── ◻ wall                                   ·        │        
+  │           ├ calm: #u:color=1,0,0    ················     │ updates uniform values (IFS shader e.g.)
+  │           ├ #:    #wall=calm     ···^              ·     │ apply default XR Fragment (on load)
+  │           └ src:  ://a.com/art.fs#sxy:l:0,0.1  <<···     │ .fs/.vs/.glsl/.wgsl etc
   │                                                          │    
   │                                                          │
   +──────────────────────────────────────────────────────────+
+
+> NOTE: node-metadata (without #-prefix) applies XR Fragments to its `src` URL, otherwise it applies it to the browser URL. Full addressibility can be maintained, since top-level `href` values can trigger node-specific aliases (`media=play` e.g.).
+
 ```
 
 # Spatial Referencing 3D 

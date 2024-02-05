@@ -282,17 +282,16 @@ Macros also act as events, so more serious scripting languages can react to them
 <section anchor="event-bubble-flow"><name>Event Bubble-flow</name>
 <t>click object with (<tt>!clickme</tt>:<tt>AR</tt> or <tt>!clickme</tt>: <tt>!reset</tt> e.g.)</t>
 
-<artwork><![CDATA[  ◻
+<artwork>  ◻
   │  
   └── does current object contain this property-key (`AR` or `!reset` e.g.)?
          └── no: is there any (root)object containing property `AR`
            └── yes: evaluate its (roundrobin) XR macro-value(s) (and exit)
            └── no: trigger URL: #AR 
-]]>
 </artwork>
 <t>click object with (<tt>!clickme</tt>:<tt>#AR|#VR</tt> e.g.)</t>
 
-<artwork><![CDATA[  ◻
+<artwork>  ◻
   │  
   └── apply the roundrobin (rotate the options, value `#AR` becomes `#VR` upon next click)
       └── is there any object with property-key (`#AR` e.g.)?
@@ -300,7 +299,6 @@ Macros also act as events, so more serious scripting languages can react to them
            └── yes: apply its value to the scene, and update the URL to `#AR`
 
 click object with (`!clickme`:`!foo|!bar|!flop` e.g.)
-]]>
 </artwork>
 <t>◻
   │<br />

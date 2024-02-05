@@ -3,7 +3,7 @@
 
 
 Internet Engineering Task Force                          L.R. van Kammen
-Internet-Draft                                           2 February 2024
+Internet-Draft                                           5 February 2024
 Intended status: Informational                                          
 
 
@@ -41,7 +41,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 5 August 2024.
+   This Internet-Draft will expire on 8 August 2024.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-van Kammen                Expires 5 August 2024                 [Page 1]
+van Kammen                Expires 8 August 2024                 [Page 1]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -77,39 +77,39 @@ Table of Contents
      4.1.  List of metadata for 3D nodes . . . . . . . . . . . . . .   8
      4.2.  Dynamic XR Fragments (+databindings)  . . . . . . . . . .   8
      4.3.  media fragments and datatypes . . . . . . . . . . . . . .   9
-   5.  Spatial Referencing 3D  . . . . . . . . . . . . . . . . . . .  13
-   6.  Navigating 3D . . . . . . . . . . . . . . . . . . . . . . . .  14
-   7.  Top-level URL processing  . . . . . . . . . . . . . . . . . .  15
-   8.  Embedding XR content using src  . . . . . . . . . . . . . . .  16
-   9.  Navigating content href portals . . . . . . . . . . . . . . .  18
-     9.1.  Walking surfaces  . . . . . . . . . . . . . . . . . . . .  20
-     9.2.  UX spec . . . . . . . . . . . . . . . . . . . . . . . . .  20
-     9.3.  Scaling instanced content . . . . . . . . . . . . . . . .  20
-   10. XR Fragment: pos  . . . . . . . . . . . . . . . . . . . . . .  21
-   11. XR Fragment: rot  . . . . . . . . . . . . . . . . . . . . . .  21
-   12. XR Fragment: t  . . . . . . . . . . . . . . . . . . . . . . .  21
-   13. XR audio/video integration  . . . . . . . . . . . . . . . . .  22
-   14. XR Fragment filters . . . . . . . . . . . . . . . . . . . . .  22
-     14.1.  including/excluding  . . . . . . . . . . . . . . . . . .  23
-     14.2.  Filter Parser  . . . . . . . . . . . . . . . . . . . . .  23
-   15. Visible links . . . . . . . . . . . . . . . . . . . . . . . .  24
-   16. Text in XR (tagging,linking to spatial objects) . . . . . . .  24
-     16.1.  Default Data URI mimetype  . . . . . . . . . . . . . . .  28
-     16.2.  URL and Data URI . . . . . . . . . . . . . . . . . . . .  29
-     16.3.  XR Text example parser . . . . . . . . . . . . . . . . .  30
-   17. Transclusion (broken link) resolution . . . . . . . . . . . .  32
-   18. Topic-based index-less Webrings . . . . . . . . . . . . . . .  33
-   19. Security Considerations . . . . . . . . . . . . . . . . . . .  34
-   20. FAQ . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  34
-   21. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  35
-   22. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  35
-   23. Appendix: Definitions . . . . . . . . . . . . . . . . . . . .  35
+   5.  Spatial Referencing 3D  . . . . . . . . . . . . . . . . . . .  12
+   6.  Navigating 3D . . . . . . . . . . . . . . . . . . . . . . . .  13
+   7.  Top-level URL processing  . . . . . . . . . . . . . . . . . .  14
+   8.  Embedding XR content using src  . . . . . . . . . . . . . . .  15
+   9.  Navigating content href portals . . . . . . . . . . . . . . .  17
+     9.1.  Walking surfaces  . . . . . . . . . . . . . . . . . . . .  19
+     9.2.  UX spec . . . . . . . . . . . . . . . . . . . . . . . . .  19
+     9.3.  Scaling instanced content . . . . . . . . . . . . . . . .  19
+   10. XR Fragment: pos  . . . . . . . . . . . . . . . . . . . . . .  20
+   11. XR Fragment: rot  . . . . . . . . . . . . . . . . . . . . . .  20
+   12. XR Fragment: t  . . . . . . . . . . . . . . . . . . . . . . .  20
+   13. XR audio/video integration  . . . . . . . . . . . . . . . . .  21
+   14. XR Fragment filters . . . . . . . . . . . . . . . . . . . . .  21
+     14.1.  including/excluding  . . . . . . . . . . . . . . . . . .  22
+     14.2.  Filter Parser  . . . . . . . . . . . . . . . . . . . . .  22
+   15. Visible links . . . . . . . . . . . . . . . . . . . . . . . .  23
+   16. Text in XR (tagging,linking to spatial objects) . . . . . . .  23
+     16.1.  Default Data URI mimetype  . . . . . . . . . . . . . . .  27
+     16.2.  URL and Data URI . . . . . . . . . . . . . . . . . . . .  28
+     16.3.  XR Text example parser . . . . . . . . . . . . . . . . .  29
+   17. Transclusion (broken link) resolution . . . . . . . . . . . .  31
+   18. Topic-based index-less Webrings . . . . . . . . . . . . . . .  32
+   19. Security Considerations . . . . . . . . . . . . . . . . . . .  33
+   20. FAQ . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  33
+   21. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  34
+   22. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  34
+   23. Appendix: Definitions . . . . . . . . . . . . . . . . . . . .  34
 
 
 
 
 
-van Kammen                Expires 5 August 2024                 [Page 2]
+van Kammen                Expires 8 August 2024                 [Page 2]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -165,7 +165,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                 [Page 3]
+van Kammen                Expires 8 August 2024                 [Page 3]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -221,7 +221,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                 [Page 4]
+van Kammen                Expires 8 August 2024                 [Page 4]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -277,7 +277,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                 [Page 5]
+van Kammen                Expires 8 August 2024                 [Page 5]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -333,7 +333,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                 [Page 6]
+van Kammen                Expires 8 August 2024                 [Page 6]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -389,7 +389,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                 [Page 7]
+van Kammen                Expires 8 August 2024                 [Page 7]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -445,7 +445,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                 [Page 8]
+van Kammen                Expires 8 August 2024                 [Page 8]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -501,85 +501,109 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                 [Page 9]
+van Kammen                Expires 8 August 2024                 [Page 9]
 
 Internet-Draft                XR Fragments                 February 2024
 
 
-    +========+=========================+============+=================+
-    |type    | syntax                  | example    | info            |
-    +========+=========================+============+=================+
-    |vector2 | x,y                     | 2,3.0      | 2-dimensional   |
-    |        |                         |            | vector          |
-    +--------+-------------------------+------------+-----------------+
-    |vector3 | x,y,z                   | 2,3.0,4    | 3-dimensional   |
-    |        |                         |            | vector          |
-    +--------+-------------------------+------------+-----------------+
-    |temporal| t=x                     | 0          | 1D parameters:  |
-    |W3C     |                         |            | play from 0     |
-    |media   |                         |            | seconds to end  |
-    |fragment|                         |            | (and stop)      |
-    +--------+-------------------------+------------+-----------------+
-    |temporal| t=x,y                   | 0,2        | 1D parameters:  |
-    |W3C     |                         |            | play from 0     |
-    |media   |                         |            | seconds till 2  |
-    |fragment|                         |            | seconds (and    |
-    |        |                         |            | stop)           |
-    +--------+-------------------------+------------+-----------------+
-    |temporal| t=[uv:][l:][pl:]x,y,... | _(0,1,4,5) | XD parameters:  |
-    |W3C     |                         |            | play [or scroll |
-    |media   |                         |            | uvcoordinates]  |
-    |fragment|                         |            | [as loop] or    |
-    |*       |                         |            | [as             |
-    |        |                         |            | pingpongloop]   |
-    |        |                         |            | between x and y |
-    +--------+-------------------------+------------+-----------------+
-    |        |                         |            | more args (...) |
-    |        |                         |            | means passing   |
-    |        |                         |            | all values as   |
-    |        |                         |            | positional      |
-    |        |                         |            | uniform values  |
-    |        |                         |            | to shader in    |
-    |        |                         |            | case its loaded |
-    |        |                         |            | with src)       |
-    +--------+-------------------------+------------+-----------------+
-    |        |                         |            | uv-coordinate   |
-    |        |                         |            | playback equals |
-    |        |                         |            | U = xywh.x +    |
-    |        |                         |            | (t.x*(s.x/fps)) |
-    |        |                         |            | and V =         |
-    |        |                         |            | t.y*(s.y/fps)   |
-    +--------+-------------------------+------------+-----------------+
-    |temporal| s=[uv:]x, ...           | _(1,1,1,1) | XD speed: set   |
-    |W3C     |                         |            | playback speed  |
-    |media   |                         |            | of audio/video  |
-    |fragment|                         |            | [or uv-         |
+    +==========+=====================+=========+=====================+
+    | type     | syntax              | example | info                |
+    +==========+=====================+=========+=====================+
+    | vector2  | x,y                 | 2,3.0   | 2-dimensional       |
+    |          |                     |         | vector              |
+    +----------+---------------------+---------+---------------------+
+    | vector3  | x,y,z               | 2,3.0,4 | 3-dimensional       |
+    |          |                     |         | vector              |
+    +----------+---------------------+---------+---------------------+
+    | temporal | t=x                 | 0       | play from 0 seconds |
+    | W3C      |                     |         | to end (and stop)   |
+    | media    |                     |         |                     |
+    | fragment |                     |         |                     |
+    +----------+---------------------+---------+---------------------+
+    | temporal | t=x,y               | 0,2     | play from 0 seconds |
+    | W3C      |                     |         | till 2 seconds (and |
+    | media    |                     |         | stop)               |
+    | fragment |                     |         |                     |
+    +----------+---------------------+---------+---------------------+
+    | temporal | xywh=x,y,w,h        | 0,0,1,1 | crop (uv)           |
+    | W3C      |                     |         | coordinates         |
+    | media    |                     |         | (default for uv-    |
+    | fragment |                     |         | coordinates is      |
+    |          |                     |         | 0,0,1,1)            |
+    +----------+---------------------+---------+---------------------+
+    | temporal | t=[l:]x,y           | l:0,1   | play [as loop]      |
+    | W3C      |                     |         | between x and y     |
+    | media    |                     |         |                     |
+    | fragment |                     |         |                     |
+    | *        |                     |         |                     |
+    +----------+---------------------+---------+---------------------+
+    | temporal | s=x[,y]             | 1       | set playback speed  |
+    | W3C      |                     |         | of audio/video/3D   |
+    | media    |                     |         | anim                |
+    | fragment |                     |         |                     |
+    | *        |                     |         |                     |
+    +----------+---------------------+---------+---------------------+
+    | temporal | sxy=[l:]x,y         | 0.1,0.2 | xy scrollspeed of   |
+    | W3C      |                     |         | new xywh viewport/  |
+    | media    |                     |         | uvcoordinates       |
+    | fragment |                     |         | (default 1,1 is     |
+    | *        |                     |         | instant): allows    |
+    |          |                     |         | lerping to new xywh |
+    |          |                     |         | values [or infinite |
+    |          |                     |         | texturescrolling]   |
+    +----------+---------------------+---------+---------------------+
+    | temporal | u:<uniform>=<string | float   | vec2                |
+    | W3C      |                     |         |                     |
 
 
 
-van Kammen                Expires 5 August 2024                [Page 10]
+van Kammen                Expires 8 August 2024                [Page 10]
 
 Internet-Draft                XR Fragments                 February 2024
 
 
-    |*       |                         |            | coordinates]    |
-    +--------+-------------------------+------------+-----------------+
-    |        |                         | uv:1,1     | (texture)scroll |
-    |        |                         |            | uv-coordinates  |
-    |        |                         |            | with 0.1 units/ |
-    |        |                         |            | per second      |
-    +--------+-------------------------+------------+-----------------+
-    |temporal| xywh=x,y,w,h            | 0,0,1,1    | crop (uv)       |
-    |W3C     |                         |            | coordinates     |
-    |media   |                         |            | (default for    |
-    |fragment|                         |            | uv-coordinates  |
-    |        |                         |            | is 0,0,1,1)     |
-    +--------+-------------------------+------------+-----------------+
+    | media    |                     |         |                     |
+    | fragment |                     |         |                     |
+    | *        |                     |         |                     |
+    +----------+---------------------+---------+---------------------+
 
-                                  Table 6
+                                 Table 6
 
    |  * = this is extending the W3C media fragments
-   |  (https://www.w3.org/TR/media-frags/#mf-advanced) with:
+   |  (https://www.w3.org/TR/media-frags/#mf-advanced) with finer
+   |  playback/viewport-control:
+
+         +===============+=======================================+
+         | extension     | info                                  |
+         +===============+=======================================+
+         | l: specifices | t=0,2 specifies oneshot-play          |
+         | loop          | (default) whereas t=l:0,2 indicates   |
+         |               | looped-play                           |
+         +---------------+---------------------------------------+
+         | s: specifies  | being able to specify loop(speed) of  |
+         | playback      | audio/video/uv timeline-coordinates   |
+         | speed         | (default: 1[,1] which translates to   |
+         |               | uv-coordinate 0.1,0.1 units p/second) |
+         +---------------+---------------------------------------+
+         | sxy=          | allows animated cropping and infinite |
+         | specifies     | texturescroll with configurable speed |
+         | lerping of    | for u/v coordinates                   |
+         | xy(wh) values |                                       |
+         +---------------+---------------------------------------+
+         | u:<uniform>=  | specifies updating a uniform value    |
+         +---------------+---------------------------------------+
+
+                                  Table 7
+
+   Example URI's:
+
+   *  https://shaders.org/plasma.glsl#t=0&u.col1=1,0,0&u.col2=0,1,0
+      (red-green shader plasma starts playing from time-offset 0)
+   *  https://images.org/credits.jpg#t=0&sxy=l:0,0.1 (infinite vertical
+      texturescrolling)
+   *  https://video.org/
+      organogram.mp4#t=0&sxy:0.1,0.1&xywh=500,500,480,640 (animated zoom
+      towards region in video)
 
 
 
@@ -589,87 +613,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-van Kammen                Expires 5 August 2024                [Page 11]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
-      +================+===========================================+
-      | extension      | info                                      |
-      +================+===========================================+
-      | l: specifices  | t=0,2 specifies oneshot-play (default)    |
-      | loop           | whereas t=l:0,2 indicates looped-play     |
-      +----------------+-------------------------------------------+
-      | pl: specifices | t=0,2 specifies oneshot-play (default)    |
-      | pingpongloop   | whereas t=pl:0,2 indicates looped-play    |
-      +----------------+-------------------------------------------+
-      | uv: specifies  | t=0,2 specifies src loaded media (or 3D   |
-      | uv-coordinates | animations in 3D models) whereas t=uv:0,1 |
-      |                | plays uv-coordinate texturescroller       |
-      +----------------+-------------------------------------------+
-      | s specifies    | being able to specify loop(speed) of      |
-      | speed          | audio/video/uv timeline-coordinates which |
-      |                | is 1,[[1],[1]] by default (translates to  |
-      |                | uv-coordinate 0.1 units p/second)         |
-      +----------------+-------------------------------------------+
-      | t=x,y,...      | t=x,y,... values are forwarded as         |
-      | forwarded as   | positional shader-uniform values (like    |
-      | shadervalues   | IFS parameters (https://isf.video/)).     |
-      +----------------+-------------------------------------------+
-      |                | The rationale that shaders are temporal   |
-      |                | 'players' too, but which require loose-   |
-      |                | coupled positional values (parameters)    |
-      |                | for temporal control (like IFS parameters |
-      |                | (https://isf.video/))                     |
-      +----------------+-------------------------------------------+
-
-                                 Table 7
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-van Kammen                Expires 5 August 2024                [Page 12]
+van Kammen                Expires 8 August 2024                [Page 11]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -679,31 +623,31 @@ Internet-Draft                XR Fragments                 February 2024
   │  index.gltf#playall                                      │
   │    │                                                     │
   │    ├ #       : #playall                                  │ apply default XR Fragment on load
-  │    ├ #playall: #media.play&wall.calm&t=1                 │ here `t` plays the 3D animations inside index.gltf from 1 seconds
+  │    ├ #playall: #media=play&wall=calm&t=1                 │ here `t` plays the 3D animations inside index.gltf from 1 seconds
   │    │                                                     │
   │    ├── ◻ playbutton                                      │
-  │    │      └ href: #media.play&wall.calm                  │ trigger #play on object 'media' and #calm on 'wall'
-  │    │                                                     │
-  │    ├── ◻ plane                                           │
-  │    │      └ src: foo.jpg#t=uv:l:0,0.2&s=1                │ infinite texturescroll `v` of uv-coordinates with 0.2/fps
-  │    │                                                     │ with u-speed `0.1` and v-speed `0.1` (`#s` defaults) units p/second
-  │    ├── ◻ media                                           │
-  │    │      ├ play: #t=0                                   │ play cat.mp4 from 0 sec
-  │    │      ├ stop: #t=0,0                                 │ stop
-  │    │      ├ loop: #t=l:1,2&s=2                           │ loop cat.mp4 between 1 and 2 sec with double speed
-  │    │      ├ crop: #xywh=0,0,0.5,0.5                      │ crop uv-coordinates
-  │    │      ├ #: #play                                     │ apply default XR fragment (on load)
-  │    │      │                                              │
-  │    │      └ src:  cat.mp4#t=l:2,10                       │ loop cat.mp4 (or mp3/wav/jpg) between 2 and 10 seconds
-  │    │                                                     │
-  │    └── ◻ wall                                            │
-  │           ├ href: #calm                                  │
-  │           ├ calm: #t=1,2,3,4                       >--+--+--> updates uniform values (IFS shader e.g.)
-  │           ├ #: #calm                                  |  │ apply default XR Fragment (on load)
-  │           └ src: ://a.com/art.fs#t=0,0,0,0         >---  │ .fs/.vs/.glsl/.wgsl etc
+  │    │      └ href: #media=play&wall=calm   ·······        │ (re)trigger `play` on object 'media' and `calm` on 'wall'
+  │    │                                            ·        │
+  │    ├── ◻ plane                                  ·        │
+  │    │      └ src: foo.jpg#sxy=l:0,0.1            ·        │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
+  │    │                                            ·        │ with u·speed `0.1` and v·speed `0.1` (`#s` defaults) units p/second
+  │    ├── ◻ media                                  ·        │
+  │    │      ├ play: #t=0       ················   ·        │ play cat.mp4 from 0 sec
+  │    │      ├ #:    #play   ···^              ·   ·        │ apply default XR fragment (on load)
+  │    │      ├ stop: #t=0,0          ···········   ·        │ stop
+  │    │      ├ loop: #t=l:1,2&s=2       ············        │ loop cat.mp4 between 1 and 2 sec with double speed
+  │    │      ├ crop: #xywh=0,0,0.5,0.5     ·····   ·        │ crop viewport/uv·coordinates
+  │    │      └ src:  cat.mp4#t=l:2,10  <<·······   ·        │ loop cat.mp4 (or mp3/wav/jpg) between 2 and 10 seconds
+  │    │                                            ·        │
+  │    └── ◻ wall                                   ·        │
+  │           ├ calm: #u:color=1,0,0    ················     │ updates uniform values (IFS shader e.g.)
+  │           ├ #:    #wall=calm     ···^              ·     │ apply default XR Fragment (on load)
+  │           └ src:  ://a.com/art.fs#sxy:l:0,0.1  <<···     │ .fs/.vs/.glsl/.wgsl etc
   │                                                          │
   │                                                          │
   +──────────────────────────────────────────────────────────+
+
+> NOTE: node-metadata (without #-prefix) applies XR Fragments to its `src` URL, otherwise it applies it to the browser URL. Full addressibility can be maintained, since top-level `href` values can trigger node-specific aliases (`media=play` e.g.).
 
 5.  Spatial Referencing 3D
 
@@ -725,7 +669,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 13]
+van Kammen                Expires 8 August 2024                [Page 12]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -781,15 +725,15 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 14]
+van Kammen                Expires 8 August 2024                [Page 13]
 
 Internet-Draft                XR Fragments                 February 2024
 
 
-   » example implementation
+   &#187; example implementation
    (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
    three/xrf/pos.js)
-   » discussion (https://github.com/coderofsalvation/xrfragment/
+   &#187; discussion (https://github.com/coderofsalvation/xrfragment/
    issues/5)
 
    1.  the Y-coordinate of pos identifies the floorposition.  This means
@@ -805,7 +749,7 @@ Internet-Draft                XR Fragments                 February 2024
        coordinate, pos=0,0,0 will be assumed
 
    Here's an ascii representation of a 3D scene-graph which contains 3D
-   objects ◻ and their metadata:
+   objects &#9723; and their metadata:
 
   +────────────────────────────────────────────────────────+
   │                                                        │
@@ -837,7 +781,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 15]
+van Kammen                Expires 8 August 2024                [Page 14]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -881,8 +825,9 @@ Internet-Draft                XR Fragments                 February 2024
 
                                   Table 9
 
-   Here's an ascii representation of a 3D scene-graph with 3D objects ◻
-   which embeds remote & local 3D objects ◻ with/out using filters:
+   Here's an ascii representation of a 3D scene-graph with 3D objects
+   &#9723; which embeds remote & local 3D objects &#9723; with/out using
+   filters:
 
 
 
@@ -892,8 +837,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-
-van Kammen                Expires 5 August 2024                [Page 16]
+van Kammen                Expires 8 August 2024                [Page 15]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -949,7 +893,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 17]
+van Kammen                Expires 8 August 2024                [Page 16]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -985,13 +929,13 @@ Internet-Draft                XR Fragments                 February 2024
    *  image/jpg
    *  text/plain;charset=utf-8
 
-   » example implementation
+   &#187; example implementation
    (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
    three/xrf/src.js)
-   » example 3D asset
+   &#187; example 3D asset
    (https://github.com/coderofsalvation/xrfragment/blob/main/example/
    assets/src.gltf#L192)
-   » discussion (https://github.com/coderofsalvation/xrfragment/
+   &#187; discussion (https://github.com/coderofsalvation/xrfragment/
    issues/4)
 
 9.  Navigating content href portals
@@ -1005,7 +949,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 18]
+van Kammen                Expires 8 August 2024                [Page 17]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -1061,18 +1005,18 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 19]
+van Kammen                Expires 8 August 2024                [Page 18]
 
 Internet-Draft                XR Fragments                 February 2024
 
 
-   » example implementation
+   &#187; example implementation
    (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
    three/xrf/href.js)
-   » example 3D asset
+   &#187; example 3D asset
    (https://github.com/coderofsalvation/xrfragment/blob/main/example/
    assets/href.gltf#L192)
-   » discussion (https://github.com/coderofsalvation/xrfragment/
+   &#187; discussion (https://github.com/coderofsalvation/xrfragment/
    issues/1)
 
 9.1.  Walking surfaces
@@ -1117,7 +1061,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 20]
+van Kammen                Expires 8 August 2024                [Page 19]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -1173,7 +1117,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 21]
+van Kammen                Expires 8 August 2024                [Page 20]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -1229,7 +1173,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 22]
+van Kammen                Expires 8 August 2024                [Page 21]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -1268,11 +1212,11 @@ Internet-Draft                XR Fragments                 February 2024
    |  colorbuffer (to allow children being still visible while their
    |  parents are invisible).
 
-   » example implementation
+   &#187; example implementation
    (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
-   three/xrf/q.js) » example 3D asset
+   three/xrf/q.js) &#187; example 3D asset
    (https://github.com/coderofsalvation/xrfragment/blob/main/example/
-   assets/filter.gltf#L192) » discussion
+   assets/filter.gltf#L192) &#187; discussion
    (https://github.com/coderofsalvation/xrfragment/issues/3)
 
 14.2.  Filter Parser
@@ -1285,7 +1229,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 23]
+van Kammen                Expires 8 August 2024                [Page 22]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -1341,7 +1285,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 24]
+van Kammen                Expires 8 August 2024                [Page 23]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -1397,7 +1341,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 25]
+van Kammen                Expires 8 August 2024                [Page 24]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -1453,7 +1397,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 26]
+van Kammen                Expires 8 August 2024                [Page 25]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -1509,7 +1453,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 27]
+van Kammen                Expires 8 August 2024                [Page 26]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -1565,7 +1509,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 28]
+van Kammen                Expires 8 August 2024                [Page 27]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -1621,7 +1565,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 29]
+van Kammen                Expires 8 August 2024                [Page 28]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -1677,7 +1621,7 @@ xrtext = {
 
 
 
-van Kammen                Expires 5 August 2024                [Page 30]
+van Kammen                Expires 8 August 2024                [Page 29]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -1733,7 +1677,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 31]
+van Kammen                Expires 8 August 2024                [Page 30]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -1789,7 +1733,7 @@ console.log( xrtext.encode(text,tags) )       // multiplex text & bibtex back to
 
 
 
-van Kammen                Expires 5 August 2024                [Page 32]
+van Kammen                Expires 8 August 2024                [Page 31]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -1845,7 +1789,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 33]
+van Kammen                Expires 8 August 2024                [Page 32]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -1901,7 +1845,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 34]
+van Kammen                Expires 8 August 2024                [Page 33]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -1922,7 +1866,7 @@ Internet-Draft                XR Fragments                 February 2024
    *  Michiel Leenaars
    *  Gerben van der Broeke
    *  Mauve
-   *  Jens Finkhäuser
+   *  Jens Finkh&#228;user
    *  Marc Belmont
    *  Tim Gerritsen
    *  Frode Hegland
@@ -1957,7 +1901,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 35]
+van Kammen                Expires 8 August 2024                [Page 34]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -2013,14 +1957,14 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 36]
+van Kammen                Expires 8 August 2024                [Page 35]
 
 Internet-Draft                XR Fragments                 February 2024
 
 
      |                 | is a person who lives in oklahoma")         |
      +-----------------+---------------------------------------------+
-     | ◻               | ascii representation of an 3D object/mesh   |
+     | &#9723;         | ascii representation of an 3D object/mesh   |
      +-----------------+---------------------------------------------+
      | (un)obtrusive   | obtrusive: wrapping human text/thought in   |
      |                 | XML/HTML/JSON obfuscates human text into a  |
@@ -2069,4 +2013,4 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 5 August 2024                [Page 37]
+van Kammen                Expires 8 August 2024                [Page 36]
