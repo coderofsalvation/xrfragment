@@ -1,7 +1,7 @@
 %%%
 Title = "XR Fragments"
 area = "Internet"
-workgroup = "Internet Engineering Task Force"
+workgroup = "Jens & Leon Internet Engineering Task Force"
 
 [seriesInfo]
 name = "XR-Fragments"
@@ -275,9 +275,9 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 | temporal W3C media fragment * | t=[l:]x,y              | l:0,1           | play [as loop] between `x` and `y`  |
 | temporal W3C media fragment * | s=x[,y]                | 1               | set playback speed of audio/video/3D anim |
 | temporal W3C media fragment * | sxy=[l:]x,y            | 0.1,0.2         | xy scrollspeed of new xywh viewport/uvcoordinates (default `1,1` is instant): allows lerping to new `xywh` values [or infinite texturescrolling] |
-| temporal W3C media fragment * | u:<uniform>=<string|float|vec2|vec3|vec4> | u:color=1,0,0   | set shader uniform value |
+| shader uniform value          | u:<uniform>=<string|float|vec2|vec3|vec4> | u:color=1,0,0   | set shader uniform value |
 
-> \* = this is extending the [W3C media fragments](https://www.w3.org/TR/media-frags/#mf-advanced) with finer playback/viewport-control:
+> \* = this is extending the [W3C media fragments](https://www.w3.org/TR/media-frags/#mf-advanced) with finergrained playback/viewport-control:
 
 
 | extension        | info    |
@@ -285,13 +285,12 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 | `l:` specifices loop | `t=0,2` specifies oneshot-play (default) whereas `t=l:0,2` indicates looped-play |
 | `#s` specifies playback speed | being able to specify loop(speed) of audio/video |
 | `#sxy=` specifies lerping of xy(wh) values | allows animated cropping and infinite texturescroll with configurable speed for u/v coordinates | 
-| `#u:<uniform>=` | specifies updating a uniform value |
 
 Example URI's:
 
-* `https://shaders.org/plasma.glsl#t=0&u:col1=1,0,0&u:col2=0,1,0` (red-green shader plasma starts playing from time-offset 0)
 * `https://images.org/credits.jpg#t=0&sxy=l:0,0.1` (infinite vertical texturescrolling)
 * `https://video.org/organogram.mp4#t=0&sxy:0.1,0.1&xywh=500,500,480,640` (animated zoom towards region in video)
+* `https://shaders.org/plasma.glsl#t=0&u:col1=1,0,0&u:col2=0,1,0` (red-green shader plasma starts playing from time-offset 0)
 
 
 ```
@@ -309,17 +308,17 @@ Example URI's:
   │    │      └ src: foo.jpg#sxy=l:0,0.1            ·        │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
   │    │                                            ·        │ with u·speed `0.1` and v·speed `0.1` (`#s` defaults) units p/second
   │    ├── ◻ media                                  ·        │   
-  │    │      ├ play: #t=0       ················   ·        │ play cat.mp4 from 0 sec
-  │    │      ├ #:    #play   ···^              ·   ·        │ apply default XR fragment (on load)
-  │    │      ├ stop: #t=0,0          ···········   ·        │ stop 
-  │    │      ├ loop: #t=l:1,2&s=2       ············        │ loop cat.mp4 between 1 and 2 sec with double speed
-  │    │      ├ crop: #xywh=0,0,0.5,0.5     ·····   ·        │ crop viewport/uv·coordinates
-  │    │      └ src:  cat.mp4#t=l:2,10  <<·······   ·        │ loop cat.mp4 (or mp3/wav/jpg) between 2 and 10 seconds
+  │    │      ├ #play: #t=0       ················  ·        │ play cat.mp4 from 0 sec
+  │    │      ├ #:    #play   ···^               ·  ·        │ apply default XR fragment (on load)
+  │    │      ├ #stop: #t=0,0          ···········  ·        │ stop 
+  │    │      ├ #loop: #t=l:1,2&s=2       ···········        │ loop cat.mp4 between 1 and 2 sec with double speed
+  │    │      ├ #crop: #xywh=0,0,0.5,0.5     ·····  ·        │ crop viewport/uv·coordinates
+  │    │      └ src:  cat.mp4#t=l:2,10   <<·······  ·        │ loop cat.mp4 (or mp3/wav/jpg) between 2 and 10 seconds
   │    │                                            ·        │ 
   │    └── ◻ wall                                   ·        │        
-  │           ├ calm: #u:color=1,0,0    ················     │ updates uniform values (IFS shader e.g.)
-  │           ├ #:    #wall=calm     ···^              ·     │ apply default XR Fragment (on load)
-  │           └ src:  ://a.com/art.fs#sxy:l:0,0.1  <<···     │ .fs/.vs/.glsl/.wgsl etc
+  │           ├ #calm: #u:color=1,0,0   ··················   │ updates uniform values (IFS shader e.g.)
+  │           ├ #:     #u:color=0,1,1                    ·   │ apply default XR Fragment (on load)
+  │           └ src:  ://a.com/art.glsl#sxy:l:0,0.1  <<···   │ .fs/.vs/.glsl/.wgsl etc
   │                                                          │    
   │                                                          │
   +──────────────────────────────────────────────────────────+
@@ -1015,6 +1014,11 @@ Since XR Text contains metadata too, the user should be able to set up tagging-r
 XR Fragments supports filtering objects in a scene only, because in the history of the javascript-powered web, showing/hiding document-entities seems to be one of the most popular basic usecases.<br>
 Doing advanced scripting & networkrequests under the hood are obviously interesting endavours, but this is something which should not be hardcoupled with hypermedia.<br>This belongs to browser extensions.<br>
 Non-HTML Hypermedia browsers should make browser extensions the right place, to 'extend' experiences, in contrast to code/javascript inside hypermedia documents (this turned out as a hypermedia antipattern).
+
+# authors
+
+* Leon van Kammen (@lvk@mastodon.online)
+* Jens Finkhäuser (@jens@social.finkhaeuser.de)
 
 # IANA Considerations
 
