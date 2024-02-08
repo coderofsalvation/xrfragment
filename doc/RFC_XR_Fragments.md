@@ -246,7 +246,7 @@ That way, if the link gets shared, the XR Fragments implementation at `https://m
 
 > Supported popular compatible 3D fileformats: `.gltf`, `.obj`, `.fbx`, `.usdz`, `.json` (THREE.js), `.dae` and so on.
 
-## Dynamic XR Fragments (+databindings)
+## Fragment-to-metadata mapping 
 
 These are automatic fragment-to-metadata mappings, which only trigger if the 3D scene metadata matches a specific identifier:
 
@@ -257,7 +257,7 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 | **FILTERS** | `#[!][-]<tag_or_objectname>[*]`    | string   | `#person` (`#-person`) |  will reset (`!`), show/focus or hide (`-`) focus object(s) with `tag: person` or name `person` by looking up XRWG (`*`=including children) |
 | **CAMERASWITCH** | `#<cameraname>`              | string   | `#cam01`          | sets camera with name `cam01` as active camera                                             |
 | **MATERIALUPDATE** | `#<tag_or_objectname>[*]=<materialname>`   | string=string     | `#car=metallic`| sets material of car to material with name `metallic` (`*`=including children)|
-|   |                      r     |                          | `#soldout*=halfopacity`| set material of objects tagged with `product` to material with name `metallic` |
+|   |                           |                          | `#soldout*=halfopacity`| set material of objects tagged with `product` to material with name `metallic` |
 | **VARIABLE UPDATE** | `#<variable>=<metadata-key>` | string=string | `#foo=bar` | sets [URI Template](https://www.rfc-editor.org/rfc/rfc6570) variable `foo` to the value `#t=0` from **existing** object metadata (`bar`:`#t=0` e.g.), This allows for reactive [URI Template](https://www.rfc-editor.org/rfc/rfc6570) defined in object metadata elsewhere (`src`:`://m.com/cat.mp4#{foo}` e.g., to play media using [media fragment URI](https://www.w3.org/TR/media-frags/#valid-uri)). NOTE: metadata-key should not start with `#` |
 
 ## media fragments and datatypes

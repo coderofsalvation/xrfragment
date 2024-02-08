@@ -2,8 +2,8 @@
 
 
 
-Internet Engineering Task Force                          L.R. van Kammen
-Internet-Draft                                           5 February 2024
+Jens & Leon Internet Engineering Task Force              L.R. van Kammen
+Internet-Draft                                           8 February 2024
 Intended status: Informational                                          
 
 
@@ -17,7 +17,9 @@ Abstract
    (https://github.com/coderofsalvation/hypermediatic) navigation, which
    links together space, time & text together, for hypermedia browsers
    with- or without a network-connection.
-   The specification promotes spatial addressibility, sharing,
+   The specification uses W3C Media Fragments (https://www.w3.org/TR/
+   media-frags/) and URI Templates (RFC6570) (https://www.rfc-
+   editor.org/rfc/rfc6570) to promote spatial addressibility, sharing,
    navigation, filtering and databinding objects for (XR) Browsers.
    XR Fragments allows us to better use existing metadata inside 3D
    scene(files), by connecting it to proven technologies like URI
@@ -41,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 8 August 2024.
+   This Internet-Draft will expire on 11 August 2024.
 
 Copyright Notice
 
@@ -51,9 +53,7 @@ Copyright Notice
 
 
 
-
-
-van Kammen                Expires 8 August 2024                 [Page 1]
+van Kammen               Expires 11 August 2024                 [Page 1]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -75,41 +75,41 @@ Table of Contents
      3.1.  XR Fragment URL Grammar . . . . . . . . . . . . . . . . .   6
    4.  List of URI Fragments . . . . . . . . . . . . . . . . . . . .   7
      4.1.  List of metadata for 3D nodes . . . . . . . . . . . . . .   8
-     4.2.  Dynamic XR Fragments (+databindings)  . . . . . . . . . .   8
-     4.3.  media fragments and datatypes . . . . . . . . . . . . . .   9
+     4.2.  Fragment-to-metadata mapping  . . . . . . . . . . . . . .   8
+     4.3.  media fragments and datatypes . . . . . . . . . . . . . .  10
    5.  Spatial Referencing 3D  . . . . . . . . . . . . . . . . . . .  12
    6.  Navigating 3D . . . . . . . . . . . . . . . . . . . . . . . .  13
    7.  Top-level URL processing  . . . . . . . . . . . . . . . . . .  14
    8.  Embedding XR content using src  . . . . . . . . . . . . . . .  15
    9.  Navigating content href portals . . . . . . . . . . . . . . .  17
-     9.1.  Walking surfaces  . . . . . . . . . . . . . . . . . . . .  19
-     9.2.  UX spec . . . . . . . . . . . . . . . . . . . . . . . . .  19
+     9.1.  Walking surfaces  . . . . . . . . . . . . . . . . . . . .  18
+     9.2.  UX spec . . . . . . . . . . . . . . . . . . . . . . . . .  18
      9.3.  Scaling instanced content . . . . . . . . . . . . . . . .  19
-   10. XR Fragment: pos  . . . . . . . . . . . . . . . . . . . . . .  20
-   11. XR Fragment: rot  . . . . . . . . . . . . . . . . . . . . . .  20
-   12. XR Fragment: t  . . . . . . . . . . . . . . . . . . . . . . .  20
-   13. XR audio/video integration  . . . . . . . . . . . . . . . . .  21
-   14. XR Fragment filters . . . . . . . . . . . . . . . . . . . . .  21
-     14.1.  including/excluding  . . . . . . . . . . . . . . . . . .  22
+   10. XR Fragment: pos  . . . . . . . . . . . . . . . . . . . . . .  19
+   11. XR Fragment: rot  . . . . . . . . . . . . . . . . . . . . . .  19
+   12. XR Fragment: t  . . . . . . . . . . . . . . . . . . . . . . .  19
+   13. XR audio/video integration  . . . . . . . . . . . . . . . . .  20
+   14. XR Fragment filters . . . . . . . . . . . . . . . . . . . . .  20
+     14.1.  including/excluding  . . . . . . . . . . . . . . . . . .  21
      14.2.  Filter Parser  . . . . . . . . . . . . . . . . . . . . .  22
-   15. Visible links . . . . . . . . . . . . . . . . . . . . . . . .  23
+   15. Visible links . . . . . . . . . . . . . . . . . . . . . . . .  22
    16. Text in XR (tagging,linking to spatial objects) . . . . . . .  23
      16.1.  Default Data URI mimetype  . . . . . . . . . . . . . . .  27
      16.2.  URL and Data URI . . . . . . . . . . . . . . . . . . . .  28
      16.3.  XR Text example parser . . . . . . . . . . . . . . . . .  29
    17. Transclusion (broken link) resolution . . . . . . . . . . . .  31
    18. Topic-based index-less Webrings . . . . . . . . . . . . . . .  32
-   19. Security Considerations . . . . . . . . . . . . . . . . . . .  33
-   20. FAQ . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  33
-   21. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  34
-   22. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  34
-   23. Appendix: Definitions . . . . . . . . . . . . . . . . . . . .  34
+   19. URI Templates (RFC6570) . . . . . . . . . . . . . . . . . . .  33
+   20. Security Considerations . . . . . . . . . . . . . . . . . . .  33
+   21. FAQ . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  33
+   22. authors . . . . . . . . . . . . . . . . . . . . . . . . . . .  34
+   23. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  34
+   24. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  34
+   25. Appendix: Definitions . . . . . . . . . . . . . . . . . . . .  35
 
 
 
-
-
-van Kammen                Expires 8 August 2024                 [Page 2]
+van Kammen               Expires 11 August 2024                 [Page 2]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -165,7 +165,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 8 August 2024                 [Page 3]
+van Kammen               Expires 11 August 2024                 [Page 3]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -221,7 +221,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 8 August 2024                 [Page 4]
+van Kammen               Expires 11 August 2024                 [Page 4]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -277,7 +277,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 8 August 2024                 [Page 5]
+van Kammen               Expires 11 August 2024                 [Page 5]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -333,7 +333,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 8 August 2024                 [Page 6]
+van Kammen               Expires 11 August 2024                 [Page 6]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -389,7 +389,7 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 8 August 2024                 [Page 7]
+van Kammen               Expires 11 August 2024                 [Page 7]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -424,67 +424,87 @@ Internet-Draft                XR Fragments                 February 2024
    |  Supported popular compatible 3D fileformats: .gltf, .obj, .fbx,
    |  .usdz, .json (THREE.js), .dae and so on.
 
-4.2.  Dynamic XR Fragments (+databindings)
+4.2.  Fragment-to-metadata mapping
 
    These are automatic fragment-to-metadata mappings, which only trigger
-   if the 3D scene metadata matches a specific identifier (aliasname
-   e.g.)
+   if the 3D scene metadata matches a specific identifier:
+
+   +================+======================================+=============+=====================+=======================+
+   |                |fragment                              |type         |example              |info                   |
+   +================+======================================+=============+=====================+=======================+
+   |*PRESET*        |#<preset>                             |string       |#cubes               |evaluates preset       |
+   |                |                                      |             |                     |(#foo&bar) defined in  |
+   |                |                                      |             |                     |3D Object metadata     |
+   |                |                                      |             |                     |(#cubes: #foo&bar e.g.)|
+   |                |                                      |             |                     |while URL-browserbar   |
+   |                |                                      |             |                     |reflects #cubes.  Only |
+   |                |                                      |             |                     |works when metadata-key|
+   |                |                                      |             |                     |starts with #          |
+   +----------------+--------------------------------------+-------------+---------------------+-----------------------+
+   |*FOCUS*         |#<tag_or_objectname>                  |string       |#person              |(and show) object(s)   |
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-van Kammen                Expires 8 August 2024                 [Page 8]
+van Kammen               Expires 11 August 2024                 [Page 8]
 
 Internet-Draft                XR Fragments                 February 2024
 
 
-   +================================+=======================+=================+======================================+
-   |fragment                        |type                   |example          |info                                  |
-   +================================+=======================+=================+======================================+
-   |#<aliasname>                    |string                 |#cubes           |evaluate predefined view (#foo&bar)   |
-   |                                |                       |                 |defined in 3D Object metadata (#cubes:|
-   |                                |                       |                 |#foo&bar e.g.)                        |
-   +--------------------------------+-----------------------+-----------------+--------------------------------------+
-   |#<tag_or_objectname>            |string                 |#person          |focus object(s) with tag: person or   |
-   |                                |                       |                 |name person by looking up XRWG        |
-   +--------------------------------+-----------------------+-----------------+--------------------------------------+
-   |#[-]<tag_or_objectname>         |string                 |#person          |focus/show (or hide) object(s) with   |
-   |                                |                       |(#-person)       |tag: person or name person by looking |
-   |                                |                       |                 |up XRWG                               |
-   +--------------------------------+-----------------------+-----------------+--------------------------------------+
-   |#<cameraname>                   |string                 |#cam01           |set camera with name cam01 as active  |
-   |                                |                       |                 |camera                                |
-   +--------------------------------+-----------------------+-----------------+--------------------------------------+
-   |#<tag_or_objectname>=<material> |string=string          |#car=metallic    |set material of car to material with  |
-   |                                |                       |                 |name metallic                         |
-   +--------------------------------+-----------------------+-----------------+--------------------------------------+
-   |                                |                       |#product=metallic|set material of objects tagged with   |
-   |                                |                       |                 |product to material with name metallic|
-   +--------------------------------+-----------------------+-----------------+--------------------------------------+
-   |#<tag_or_objectname>=<mediafrag>|string=media frag      |#foo=0,1 `       |play 3D animation (or src media) using|
-   |                                |(https://www.w3.org/TR/|                 |media fragment URI                    |
-   |                                |media-frags/#valid-uri)|                 |(https://www.w3.org/TR/media-         |
-   |                                |                       |                 |frags/#valid-uri) with looping/speed/ |
-   |                                |                       |                 |texturescroll abilities               |
-   |                                |                       |                 |(#media%20fragments%20and%20datatypes)|
-   +--------------------------------+-----------------------+-----------------+--------------------------------------+
-   |                                |                       |#foo=uv:0,0.5 `  |texturescroll to uv-coordinate 0,0.05 |
-   |                                |                       |                 |(see looping/speed/texturescroll      |
-   |                                |                       |                 |abilities here                        |
-   |                                |                       |                 |(#media%20fragments%20and%20datatypes)|
-   +--------------------------------+-----------------------+-----------------+--------------------------------------+
+   |                |                                      |             |                     |with tag: person or    |
+   |                |                                      |             |                     |name person (XRWG      |
+   |                |                                      |             |                     |lookup)                |
+   +----------------+--------------------------------------+-------------+---------------------+-----------------------+
+   |*FILTERS*       |#[!][-]<tag_or_objectname>[*]         |string       |#person (#-person)   |will reset (!), show/  |
+   |                |                                      |             |                     |focus or hide (-) focus|
+   |                |                                      |             |                     |object(s) with tag:    |
+   |                |                                      |             |                     |person or name person  |
+   |                |                                      |             |                     |by looking up XRWG     |
+   |                |                                      |             |                     |(*=including children) |
+   +----------------+--------------------------------------+-------------+---------------------+-----------------------+
+   |*CAMERASWITCH*  |#<cameraname>                         |string       |#cam01               |sets camera with name  |
+   |                |                                      |             |                     |cam01 as active camera |
+   +----------------+--------------------------------------+-------------+---------------------+-----------------------+
+   |*MATERIALUPDATE*|#<tag_or_objectname>[*]=<materialname>|string=string|#car=metallic        |sets material of car to|
+   |                |                                      |             |                     |material with name     |
+   |                |                                      |             |                     |metallic (*=including  |
+   |                |                                      |             |                     |children)              |
+   +----------------+--------------------------------------+-------------+---------------------+-----------------------+
+   |                |r                                     |             |#soldout*=halfopacity|set material of objects|
+   |                |                                      |             |                     |tagged with product to |
+   |                |                                      |             |                     |material with name     |
+   |                |                                      |             |                     |metallic               |
+   +----------------+--------------------------------------+-------------+---------------------+-----------------------+
+   |*VARIABLE       |#<variable>=<metadata-key>            |string=string|#foo=bar             |sets URI Template      |
+   |UPDATE*         |                                      |             |                     |(https://www.rfc-      |
+   |                |                                      |             |                     |editor.org/rfc/rfc6570)|
+   |                |                                      |             |                     |variable foo to the    |
+   |                |                                      |             |                     |value #t=0 from        |
+   |                |                                      |             |                     |*existing* object      |
+   |                |                                      |             |                     |metadata (bar:#t=0     |
+   |                |                                      |             |                     |e.g.), This allows for |
+   |                |                                      |             |                     |reactive URI Template  |
+   |                |                                      |             |                     |(https://www.rfc-      |
+   |                |                                      |             |                     |editor.org/rfc/rfc6570)|
+   |                |                                      |             |                     |defined in object      |
+   |                |                                      |             |                     |metadata elsewhere     |
+   |                |                                      |             |                     |(src:://m.com/         |
+   |                |                                      |             |                     |cat.mp4#{foo} e.g., to |
+   |                |                                      |             |                     |play media using media |
+   |                |                                      |             |                     |fragment URI           |
+   |                |                                      |             |                     |(https://www.w3.org/TR/|
+   |                |                                      |             |                     |media-frags/#valid-    |
+   |                |                                      |             |                     |uri)).  NOTE: metadata-|
+   |                |                                      |             |                     |key should not start   |
+   |                |                                      |             |                     |with #                 |
+   +----------------+--------------------------------------+-------------+---------------------+-----------------------+
+
+
+
+
+van Kammen               Expires 11 August 2024                 [Page 9]
+
+Internet-Draft                XR Fragments                 February 2024
+
 
                                   Table 5
 
@@ -494,126 +514,106 @@ Internet-Draft                XR Fragments                 February 2024
    |  the 3D scene(file) *but also* media defined in src-metadata like
    |  audio/video-files (mp3/mp4 e.g.)
 
+   +=========+=======================+============+====================+
+   |type     | syntax                |example     | info               |
+   +=========+=======================+============+====================+
+   |vector2  | x,y                   |2,3.0       | 2-dimensional      |
+   |         |                       |            | vector             |
+   +---------+-----------------------+------------+--------------------+
+   |vector3  | x,y,z                 |2,3.0,4     | 3-dimensional      |
+   |         |                       |            | vector             |
+   +---------+-----------------------+------------+--------------------+
+   |temporal | t=x                   |0           | play from 0        |
+   |W3C media|                       |            | seconds to end     |
+   |fragment |                       |            | (and stop)         |
+   +---------+-----------------------+------------+--------------------+
+   |temporal | t=x,y                 |0,2         | play from 0        |
+   |W3C media|                       |            | seconds till 2     |
+   |fragment |                       |            | seconds (and       |
+   |         |                       |            | stop)              |
+   +---------+-----------------------+------------+--------------------+
+   |temporal | t=[l:]x,y             |l:0,1       | play [as loop]     |
+   |W3C media|                       |            | between x and y    |
+   |fragment |                       |            |                    |
+   |*        |                       |            |                    |
+   +---------+-----------------------+------------+--------------------+
+   |temporal | uv=u,v                |uv:0,0,1,1  | set uv offset      |
+   |W3C media|                       |            | (default 0,0)      |
+   |fragment |                       |            |                    |
+   |*        |                       |            |                    |
+   +---------+-----------------------+------------+--------------------+
+   |temporal | s=x                   |1           | set playback       |
+   |W3C media|                       |            | speed of audio/    |
+   |fragment |                       |            | video/3D anim      |
+   |*        |                       |            |                    |
+   +---------+-----------------------+------------+--------------------+
+   |temporal | suv=[l:]uspeed,vspeed |uv:l:0.1,0.2| set uv scroll      |
+   |W3C media|                       |            | speed of (default  |
+   |fragment |                       |            | 1,1 is instant)    |
+   |*        |                       |            | [l: means          |
+   |         |                       |            | infinite           |
+   |         |                       |            | texturescrolling]  |
+   |         |                       |            | otherwise new u,v  |
 
 
 
-
-
-
-
-van Kammen                Expires 8 August 2024                 [Page 9]
+van Kammen               Expires 11 August 2024                [Page 10]
 
 Internet-Draft                XR Fragments                 February 2024
 
 
-    +==========+=====================+=========+=====================+
-    | type     | syntax              | example | info                |
-    +==========+=====================+=========+=====================+
-    | vector2  | x,y                 | 2,3.0   | 2-dimensional       |
-    |          |                     |         | vector              |
-    +----------+---------------------+---------+---------------------+
-    | vector3  | x,y,z               | 2,3.0,4 | 3-dimensional       |
-    |          |                     |         | vector              |
-    +----------+---------------------+---------+---------------------+
-    | temporal | t=x                 | 0       | play from 0 seconds |
-    | W3C      |                     |         | to end (and stop)   |
-    | media    |                     |         |                     |
-    | fragment |                     |         |                     |
-    +----------+---------------------+---------+---------------------+
-    | temporal | t=x,y               | 0,2     | play from 0 seconds |
-    | W3C      |                     |         | till 2 seconds (and |
-    | media    |                     |         | stop)               |
-    | fragment |                     |         |                     |
-    +----------+---------------------+---------+---------------------+
-    | temporal | xywh=x,y,w,h        | 0,0,1,1 | crop (uv)           |
-    | W3C      |                     |         | coordinates         |
-    | media    |                     |         | (default for uv-    |
-    | fragment |                     |         | coordinates is      |
-    |          |                     |         | 0,0,1,1)            |
-    +----------+---------------------+---------+---------------------+
-    | temporal | t=[l:]x,y           | l:0,1   | play [as loop]      |
-    | W3C      |                     |         | between x and y     |
-    | media    |                     |         |                     |
-    | fragment |                     |         |                     |
-    | *        |                     |         |                     |
-    +----------+---------------------+---------+---------------------+
-    | temporal | s=x[,y]             | 1       | set playback speed  |
-    | W3C      |                     |         | of audio/video/3D   |
-    | media    |                     |         | anim                |
-    | fragment |                     |         |                     |
-    | *        |                     |         |                     |
-    +----------+---------------------+---------+---------------------+
-    | temporal | sxy=[l:]x,y         | 0.1,0.2 | xy scrollspeed of   |
-    | W3C      |                     |         | new xywh viewport/  |
-    | media    |                     |         | uvcoordinates       |
-    | fragment |                     |         | (default 1,1 is     |
-    | *        |                     |         | instant): allows    |
-    |          |                     |         | lerping to new xywh |
-    |          |                     |         | values [or infinite |
-    |          |                     |         | texturescrolling]   |
-    +----------+---------------------+---------+---------------------+
-    | temporal | u:<uniform>=<string | float   | vec2                |
-    | W3C      |                     |         |                     |
+   |         |                       |            | values will be     |
+   |         |                       |            | lerped to          |
+   +---------+-----------------------+------------+--------------------+
+   |media    | u:<uniform>=<string   |float       | vec2               |
+   |parameter|                       |            |                    |
+   |(shader  |                       |            |                    |
+   |uniform) |                       |            |                    |
+   +---------+-----------------------+------------+--------------------+
 
-
-
-van Kammen                Expires 8 August 2024                [Page 10]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
-    | media    |                     |         |                     |
-    | fragment |                     |         |                     |
-    | *        |                     |         |                     |
-    +----------+---------------------+---------+---------------------+
-
-                                 Table 6
+                                  Table 6
 
    |  * = this is extending the W3C media fragments
-   |  (https://www.w3.org/TR/media-frags/#mf-advanced) with finer
+   |  (https://www.w3.org/TR/media-frags/#mf-advanced) with finergrained
    |  playback/viewport-control:
 
-   +=========================+========================================+
-   | extension               | info                                   |
-   +=========================+========================================+
-   | l: specifices loop      | t=0,2 specifies oneshot-play (default) |
-   |                         | whereas t=l:0,2 indicates looped-play  |
-   +-------------------------+----------------------------------------+
-   | #s specifies playback   | being able to specify loop(speed) of   |
-   | speed                   | audio/video                            |
-   +-------------------------+----------------------------------------+
-   | #sxy= specifies lerping | allows animated cropping and infinite  |
-   | of xy(wh) values        | texturescroll with configurable speed  |
-   |                         | for u/v coordinates                    |
-   +-------------------------+----------------------------------------+
-   | #u:<uniform>=           | specifies updating a uniform value     |
-   +-------------------------+----------------------------------------+
+       +=================+========================================+
+       | extension       | info                                   |
+       +=================+========================================+
+       | l: specifices   | t=0,2 specifies oneshot-play (default) |
+       | loop            | whereas t=l:0,2 indicates looped-play  |
+       +-----------------+----------------------------------------+
+       | #uv= specifies  | allows offsetting the uv-coordinates   |
+       | uv-coordinates  |                                        |
+       +-----------------+----------------------------------------+
+       | #suv= specifies | allows single/infinite uv-scrolling    |
+       | scrollspeed of  |                                        |
+       | uv-coordinates  |                                        |
+       +-----------------+----------------------------------------+
+       | #s specifies    | being able to specify loop(speed) of   |
+       | playback speed  | audio/video                            |
+       +-----------------+----------------------------------------+
 
                                  Table 7
 
+   |  The rationale not to extend the xywh-media fragment is that 3D
+   |  geometries deal with triangular polygons (not rectangular).
+
    Example URI's:
 
+   *  https://images.org/credits.jpg#t=0&suv=l:0,0.1 (infinite vertical
+      texturescrolling)
+   *  https://video.org/organogram.mp4#t=0&suv:0.1,0.1&uv=0.3,0.3
+      (animated zoom towards region in video)
    *  https://shaders.org/plasma.glsl#t=0&u:col1=1,0,0&u:col2=0,1,0
       (red-green shader plasma starts playing from time-offset 0)
-   *  https://images.org/credits.jpg#t=0&sxy=l:0,0.1 (infinite vertical
-      texturescrolling)
-   *  https://video.org/
-      organogram.mp4#t=0&sxy:0.1,0.1&xywh=500,500,480,640 (animated zoom
-      towards region in video)
 
 
 
 
 
 
-
-
-
-
-
-
-
-van Kammen                Expires 8 August 2024                [Page 11]
+van Kammen               Expires 11 August 2024                [Page 11]
 
 Internet-Draft                XR Fragments                 February 2024
 
@@ -622,57 +622,31 @@ Internet-Draft                XR Fragments                 February 2024
   │                                                          │
   │  index.gltf#playall                                      │
   │    │                                                     │
-  │    ├ #       : #playall                                  │ apply default XR Fragment on load
-  │    ├ #playall: #media=play&wall=calm&t=1                 │ here `t` plays the 3D animations inside index.gltf from 1 seconds
+  │    ├ #        : #t=0&shared=play                         │ apply default XR Fragment on load (`t` plays global 3D animation timeline)
+  │    ├ play     : #t=l:0,2                                 │ variable for [URI Templates (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570)
   │    │                                                     │
-  │    ├── ◻ playbutton                                      │
-  │    │      └ href: #media=play&wall=calm   ·······        │ (re)trigger `play` on object 'media' and `calm` on 'wall'
-  │    │                                            ·        │
-  │    ├── ◻ plane                                  ·        │
-  │    │      └ src: foo.jpg#sxy=l:0,0.1            ·        │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
-  │    │                                            ·        │ with u·speed `0.1` and v·speed `0.1` (`#s` defaults) units p/second
-  │    ├── ◻ media                                  ·        │
-  │    │      ├ play: #t=0       ················   ·        │ play cat.mp4 from 0 sec
-  │    │      ├ #:    #play   ···^              ·   ·        │ apply default XR fragment (on load)
-  │    │      ├ stop: #t=0,0          ···········   ·        │ stop
-  │    │      ├ loop: #t=l:1,2&s=2       ············        │ loop cat.mp4 between 1 and 2 sec with double speed
-  │    │      ├ crop: #xywh=0,0,0.5,0.5     ·····   ·        │ crop viewport/uv·coordinates
-  │    │      └ src:  cat.mp4#t=l:2,10  <<·······   ·        │ loop cat.mp4 (or mp3/wav/jpg) between 2 and 10 seconds
-  │    │                                            ·        │
-  │    └── ◻ wall                                   ·        │
-  │           ├ calm: #u:color=1,0,0    ················     │ updates uniform values (IFS shader e.g.)
-  │           ├ #:    #wall=calm     ···^              ·     │ apply default XR Fragment (on load)
-  │           └ src:  ://a.com/art.fs#sxy:l:0,0.1  <<···     │ .fs/.vs/.glsl/.wgsl etc
+  │    ├── ◻ plane (with material)                           │
+  │    │      └ #: #suv=l:0,0.1                              │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
+  │    │                                                     │
+  │    ├── ◻ plane                                           │
+  │    │      └ src: foo.jpg#suv=l:0,0.1                     │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
+  │    │                                                     │
+  │    ├── ◻ media                                           │
+  │    │      └ src:  cat.mp4#t=l:2,10&uv=0.5,0.5            │ loop cat.mp4 (or mp3/wav/jpg) between 2 and 10 seconds (uv's shifted with 0.5,0.5)
+  │    │                                                     │
+  │    └── ◻ wall                                            │
+  │           ├ href:  #color=blue                           │ updates uniform values (IFS shader e.g.)
+  │           ├ blue:  t=0&u:col=0,0,1                       │ variable for [Level1 URI Templates (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570)
+  │           └ src:   ://a.com/art.glsl#{color}&{shared}    │ .fs/.vs/.glsl/.wgsl etc shader [Level1 URI Template (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570)
   │                                                          │
   │                                                          │
   +──────────────────────────────────────────────────────────+
 
-> NOTE: node-metadata (without #-prefix) applies XR Fragments to its `src` URL, otherwise it applies it to the browser URL. Full addressibility can be maintained, since top-level `href` values can trigger node-specific aliases (`media=play` e.g.).
+> NOTE: URI Template variables are immutable and respect scope: in other words, the end-user cannot modify `blue` by entering an URL like `#blue=.....` in the browser URL, and `blue` is not accessible by the plane/media-object (however `{play}` would work).
 
 5.  Spatial Referencing 3D
 
    XR Fragments assume the following objectname-to-URIFragment mapping:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-van Kammen                Expires 8 August 2024                [Page 12]
-
-Internet-Draft                XR Fragments                 February 2024
-
 
   my.io/scene.fbx
   +─────────────────────────────+
@@ -691,6 +665,14 @@ Internet-Draft                XR Fragments                 February 2024
 
    |  Every 3D fileformat supports named 3D object, and this name allows
    |  URLs (fragments) to reference them (and their children objects).
+
+
+
+
+van Kammen               Expires 11 August 2024                [Page 12]
+
+Internet-Draft                XR Fragments                 February 2024
+
 
    Clever nested design of 3D scenes allow great ways for re-using
    content, and/or previewing scenes.
@@ -721,19 +703,10 @@ Internet-Draft                XR Fragments                 February 2024
 
                                  Table 8
 
-
-
-
-
-van Kammen                Expires 8 August 2024                [Page 13]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
-   &#187; example implementation
+   » example implementation
    (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
    three/xrf/pos.js)
-   &#187; discussion (https://github.com/coderofsalvation/xrfragment/
+   » discussion (https://github.com/coderofsalvation/xrfragment/
    issues/5)
 
    1.  the Y-coordinate of pos identifies the floorposition.  This means
@@ -748,8 +721,17 @@ Internet-Draft                XR Fragments                 February 2024
    5.  after scene load: in case an href does not mention any pos-
        coordinate, pos=0,0,0 will be assumed
 
+
+
+
+
+van Kammen               Expires 11 August 2024                [Page 13]
+
+Internet-Draft                XR Fragments                 February 2024
+
+
    Here's an ascii representation of a 3D scene-graph which contains 3D
-   objects &#9723; and their metadata:
+   objects ◻ and their metadata:
 
   +────────────────────────────────────────────────────────+
   │                                                        │
@@ -776,16 +758,6 @@ Internet-Draft                XR Fragments                 February 2024
 
    The URL-processing-flow for hypermedia browsers goes like this:
 
-
-
-
-
-
-van Kammen                Expires 8 August 2024                [Page 14]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
    1.  IF a #cube matches a custom property-key (of an object) in the 3D
        file/scene (#cube: #......) <b>THEN</b> execute that
        predefined_view.
@@ -801,6 +773,18 @@ Internet-Draft                XR Fragments                 February 2024
        highlight it).
    5.  IF a #cube matches anything else in the XR Word Graph (XRWG) draw
        wires to them (text or related objects).
+
+
+
+
+
+
+
+
+van Kammen               Expires 11 August 2024                [Page 14]
+
+Internet-Draft                XR Fragments                 February 2024
+
 
 8.  Embedding XR content using src
 
@@ -825,22 +809,8 @@ Internet-Draft                XR Fragments                 February 2024
 
                                   Table 9
 
-   Here's an ascii representation of a 3D scene-graph with 3D objects
-   &#9723; which embeds remote & local 3D objects &#9723; with/out using
-   filters:
-
-
-
-
-
-
-
-
-
-van Kammen                Expires 8 August 2024                [Page 15]
-
-Internet-Draft                XR Fragments                 February 2024
-
+   Here's an ascii representation of a 3D scene-graph with 3D objects ◻
+   which embeds remote & local 3D objects ◻ with/out using filters:
 
   +────────────────────────────────────────────────────────+  +─────────────────────────+
   │                                                        │  │                         │
@@ -864,6 +834,14 @@ Internet-Draft                XR Fragments                 February 2024
    projects painting.png onto the (plane) object called canvas (which is
    copy-instanced in the bed and livingroom).
    Also, after lazy-loading ocean.com/aquarium.gltf, only the queried
+
+
+
+van Kammen               Expires 11 August 2024                [Page 15]
+
+Internet-Draft                XR Fragments                 February 2024
+
+
    objects fishbowl (and bass and tuna) will be instanced inside
    aquariumcube.
    Resizing will be happen accordingly to its placeholder object
@@ -889,15 +867,6 @@ Internet-Draft                XR Fragments                 February 2024
         relatively</b> based on the scale-property (of a geometry-less
         placeholder, an 'empty'-object in blender e.g.).  For more info
         see Chapter Scaling.
-
-
-
-
-van Kammen                Expires 8 August 2024                [Page 16]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
    6.   <b>external</b> src values should be served with appropriate
         mimetype (so the XR Fragment-compatible browser will now how to
         render it).  The bare minimum supported mimetypes are:
@@ -919,6 +888,16 @@ Internet-Draft                XR Fragments                 February 2024
         position to 0,0,0
    13.  when the enduser clicks an href with #t=1,0,0 (play) will be
         applied to all src mediacontent with a timeline (mp4/mp3 e.g.)
+
+
+
+
+
+van Kammen               Expires 11 August 2024                [Page 16]
+
+Internet-Draft                XR Fragments                 February 2024
+
+
    14.  a non-euclidian portal can be rendered for flat 3D objects
         (using stencil buffer e.g.) in case ofspatial src-values (an
         object #world3 or URL world3.fbx e.g.).
@@ -929,30 +908,18 @@ Internet-Draft                XR Fragments                 February 2024
    *  image/jpg
    *  text/plain;charset=utf-8
 
-   &#187; example implementation
+   » example implementation
    (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
    three/xrf/src.js)
-   &#187; example 3D asset
+   » example 3D asset
    (https://github.com/coderofsalvation/xrfragment/blob/main/example/
    assets/src.gltf#L192)
-   &#187; discussion (https://github.com/coderofsalvation/xrfragment/
+   » discussion (https://github.com/coderofsalvation/xrfragment/
    issues/4)
 
 9.  Navigating content href portals
 
    navigation, portals & mutations
-
-
-
-
-
-
-
-
-van Kammen                Expires 8 August 2024                [Page 17]
-
-Internet-Draft                XR Fragments                 February 2024
-
 
        +==========+==================+============================+
        | fragment | type             | example value              |
@@ -980,6 +947,13 @@ Internet-Draft                XR Fragments                 February 2024
        (https://github.com/coderofsalvation/xrfragment/blob/dev/src/3rd/
        js/three/navigator.js) for an example navigator).
 
+
+
+van Kammen               Expires 11 August 2024                [Page 17]
+
+Internet-Draft                XR Fragments                 February 2024
+
+
    5.  In XR mode, the navigator back/forward-buttons should be always
        visible (using a wearable e.g., see [here
        (https://github.com/coderofsalvation/xrfragment/blob/dev/example/
@@ -995,28 +969,15 @@ Internet-Draft                XR Fragments                 February 2024
        using camera-portal collision (the back-button would cause a
        teleport-loop)
 
+   8.  href-events should bubble upward the node-tree
 
-
-
-
-
-
-
-
-
-
-van Kammen                Expires 8 August 2024                [Page 18]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
-   &#187; example implementation
+   » example implementation
    (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
    three/xrf/href.js)
-   &#187; example 3D asset
+   » example 3D asset
    (https://github.com/coderofsalvation/xrfragment/blob/main/example/
    assets/href.gltf#L192)
-   &#187; discussion (https://github.com/coderofsalvation/xrfragment/
+   » discussion (https://github.com/coderofsalvation/xrfragment/
    issues/1)
 
 9.1.  Walking surfaces
@@ -1040,6 +1001,15 @@ Internet-Draft                XR Fragments                 February 2024
        another scene/file (and coordinate e.g. in case the URL contains
        XR Fragments).
 
+
+
+
+
+van Kammen               Expires 11 August 2024                [Page 18]
+
+Internet-Draft                XR Fragments                 February 2024
+
+
 9.3.  Scaling instanced content
 
    Sometimes embedded properties (like src) instance new objects.
@@ -1058,14 +1028,6 @@ Internet-Draft                XR Fragments                 February 2024
       (maxsize=1.4 e.g.)
    *  hide the ''placeholder'' object (material e.g.)
    *  instance the src scene as a child of the existing object
-
-
-
-van Kammen                Expires 8 August 2024                [Page 19]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
    *  calculate the <b>bounding box</b> of the instanced scene, and
       scale it accordingly (to 1.4 e.g.)
 
@@ -1094,6 +1056,16 @@ Internet-Draft                XR Fragments                 February 2024
    *  playposition is reset to framestart, when framestart or framestop
       is greater than 0 |
 
+
+
+
+
+
+van Kammen               Expires 11 August 2024                [Page 19]
+
+Internet-Draft                XR Fragments                 February 2024
+
+
    | Example Value | Explanation | |-|-| | 1,1,100 | play loop between
    frame 1 and 100 | | 1,1,0 | play once from frame 1 (oneshot) | |
    1,0,0 | play (previously set looprange if any) | | 0,0,0 | pause | |
@@ -1110,17 +1082,6 @@ Internet-Draft                XR Fragments                 February 2024
    [[» discussion|https://github.com/coderofsalvation/xrfragment/
    issues/10] (https://github.com/coderofsalvation/xrfragment/
    issues/10])]
-
-
-
-
-
-
-
-van Kammen                Expires 8 August 2024                [Page 20]
-
-Internet-Draft                XR Fragments                 February 2024
-
 
 13.  XR audio/video integration
 
@@ -1143,6 +1104,23 @@ Internet-Draft                XR Fragments                 February 2024
 14.  XR Fragment filters
 
    Include, exclude, hide/shows objects using space-separated strings:
+
+
+
+
+
+
+
+
+
+
+
+
+
+van Kammen               Expires 11 August 2024                [Page 20]
+
+Internet-Draft                XR Fragments                 February 2024
+
 
     +====================+===========================================+
     | example            | outcome                                   |
@@ -1169,15 +1147,6 @@ Internet-Draft                XR Fragments                 February 2024
       which used a dedicated q= variable (now deprecated and usable
       directly)
 
-
-
-
-
-van Kammen                Expires 8 August 2024                [Page 21]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
 14.1.  including/excluding
 
    By default, selectors work like photoshop-layers: they scan for
@@ -1202,6 +1171,13 @@ Internet-Draft                XR Fragments                 February 2024
 
                                   Table 12
 
+
+
+van Kammen               Expires 11 August 2024                [Page 21]
+
+Internet-Draft                XR Fragments                 February 2024
+
+
    |  NOTE 1: after an external embedded object has been instanced (src:
    |  https://y.com/bar.fbx#room e.g.), filters do not affect them
    |  anymore (reason: local tag/name collisions can be mitigated
@@ -1212,11 +1188,11 @@ Internet-Draft                XR Fragments                 February 2024
    |  colorbuffer (to allow children being still visible while their
    |  parents are invisible).
 
-   &#187; example implementation
+   » example implementation
    (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
-   three/xrf/q.js) &#187; example 3D asset
+   three/xrf/q.js) » example 3D asset
    (https://github.com/coderofsalvation/xrfragment/blob/main/example/
-   assets/filter.gltf#L192) &#187; discussion
+   assets/filter.gltf#L192) » discussion
    (https://github.com/coderofsalvation/xrfragment/issues/3)
 
 14.2.  Filter Parser
@@ -1225,15 +1201,6 @@ Internet-Draft                XR Fragments                 February 2024
 
    1.   create an associative array/object to store filter-arguments as
         objects
-
-
-
-
-van Kammen                Expires 8 August 2024                [Page 22]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
    2.   detect object id's & properties foo=1 and foo (reference regex=
         ~/^.*=[><=]?/ )
    3.   detect excluders like -foo,-foo=1,-.foo,-/foo (reference regex=
@@ -1259,6 +1226,14 @@ Internet-Draft                XR Fragments                 February 2024
    #mytag e.g.) are triggered by the enduser (via toplevel URL or
    clicking href):
 
+
+
+
+van Kammen               Expires 11 August 2024                [Page 22]
+
+Internet-Draft                XR Fragments                 February 2024
+
+
    1.  draw a wire from the enduser (preferabbly a bit below the camera,
        heartposition) to object(s) matching that ID (objectname)
    2.  draw a wire from the enduser (preferabbly a bit below the camera,
@@ -1281,14 +1256,6 @@ Internet-Draft                XR Fragments                 February 2024
 16.  Text in XR (tagging,linking to spatial objects)
 
    How does XR Fragments interlink text with objects?
-
-
-
-
-van Kammen                Expires 8 August 2024                [Page 23]
-
-Internet-Draft                XR Fragments                 February 2024
-
 
    |  The XR Fragments does this by collapsing space into a *Word Graph*
    |  (the *XRWG* example
@@ -1315,6 +1282,14 @@ Internet-Draft                XR Fragments                 February 2024
    1.   XR Fragments promotes (de)serializing a scene to the XRWG
         (example (https://github.com/coderofsalvation/xrfragment/blob/fe
         at/macros/src/3rd/js/XRWG.js))
+
+
+
+van Kammen               Expires 11 August 2024                [Page 23]
+
+Internet-Draft                XR Fragments                 February 2024
+
+
    2.   XR Fragments primes the XRWG, by collecting words from the tag
         and name-property of 3D objects.
    3.   XR Fragments primes the XRWG, by collecting words from
@@ -1339,13 +1314,6 @@ Internet-Draft                XR Fragments                 February 2024
         scroll-to-text-fragment (https://github.com/WICG/scroll-to-text-
         fragment) will be considered)
 
-
-
-van Kammen                Expires 8 August 2024                [Page 24]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
    Example:
 
   http://y.io/z.fbx                                                           | Derived XRWG (expressed as BibTex)
@@ -1369,6 +1337,14 @@ Internet-Draft                XR Fragments                 February 2024
 
    |  the #john@baroque-bib associates both text John and objectname
    |  john, with tag baroque
+
+
+
+
+van Kammen               Expires 11 August 2024                [Page 24]
+
+Internet-Draft                XR Fragments                 February 2024
+
 
    Another example:
 
@@ -1395,13 +1371,6 @@ Internet-Draft                XR Fragments                 February 2024
    |  same XRWG, however on top of that 2 tages (house and todo) are now
    |  associated with text/objectname/tag 'baroque'.
 
-
-
-van Kammen                Expires 8 August 2024                [Page 25]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
    As seen above, the XRWG can expand bibs
    (https://github.com/coderofsalvation/hashtagbibs) (and the whole
    scene) to BibTeX.
@@ -1422,6 +1391,16 @@ Internet-Draft                XR Fragments                 February 2024
         +------------------+--------------------------------------+
 
                                   Table 13
+
+
+
+
+
+
+van Kammen               Expires 11 August 2024                [Page 25]
+
+Internet-Draft                XR Fragments                 February 2024
+
 
    |  hashtagbibs (https://github.com/coderofsalvation/hashtagbibs)
    |  potentially allow the enduser to annotate text/objects by
@@ -1450,14 +1429,6 @@ Internet-Draft                XR Fragments                 February 2024
        (contextmenu e.g.) of any XR text, anywhere anytime.
    11. respect multi-line BiBTeX metadata in text because of the core
        principle (#core-principle)
-
-
-
-van Kammen                Expires 8 August 2024                [Page 26]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
    12. Default font (unless specified otherwise) is a modern monospace
        font, for maximized tabular expressiveness (see the core
        principle (#core-principle)).
@@ -1473,6 +1444,19 @@ Internet-Draft                XR Fragments                 February 2024
    |  visual-meta (https://visual-meta.info) in greater detail.
 
    Fictional chat:
+
+
+
+
+
+
+
+
+
+van Kammen               Expires 11 August 2024                [Page 26]
+
+Internet-Draft                XR Fragments                 February 2024
+
 
 <John> Hey what about this: https://my.com/station.gltf#pos=0,0,1&rot=90,2,0&t=500,1000
 <Sarah> I'm checking it right now
@@ -1494,8 +1478,8 @@ Internet-Draft                XR Fragments                 February 2024
 
    The src-values work as expected (respecting mime-types), however:
 
-   The XR Fragment specification bumps the traditional default browser-
-   mimetype
+   The XR Fragment specification advices to bump the traditional default
+   browser-mimetype
 
    text/plain;charset=US-ASCII
 
@@ -1506,14 +1490,6 @@ Internet-Draft                XR Fragments                 February 2024
    This indicates that:
 
    *  utf-8 is supported by default
-
-
-
-van Kammen                Expires 8 August 2024                [Page 27]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
    *  lines beginning with @ will not be rendered verbatim by default
       (read more (https://github.com/coderofsalvation/
       hashtagbibs#hashtagbib-mimetypes))
@@ -1529,6 +1505,14 @@ Internet-Draft                XR Fragments                 February 2024
    |  (https://github.com/coderofsalvation/hashtagbibs)
 
    Advantages:
+
+
+
+
+van Kammen               Expires 11 August 2024                [Page 27]
+
+Internet-Draft                XR Fragments                 February 2024
+
 
    *  auto-expanding of hashtagbibs
       (https://github.com/coderofsalvation/hashtagbibs) associations
@@ -1552,23 +1536,6 @@ Internet-Draft                XR Fragments                 February 2024
    required by the spec).
 
 16.2.  URL and Data URI
-
-
-
-
-
-
-
-
-
-
-
-
-
-van Kammen                Expires 8 August 2024                [Page 28]
-
-Internet-Draft                XR Fragments                 February 2024
-
 
   +--------------------------------------------------------------+  +------------------------+
   |                                                              |  | author.com/article.txt |
@@ -1596,6 +1563,13 @@ Internet-Draft                XR Fragments                 February 2024
    |  object note_canvas with 'todo', the enduser can type or speak
    |  #note_canvas@todo
 
+
+
+van Kammen               Expires 11 August 2024                [Page 28]
+
+Internet-Draft                XR Fragments                 February 2024
+
+
 16.3.  XR Text example parser
 
    To prime the XRWG with text from plain text src-values, here's an
@@ -1618,14 +1592,6 @@ xrtext = {
   },
 
   decode: (str) => {
-
-
-
-van Kammen                Expires 8 August 2024                [Page 29]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
     // bibtex:     ↓@   ↓<tag|tag{phrase,|{ruler}>  ↓property  ↓end
     let pat    = [ /@/, /^\S+[,{}]/,                /},/,      /}/ ]
     let tags   = [], text='', i=0, prop=''
@@ -1653,6 +1619,13 @@ Internet-Draft                XR Fragments                 February 2024
     return {text, tags}
   },
 
+
+
+van Kammen               Expires 11 August 2024                [Page 29]
+
+Internet-Draft                XR Fragments                 February 2024
+
+
   encode: (text,tags) => {
     let str = text+"\n"
     for( let i in tags ){
@@ -1675,13 +1648,6 @@ Internet-Draft                XR Fragments                 February 2024
    |  above can be used as a startingpoint for LLVM's to translate/
    |  steelman to a more formal form/language.
 
-
-
-van Kammen                Expires 8 August 2024                [Page 30]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
 str = `
 hello world
 here are some hashtagbibs followed by bibtex:
@@ -1701,6 +1667,20 @@ tags.push({ k:'bar{', v:{abc:123} })          // add tag
 console.log( xrtext.encode(text,tags) )       // multiplex text & bibtex back together
 
    This expands to the following (hidden by default) BibTex appendix:
+
+
+
+
+
+
+
+
+
+
+van Kammen               Expires 11 August 2024                [Page 30]
+
+Internet-Draft                XR Fragments                 February 2024
+
 
    hello world
    here are some hashtagbibs followed by bibtex:
@@ -1729,15 +1709,6 @@ console.log( xrtext.encode(text,tags) )       // multiplex text & bibtex back to
 
    1.  defining a different transport protocol (https vs ipfs or DAT) in
        src or href values can make a difference
-
-
-
-
-van Kammen                Expires 8 August 2024                [Page 31]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
    2.  mirroring files on another protocol using (HTTP) errorcode tags
        in src or href properties
    3.  in case of src: nesting a copy of the embedded object in the
@@ -1750,16 +1721,33 @@ Internet-Draft                XR Fragments                 February 2024
 
    For example:
 
+
+
+
+
+
+
+
+
+
+
+
+
+van Kammen               Expires 11 August 2024                [Page 31]
+
+Internet-Draft                XR Fragments                 February 2024
+
+
   +────────────────────────────────────────────────────────+
   │                                                        │
   │  index.gltf                                            │
   │    │                                                   │
-  │    │ #: #-offlinetext                                │
+  │    │ #: #-offlinetext                                  │
   │    │                                                   │
   │    ├── ◻ buttonA                                       │
   │    │      └ href:     http://foo.io/campagne.fbx       │
   │    │      └ href@404: ipfs://foo.io/campagne.fbx       │
-  │    │      └ href@400: #clienterrortext               │
+  │    │      └ href@400: #clienterrortext                 │
   │    │      └ ◻ offlinetext                              │
   │    │                                                   │
   │    └── ◻ embeddedObject                          <--------- the meshdata inside embeddedObject will (not)
@@ -1786,14 +1774,6 @@ Internet-Draft                XR Fragments                 February 2024
 
    *  href: schoolA.edu/projects.gltf#math&-topics math
    *  href: schoolB.edu/projects.gltf#math&-courses math
-
-
-
-van Kammen                Expires 8 August 2024                [Page 32]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
    *  href: university.edu/projects.gltf#math&-theme math
 
    |  This would hide all object tagged with topic, courses or theme
@@ -1804,15 +1784,51 @@ Internet-Draft                XR Fragments                 February 2024
    separate content into separate files, or show/hide things using a
    complex logiclayer like javascript.
 
-19.  Security Considerations
 
-   Since XR Text contains metadata too, the user should be able to set
-   up tagging-rules, so the copy-paste feature can :
 
-   *  filter out sensitive data when copy/pasting (XR text with
-      tag:secret e.g.)
 
-20.  FAQ
+
+
+van Kammen               Expires 11 August 2024                [Page 32]
+
+Internet-Draft                XR Fragments                 February 2024
+
+
+19.  URI Templates (RFC6570)
+
+   XR Fragments adopts Level1 URI *Fragment* expansion to provide safe
+   interactivity.
+   The following demonstrates a simple video player:
+
+  +─────────────────────────────────────────────+
+  │                                             │
+  │   foo.usdz                                  │
+  │     │                                       │
+  │     │                                       │
+  │     ├── ◻ stopbutton                        │
+  │     │      ├ #:    #-stopbutton             │
+  │     │      └ href: #player=stop&-stopbutton │  (stop and hide stop-button)
+  │     │                                       │
+  │     └── ◻ plane                             │
+  │            ├ play: #t=l:0,10                │
+  │            ├ stop: #t=0,0                   │
+  │            ├ href: #player=play&stopbutton  │  (play and show stop-button)
+  │            └ src:  cat.mp4#{player}         │
+  │                                             │
+  │                                             │
+  +─────────────────────────────────────────────+
+
+20.  Security Considerations
+
+   The only dynamic parts are W3C Media Fragments
+   (https://www.w3.org/TR/media-frags/) and URI Templates (RFC6570)
+   (https://www.rfc-editor.org/rfc/rfc6570).
+   The use of URI Templates is limited to pre-defined variables and
+   Level0 fragments-expansion only, which makes it quite safe.
+   In fact, it is much safer than relying on a scripting language
+   (javascript) which can change URN too.
+
+21.  FAQ
 
    *Q:* Why is everything HTTP GET-based, what about POST/PUT/DELETE
    HATEOS
@@ -1821,44 +1837,48 @@ Internet-Draft                XR Fragments                 February 2024
    (for example, an XR Hypermedia browser can decide to support
    POST/PUT/DELETE requests for embedded HTML thru src values)
 
-   *Q:* Why isn't there support for scripting, while we have things like
-   WASM *A:* This is out of scope as it unhyperifies hypermedia, and
-   this is up to XR hypermedia browser-extensions.
+   *Q:* Why isn't there support for scripting, URI Template Fragments
+   are so limited compared to WASM & javascript *A:* This is out of
+   scope as it unhyperifies hypermedia, and this is up to XR hypermedia
+   browser-extensions.
    Historically scripting/Javascript seems to been able to turn webpages
+
+
+
+van Kammen               Expires 11 August 2024                [Page 33]
+
+Internet-Draft                XR Fragments                 February 2024
+
+
    from hypermedia documents into its opposite (hyperscripted
    nonhypermedia documents).
    In order to prevent this backward-movement (hypermedia tends to
-   liberate people from finnicky scripting) XR Fragments should never
-   unhyperify itself by hardcoupling to a particular markup or scripting
-   language.  XR Macro's (https://xrfragment.org/doc/RFC_XR_Macros.html)
-   are an example of something which is probably smarter and safer for
-   hypermedia browsers to implement, instead of going full-in with a
-   turing-complete scripting language (and suffer the security
-   consequences later).
+   liberate people from finnicky scripting) XR Fragment uses W3C Media
+   Fragments (https://www.w3.org/TR/media-frags/) and URI Templates
+   (RFC6570) (https://www.rfc-editor.org/rfc/rfc6570), to prevent
+   unhyperifying itself by hardcoupling to a particular markup or
+   scripting language.
    XR Fragments supports filtering objects in a scene only, because in
    the history of the javascript-powered web, showing/hiding document-
    entities seems to be one of the most popular basic usecases.
    Doing advanced scripting & networkrequests under the hood are
    obviously interesting endavours, but this is something which should
-   not be hardcoupled with hypermedia.
-   This belongs to browser extensions.
-
-
-
-van Kammen                Expires 8 August 2024                [Page 33]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
+   not be hardcoupled with XR Fragments or hypermedia.
+   This perhaps belongs more to browser extensions.
    Non-HTML Hypermedia browsers should make browser extensions the right
    place, to 'extend' experiences, in contrast to code/javascript inside
    hypermedia documents (this turned out as a hypermedia antipattern).
 
-21.  IANA Considerations
+22.  authors
+
+   *  Leon van Kammen (@lvk@mastodon.online)
+   *  Jens Finkhäuser (@jens@social.finkhaeuser.de)
+
+23.  IANA Considerations
 
    This document has no IANA actions.
 
-22.  Acknowledgments
+24.  Acknowledgments
 
    *  NLNET (https://nlnet.nl)
    *  Future of Text (https://futureoftext.org)
@@ -1866,14 +1886,27 @@ Internet-Draft                XR Fragments                 February 2024
    *  Michiel Leenaars
    *  Gerben van der Broeke
    *  Mauve
-   *  Jens Finkh&#228;user
+   *  Jens Finkhäuser
    *  Marc Belmont
    *  Tim Gerritsen
    *  Frode Hegland
    *  Brandel Zackernuk
    *  Mark Anderson
 
-23.  Appendix: Definitions
+
+
+
+
+
+
+
+
+van Kammen               Expires 11 August 2024                [Page 34]
+
+Internet-Draft                XR Fragments                 February 2024
+
+
+25.  Appendix: Definitions
 
      +=================+=============================================+
      | definition      | explanation                                 |
@@ -1896,16 +1929,10 @@ Internet-Draft                XR Fragments                 February 2024
      | URL             | something somewhere via someprotocol        |
      |                 | (http://me.com/foo.glb)                     |
      +-----------------+---------------------------------------------+
+     | URN             | something at some domain (me.com/foo.glb)   |
+     +-----------------+---------------------------------------------+
      | metadata        | custom properties of text, 3D Scene or      |
      |                 | Object(nodes), relevant to machines and a   |
-
-
-
-van Kammen                Expires 8 August 2024                [Page 34]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
      |                 | human minority (academics/developers)       |
      +-----------------+---------------------------------------------+
      | XR fragment     | URI Fragment with spatial hints like        |
@@ -1927,6 +1954,14 @@ Internet-Draft                XR Fragments                 February 2024
      | placeholder     | a 3D object which with src-metadata (which  |
      | object          | will be replaced by the src-data.)          |
      +-----------------+---------------------------------------------+
+
+
+
+van Kammen               Expires 11 August 2024                [Page 35]
+
+Internet-Draft                XR Fragments                 February 2024
+
+
      | src             | (HTML-piggybacked) metadata of a 3D object  |
      |                 | which instances content                     |
      +-----------------+---------------------------------------------+
@@ -1954,17 +1989,9 @@ Internet-Draft                XR Fragments                 February 2024
      |                 | that")                                      |
      +-----------------+---------------------------------------------+
      | extrospective   | outward sensemaking ("I'm fairly sure John  |
-
-
-
-van Kammen                Expires 8 August 2024                [Page 35]
-
-Internet-Draft                XR Fragments                 February 2024
-
-
      |                 | is a person who lives in oklahoma")         |
      +-----------------+---------------------------------------------+
-     | &#9723;         | ascii representation of an 3D object/mesh   |
+     | ◻               | ascii representation of an 3D object/mesh   |
      +-----------------+---------------------------------------------+
      | (un)obtrusive   | obtrusive: wrapping human text/thought in   |
      |                 | XML/HTML/JSON obfuscates human text into a  |
@@ -1983,6 +2010,13 @@ Internet-Draft                XR Fragments                 February 2024
      |                 | hashtagbibs) which expands to BibTex/JSON/  |
      |                 | XML                                         |
      +-----------------+---------------------------------------------+
+
+
+
+van Kammen               Expires 11 August 2024                [Page 36]
+
+Internet-Draft                XR Fragments                 February 2024
+
 
                                   Table 14
 
@@ -2013,4 +2047,26 @@ Internet-Draft                XR Fragments                 February 2024
 
 
 
-van Kammen                Expires 8 August 2024                [Page 36]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+van Kammen               Expires 11 August 2024                [Page 37]

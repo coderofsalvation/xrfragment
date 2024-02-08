@@ -3,7 +3,7 @@
 
 
 Internet Engineering Task Force                          L.R. van Kammen
-Internet-Draft                                           5 February 2024
+Internet-Draft                                           8 February 2024
 Intended status: Informational                                          
 
 
@@ -38,7 +38,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 8 August 2024.
+   This Internet-Draft will expire on 11 August 2024.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-van Kammen                Expires 8 August 2024                 [Page 1]
+van Kammen               Expires 11 August 2024                 [Page 1]
 
 Internet-Draft                  XR Macros                  February 2024
 
@@ -109,13 +109,13 @@ Table of Contents
 
 
 
-van Kammen                Expires 8 August 2024                 [Page 2]
+van Kammen               Expires 11 August 2024                 [Page 2]
 
 Internet-Draft                  XR Macros                  February 2024
 
 
-   3.  Metadata-values can contain the | symbol to &#127922; roundrobin
-       variable values (!toggleme: fog=0,10|fog=0,1000 e.g.)
+   3.  Metadata-values can contain the | symbol to 🎲 roundrobin variable
+       values (!toggleme: fog=0,10|fog=0,1000 e.g.)
    4.  XR Macros acts as simple eventhandlers for URI Fragments: they
        are automatically published on the (XR Fragments
        (https://xrfragment.org)) hashbus, to act as events (so more
@@ -165,7 +165,7 @@ Internet-Draft                  XR Macros                  February 2024
 
 
 
-van Kammen                Expires 8 August 2024                 [Page 3]
+van Kammen               Expires 11 August 2024                 [Page 3]
 
 Internet-Draft                  XR Macros                  February 2024
 
@@ -221,7 +221,7 @@ Internet-Draft                  XR Macros                  February 2024
 
 
 
-van Kammen                Expires 8 August 2024                 [Page 4]
+van Kammen               Expires 11 August 2024                 [Page 4]
 
 Internet-Draft                  XR Macros                  February 2024
 
@@ -277,7 +277,7 @@ Internet-Draft                  XR Macros                  February 2024
 
 
 
-van Kammen                Expires 8 August 2024                 [Page 5]
+van Kammen               Expires 11 August 2024                 [Page 5]
 
 Internet-Draft                  XR Macros                  February 2024
 
@@ -333,7 +333,7 @@ click object with (`!clickme`:`!foo|!bar|!flop` e.g.)
 
 
 
-van Kammen                Expires 8 August 2024                 [Page 6]
+van Kammen               Expires 11 August 2024                 [Page 6]
 
 Internet-Draft                  XR Macros                  February 2024
 
@@ -375,7 +375,7 @@ Internet-Draft                  XR Macros                  February 2024
    |               | (games,VR,AR e.g.), should be as high as          |
    |               | possible                                          |
    +---------------+---------------------------------------------------+
-   | &#9723;       | ascii representation of an 3D object/mesh         |
+   | ◻             | ascii representation of an 3D object/mesh         |
    +---------------+---------------------------------------------------+
    | (un)obtrusive | obtrusive: wrapping human text/thought in         |
    |               | XML/HTML/JSON obfuscates human text into          |
@@ -389,4 +389,4 @@ Internet-Draft                  XR Macros                  February 2024
 
 
 
-van Kammen                Expires 8 August 2024                 [Page 7]
+van Kammen               Expires 11 August 2024                 [Page 7]
