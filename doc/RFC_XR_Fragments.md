@@ -94,7 +94,7 @@ value:     draft-XRFRAGMENTS-leonvankammen-00
 .# Abstract
 
 This draft is a specification for 4D URI's & [hypermediatic](https://github.com/coderofsalvation/hypermediatic) navigation, which links together space, time & text together, for hypermedia browsers with- or without a network-connection.<br> 
-The specification promotes spatial addressibility, sharing, navigation, filtering and databinding objects for (XR) Browsers.<br>
+The specification uses [W3C Media Fragments](https://www.w3.org/TR/media-frags/) and [URI Templates (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570) to promote spatial addressibility, sharing, navigation, filtering and databinding objects for (XR) Browsers.<br>
 XR Fragments allows us to better use existing metadata inside 3D scene(files), by connecting it to proven technologies like [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment).
 
 > Almost every idea in this document is demonstrated at [https://xrfragment.org](https://xrfragment.org)
@@ -248,18 +248,17 @@ That way, if the link gets shared, the XR Fragments implementation at `https://m
 
 ## Dynamic XR Fragments (+databindings)
 
-These are automatic fragment-to-metadata mappings, which only trigger if the 3D scene metadata matches a specific identifier (`aliasname` e.g.)
+These are automatic fragment-to-metadata mappings, which only trigger if the 3D scene metadata matches a specific identifier:
 
-| fragment               | type     | example           | info                                                                          |
-|------------------------|----------|-------------------|-------------------------------------------------------------------------------|
-| `#<aliasname>`               | string   | `#cubes`          | evaluate predefined view (`#foo&bar`) defined in 3D Object metadata (`#cubes: #foo&bar` e.g.)                     |
-| `#<tag_or_objectname>`       | string   | `#person`         | focus object(s) with `tag: person` or name `person` by looking up XRWG  |
-| `#[-]<tag_or_objectname>`    | string   | `#person` (`#-person`) | focus/show (or hide) object(s) with `tag: person` or name `person` by looking up XRWG  |
-| `#<cameraname>`              | string   | `#cam01`          | set camera with name `cam01` as active camera                                             |
-| `#<tag_or_objectname>=<material>`   | string=string     | `#car=metallic`| set material of car to material with name `metallic` |eeee
-|                              |                          | `#product=metallic`| set material of objects tagged with `product` to material with name `metallic` |
-| `#<tag_or_objectname>=<mediafrag>`  | string=[media frag](https://www.w3.org/TR/media-frags/#valid-uri) | `#foo=0,1` `| play 3D animation (or `src` media) using [media fragment URI](https://www.w3.org/TR/media-frags/#valid-uri) with [looping/speed/texturescroll abilities](#media%20fragments%20and%20datatypes) |
-|                              |                          | `#foo=uv:0,0.5` `| texturescroll to uv-coordinate `0,0.05` (see [looping/speed/texturescroll abilities here](#media%20fragments%20and%20datatypes) |
+|      |fragment               | type     | example           | info                                                                          |
+|------|------------------|----------|-------------------|-------------------------------------------------------------------------------|
+| **PRESET** | `#<preset>`     | string   | `#cubes`          | evaluates preset (`#foo&bar`) defined in 3D Object metadata (`#cubes: #foo&bar` e.g.) while URL-browserbar reflects `#cubes`. Only works when metadata-key starts with `#`  |
+| **FOCUS** | `#<tag_or_objectname>`       | string   | `#person`         | (and show) object(s) with `tag: person` or name `person` (XRWG lookup)  |
+| **FILTERS** | `#[!][-]<tag_or_objectname>[*]`    | string   | `#person` (`#-person`) |  will reset (`!`), show/focus or hide (`-`) focus object(s) with `tag: person` or name `person` by looking up XRWG (`*`=including children) |
+| **CAMERASWITCH** | `#<cameraname>`              | string   | `#cam01`          | sets camera with name `cam01` as active camera                                             |
+| **MATERIALUPDATE** | `#<tag_or_objectname>[*]=<materialname>`   | string=string     | `#car=metallic`| sets material of car to material with name `metallic` (`*`=including children)|
+|   |                      r     |                          | `#soldout*=halfopacity`| set material of objects tagged with `product` to material with name `metallic` |
+| **VARIABLE UPDATE** | `#<variable>=<metadata-key>` | string=string | `#foo=bar` | sets [URI Template](https://www.rfc-editor.org/rfc/rfc6570) variable `foo` to the value `#t=0` from **existing** object metadata (`bar`:`#t=0` e.g.), This allows for reactive [URI Template](https://www.rfc-editor.org/rfc/rfc6570) defined in object metadata elsewhere (`src`:`://m.com/cat.mp4#{foo}` e.g., to play media using [media fragment URI](https://www.w3.org/TR/media-frags/#valid-uri)). NOTE: metadata-key should not start with `#` |
 
 ## media fragments and datatypes
 
@@ -271,11 +270,11 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 | vector3                       | x,y,z                  | 2,3.0,4         | 3-dimensional vector |
 | temporal W3C media fragment   | t=x                    | 0               | play from 0 seconds to end (and stop) |
 | temporal W3C media fragment   | t=x,y                  | 0,2             | play from 0 seconds till 2 seconds (and stop) |
-| temporal W3C media fragment   | xywh=x,y,w,h           | 0,0,1,1         | crop (uv) coordinates (default for uv-coordinates is `0,0,1,1`) |
 | temporal W3C media fragment * | t=[l:]x,y              | l:0,1           | play [as loop] between `x` and `y`  |
-| temporal W3C media fragment * | s=x[,y]                | 1               | set playback speed of audio/video/3D anim |
-| temporal W3C media fragment * | sxy=[l:]x,y            | 0.1,0.2         | xy scrollspeed of new xywh viewport/uvcoordinates (default `1,1` is instant): allows lerping to new `xywh` values [or infinite texturescrolling] |
-| shader uniform value          | u:<uniform>=<string|float|vec2|vec3|vec4> | u:color=1,0,0   | set shader uniform value |
+| temporal W3C media fragment * | uv=u,v                 | uv:0,0,1,1      | set uv offset (default `0,0`) |
+| temporal W3C media fragment * | s=x                    | 1               | set playback speed of audio/video/3D anim |
+| temporal W3C media fragment * | suv=[l:]uspeed,vspeed  | uv:l:0.1,0.2    | set uv scroll speed of (default `1,1` is instant) [`l:` means infinite texturescrolling] otherwise new `u,v` values will be lerped to |
+| media parameter (shader uniform) | u:<uniform>=<string|float|vec2|vec3|vec4> | u:color=1,0,0   | set shader uniform value |
 
 > \* = this is extending the [W3C media fragments](https://www.w3.org/TR/media-frags/#mf-advanced) with finergrained playback/viewport-control:
 
@@ -283,47 +282,44 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 | extension        | info    |
 |------------------|---------|
 | `l:` specifices loop | `t=0,2` specifies oneshot-play (default) whereas `t=l:0,2` indicates looped-play |
+| `#uv=` specifies uv-coordinates | allows offsetting the uv-coordinates |
+| `#suv=` specifies scrollspeed of uv-coordinates | allows single/infinite uv-scrolling |
 | `#s` specifies playback speed | being able to specify loop(speed) of audio/video |
-| `#sxy=` specifies lerping of xy(wh) values | allows animated cropping and infinite texturescroll with configurable speed for u/v coordinates | 
+
+> The rationale not to extend the `xywh`-media fragment is that 3D geometries deal with triangular polygons (not rectangular).
 
 Example URI's:
 
-* `https://images.org/credits.jpg#t=0&sxy=l:0,0.1` (infinite vertical texturescrolling)
-* `https://video.org/organogram.mp4#t=0&sxy:0.1,0.1&xywh=500,500,480,640` (animated zoom towards region in video)
+* `https://images.org/credits.jpg#t=0&suv=l:0,0.1` (infinite vertical texturescrolling)
+* `https://video.org/organogram.mp4#t=0&suv:0.1,0.1&uv=0.3,0.3` (animated zoom towards region in video)
 * `https://shaders.org/plasma.glsl#t=0&u:col1=1,0,0&u:col2=0,1,0` (red-green shader plasma starts playing from time-offset 0)
-
 
 ```
   +──────────────────────────────────────────────────────────+  
   │                                                          │ 
   │  index.gltf#playall                                      │ 
   │    │                                                     │ 
-  │    ├ #       : #playall                                  │ apply default XR Fragment on load 
-  │    ├ #playall: #media=play&wall=calm&t=1                 │ here `t` plays the 3D animations inside index.gltf from 1 seconds
+  │    ├ #        : #t=0&shared=play                         │ apply default XR Fragment on load (`t` plays global 3D animation timeline)
+  │    ├ play     : #t=l:0,2                                 │ variable for [URI Templates (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570)
   │    │                                                     │ 
-  │    ├── ◻ playbutton                                      │    
-  │    │      └ href: #media=play&wall=calm   ·······        │ (re)trigger `play` on object 'media' and `calm` on 'wall' 
-  │    │                                            ·        │ 
-  │    ├── ◻ plane                                  ·        │    
-  │    │      └ src: foo.jpg#sxy=l:0,0.1            ·        │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
-  │    │                                            ·        │ with u·speed `0.1` and v·speed `0.1` (`#s` defaults) units p/second
-  │    ├── ◻ media                                  ·        │   
-  │    │      ├ #play: #t=0       ················  ·        │ play cat.mp4 from 0 sec
-  │    │      ├ #:    #play   ···^               ·  ·        │ apply default XR fragment (on load)
-  │    │      ├ #stop: #t=0,0          ···········  ·        │ stop 
-  │    │      ├ #loop: #t=l:1,2&s=2       ···········        │ loop cat.mp4 between 1 and 2 sec with double speed
-  │    │      ├ #crop: #xywh=0,0,0.5,0.5     ·····  ·        │ crop viewport/uv·coordinates
-  │    │      └ src:  cat.mp4#t=l:2,10   <<·······  ·        │ loop cat.mp4 (or mp3/wav/jpg) between 2 and 10 seconds
-  │    │                                            ·        │ 
-  │    └── ◻ wall                                   ·        │        
-  │           ├ #calm: #u:color=1,0,0   ··················   │ updates uniform values (IFS shader e.g.)
-  │           ├ #:     #u:color=0,1,1                    ·   │ apply default XR Fragment (on load)
-  │           └ src:  ://a.com/art.glsl#sxy:l:0,0.1  <<···   │ .fs/.vs/.glsl/.wgsl etc
+  │    ├── ◻ plane (with material)                           │    
+  │    │      └ #: #suv=l:0,0.1                              │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
+  │    │                                                     │ 
+  │    ├── ◻ plane                                           │    
+  │    │      └ src: foo.jpg#suv=l:0,0.1                     │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
+  │    │                                                     │ 
+  │    ├── ◻ media                                           │   
+  │    │      └ src:  cat.mp4#t=l:2,10&uv=0.5,0.5            │ loop cat.mp4 (or mp3/wav/jpg) between 2 and 10 seconds (uv's shifted with 0.5,0.5)
+  │    │                                                     │ 
+  │    └── ◻ wall                                            │        
+  │           ├ href:  #color=blue                           │ updates uniform values (IFS shader e.g.)
+  │           ├ blue:  t=0&u:col=0,0,1                       │ variable for [Level1 URI Templates (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570)
+  │           └ src:   ://a.com/art.glsl#{color}&{shared}    │ .fs/.vs/.glsl/.wgsl etc shader [Level1 URI Template (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570)
   │                                                          │    
   │                                                          │
   +──────────────────────────────────────────────────────────+
 
-> NOTE: node-metadata (without #-prefix) applies XR Fragments to its `src` URL, otherwise it applies it to the browser URL. Full addressibility can be maintained, since top-level `href` values can trigger node-specific aliases (`media=play` e.g.).
+> NOTE: URI Template variables are immutable and respect scope: in other words, the end-user cannot modify `blue` by entering an URL like `#blue=.....` in the browser URL, and `blue` is not accessible by the plane/media-object (however `{play}` would work).
 
 ```
 
@@ -494,6 +490,8 @@ navigation, portals & mutations
 8. in case of navigating to a new [[pos)ition, ''first'' navigate to the ''current position'' so that the ''back-button'' of the ''browser-history'' always refers to the previous position (see [[here](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/href.js#L97))
 
 9. ignore previous rule in special cases, like clicking an `href` using camera-portal collision (the back-button would cause a teleport-loop)
+
+10. href-events should bubble upward the node-tree
 
 [» example implementation](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/href.js)<br>
 [» example 3D asset](https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/href.gltf#L192)<br>
@@ -776,7 +774,7 @@ Fictional chat:
 
 The `src`-values work as expected (respecting mime-types), however:
 
-The XR Fragment specification bumps the traditional default browser-mimetype 
+The XR Fragment specification advices to bump the traditional default browser-mimetype 
 
 `text/plain;charset=US-ASCII` 
 
@@ -959,12 +957,12 @@ For example:
   │                                                        │
   │  index.gltf                                            │
   │    │                                                   │
-  │    │ #: #-offlinetext                                │
+  │    │ #: #-offlinetext                                  │
   │    │                                                   │
   │    ├── ◻ buttonA                                       │
   │    │      └ href:     http://foo.io/campagne.fbx       │
   │    │      └ href@404: ipfs://foo.io/campagne.fbx       │
-  │    │      └ href@400: #clienterrortext               │
+  │    │      └ href@400: #clienterrortext                 │
   │    │      └ ◻ offlinetext                              │
   │    │                                                   │
   │    └── ◻ embeddedObject                          <--------- the meshdata inside embeddedObject will (not)
@@ -996,11 +994,39 @@ To filter out non-related objects one could take it a step further using filters
 
 This makes spatial content multi-purpose, without the need to separate content into separate files, or show/hide things using a complex logiclayer like javascript.
 
+# URI Templates (RFC6570)
+
+XR Fragments adopts Level1 URI **Fragment** expansion to provide safe interactivity.<br>
+The following demonstrates a simple video player:
+
+```
+
+  +─────────────────────────────────────────────+
+  │                                             │
+  │   foo.usdz                                  │          
+  │     │                                       │          
+  │     │                                       │          
+  │     ├── ◻ stopbutton                        │
+  │     │      ├ #:    #-stopbutton             │
+  │     │      └ href: #player=stop&-stopbutton │  (stop and hide stop-button)
+  │     │                                       │          
+  │     └── ◻ plane                             │
+  │            ├ play: #t=l:0,10                │
+  │            ├ stop: #t=0,0                   │
+  │            ├ href: #player=play&stopbutton  │  (play and show stop-button)
+  │            └ src:  cat.mp4#{player}         │
+  │                                             │
+  │                                             │
+  +─────────────────────────────────────────────+
+
+
+```
+
 # Security Considerations
 
-Since XR Text contains metadata too, the user should be able to set up tagging-rules, so the copy-paste feature can :
-
-* filter out sensitive data when copy/pasting (XR text with `tag:secret` e.g.)
+The only dynamic parts are [W3C Media Fragments](https://www.w3.org/TR/media-frags/) and [URI Templates (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570).<br>
+The use of URI Templates is limited to pre-defined variables and Level0 fragments-expansion only, which makes it quite safe.<br>
+In fact, it is much safer than relying on a scripting language (javascript) which can change URN too.
 
 # FAQ 
 
@@ -1009,10 +1035,10 @@ Since XR Text contains metadata too, the user should be able to set up tagging-r
 
 ---
 
-**Q:** Why isn't there support for scripting, while we have things like WASM
-**A:** This is out of scope as it unhyperifies hypermedia, and this is up to XR hypermedia browser-extensions.<br> Historically scripting/Javascript seems to been able to turn webpages from hypermedia documents into its opposite (hyperscripted nonhypermedia documents).<br>In order to prevent this backward-movement (hypermedia tends to liberate people from finnicky scripting) XR Fragments should never unhyperify itself by hardcoupling to a particular markup or scripting language. [XR Macro's](https://xrfragment.org/doc/RFC_XR_Macros.html) are an example of something which is probably smarter and safer for hypermedia browsers to implement, instead of going full-in with a turing-complete scripting language (and suffer the security consequences later).<br>
+**Q:** Why isn't there support for scripting, URI Template Fragments are so limited compared to WASM & javascript
+**A:** This is out of scope as it unhyperifies hypermedia, and this is up to XR hypermedia browser-extensions.<br> Historically scripting/Javascript seems to been able to turn webpages from hypermedia documents into its opposite (hyperscripted nonhypermedia documents).<br>In order to prevent this backward-movement (hypermedia tends to liberate people from finnicky scripting) XR Fragment uses [W3C Media Fragments](https://www.w3.org/TR/media-frags/) and [URI Templates (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570), to prevent unhyperifying itself by hardcoupling to a particular markup or scripting language. <br>
 XR Fragments supports filtering objects in a scene only, because in the history of the javascript-powered web, showing/hiding document-entities seems to be one of the most popular basic usecases.<br>
-Doing advanced scripting & networkrequests under the hood are obviously interesting endavours, but this is something which should not be hardcoupled with hypermedia.<br>This belongs to browser extensions.<br>
+Doing advanced scripting & networkrequests under the hood are obviously interesting endavours, but this is something which should not be hardcoupled with XR Fragments or hypermedia.<br>This perhaps belongs more to browser extensions.<br>
 Non-HTML Hypermedia browsers should make browser extensions the right place, to 'extend' experiences, in contrast to code/javascript inside hypermedia documents (this turned out as a hypermedia antipattern).
 
 # authors
@@ -1048,6 +1074,7 @@ This document has no IANA actions.
 |3D object             | an object inside a scene characterized by vertex-, face- and customproperty data.                                                    |
 |URI                   | some resource at something somewhere via someprotocol (`http://me.com/foo.glb#foo` or `e76f8efec8efce98e6f` [see interpeer.io](https://interpeer.io))|
 |URL                   | something somewhere via someprotocol (`http://me.com/foo.glb`)                                                                       |
+|URN                   | something at some domain (`me.com/foo.glb`)                                                                                          |
 |metadata              | custom properties of text, 3D Scene or Object(nodes), relevant to machines and a human minority (academics/developers)               |
 |XR fragment           | URI Fragment with spatial hints like `#pos=0,0,0&t=1,100` e.g.                                                                       |
 |the XRWG              | wordgraph (collapses 3D scene to tags)       |
