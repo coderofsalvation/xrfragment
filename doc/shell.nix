@@ -7,6 +7,7 @@
       mmark
       xml2rfc
       wkhtmltopdf-bin
+      imagemagick
 
     ];
 }

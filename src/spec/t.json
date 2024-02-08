@@ -8,8 +8,5 @@
   {"fn":"url","data":"http://foo.com?foo=1#t=1,100", "expect":{ "fn":"equal.xy",    "input":"t","out":"1,100"},"label":"a equal.xy"},
   {"fn":"url","data":"http://foo.com?foo=1#t=2,500", "expect":{ "fn":"testBrowserOverride", "input":"t","out":true},"label":"browser URI can override t (defined in asset)"},
   {"fn":"url","data":"http://foo.com?foo=1#t=1,100,400,500", "expect":{ "fn":"equal.mediafragmentT",    "input":"3","out":"500"},"label":"a equal.mediafragment"},
-  {"fn":"url","data":"http://foo.com?foo=1#t=l:1,100,400,500", "expect":{ "fn":"equal.mediafragmentT",    "input":"3","out":"500"},"label":"a equal.mediafragment loop"},
-  {"fn":"url","data":"http://foo.com?foo=1#t=v:l:1,100,400,500", "expect":{ "fn":"equal.mediafragmentT",    "input":"3","out":"500"},"label":"a equal.mediafragment uv loop "},
-  {"fn":"url","data":"http://foo.com?foo=1#t=v:1,100,400,500", "expect":{ "fn":"equal.mediafragmentT",    "input":"3","out":"500"},"label":"a equal.mediafragment uv"},
-  {"fn":"url","data":"http://foo.com?foo=1#t=v:1,2", "expect":{ "fn":"testParsed", "input":"mycustom","out":true},"label":"test uv is set"}
+  {"fn":"url","data":"http://foo.com?foo=1#t=l:1,100,400,500", "expect":{ "fn":"equal.mediafragmentT",    "input":"3","out":"500"},"label":"a equal.mediafragment loop"}
 ]

@@ -1,5 +1,5 @@
 [
-  {"fn":"url","data":"http://foo.com?foo=1#s=1", "expect":{ "fn":"equal.mediafragmentSpeed", "input":"0","out":"1"},"label":"playback speed"},
-  {"fn":"url","data":"http://foo.com?foo=1#s=0.5", "expect":{ "fn":"equal.mediafragmentSpeed", "input":"0","out":"0.5"},"label":"playback speed"},
-  {"fn":"url","data":"http://foo.com?foo=1#s=-0.5", "expect":{ "fn":"equal.mediafragmentSpeed", "input":"0","out":"-0.5"},"label":"playback speed"}
+  {"fn":"url","data":"http://foo.com?foo=1#s=1", "expect":{ "fn":"equal.x", "input":"s","out":"1"},"label":"playback speed"},
+  {"fn":"url","data":"http://foo.com?foo=1#s=0.5", "expect":{ "fn":"equal.x", "input":"s","out":"0.5"},"label":"playback speed"},
+  {"fn":"url","data":"http://foo.com?foo=1#s=-0.5", "expect":{ "fn":"equal.x", "input":"s","out":"-0.5"},"label":"playback speed"}
 ]

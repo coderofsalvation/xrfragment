@@ -62,7 +62,7 @@ xrf.frag.href = function(v, opts){
     xrf.interactive.objects.map( (o) => {
       let newState = o.name == mesh.name ? state : false
       if( o.material ){
-        if( o.material.uniforms ) o.material.uniforms.selected.value = newState 
+        if( o.material.uniforms && o.material.uniforms.selected ) o.material.uniforms.selected.value = newState 
         //if( o.material.emissive ) o.material.emissive.r = o.material.emissive.g = o.material.emissive.b = newState ? 2.0 : 1.0
         if( o.material.emissive ){ 
           if( !o.material.emissive.original ) o.material.emissive.original = o.material.emissive.clone()

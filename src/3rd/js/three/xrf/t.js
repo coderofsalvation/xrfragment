@@ -1,5 +1,15 @@
+// this is the global #t mediafragment handler (which affects the 3D animation)
+
 xrf.frag.t = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
+
+  // handle object media players
+  if( mesh && mesh.media ){
+    for( let i in mesh.media ) mesh.media[i].pub(v)
+    return
+  }
+ 
+  // otherwise handle global 3D animations
   if( !model.mixer ) return 
   if( !model.animations || model.animations[0] == undefined ){
     console.warn('no animations found in model')
@@ -11,10 +21,10 @@ xrf.frag.t = function(v, opts){
     mixer.t = v
     
     // update speed
-    mixer.timeScale     = mixer.loop.speed = v.x
-    mixer.loop.speedAbs = Math.abs(v.x)
+    mixer.timeScale     = mixer.loop.speed || 1.0 
+    mixer.loop.speedAbs = Math.abs( mixer.timeScale )
 
-    if( v.y != undefined || v.z != undefined ) mixer.updateLoop( v )
+    mixer.updateLoop( v )
 
     // play animations
     mixer.play( v )
@@ -31,7 +41,7 @@ xrf.addEventListener('parseModel', (opts) => {
   let {model} = opts
   let mixer   = model.mixer = new xrf.THREE.AnimationMixer(model.scene)
   mixer.model = model
-  mixer.loop      = {timeStart:0,timeStop:0}
+  mixer.loop      = {timeStart:0,timeStop:0,speed:1.0}
   mixer.i         = xrf.mixers.length
   mixer.actions   = []
 
@@ -40,7 +50,6 @@ xrf.addEventListener('parseModel', (opts) => {
     if( xrf.debug ) console.log("action: "+anim.name)
     mixer.actions.push( mixer.clipAction( anim, model.scene ) )
   })
-
 
   mixer.checkZombies = (animations) => {
     if( mixer.zombieCheck ) return // fire only once
@@ -62,7 +71,7 @@ xrf.addEventListener('parseModel', (opts) => {
   }
 
   mixer.play  = (t) => {
-    mixer.isPlaying = t.x != 0
+    mixer.isPlaying = t.x !== undefined && t.x != t.y 
     mixer.updateLoop(t)
     xrf.emit( mixer.isPlaying === false ? 'stop' : 'play',{isPlaying: mixer.isPlaying})
   }
@@ -72,17 +81,15 @@ xrf.addEventListener('parseModel', (opts) => {
   }
 
   mixer.updateLoop = (t) => {
-    mixer.loop.timeStart = t.y != undefined ? t.y : mixer.loop.timeStart
-    mixer.loop.timeStop  = t.z != undefined ? t.z : mixer.loop.timeStop
+    mixer.loop.timeStart = t.x != undefined ? t.x : mixer.loop.timeStart
+    mixer.loop.timeStop  = t.y != undefined ? t.y : mixer.loop.timeStop
     mixer.actions.map( (action) => { 
       if( mixer.loop.timeStart != undefined ){
         action.time = mixer.loop.timeStart
         action.setLoop( xrf.THREE.LoopOnce, )
         action.timeScale = mixer.timeScale
         action.enabled = true
-        if( t.x != 0 ){ 
-          action.play() 
-        }
+        if( t.x === 0 ) action.play() 
       }
     })
     mixer.setTime(mixer.loop.timeStart)
@@ -150,19 +157,6 @@ xrf.addEventListener('render', (opts) => {
       rig.updateProjectionMatrix()
     }
   }
-})
-
-xrf.addEventListener('dynamicKey', (opts) => {
-  // select active camera if any
-  let {id,match,v} = opts
-  match.map( (w) => {
-    w.nodes.map( (node) => {
-      if( node.isCamera ){ 
-        console.log("switching camera to cam: "+node.name)
-        xrf.model.camera = node 
-      }
-    })
-  })
 })
 
 // remove mixers and stop mixers when loading another scene

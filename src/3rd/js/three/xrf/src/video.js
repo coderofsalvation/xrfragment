@@ -5,7 +5,9 @@ let loadVideo = (mimetype) => function(url,opts){
   const THREE = xrf.THREE
   let frag = xrf.URI.parse( url )
 
-  let video = mesh.video = document.createElement('video')
+  mesh.media = mesh.media || {}
+
+  let video = mesh.media.video = document.createElement('video')
   video.setAttribute("crossOrigin","anonymous")
   video.setAttribute("playsinline",'')
   video.addEventListener('loadedmetadata', function(){
@@ -17,21 +19,23 @@ let loadVideo = (mimetype) => function(url,opts){
     // set range
     video.addEventListener('timeupdate', function timeupdate() {
       if (video.t && video.t.y !== undefined && video.t.y > video.t.x && Math.abs(video.currentTime) >= video.t.y ){
-        if( video.t.speed.length ) video.currentTime = video.t.x // speed means loop
+        if( video.looping ) video.currentTime = video.t.x // speed means loop
         else video.pause()
       }
     },false)
   })
 
   video.src = url
-  video.playXRF = (t) => {
+  video.speed = 1.0
+  video.looping = false
+  video.pub = (t) => {
     video.t = t
     video.pause()
     if( t.x !== undefined && t.x == t.y ) return // stop paused
     else{
       video.currentTime = t.x
       video.time = t.x
-      video.playbackRate = Math.abs( t.speed.length ? t.speed[0] : 1.0 ) // html5 video does not support reverseplay :/
+      video.playbackRate = Math.abs( video.speed ) // html5 video does not support reverseplay :/
       video.play()
     }
   }

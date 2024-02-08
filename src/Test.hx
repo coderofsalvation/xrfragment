@@ -18,16 +18,17 @@ class Test {
     test( "url.json",         Spec.load("src/spec/url.json") );
     test( "pos.json",         Spec.load("src/spec/pos.json") );
     test( "t.json",           Spec.load("src/spec/t.json") );
-    test( "xywh.json",           Spec.load("src/spec/xywh.json") );
+    test( "xywh.json",        Spec.load("src/spec/xywh.json") );
     test( "s.json",           Spec.load("src/spec/s.json") );
-    test( "sxy.json",           Spec.load("src/spec/sxy.json") );
+    test( "suv.json",         Spec.load("src/spec/suv.json") );
+    test( "suv.json",         Spec.load("src/spec/uv.json") );
     test( "filter.selectors.json", Spec.load("src/spec/filter.selectors.json") );
     //test( Spec.load("src/spec/tmp.json") );
 		if( errors > 1 ) trace("\n-----\n[ ❌] "+errors+" errors :/");
   }
 
   static public function test( topic:String, spec:Array<Dynamic>):Void {
-    trace("\n[.] running "+topic);
+    trace("\n[ . ] running "+topic);
     var Filter = xrfragment.Filter;
     for( i in 0...spec.length ){
       var f:Filter      = null;
@@ -52,7 +53,7 @@ class Test {
       if( item.expect.fn == "equal.mediafragmentT"   ) valid = equalMediaFragment(res,item,"t");
       if( item.expect.fn == "equal.mediafragmentXYWH") valid = equalMediaFragment(res,item,"xywh");
       if( item.expect.fn == "equal.mediafragmentS") valid = equalMediaFragment(res,item,"s");
-      if( item.expect.fn == "equal.mediafragmentSXY") valid = equalMediaFragment(res,item,"sxy");
+      if( item.expect.fn == "equal.mediafragmentSUV") valid = equalMediaFragment(res,item,"suv");
       if( item.expect.fn == "testFilterRoot"        ) valid = res.exists(item.expect.input[0]) && res.get(item.expect.input[0]).filter.get().root == item.expect.out;
       if( item.expect.fn == "testFilterDeep"        ) valid = res.exists(item.expect.input[0]) && res.get(item.expect.input[0]).filter.get().deep == item.expect.out;
       var ok:String = valid ? "[ ✔ ] " : "[ ❌] ";

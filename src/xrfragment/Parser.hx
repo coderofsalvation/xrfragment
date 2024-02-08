@@ -15,27 +15,27 @@ class Parser {
       // here we define allowed characteristics & datatypes for each fragment (stored as bitmasked int for performance purposes)
       var Frag:Map<String, Int> = new Map<String, Int>();
 
-      Frag.set("#",             XRF.ASSET | XRF.T_PREDEFINED_VIEW | XRF.PV_EXECUTE );
-      Frag.set("src",           XRF.ASSET | XRF.T_URL             );
-      Frag.set("href",          XRF.ASSET | XRF.T_URL | XRF.T_PREDEFINED_VIEW                  );
-      Frag.set("tag",           XRF.ASSET | XRF.T_STRING          );
+      Frag.set("#",             XRF.IMMUTABLE | XRF.T_PREDEFINED_VIEW | XRF.PV_EXECUTE );
+      Frag.set("src",           XRF.T_URL                                          );
+      Frag.set("href",          XRF.T_URL | XRF.T_PREDEFINED_VIEW                  );
+      Frag.set("tag",           XRF.IMMUTABLE | XRF.T_STRING                           );
 
       // spatial category: query selector / object manipulation
       Frag.set("pos",           XRF.PV_OVERRIDE    | XRF.T_VECTOR3 | XRF.T_STRING | XRF.METADATA | XRF.NAVIGATOR );
       Frag.set("rot",           XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE  | XRF.T_VECTOR3 | XRF.METADATA | XRF.NAVIGATOR );
 
       // category: media fragments
-      Frag.set("t",             XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_FLOAT | XRF.T_VECTOR2 | XRF.T_MEDIAFRAG  | XRF.NAVIGATOR | XRF.METADATA);
-      Frag.set("xywh",          XRF.ASSET | XRF.PV_OVERRIDE | XRF.T_FLOAT | XRF.T_VECTOR2 | XRF.T_MEDIAFRAG  | XRF.NAVIGATOR | XRF.METADATA);
+      Frag.set("t",             XRF.PV_OVERRIDE | XRF.T_FLOAT | XRF.T_VECTOR2 | XRF.T_MEDIAFRAG  | XRF.NAVIGATOR | XRF.METADATA);
+      Frag.set("xywh",          XRF.T_FLOAT | XRF.T_VECTOR2 | XRF.T_MEDIAFRAG  | XRF.NAVIGATOR | XRF.METADATA);
+      Frag.set("s",             XRF.PV_OVERRIDE | XRF.T_MEDIAFRAG | XRF.T_FLOAT );
+      Frag.set("uv",            XRF.T_VECTOR2 | XRF.T_MEDIAFRAG );
+      Frag.set("suv",           XRF.T_VECTOR2 | XRF.T_MEDIAFRAG );
 
       // category: author / metadata
-      Frag.set("namespace",     XRF.ASSET | XRF.T_STRING                                  );
-      Frag.set("SPDX",          XRF.ASSET | XRF.T_STRING                                  );
-      Frag.set("unit",          XRF.ASSET | XRF.T_STRING                                  );
-      Frag.set("description",   XRF.ASSET | XRF.T_STRING                                  );
-
-      // category: multiparty
-      Frag.set("session",       XRF.ASSET | XRF.T_URL | XRF.PV_OVERRIDE | XRF.NAVIGATOR | XRF.METADATA | XRF.PROMPT );
+      Frag.set("namespace",     XRF.IMMUTABLE | XRF.T_STRING                                  );
+      Frag.set("SPDX",          XRF.IMMUTABLE | XRF.T_STRING                                  );
+      Frag.set("unit",          XRF.IMMUTABLE | XRF.T_STRING                                  );
+      Frag.set("description",   XRF.IMMUTABLE | XRF.T_STRING                                  );
 
       /**
        * # Spec 
@@ -51,11 +51,12 @@ class Parser {
 
 			// dynamic fragments cases: predefined views & assign/binds
       var isPVDynamic:Bool = key.length > 0 && !Frag.exists(key);
-      var isPVDefault:Bool = value.length == 0 && key.length > 0 && key == "#";
-			if( isPVDynamic ){ //|| isPVDefault ){      //  1. add keys without values to store as [predefined view](predefined_view)
+			if( isPVDynamic ){ // 1. add key(values) to store as [predefined view](predefined_view) or dynamic assignment
 				var v:XRF  = new XRF(key, XRF.PV_EXECUTE | XRF.NAVIGATOR, index );
         v.validate(value); // ignore failures (empty values are allowed)
-        v.flags = XRF.set( XRF.T_DYNAMIC, v.flags );
+        v.flags = XRF.set( XRF.T_DYNAMICKEY, v.flags );
+        if( !Frag.exists(key) ) v.flags = XRF.set( XRF.CUSTOMFRAG, v.flags );
+        if( value.length == 0 ) v.flags = XRF.set( XRF.T_DYNAMICKEYVALUE, v.flags );
 				store.set( keyStripped, v );
 				return true;
 			}
@@ -67,11 +68,11 @@ class Parser {
           trace("⚠ fragment '"+key+"' has incompatible value ("+value+")");//  1. don't add to store if value-type is incorrect
           return false;
         }
-        store.set( keyStripped, v);                                                //  1. if valid, add to store
+        store.set( keyStripped, v);                                        //  1. if valid, add to store
         if( debug ) trace("✔ "+key+": "+v.string);
       }else{                                                               //  1. expose (but mark) non-offical fragments too 
         if( Std.isOfType(value, String) ) v.guessType(v,value);
-        v.noXRF = true;
+        v.flags = XRF.set( XRF.CUSTOMFRAG, v.flags );
         store.set( keyStripped ,v);
       }
       return true;

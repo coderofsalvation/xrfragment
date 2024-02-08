@@ -10,6 +10,5 @@
   {"fn":"filter","data":"price=>2", "expect":{ "fn":"testProperty","input":["price","1"],"out":false}},
   {"fn":"filter","data":"price=<2", "expect":{ "fn":"testProperty","input":["price","5"],"out":false}},
   {"fn":"filter","data":"price=<2", "expect":{ "fn":"testProperty","input":["price","1"],"out":true}},
-  {"fn":"url","data":"#foo*", "expect":{ "fn":"testFilterDeep","input":["foo"],"out":1},"label":"foo should be deep"},
-  {"fn":"url","data":"#foo**", "expect":{ "fn":"testFilterDeep","input":["foo"],"out":2},"label":"foo should be deep incl. embeds"}
+  {"fn":"url","data":"#foo*", "expect":{ "fn":"testFilterDeep","input":["foo"],"out":1},"label":"foo should be deep"}
 ]

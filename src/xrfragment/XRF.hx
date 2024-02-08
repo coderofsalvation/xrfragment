@@ -10,14 +10,14 @@ class XRF {
    * this class represents a fragment (value)
    */
 
-  // public static inline readonly ASSET 
+  // public static inline readonly IMMUTABLE 
 
 	// scope types (powers of 2)
-	public static var ASSET:Int               = 1;       // fragment is immutable
+	public static var IMMUTABLE:Int           = 1;       // fragment is immutable
 	public static var PROP_BIND:Int           = 2;       // fragment binds/controls one property with another 
 	public static var QUERY_OPERATOR:Int      = 4;       // fragment will be applied to result of filterselecto
 	public static var PROMPT:Int              = 8;       // ask user whether this fragment value can be changed
-	public static var ROUNDROBIN:Int          = 16;      // evaluation of this (multi) value can be roundrobined
+	public static var CUSTOMFRAG:Int          = 16;      // evaluation of this (multi) value can be roundrobined
 	public static var NAVIGATOR:Int           = 32;      // fragment can be overridden by (manual) browser URI change
 	public static var METADATA:Int            = 64;      // fragment can be overridden by an embedded URL
 	public static var PV_OVERRIDE:Int         = 128;     // embedded fragment can be overridden when specified in predefined view value
@@ -33,7 +33,8 @@ class XRF {
 	public static var T_PREDEFINED_VIEW:Int   = 524288;
 	public static var T_STRING:Int            = 1048576;
 	public static var T_MEDIAFRAG:Int         = 2097152;
-  public static var T_DYNAMIC:Int           = 4194304;
+  public static var T_DYNAMICKEY:Int        = 4194304;
+  public static var T_DYNAMICKEYVALUE:Int   = 8388608;
 
   // regexes
   public static var isColor:EReg   = ~/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/; //  1. hex colors are detected using regex `/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/`
@@ -43,12 +44,13 @@ class XRF {
   public static var isUrl:EReg     = ~/(:\/\/)?\..*/;                       //  1. url/file */` 
   public static var isUrlOrPretypedView:EReg = ~/(^#|:\/\/)?\..*/;          //  1. url/file */` 
   public static var isString:EReg  = ~/.*/;                                 //  1. anything else is string  `/.*/`
-  public static var operators:EReg = ~/(^-|[\*]+)/;                         //  1. detect operators so you can easily strip keys (reference regex= `~/(^-)?(\/)?(\*)?/` )
+  public static var operators:EReg = ~/(^[-]|^[!]|[\*]$)/g;                 //  1. detect operators so you can easily strip keys (reference regex= `~/(^-)?(\*)?/` )
   public static var isProp:EReg    = ~/^.*=[><=]?/;                         //  1. detect object id's & properties `foo=1` and `foo` (reference regex= `~/^.*=[><=]?/`  )
   public static var isExclude:EReg = ~/^-/;                                 //  1. detect excluders like `-foo`,`-foo=1`,`-.foo`,`-/foo` (reference regex= `/^-/` )
   public static var isDeep:EReg    = ~/\*/;                                 //  1. detect deep selectors like `foo*` (reference regex= `/\*$/` )
   public static var isNumber:EReg  = ~/^[0-9\.]+$/;                         //  1. detect number values like `foo=1` (reference regex= `/^[0-9\.]+$/` )
-  public static var isMediaFrag:EReg = ~/^(uv:)?(l:)?([0-9\.,\*]+)$/;       //  1. detect (extended) media fragment
+  public static var isMediaFrag:EReg = ~/^(l:)?([0-9\.,\*]+)$/;             //  1. detect (extended) media fragment
+  public static var isReset:EReg   = ~/^!/;                                 //  1. detect reset operation
 
   // value holder(s)                                                       //  |------|------|--------|----------------------------------|
   public var fragment:String;
@@ -58,15 +60,13 @@ class XRF {
   public var y:Float;
   public var z:Float;
   public var floats:Array<Float> = new Array<Float>();
-  public var speed:Array<Float>  = new Array<Float>();
   public var color:String;                                                 //  |string| color| FFFFFF (hex)      | #fog=5m,FFAACC        |
   public var string:String;                                                //  |string|      |                   | #q=-sun               |
   public var int:Int;                                                      //  |int   |      | [-]x[xxxxx]       | #price:>=100          |
   public var float:Float;                                                  //  |float |      | [-]x[.xxxx] (ieee)| #prio=-20             |
   public var filter:Filter;
-  public var noXRF:Bool;
+  public var reset:Bool;
   public var loop:Bool;
-  public var uv:Bool;
                                                                            //
   public function new(_fragment:String,_flags:Int,?_index:Int){
     fragment = _fragment;
@@ -99,15 +99,12 @@ class XRF {
   @:keep
   public function guessType(v:XRF, str:String):Void {
     v.string = str;
+    if( isReset.match(v.fragment) ) v.reset = true;
     if( !Std.isOfType(str,String) ) return;
     if( str.length > 0 ){
       if( str.split("l:").length > 1 ){
         str    = str.split("l:")[1];
         v.loop = true;
-      }
-      if( str.split("uv:").length > 1 ){
-        str    = str.split("uv:")[1];
-        v.uv   = true;
       }
       if( str.split(",").length > 1){                                      //  1. `,` assumes 1D/2D/3D vector-values like x[,y[,z]]
         var xyzn:Array<String> = str.split(",");                           //  1. parseFloat(..) and parseInt(..) is applied to vector/float and int values 
@@ -127,6 +124,7 @@ class XRF {
       if( isInt.match(str)   ){
         v.int = Std.parseInt(str);
         v.x   = cast(v.int);
+        v.floats.push( cast(v.x) );
       }
       v.filter = new Filter(v.fragment+"="+v.string);
     }else v.filter = new Filter(v.fragment);

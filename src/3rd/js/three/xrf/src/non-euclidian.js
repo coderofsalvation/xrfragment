@@ -74,6 +74,9 @@ xrf.portalNonEuclidian = function(opts){
 
   this.setupListeners = () => {
 
+    // below is a somewhat weird tapdance to render the portals **after** the scene 
+    // is rendered (otherwise it messes up occlusion)
+
     mesh.onAfterRender = function(renderer, scene, camera, geometry, material, group ){
       mesh.portal.needUpdate = true
     }

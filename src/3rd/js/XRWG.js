@@ -20,6 +20,7 @@ XRWG.match = (str,types,level) => {
     return n
   })
   str = str.toLowerCase()
+           .replace(/[-\*]/,'') // remove excludes and wildcards
   if( level  <10   ) res = res.filter( (n) => n.key    == str )
   if( level >=10   ) res = res.filter( (n) => n.word   == str   || n.key == str )
   if( level  >30   ) res = res.filter( (n) => n.word.match(str) || n.key == str )

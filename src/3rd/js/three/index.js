@@ -1,4 +1,4 @@
-xrf.frag   = {}
+xrf.frag   = {dynamic:{}}
 xrf.model  = {}
 xrf.mixers = []
 
@@ -24,7 +24,7 @@ xrf.patchRenderer = function(opts){
   xrf.clock = new xrf.THREE.Clock()
   renderer.render = ((render) => function(scene,camera){
     // update clock
-    let time = xrf.clock.getDelta()
+    let time = xrf.clock.delta = xrf.clock.getDelta()
     xrf.emit('render',{scene,camera,time,render}) // allow fragments to do something at renderframe
     render(scene,camera)
     xrf.emit('renderPost',{scene,camera,time,render,renderer}) // allow fragments to do something after renderframe

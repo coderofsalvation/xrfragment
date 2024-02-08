@@ -1,7 +1,3 @@
-/* 
- * TODO: refactor/fix this (queries are being refactored to filters)
- */
-
 
 xrf.addEventListener('dynamicKey', (opts) => {
   let {scene,id,match,v} = opts

@@ -4,17 +4,25 @@ xrf.frag.src = function(v, opts){
   opts.embedded = v // indicate embedded XR fragment
   let { mesh, model, camera, scene, renderer, THREE, hashbus, frag} = opts
 
-  let url      = v.string
-  let srcFrag  = opts.srcFrag = xrfragment.URI.parse(url)
-  opts.isLocal = v.string[0] == '#'
+  let url       = xrf.frag.src.expandURI( mesh, v.string )
+  let srcFrag   = opts.srcFrag = xrfragment.URI.parse(url)
+  opts.isLocal  = v.string[0] == '#'
   opts.isPortal = xrf.frag.src.renderAsPortal(mesh)
-  opts.isSRC   = true
+  opts.isSRC    = true 
 
   if(xrf.debug) console.log(`src.js: instancing ${opts.isLocal?'local':'remote'} object ${url}`)
 
   if( opts.isLocal ){
         xrf.frag.src.localSRC(url,srcFrag,opts)     // local
   }else xrf.frag.src.externalSRC(url,srcFrag,opts)  // external file
+
+  xrf.hashbus.pub( url.replace(/.*#/,''), mesh)     // eval src-url fragments
+}
+
+xrf.frag.src.expandURI = function(mesh,uri){
+  if( uri ) mesh.userData.srcTemplate = uri
+  mesh.userData.src = xrf.URI.template( mesh.userData.srcTemplate, xrf.URI.vars.__object )
+  return mesh.userData.src
 }
 
 xrf.frag.src.addModel = (model,url,frag,opts) => {
@@ -32,7 +40,7 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
   }else{
     xrf.frag.src.scale( scene, opts, url )           // scale scene
     mesh.add(scene)
-    xrf.emit('parseModel', {...opts, scene, model}) 
+    xrf.emit('parseModel', {...opts, isSRC:true, scene, model}) 
   }
   // flag everything isSRC & isXRF
   mesh.traverse( (n) => { n.isSRC = n.isXRF = n[ opts.isLocal ? 'isSRCLocal' : 'isSRCExternal' ] = true })
@@ -66,7 +74,9 @@ xrf.frag.src.externalSRC = (url,frag,opts) => {
   fetch(url, { method: 'HEAD' })
   .then( (res) => {
     let mimetype = res.headers.get('Content-type')
-    if( url.replace(/#.*/,'').match(/\.(gltf|glb)$/)    ) mimetype = 'gltf'
+    if( url.replace(/#.*/,'').match(/\.(gltf|glb)$/)     ) mimetype = 'gltf'
+    if( url.replace(/#.*/,'').match(/\.(frag|fs|glsl)$/) ) mimetype = 'x-shader/x-fragment'
+    if( url.replace(/#.*/,'').match(/\.(vert|vs)$/)      ) mimetype = 'x-shader/x-fragment'
     //if( url.match(/\.(fbx|stl|obj)$/) ) mimetype = 
     opts = { ...opts, frag, mimetype }
     return xrf.frag.src.type[ mimetype ] ? xrf.frag.src.type[ mimetype ](url,opts) : xrf.frag.src.type.unknown(url,opts)
@@ -98,7 +108,6 @@ xrf.frag.src.scale = function(scene, opts, url){
 
     // remove invisible objects (hidden by selectors) which might corrupt boundingbox size-detection 
     let cleanScene = scene.clone()
-    if( !cleanScene ) debugger
     let remove = []
     const notVisible = (n) => !n.visible || (n.material && !n.material.visible)
     cleanScene.traverse( (n) => notVisible(n) && n.children.length == 0 && (remove.push(n)) )

@@ -4,6 +4,13 @@ AFRAME.registerComponent('xrf-gaze',{
   schema:{
     spawn:{type:'boolean',default:false}, 
   },
+  events:{
+    "fusing": function(e){
+      if( e.detail.mouseEvent ) return // ignore click event
+      console.dir(e)
+
+    }
+  },
   setGazer: function(state){
     let cam = document.querySelector("[camera]") 
     if( state ){
@@ -15,7 +22,6 @@ AFRAME.registerComponent('xrf-gaze',{
         raycaster="objects: .ray"
         visible="true"
         position="0 0 -1"
-        geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
         material="color: #BBBBBB; shader: flat">
       </a-entity>`
     }else{
@@ -25,9 +31,12 @@ AFRAME.registerComponent('xrf-gaze',{
     }
   }, 
   init:function(data){
-    let enabled    = () => AFRAME.utils.device.isMobile()
     let setVisible = (state) => {
-      if( enabled() ) this.setGazer(state)
+      if( AFRAME.utils.device.isMobile() ){
+        this.setGazer(state)
+        if( state || xrf.debug ) this.el.setAttribute("geometry","primitive: ring; radiusInner: 0.02; radiusOuter: 0.03")
+        else this.el.removeAttribute("geometry")
+      }
     }
 
     setVisible(false);

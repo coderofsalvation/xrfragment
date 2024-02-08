@@ -52,6 +52,19 @@ class URI {
       }
       return store;
     }
+
+    @keep
+    public static function template(uri:String, vars:Dynamic):String {
+      var parts = uri.split("#");
+      if( parts.length == 1 ) return uri; // we only do level1 fragment expansion
+      var frag  = parts[1];
+      frag = StringTools.replace(frag,"{","::");
+      frag = StringTools.replace(frag,"}","::");
+      frag = new haxe.Template(frag).execute(vars);
+      frag = StringTools.replace(frag,"null",""); // *TODO* needs regex to check for [#&]null[&]
+      parts[1] = frag;
+      return parts.join("#");
+    }
 }
 
 /**

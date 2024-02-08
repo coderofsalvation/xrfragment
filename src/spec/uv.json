@@ -1,0 +1,3 @@
+[
+  {"fn":"url","data":"http://foo.com?foo=1#uv=1.2,2.2", "expect":{ "fn":"equal.xy",    "input":"uv","out":"1.2,2.2"},"label":"equal.string uv"}
+]

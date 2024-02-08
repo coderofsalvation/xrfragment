@@ -30,6 +30,12 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
       const raycaster = new Raycaster();
       const tempMatrix = new Matrix4();
 
+      let dispatchEvent = (object,_event) => {
+        object.dispatchEvent(_event)
+        // bubble up 
+        object.traverseAncestors( (n) => n.userData && n.userData.href && n.dispatchEvent(_event) )
+      }
+
       // Pointer Events
 
       const element = renderer.domElement;
@@ -56,12 +62,12 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
 
           _event.type = event.type;
           _event.data.set( uv.x, 1 - uv.y );
-          object.dispatchEvent( _event );
+          dispatchEvent( object, _event );
 
         }else{
           if( object.selected ) {
             _event.type = 'mouseleave'
-            object.dispatchEvent(_event)
+            dispatchEvent( object, _event)
           }
         }
 
@@ -106,12 +112,12 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
           _event.type = events[ event.type ];
           _event.data.set( uv.x, 1 - uv.y );
 
-          object.dispatchEvent( _event );
+          dispatchEvent( object, _event );
 
         }else{
           if( object.selected ) {
             _event.type = 'mouseleave'
-            object.dispatchEvent(_event)
+            dispatchEvent( object, _event)
           }
         }
 
