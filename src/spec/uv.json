@@ -1,3 +1,4 @@
 [
-  {"fn":"url","data":"http://foo.com?foo=1#uv=1.2,2.2", "expect":{ "fn":"equal.xy",    "input":"uv","out":"1.2,2.2"},"label":"equal.string uv"}
+  {"fn":"url","data":"http://foo.com?foo=1#uv=1.2,2.2", "expect":{ "fn":"equal.xy",    "input":"uv","out":"1.2,2.2"},"label":"equal.string uv"},
+  {"fn":"url","data":"http://foo.com?foo=1#uv=1.2,2.2,+1,+1", "expect":{ "fn":"equal.xyz",    "input":"uv","out":"1.2,2.2,1"},"label":"equal.string uv"}
 ]

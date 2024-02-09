@@ -49,8 +49,9 @@ class XRF {
   public static var isExclude:EReg = ~/^-/;                                 //  1. detect excluders like `-foo`,`-foo=1`,`-.foo`,`-/foo` (reference regex= `/^-/` )
   public static var isDeep:EReg    = ~/\*/;                                 //  1. detect deep selectors like `foo*` (reference regex= `/\*$/` )
   public static var isNumber:EReg  = ~/^[0-9\.]+$/;                         //  1. detect number values like `foo=1` (reference regex= `/^[0-9\.]+$/` )
-  public static var isMediaFrag:EReg = ~/^(l:)?([0-9\.,\*]+)$/;             //  1. detect (extended) media fragment
+  public static var isMediaFrag:EReg = ~/^([0-9\.,\*+-]+)$/;                //  1. detect (extended) media fragment
   public static var isReset:EReg   = ~/^!/;                                 //  1. detect reset operation
+  public static var isShift:EReg   = ~/[+-]/;
 
   // value holder(s)                                                       //  |------|------|--------|----------------------------------|
   public var fragment:String;
@@ -59,6 +60,7 @@ class XRF {
   public var x:Float;                                                      //  |vector| x,y,z| comma-separated    | #pos=1,2,3           |
   public var y:Float;
   public var z:Float;
+  public var shift:Array<Bool> = new Array<Bool>();
   public var floats:Array<Float> = new Array<Float>();
   public var color:String;                                                 //  |string| color| FFFFFF (hex)      | #fog=5m,FFAACC        |
   public var string:String;                                                //  |string|      |                   | #q=-sun               |
@@ -100,18 +102,18 @@ class XRF {
   public function guessType(v:XRF, str:String):Void {
     v.string = str;
     if( isReset.match(v.fragment) ) v.reset = true;
+    if( v.fragment == 'loop'      ) v.loop = true;
     if( !Std.isOfType(str,String) ) return;
+
     if( str.length > 0 ){
-      if( str.split("l:").length > 1 ){
-        str    = str.split("l:")[1];
-        v.loop = true;
-      }
+
       if( str.split(",").length > 1){                                      //  1. `,` assumes 1D/2D/3D vector-values like x[,y[,z]]
         var xyzn:Array<String> = str.split(",");                           //  1. parseFloat(..) and parseInt(..) is applied to vector/float and int values 
         if( xyzn.length > 0 ) v.x = Std.parseFloat(xyzn[0]);               //  1. anything else will be treated as string-value 
         if( xyzn.length > 1 ) v.y = Std.parseFloat(xyzn[1]);               //  1. incompatible value-types will be dropped / not used
         if( xyzn.length > 2 ) v.z = Std.parseFloat(xyzn[2]);               //  
         for( i in 0...xyzn.length ){
+          v.shift.push(  isShift.match(xyzn[i])  );
           v.floats.push( Std.parseFloat(xyzn[i]) );
         }
       }                                                                    //  > the xrfragment specification should stay simple enough
@@ -126,6 +128,7 @@ class XRF {
         v.x   = cast(v.int);
         v.floats.push( cast(v.x) );
       }
+
       v.filter = new Filter(v.fragment+"="+v.string);
     }else v.filter = new Filter(v.fragment);
   }

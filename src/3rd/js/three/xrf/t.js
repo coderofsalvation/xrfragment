@@ -5,7 +5,7 @@ xrf.frag.t = function(v, opts){
 
   // handle object media players
   if( mesh && mesh.media ){
-    for( let i in mesh.media ) mesh.media[i].pub(v)
+    for( let i in mesh.media ) mesh.media[i].set("t",v)
     return
   }
  
@@ -21,7 +21,7 @@ xrf.frag.t = function(v, opts){
     mixer.t = v
     
     // update speed
-    mixer.timeScale     = mixer.loop.speed || 1.0 
+    mixer.timeScale     = mixer.loop.speed
     mixer.loop.speedAbs = Math.abs( mixer.timeScale )
 
     mixer.updateLoop( v )
@@ -81,15 +81,17 @@ xrf.addEventListener('parseModel', (opts) => {
   }
 
   mixer.updateLoop = (t) => {
-    mixer.loop.timeStart = t.x != undefined ? t.x : mixer.loop.timeStart
-    mixer.loop.timeStop  = t.y != undefined ? t.y : mixer.loop.timeStop
+    if( t ){
+      mixer.loop.timeStart = t.x != undefined ? t.x : mixer.loop.timeStart
+      mixer.loop.timeStop  = t.y != undefined ? t.y : mixer.duration
+    }
     mixer.actions.map( (action) => { 
       if( mixer.loop.timeStart != undefined ){
         action.time = mixer.loop.timeStart
         action.setLoop( xrf.THREE.LoopOnce, )
         action.timeScale = mixer.timeScale
         action.enabled = true
-        if( t.x === 0 ) action.play() 
+        if( t && t.x === 0 ) action.play() 
       }
     })
     mixer.setTime(mixer.loop.timeStart)
@@ -98,16 +100,19 @@ xrf.addEventListener('parseModel', (opts) => {
     mixer.checkZombies( model.animations)
   }
 
-  // update loop when needed 
+  // monkeypatch: update loop when needed 
   if( !mixer.update.patched ){
+
     let update = mixer.update
     mixer.update = function(time){
       mixer.time = Math.abs(mixer.time)
       if( time == 0 ) return update.call(this,time)
 
       // loop jump
-      if( mixer.loop.speed > 0.0 && (mixer.loop.timeStop > 0 && mixer.time > mixer.loop.timeStop) ){ 
-        setTimeout( (time,anims) => mixer.updateLoop(time), 0, mixer.loop.timeStart ) // prevent recursion
+      if( mixer.loop.timeStop > 0 && mixer.time > mixer.loop.timeStop ){ 
+        if( mixer.loop.enabled ){
+          setTimeout( () => mixer.updateLoop(), 0 ) // prevent recursion
+        }else mixer.stop()
       }
       return update.call( this, time )
     }
@@ -142,7 +147,7 @@ xrf.addEventListener('render', (opts) => {
     xrf.mixers.map( (m) => m.isPlaying && (m.update( time )) )
 
     // update active camera in case selected by dynamicKey in URI 
-    if( xrf.model.camera && model.mixer.isPlaying ){
+    if( xrf.model.camera && xrf.model.camera.length && model.mixer.isPlaying ){
 
       let cam = xrf.camera.getCam() 
       // cam.fov = model.cameras[0].fov (why is blender not exporting radians?)

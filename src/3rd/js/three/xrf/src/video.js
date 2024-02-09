@@ -28,15 +28,20 @@ let loadVideo = (mimetype) => function(url,opts){
   video.src = url
   video.speed = 1.0
   video.looping = false
-  video.pub = (t) => {
-    video.t = t
-    video.pause()
-    if( t.x !== undefined && t.x == t.y ) return // stop paused
-    else{
-      video.currentTime = t.x
-      video.time = t.x
+  video.set = (mediafragment,v) => {
+    video[mediafragment] = v
+
+    if( mediafragment == 't'){
+      video.pause()
+      if( t.x !== undefined && t.x == t.y ) return // stop paused
+      else{
+        video.currentTime = t.x
+        video.time = t.x
+        video.play()
+      }
+    }
+    if( mediafragment == 's' ){
       video.playbackRate = Math.abs( video.speed ) // html5 video does not support reverseplay :/
-      video.play()
     }
   }
 }

@@ -39,32 +39,34 @@ let loadAudio = (mimetype) => function(url,opts){
 
     mesh.add(sound)
 
-    sound.pub = (t) => {
+    sound.set = (mediafragment,v) => {
       try{
-        sound.t = t
-        if( sound.isPlaying && t.y != undefined ) sound.stop()
-        if( sound.isPlaying && t.y == undefined ) sound.pause()
+        sound[mediafragment] = v 
 
-        let hardcodedLoop = frag.t != undefined
-        t = hardcodedLoop ? { ...frag.t, x: t.x} : t // override with hardcoded metadata except playstate (x)
-        if( t && t.x != 0 ){
-          // *TODO* https://stackoverflow.com/questions/12484052/how-can-i-reverse-playback-in-web-audio-api-but-keep-a-forward-version-as-well 
-          t.x = Math.abs(t.x)
-          sound.setPlaybackRate( t.x ) // WebAudio does not support negative playback
-          // setting loop
-          if( t.z ) sound.setLoop( true )
+        if( mediafragment == 't'){
+          sound.pause()
+          if( sound.isPlaying && v.y != undefined && v.x == v.y ) return 
+
           // apply embedded audio/video samplerate/fps or global mixer fps
-          let loopStart = hardcodedLoop ? t.y : t.y * buffer.sampleRate;
-          let loopEnd   = hardcodedLoop ? t.z : t.z * buffer.sampleRate;
-          let timeStart = loopStart > 0 ? loopStart : (t.y == undefined ? xrf.model.mixer.time : t.y)
-
-          if( t.z > 0 ) sound.setLoopEnd(   loopEnd   )
-          if( t.y != undefined ){ 
-            sound.setLoopStart( loopStart )
-            sound.offset = loopStart 
-          }
+          sound.setLoopStart(v.x * buffer.sampleRate );
+          sound.setLoopEnd(v.y * buffer.sampleRate );
+          sound.offset = v.x * buffer.sampleRate ;
           sound.play()
         }
+
+        if( mediafragment == 's'){
+          // *TODO* https://stackoverflow.com/questions/12484052/how-can-i-reverse-playback-in-web-audio-api-but-keep-a-forward-version-as-well 
+          sound.pause()
+          sound.setPlaybackRate( Math.abs(v.x) ) // WebAudio does not support negative playback
+          sound.play()
+        }
+
+        if( mediafragment == 'loop'){
+          sound.pause()
+          sound.setLoop( v.loop )
+          sound.play()
+        }
+        debugger
       }catch(e){ console.warn(e) }
     }
 

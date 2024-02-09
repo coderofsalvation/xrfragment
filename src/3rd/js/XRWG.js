@@ -20,7 +20,7 @@ XRWG.match = (str,types,level) => {
     return n
   })
   str = str.toLowerCase()
-           .replace(/[-\*]/,'') // remove excludes and wildcards
+           .replace(/[!-\*]/g,'') // remove excludes and wildcards
   if( level  <10   ) res = res.filter( (n) => n.key    == str )
   if( level >=10   ) res = res.filter( (n) => n.word   == str   || n.key == str )
   if( level  >30   ) res = res.filter( (n) => n.word.match(str) || n.key == str )
@@ -39,11 +39,12 @@ XRWG.generate = (opts) => {
     if( !key || key.match(/(^#$|name)/) ) return
     let node = XRWG.get( XRWG.cleankey(key) )
     if( node ){
+      node.types.push(type)
       node.nodes.push(spatialNode)
     }else{
-      node = { word: XRWG.cleankey(key), key, nodes:[spatialNode] }
+      node = { word: XRWG.cleankey(key), key, nodes:[spatialNode], types:[] }
       if( spatialNode.userData[key] ) node.value = spatialNode.userData[key]
-      node[type] = true
+      node.types.push(type)
       xrf.emit('XRWGnode',node)
       XRWG.push( node )
     }

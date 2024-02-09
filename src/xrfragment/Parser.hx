@@ -25,11 +25,10 @@ class Parser {
       Frag.set("rot",           XRF.QUERY_OPERATOR | XRF.PV_OVERRIDE  | XRF.T_VECTOR3 | XRF.METADATA | XRF.NAVIGATOR );
 
       // category: media fragments
-      Frag.set("t",             XRF.PV_OVERRIDE | XRF.T_FLOAT | XRF.T_VECTOR2 | XRF.T_MEDIAFRAG  | XRF.NAVIGATOR | XRF.METADATA);
-      Frag.set("xywh",          XRF.T_FLOAT | XRF.T_VECTOR2 | XRF.T_MEDIAFRAG  | XRF.NAVIGATOR | XRF.METADATA);
-      Frag.set("s",             XRF.PV_OVERRIDE | XRF.T_MEDIAFRAG | XRF.T_FLOAT );
+      Frag.set("t",             XRF.PV_OVERRIDE | XRF.T_FLOAT | XRF.T_VECTOR2  | XRF.NAVIGATOR | XRF.METADATA);
+      Frag.set("s",             XRF.PV_OVERRIDE | XRF.T_MEDIAFRAG );
+      Frag.set("loop",          XRF.PV_OVERRIDE );
       Frag.set("uv",            XRF.T_VECTOR2 | XRF.T_MEDIAFRAG );
-      Frag.set("suv",           XRF.T_VECTOR2 | XRF.T_MEDIAFRAG );
 
       // category: author / metadata
       Frag.set("namespace",     XRF.IMMUTABLE | XRF.T_STRING                                  );

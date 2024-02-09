@@ -233,7 +233,7 @@ That way, if the link gets shared, the XR Fragments implementation at `https://m
 |-------------------|------------|--------------------|----------------------------------------------------------------------|
 | `#pos`            | vector3    | `#pos=0.5,0,0`     | positions camera (or XR floor) to xyz-coord 0.5,0,0,                 |
 | `#rot`            | vector3    | `#rot=0,90,0`      | rotates camera to xyz-coord 0.5,0,0                                  |
-| [W3C Media Fragments](https://www.w3.org/TR/media-frags/) | [media fragment](#media%20fragments%20and%20datatypes) | `#t=0,2` `#xywh`          | play/loop 3D animation from 0 seconds till 2 seconds|
+| [W3C Media Fragments](https://www.w3.org/TR/media-frags/) | [media fragment](#media%20fragments%20and%20datatypes) | `#t=0,2&loop`      | play (and loop) 3D animation from 0 seconds till 2 seconds|
 |                   |            |                    | but can also crop, animate & configure uv-coordinates/shader uniforms |
 
 ## List of metadata for 3D nodes 
@@ -265,33 +265,28 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 > NOTE: below the word 'play' applies to 3D animations embedded in the 3D scene(file) **but also** media defined in `src`-metadata like audio/video-files (mp3/mp4 e.g.)
 
 | type       | syntax | example | info |
-|-------------------------------|------------------------|-----------------|----------------------|
-| vector2                       | x,y                    | 2,3.0           | 2-dimensional vector |
-| vector3                       | x,y,z                  | 2,3.0,4         | 3-dimensional vector |
-| temporal W3C media fragment   | t=x                    | 0               | play from 0 seconds to end (and stop) |
-| temporal W3C media fragment   | t=x,y                  | 0,2             | play from 0 seconds till 2 seconds (and stop) |
-| temporal W3C media fragment * | t=[l:]x,y              | l:0,1           | play [as loop] between `x` and `y`  |
-| temporal W3C media fragment * | uv=u,v                 | uv:0,0,1,1      | set uv offset (default `0,0`) |
-| temporal W3C media fragment * | s=x                    | 1               | set playback speed of audio/video/3D anim |
-| temporal W3C media fragment * | suv=[l:]uspeed,vspeed  | uv:l:0.1,0.2    | set uv scroll speed of (default `1,1` is instant) [`l:` means infinite texturescrolling] otherwise new `u,v` values will be lerped to |
+|-------------------------------|-----------------------------------|-----------------|----------------------|
+| vector2                       | x,y                               | 2,3.0           | 2-dimensional vector |
+| vector3                       | x,y,z                             | 2,3.0,4         | 3-dimensional vector |
+| temporal W3C media fragment   | t=x                               | 0               | play from 0 seconds to end (and stop) |
+| temporal W3C media fragment   | t=x,y                             | 0,2             | play from 0 seconds till 2 seconds (and stop) |
+| temporal W3C media fragment * | s=x                               | 1               | set playback speed of audio/video/3D anim |
+| temporal W3C media fragment * | [-]loop                           | loop            | enable looped playback of audio/video/3D anim |
+|                               |                                   | -loop           | disable looped playback (does not affect playbackstate of media) |
+| vector2                       | uv=uv,v,uspeed,vspeed             | 0,0             | set uv offset instantly (default speed = `1,1`) |
+|                               |                                   | +0.5,+0.5       | scroll instantly by adding 0.5 to the current uv coordinates |
+|                               |                                   | 0.2,1,0.1,0.1   | scroll (lerp) to uv coordinate `0,2,1` with `0.1` units per second |
+|                               |                                   | 0,0,0,+0.1      | scroll v coordinates with `0.1` units per second (infinitely) |
 | media parameter (shader uniform) | u:<uniform>=<string|float|vec2|vec3|vec4> | u:color=1,0,0   | set shader uniform value |
 
-> \* = this is extending the [W3C media fragments](https://www.w3.org/TR/media-frags/#mf-advanced) with finergrained playback/viewport-control:
+> \* = this is extending the [W3C media fragments](https://www.w3.org/TR/media-frags/#mf-advanced) with (missing) playback/viewport-control. Normally `#t=0,2` implies setting start/stop-values AND starting playback, whereas `#s=0&loop` allows pausing a video, speeding up/slowing down media, as well as enabling/disabling looping.
 
-
-| extension        | info    |
-|------------------|---------|
-| `l:` specifices loop | `t=0,2` specifies oneshot-play (default) whereas `t=l:0,2` indicates looped-play |
-| `#uv=` specifies uv-coordinates | allows offsetting the uv-coordinates |
-| `#suv=` specifies scrollspeed of uv-coordinates | allows single/infinite uv-scrolling |
-| `#s` specifies playback speed | being able to specify loop(speed) of audio/video |
-
-> The rationale not to extend the `xywh`-media fragment is that 3D geometries deal with triangular polygons (not rectangular).
+> The rationale for `uv` is that the `xywh` Media Fragment deals with rectangular media, which does not translate well to 3D models (which use triangular polygons, not rectangular) positioned by uv-coordinates.
 
 Example URI's:
 
-* `https://images.org/credits.jpg#t=0&suv=l:0,0.1` (infinite vertical texturescrolling)
-* `https://video.org/organogram.mp4#t=0&suv:0.1,0.1&uv=0.3,0.3` (animated zoom towards region in video)
+* `https://images.org/credits.jpg#uv=0,0,0,+0.1` (infinite vertical texturescrolling)
+* `https://video.org/organogram.mp4#t=0&loop&uv:0.1,0.1,0.3,0.3` (animated zoom towards region in looped video)
 * `https://shaders.org/plasma.glsl#t=0&u:col1=1,0,0&u:col2=0,1,0` (red-green shader plasma starts playing from time-offset 0)
 
 ```

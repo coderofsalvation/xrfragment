@@ -435,7 +435,7 @@ That way, if the link gets shared, the XR Fragments implementation at <code>http
 
 <tr>
 <td></td>
-<td>r</td>
+<td></td>
 <td></td>
 <td><code>#soldout*=halfopacity</code></td>
 <td>set material of objects tagged with <code>product</code> to material with name <code>metallic</code></td>
@@ -498,20 +498,6 @@ That way, if the link gets shared, the XR Fragments implementation at <code>http
 
 <tr>
 <td>temporal W3C media fragment *</td>
-<td>t=[l:]x,y</td>
-<td>l:0,1</td>
-<td>play [as loop] between <code>x</code> and <code>y</code></td>
-</tr>
-
-<tr>
-<td>temporal W3C media fragment *</td>
-<td>uv=u,v</td>
-<td>uv:0,0,1,1</td>
-<td>set uv offset (default <code>0,0</code>)</td>
-</tr>
-
-<tr>
-<td>temporal W3C media fragment *</td>
 <td>s=x</td>
 <td>1</td>
 <td>set playback speed of audio/video/3D anim</td>
@@ -519,9 +505,44 @@ That way, if the link gets shared, the XR Fragments implementation at <code>http
 
 <tr>
 <td>temporal W3C media fragment *</td>
-<td>suv=[l:]uspeed,vspeed</td>
-<td>uv:l:0.1,0.2</td>
-<td>set uv scroll speed of (default <code>1,1</code> is instant) [<code>l:</code> means infinite texturescrolling] otherwise new <code>u,v</code> values will be lerped to</td>
+<td>[-]loop</td>
+<td>loop</td>
+<td>enable looped playback of audio/video/3D anim</td>
+</tr>
+
+<tr>
+<td></td>
+<td></td>
+<td>-loop</td>
+<td>disable looped playback (does not affect playbackstate of media)</td>
+</tr>
+
+<tr>
+<td>vector2</td>
+<td>uv=uv,v,uspeed,vspeed</td>
+<td>0,0</td>
+<td>set uv offset instantly (default speed = <code>1,1</code>)</td>
+</tr>
+
+<tr>
+<td></td>
+<td></td>
+<td>+0.5,+0.5</td>
+<td>scroll instantly by adding 0.5 to the current uv coordinates</td>
+</tr>
+
+<tr>
+<td></td>
+<td></td>
+<td>0.2,1,0.1,0.1</td>
+<td>scroll (lerp) to uv coordinate <code>0,2,1</code> with <code>0.1</code> units per second</td>
+</tr>
+
+<tr>
+<td></td>
+<td></td>
+<td>0,0,0,+0.1</td>
+<td>scroll v coordinates with <code>0.1</code> units per second (infinitely)</td>
 </tr>
 
 <tr>
@@ -534,49 +555,16 @@ That way, if the link gets shared, the XR Fragments implementation at <code>http
 </table>
 
 <blockquote>
-<p>* = this is extending the <a href="https://www.w3.org/TR/media-frags/#mf-advanced">W3C media fragments</a> with finergrained playback/viewport-control:</p>
-</blockquote>
+<p>* = this is extending the <a href="https://www.w3.org/TR/media-frags/#mf-advanced">W3C media fragments</a> with (missing) playback/viewport-control. Normally <code>#t=0,2</code> implies setting start/stop-values AND starting playback, whereas <code>#s=0&amp;loop</code> allows pausing a video, speeding up/slowing down media, as well as enabling/disabling looping.</p>
 
-<table>
-<thead>
-<tr>
-<th>extension</th>
-<th>info</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td><code>l:</code> specifices loop</td>
-<td><code>t=0,2</code> specifies oneshot-play (default) whereas <code>t=l:0,2</code> indicates looped-play</td>
-</tr>
-
-<tr>
-<td><code>#uv=</code> specifies uv-coordinates</td>
-<td>allows offsetting the uv-coordinates</td>
-</tr>
-
-<tr>
-<td><code>#suv=</code> specifies scrollspeed of uv-coordinates</td>
-<td>allows single/infinite uv-scrolling</td>
-</tr>
-
-<tr>
-<td><code>#s</code> specifies playback speed</td>
-<td>being able to specify loop(speed) of audio/video</td>
-</tr>
-</tbody>
-</table>
-
-<blockquote>
-<p>The rationale not to extend the <code>xywh</code>-media fragment is that 3D geometries deal with triangular polygons (not rectangular).</p>
+<p>The rationale for <code>uv</code> is that the <code>xywh</code> Media Fragment deals with rectangular media, which does not translate well to 3D models (which use triangular polygons, not rectangular) positioned by uv-coordinates.</p>
 </blockquote>
 
 <p>Example URI&rsquo;s:</p>
 
 <ul>
-<li><code>https://images.org/credits.jpg#t=0&amp;suv=l:0,0.1</code> (infinite vertical texturescrolling)</li>
-<li><code>https://video.org/organogram.mp4#t=0&amp;suv:0.1,0.1&amp;uv=0.3,0.3</code> (animated zoom towards region in video)</li>
+<li><code>https://images.org/credits.jpg#uv=0,0,0,+0.1</code> (infinite vertical texturescrolling)</li>
+<li><code>https://video.org/organogram.mp4#t=0&amp;loop&amp;uv:0.1,0.1,0.3,0.3</code> (animated zoom towards region in looped video)</li>
 <li><code>https://shaders.org/plasma.glsl#t=0&amp;u:col1=1,0,0&amp;u:col2=0,1,0</code> (red-green shader plasma starts playing from time-offset 0)</li>
 </ul>
 

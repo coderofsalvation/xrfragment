@@ -1,4 +1,0 @@
-[
-  {"fn":"url","data":"http://foo.com?foo=1#suv=l:0,0.1", "expect":{ "fn":"equal.mediafragmentSUV", "input":"1","out":"0.1"},"label":"suv"},
-  {"fn":"url","data":"http://foo.com?foo=1#suv=0.2,0.1", "expect":{ "fn":"equal.mediafragmentSUV", "input":"0","out":"0.2"},"label":"suv looped"}
-]

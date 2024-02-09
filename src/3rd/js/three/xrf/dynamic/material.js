@@ -17,10 +17,14 @@ xrf.frag.dynamic.material = function(v,opts){
 
 xrf.frag.dynamic.material.setMatch = function(match,material,v){
   match.map( (m) => {
-    m.nodes.map( (n) => {
-      n.material = setMaterial( n, material, v.reset )
-      if( v.filter.q.deep ) n.traverse( (c) => c.material && setMaterial( c, material, v.reset ) )
-    })
+    for( let i in m.types ){
+      let type = m.types[i]
+      let node = m.nodes[i]
+      if (type == 'name' || type == 'tag'){
+        setMaterial( node, material, v.reset )
+        if( v.filter.q.deep ) node.traverse( (c) => c.material && setMaterial( c, material, v.reset ) )
+      }
+    }
   })
 }
 

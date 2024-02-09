@@ -345,7 +345,7 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
 
 <tr>
 <td></td>
-<td>r</td>
+<td></td>
 <td></td>
 <td><tt>#soldout*=halfopacity</tt></td>
 <td>set material of objects tagged with <tt>product</tt> to material with name <tt>metallic</tt></td>
@@ -404,20 +404,6 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
 
 <tr>
 <td>temporal W3C media fragment *</td>
-<td>t=[l:]x,y</td>
-<td>l:0,1</td>
-<td>play [as loop] between <tt>x</tt> and <tt>y</tt></td>
-</tr>
-
-<tr>
-<td>temporal W3C media fragment *</td>
-<td>uv=u,v</td>
-<td>uv:0,0,1,1</td>
-<td>set uv offset (default <tt>0,0</tt>)</td>
-</tr>
-
-<tr>
-<td>temporal W3C media fragment *</td>
 <td>s=x</td>
 <td>1</td>
 <td>set playback speed of audio/video/3D anim</td>
@@ -425,9 +411,44 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
 
 <tr>
 <td>temporal W3C media fragment *</td>
-<td>suv=[l:]uspeed,vspeed</td>
-<td>uv:l:0.1,0.2</td>
-<td>set uv scroll speed of (default <tt>1,1</tt> is instant) [<tt>l:</tt> means infinite texturescrolling] otherwise new <tt>u,v</tt> values will be lerped to</td>
+<td>[-]loop</td>
+<td>loop</td>
+<td>enable looped playback of audio/video/3D anim</td>
+</tr>
+
+<tr>
+<td></td>
+<td></td>
+<td>-loop</td>
+<td>disable looped playback (does not affect playbackstate of media)</td>
+</tr>
+
+<tr>
+<td>vector2</td>
+<td>uv=uv,v,uspeed,vspeed</td>
+<td>0,0</td>
+<td>set uv offset instantly (default speed = <tt>1,1</tt>)</td>
+</tr>
+
+<tr>
+<td></td>
+<td></td>
+<td>+0.5,+0.5</td>
+<td>scroll instantly by adding 0.5 to the current uv coordinates</td>
+</tr>
+
+<tr>
+<td></td>
+<td></td>
+<td>0.2,1,0.1,0.1</td>
+<td>scroll (lerp) to uv coordinate <tt>0,2,1</tt> with <tt>0.1</tt> units per second</td>
+</tr>
+
+<tr>
+<td></td>
+<td></td>
+<td>0,0,0,+0.1</td>
+<td>scroll v coordinates with <tt>0.1</tt> units per second (infinitely)</td>
 </tr>
 
 <tr>
@@ -437,42 +458,13 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
 <td>vec2</td>
 </tr>
 </tbody>
-</table><blockquote><t>* = this is extending the <eref target="https://www.w3.org/TR/media-frags/#mf-advanced">W3C media fragments</eref> with finergrained playback/viewport-control:</t>
-</blockquote><table>
-<thead>
-<tr>
-<th>extension</th>
-<th>info</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td><tt>l:</tt> specifices loop</td>
-<td><tt>t=0,2</tt> specifies oneshot-play (default) whereas <tt>t=l:0,2</tt> indicates looped-play</td>
-</tr>
-
-<tr>
-<td><tt>#uv=</tt> specifies uv-coordinates</td>
-<td>allows offsetting the uv-coordinates</td>
-</tr>
-
-<tr>
-<td><tt>#suv=</tt> specifies scrollspeed of uv-coordinates</td>
-<td>allows single/infinite uv-scrolling</td>
-</tr>
-
-<tr>
-<td><tt>#s</tt> specifies playback speed</td>
-<td>being able to specify loop(speed) of audio/video</td>
-</tr>
-</tbody>
-</table><blockquote><t>The rationale not to extend the <tt>xywh</tt>-media fragment is that 3D geometries deal with triangular polygons (not rectangular).</t>
+</table><blockquote><t>* = this is extending the <eref target="https://www.w3.org/TR/media-frags/#mf-advanced">W3C media fragments</eref> with (missing) playback/viewport-control. Normally <tt>#t=0,2</tt> implies setting start/stop-values AND starting playback, whereas <tt>#s=0&amp;loop</tt> allows pausing a video, speeding up/slowing down media, as well as enabling/disabling looping.</t>
+<t>The rationale for <tt>uv</tt> is that the <tt>xywh</tt> Media Fragment deals with rectangular media, which does not translate well to 3D models (which use triangular polygons, not rectangular) positioned by uv-coordinates.</t>
 </blockquote><t>Example URI's:</t>
 
 <ul spacing="compact">
-<li><tt>https://images.org/credits.jpg#t=0&amp;suv=l:0,0.1</tt> (infinite vertical texturescrolling)</li>
-<li><tt>https://video.org/organogram.mp4#t=0&amp;suv:0.1,0.1&amp;uv=0.3,0.3</tt> (animated zoom towards region in video)</li>
+<li><tt>https://images.org/credits.jpg#uv=0,0,0,+0.1</tt> (infinite vertical texturescrolling)</li>
+<li><tt>https://video.org/organogram.mp4#t=0&amp;loop&amp;uv:0.1,0.1,0.3,0.3</tt> (animated zoom towards region in looped video)</li>
 <li><tt>https://shaders.org/plasma.glsl#t=0&amp;u:col1=1,0,0&amp;u:col2=0,1,0</tt> (red-green shader plasma starts playing from time-offset 0)</li>
 </ul>
 

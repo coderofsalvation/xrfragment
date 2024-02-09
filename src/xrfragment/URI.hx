@@ -38,7 +38,8 @@ class URI {
         var key:String = splitByEqual[0];
 				var value:String = "";
         if (splitByEqual.length > 1) {
-          value = StringTools.urlDecode(regexPlus.split(splitByEqual[1]).join(" "));
+          if( XRF.isVector.match(splitByEqual[1]) ) value = splitByEqual[1];
+          else value = StringTools.urlDecode(regexPlus.split(splitByEqual[1]).join(" "));
         }
 				var ok:Bool = Parser.parse(key,value,store,i);                     //  1. for every recognized fragment key/value-pair call [Parser.parse](#%E2%86%AA%20Parser.parse%28k%2Cv%2Cstore%29)
       }
