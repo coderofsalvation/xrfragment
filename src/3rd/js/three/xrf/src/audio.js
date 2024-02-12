@@ -24,18 +24,18 @@ let loadAudio = (mimetype) => function(url,opts){
                                 : new THREE.Audio( camera.listener )
 
   mesh.media = mesh.media || {}
-  mesh.media.audio = { play: () => mesh.media.audio.autoplay = true }
+  mesh.media.audio = { set: (mediafragment,v) => mesh.media.audio[mediafragment] = v }
 
   audioLoader.load( url.replace(/#.*/,''), function( buffer ) {
 
     sound.setBuffer( buffer );
     sound.setLoop(false);
-    sound.setVolume(1.0);
+    sound.setVolume( 1.0 )
     if( isPositionalAudio ){
       sound.setRefDistance( mesh.scale.x);
       sound.setRolloffFactor(20.0)
       //sound.setDirectionalCone( 360, 360, 0.01 );
-    }
+    }else sound.setVolume( mesh.scale.x )
 
     mesh.add(sound)
 
@@ -44,13 +44,17 @@ let loadAudio = (mimetype) => function(url,opts){
         sound[mediafragment] = v 
 
         if( mediafragment == 't'){
-          sound.pause()
-          if( sound.isPlaying && v.y != undefined && v.x == v.y ) return 
+
+          if( sound.isPlaying && v.y != undefined && v.x == v.y ){
+            sound.offset = v.x * buffer.sampleRate ;
+            sound.pause()
+            return 
+          }else sound.stop()
 
           // apply embedded audio/video samplerate/fps or global mixer fps
-          sound.setLoopStart(v.x * buffer.sampleRate );
-          sound.setLoopEnd(v.y * buffer.sampleRate );
-          sound.offset = v.x * buffer.sampleRate ;
+          sound.setLoopStart(v.x);
+          sound.setLoopEnd(v.y || buffer.duration);
+          sound.offset = v.x;
           sound.play()
         }
 
@@ -66,25 +70,36 @@ let loadAudio = (mimetype) => function(url,opts){
           sound.setLoop( v.loop )
           sound.play()
         }
-        debugger
       }catch(e){ console.warn(e) }
     }
 
-    // autoplay if user already requested play (before the sound was loaded)
-    let autoplay = mesh.media.audio && mesh.media.audio.autoplay
+    let lazySet = {}
+    let mediaFragments = ['t','loop','s']
+    mediaFragments.map( (f) => mesh.media.audio[f] && (lazySet[f] = mesh.media.audio[f]) )
     mesh.media.audio = sound
-    if( autoplay ){
-      xrf.hashbus.pub(mesh.media.audio.autoplay) 
-    }
-  });
-}
 
+    // autoplay if user already requested play (before the sound was loaded)
+    mediaFragments.map( (f) => {
+      if( lazySet[f] ) mesh.media.audio.set(f, lazySet[f] )
+    })
+
+  });
+
+  // apply Media fragments from URL 
+  (['t','loop','s']).map( (f) => { 
+    if( frag[f] ){
+      mesh.media.audio.set( f, frag[f] )
+    }
+  })
+
+}
 // stop playing audio when loading another scene
 xrf.addEventListener('reset', () => {
   xrf.scene.traverse( (n)  => n.audio && (n.audio.playXRF({x:0,y:0})) && (n.audio.remove()) )
 })
 
 let audioMimeTypes = [
+  'audio/x-wav',
   'audio/wav',
   'audio/mpeg',
   'audio/mp3',

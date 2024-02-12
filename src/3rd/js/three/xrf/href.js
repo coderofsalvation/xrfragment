@@ -35,6 +35,9 @@ xrf.frag.href = function(v, opts){
 
   let click = mesh.userData.XRF.href.exec = (e) => {
 
+    // bubble up!
+    mesh.traverseAncestors( (n) => n.userData && n.userData.href && n.dispatchEvent({type:e.type,data:{}}) )
+
     let lastPos   = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
     xrf
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
@@ -46,19 +49,14 @@ xrf.frag.href = function(v, opts){
       const flags   = isLocal ? xrf.XRF.PV_OVERRIDE : undefined
 
       let toFrag = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-      // always commit current location in case of teleport (keep a trail of last positions before we navigate)
-      //if( isLocal && !hasPos ){
-      //  xrf.hashbus.pub( v.string, xrf.model ) // publish to hashbus
-      //}else{
-        //if( !e.nocommit && !document.location.hash.match(lastPos) ) xrf.navigator.updateHash(`#${lastPos}`)
-        xrf.navigator.to(v.string)    // let's surf
-      //}
+      xrf.navigator.to(v.string)    // let's surf
     }) 
     .catch( console.error )
   }
 
   let selected = mesh.userData.XRF.href.selected = (state) => () => {
     if( mesh.selected == state ) return // nothing changed 
+    console.log("state="+(selected?'selected':'unselected'))
     xrf.interactive.objects.map( (o) => {
       let newState = o.name == mesh.name ? state : false
       if( o.material ){

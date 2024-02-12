@@ -84,6 +84,9 @@ window.AFRAME.registerComponent('xrf', {
         }
 
       })
+      xrf.addEventListener('navigateError', (opts) => {
+        AFRAME.fade.out()
+      })
 
       xrf.addEventListener('navigateLoading', (opts) => {
         let p       = opts.promise()
@@ -112,16 +115,19 @@ window.AFRAME.registerComponent('xrf', {
       // raycaster can find & execute it
       AFRAME.XRF.clickableMeshToEntity = (opts) => {
         let {mesh,clickHandler} = opts;
-        let el = document.createElement("a-entity")
-        el.setAttribute("xrf-get",mesh.name )  // turn into AFRAME entity
-        el.setAttribute("class","ray")         // expose to raycaster 
-        el.setAttribute("pressable", '')       // detect hand-controller click
-        // respond to cursor via laser-controls (https://aframe.io/docs/1.4.0/components/laser-controls.html)
-        el.addEventListener("click",          clickHandler )
-        el.addEventListener("mouseenter", mesh.userData.XRF.href.selected(true) )
-        el.addEventListener("mouseleave", mesh.userData.XRF.href.selected(false) )
-        el.addEventListener("pressedstarted", clickHandler )
-        $('a-scene').appendChild(el)
+        let createEl            = function(c){
+          let el = document.createElement("a-entity")
+          el.setAttribute("xrf-get",c.name )  // turn into AFRAME entity
+          el.setAttribute("class","ray")         // expose to raycaster 
+          el.setAttribute("pressable", '')       // detect hand-controller click
+          // respond to cursor via laser-controls (https://aframe.io/docs/1.4.0/components/laser-controls.html)
+          el.addEventListener("click",          clickHandler )
+          el.addEventListener("mouseenter",     mesh.userData.XRF.href.selected(true) )
+          el.addEventListener("mouseleave",     mesh.userData.XRF.href.selected(false) )
+          el.addEventListener("pressedstarted", clickHandler )
+          $('a-scene').appendChild(el)
+        }
+        createEl(mesh)
       }
       xrf.addEventListener('interactionReady', AFRAME.XRF.clickableMeshToEntity )
 

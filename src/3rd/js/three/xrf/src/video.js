@@ -33,15 +33,18 @@ let loadVideo = (mimetype) => function(url,opts){
 
     if( mediafragment == 't'){
       video.pause()
-      if( t.x !== undefined && t.x == t.y ) return // stop paused
+      if( v.x !== undefined && v.x == v.y ) return // stop paused
       else{
-        video.currentTime = t.x
-        video.time = t.x
+        video.currentTime = v.x
+        video.time = v.x
         video.play()
       }
     }
     if( mediafragment == 's' ){
       video.playbackRate = Math.abs( video.speed ) // html5 video does not support reverseplay :/
+    }
+    if( mediafragment == 'loop' ){
+      video.looping = true 
     }
   }
 }

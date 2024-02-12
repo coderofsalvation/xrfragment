@@ -3,7 +3,7 @@ xrf.frag.loop = function(v, opts){
 
   // handle object media players
   if( mesh && mesh.media ){
-    for( let i in mesh.media ) mesh.media[i].pub(v)
+    for( let i in mesh.media ) mesh.media[i].set("loop",v)
     return
   }
 

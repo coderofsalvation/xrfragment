@@ -75,10 +75,17 @@ xrf.navigator.to = (url,flags,loader,data) => {
           xrf.emit('navigateLoaded',{url,model})
           resolve(model)
         }
-
+  
         if( data ){  // file upload
           loader.parse(data, "", onLoad )
-        }else loader.load(url, onLoad )
+        }else{
+          try{
+            loader.load(url, onLoad )
+          }catch(e){ 
+            console.error(e)
+            xrf.emit('navigateError',{url})
+          }
+        }
       })
     })
   })
@@ -116,6 +123,7 @@ xrf.navigator.setupNavigateFallbacks = () => {
   xrf.addEventListener('navigate', (opts) => {
     let {url} = opts
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
+
     // handle http links
     if( url.match(/^http/) && !xrf.loaders[ext] ){
       let inIframe

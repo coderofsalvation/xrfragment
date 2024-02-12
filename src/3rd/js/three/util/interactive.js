@@ -30,14 +30,7 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
       const raycaster = new Raycaster();
       const tempMatrix = new Matrix4();
 
-      let dispatchEvent = (object,_event) => {
-        object.dispatchEvent(_event)
-        // bubble up 
-        object.traverseAncestors( (n) => n.userData && n.userData.href && n.dispatchEvent(_event) )
-      }
-
       // Pointer Events
-
       const element = renderer.domElement;
 
       function onPointerEvent( event ) {
@@ -62,12 +55,12 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
 
           _event.type = event.type;
           _event.data.set( uv.x, 1 - uv.y );
-          dispatchEvent( object, _event );
+          object.dispatchEvent( _event );
 
         }else{
           if( object.selected ) {
             _event.type = 'mouseleave'
-            dispatchEvent( object, _event)
+            object.dispatchEvent( _event)
           }
         }
 
@@ -84,7 +77,7 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
       // WebXR Controller Events
       // TODO: Dispatch pointerevents too
 
-      const events = {
+      const eventsMapper = {
         'move': 'mousemove',
         'select': 'click',
         'selectstart': 'mousedown',
@@ -104,20 +97,22 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
 
         if ( intersections.length > 0 ) {
 
+          console.log(object.name)
+
           const intersection = intersections[ 0 ];
 
           object = intersection.object;
           const uv = intersection.uv;
 
-          _event.type = events[ event.type ];
+          _event.type = eventsMapper[ event.type ];
           _event.data.set( uv.x, 1 - uv.y );
 
-          dispatchEvent( object, _event );
+          object.dispatchEvent( _event );
 
         }else{
           if( object.selected ) {
             _event.type = 'mouseleave'
-            dispatchEvent( object, _event)
+            object.dispatchEvent(_event)
           }
         }
 

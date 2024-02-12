@@ -3,7 +3,7 @@ xrf.frag.s = function(v, opts){
 
   // handle object media players
   if( mesh && mesh.media ){
-    for( let i in mesh.media ) mesh.media[i].pub(v)
+    for( let i in mesh.media ) mesh.media[i].set("s",v)
     return
   }
 

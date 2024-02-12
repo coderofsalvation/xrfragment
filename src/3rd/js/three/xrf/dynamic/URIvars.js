@@ -38,18 +38,15 @@ xrf.addEventListener('dynamicKeyValue', (opts) => {
   if( match.length > 0 ){
     xrf.frag.dynamic.material(v,opts)
   }else{
-    if( !xrf.URI.vars[ v.string ] ) return            // only assign to known values
+    if( !xrf.URI.vars[ v.string ] ) return console.warn(`'${v.string}' metadata not found in scene`)            // only assign to known values
     xrf.URI.vars[ id ] = xrf.URI.vars[ v.string ]     // update var
     if( xrf.debug ) console.log(`URI.vars[${id}]='${v.string}'`)
 
     xrf.scene.traverse( (n) => {                      // reflect new changes
-      if( n.userData && n.userData.src && n.userData.srcTemplate ){
-        let srcOldFragments = n.userData.src.replace(/.*#/,'') 
+      if( n.userData && n.userData.src && n.userData.srcTemplate && n.userData.srcTemplate.match(`{${id}}`) ){
         let srcNewFragments = xrf.frag.src.expandURI( n ).replace(/.*#/,'')
-        if( srcOldFragments != srcNewFragments ){
-          console.log(`URI.vars[${id}] => updating ${n.name}`)
-          let frag = xrf.hashbus.pub( srcNewFragments, n )
-        }
+        console.log(`URI.vars[${id}] => updating ${n.name} => ${srcNewFragments}`)
+        let frag = xrf.hashbus.pub( srcNewFragments, n )
       }
     })
   }
