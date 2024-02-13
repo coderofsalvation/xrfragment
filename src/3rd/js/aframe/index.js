@@ -37,7 +37,7 @@ window.AFRAME.registerComponent('xrf', {
         }
       })
       aScene.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      aScene.renderer.toneMappingExposure = 1.5;
+      aScene.renderer.toneMappingExposure = 1.25;
       if( !XRF.camera ) throw 'xrfragment: no camera detected, please declare <a-entity camera..> ABOVE entities with xrf-attributes'
 
       // this is just for convenience (not part of spec): hide/show stuff based on VR/AR tags in 3D model 
@@ -76,6 +76,12 @@ window.AFRAME.registerComponent('xrf', {
           let com = blinkControls.components['blink-controls']
           if( com ) com.update({collisionEntities:true})
           else console.warn("xrfragments: blink-controls is not mounted, please run manually: $('[blink-controls]).components['blink-controls'].update({collisionEntities:true})")
+
+          blinkControls.addEventListener('teleported', (e) => {
+            if( e.detail.newPosition.z < 0){
+              console.warn('teleported to negative Z-value: https://github.com/jure/aframe-blink-controls/issues/30')
+            }
+          })
         }
 
         // give headset users way to debug without a cumbersome usb-tapdance

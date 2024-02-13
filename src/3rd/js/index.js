@@ -11,6 +11,7 @@ xrf.init = function(opts){
     console.log("add #debug=[0-9] to URL to see XR Fragment debuglog")
     xrf.debug = parseInt( ( document.location.hash.match(/debug=([0-9])/) || [0,'0'] )[1] )
   }
+  if( xrf.debug != undefined ) xrf.stats()
 
   xrf.Parser.debug = xrf.debug 
   xrf.detectCameraRig(opts)
@@ -49,6 +50,16 @@ xrf.roundrobin = (frag, store) => {
     return store.rr[label].index
   }
   return store.rr[label].index = 0
+}
+
+xrf.stats = () => {
+  // bookmarklet from https://github.com/zlgenuine/threejs_stats
+  (function(){
+    for( let i = 0; i < 4; i++ ){
+      var script=document.createElement('script');script.onload=function(){var stats=new Stats();stats.showPanel( i ); 
+        stats.dom.style.marginTop = `${i*48}px`;  document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';document.head.appendChild(script);
+    }
+  })()
 }
 
 xrf.hasTag = (tag,tags) => String(tags).match( new RegExp(`(^| )${tag}( |$)`,`g`) )

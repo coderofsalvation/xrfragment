@@ -41,7 +41,7 @@ let loadVideo = (mimetype) => function(url,opts){
       }
     }
     if( mediafragment == 's' ){
-      video.playbackRate = Math.abs( video.speed ) // html5 video does not support reverseplay :/
+      video.playbackRate = Math.abs( v.x ) // html5 video does not support reverseplay :/
     }
     if( mediafragment == 'loop' ){
       video.looping = true 
@@ -51,7 +51,7 @@ let loadVideo = (mimetype) => function(url,opts){
 
 // stop playing audio when loading another scene
 xrf.addEventListener('reset', () => {
-  xrf.scene.traverse( (n)  => n.video && (n.video.playXRF({x:0,y:0})) && (n.video.remove()) )
+  xrf.scene.traverse( (n)  => n.media && n.media.video && (n.media.video.pause()) && (n.media.video.remove()) )
 })
 
 let videoMimeTypes = [

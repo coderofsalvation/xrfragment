@@ -11,13 +11,7 @@ let loadAudio = (mimetype) => function(url,opts){
   let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
   let frag = xrf.URI.parse( url )
 
-  /* WebAudio: setup context via THREEjs */
-  if( !camera.listener ){
-    camera.listener = new THREE.AudioListener();
-    // *FIXME* camera vs camerarig conflict
-    (camera.getCam ? camera.getCam() : camera).add( camera.listener );
-  }
-
+  xrf.init.audio()
   let isPositionalAudio = !(mesh.position.x == 0 && mesh.position.y == 0 && mesh.position.z == 0)
   const audioLoader = new THREE.AudioLoader();
   let sound = isPositionalAudio ? new THREE.PositionalAudio( camera.listener) 
@@ -93,10 +87,30 @@ let loadAudio = (mimetype) => function(url,opts){
   })
 
 }
+
+xrf.init.audio = (opts) => {
+  let camera = xrf.camera
+  /* WebAudio: setup context via THREEjs */
+  if( !camera.listener ){
+    camera.listener = new THREE.AudioListener();
+    // *FIXME* camera vs camerarig conflict
+    (camera.getCam ? camera.getCam() : camera).add( camera.listener );
+    xrf.emit('audioInited',{listener:camera.listener, ...opts})
+  }
+}
+xrf.addEventListener('init', xrf.init.audio )
+
 // stop playing audio when loading another scene
 xrf.addEventListener('reset', () => {
-  xrf.scene.traverse( (n)  => n.audio && (n.audio.playXRF({x:0,y:0})) && (n.audio.remove()) )
+  xrf.scene.traverse( (n)  => {
+    if( n.media && n.media.audio ){
+      if( n.media.audio.stop ) n.media.audio.stop()
+      if( n.media.audio.remove ) n.media.audio.remove()
+    }
+  })
 })
+
+
 
 let audioMimeTypes = [
   'audio/x-wav',

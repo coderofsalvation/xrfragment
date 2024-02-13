@@ -1,12 +1,15 @@
 
-xrf.addEventListener('dynamicKey', (opts) => {
+const doFilter = (opts) => {
   let {scene,id,match,v} = opts
   if( v.filter ){
     let frags = {}
     frags[ v.filter.key ] = v
     xrf.filter.scene({frag:frags,scene})
   }
-})
+}
+
+xrf.addEventListener('dynamicKey', doFilter )
+xrf.addEventListener('dynamicKeyValue', doFilter )
 
 // spec: https://xrfragment.org/#filters
 xrf.filter = function(query, cb){

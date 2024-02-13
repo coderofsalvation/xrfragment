@@ -3,7 +3,6 @@
 xrf.portalNonEuclidian = function(opts){
   let { frag, mesh, model, camera, scene, renderer} = opts
 
-
   mesh.portal = {
     pos: mesh.position.clone(),
     posWorld: new xrf.THREE.Vector3(),

@@ -33,6 +33,14 @@ xrf.frag.src.type['image/png'] = function(url,opts){
     mesh.material.map = texture
     mesh.material.needsUpdate = true 
     mesh.needsUpdate = true
+
+    //// *TODO* update clones in portals or dont clone scene of portals..
+    //xrf.scene.traverse( (n) => {
+    //  if( n.userData.src == mesh.userData.src && mesh.uuid != n.uuid ){
+    //    n.material = mesh.material
+    //    n.material.needsUpdate = true
+    //  }
+    //})
   } 
 
   let onLoad = (texture) => {

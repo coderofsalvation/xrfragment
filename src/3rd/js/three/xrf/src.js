@@ -13,7 +13,7 @@ xrf.frag.src = function(v, opts){
   if(xrf.debug) console.log(`src.js: instancing ${opts.isLocal?'local':'remote'} object ${url}`)
 
   if( opts.isLocal ){
-        xrf.frag.src.localSRC(url,srcFrag,opts)     // local
+    xrf.frag.src.localSRC(url,srcFrag,opts)     // local
   }else xrf.frag.src.externalSRC(url,srcFrag,opts)  // external file
 
   xrf.hashbus.pub( url.replace(/.*#/,''), mesh)     // eval src-url fragments
@@ -32,7 +32,7 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
   if( mesh.material && mesh.userData.src ) mesh.material.visible = false  // hide placeholder object
 
   //enableSourcePortation(scene)
-  if( xrf.frag.src.renderAsPortal(mesh) ){
+  if( opts.isPortal ){
     // only add remote objects, because 
     // local scene-objects are already added to scene
     xrf.portalNonEuclidian({...opts,model,scene:model.scene})
@@ -91,15 +91,16 @@ xrf.frag.src.externalSRC = (url,frag,opts) => {
 
 xrf.frag.src.localSRC = (url,frag,opts) => {
   let {model,mesh,scene} = opts
-  setTimeout( () => {
+  //setTimeout( (mesh,scene) => {
     if( mesh.material ) mesh.material = mesh.material.clone() // clone, so we can individually highlight meshes
     let _model = {
       animations: model.animations,
-      scene: scene.clone() // *TODO* opts.isPortal ? scene : scene.clone()
+      scene: scene.clone()
+     // scene: opts.isPortal ? scene : scene.clone() 
     }
     _model.scenes = [_model.scene]
     xrf.frag.src.addModel(_model,url,frag, opts)    // current file 
-  },500 )
+  //},1000,mesh,scene )
 }
 
 // scale embedded XR fragments https://xrfragment.org/#scaling%20of%20instanced%20objects
@@ -136,7 +137,7 @@ xrf.frag.src.scale = function(scene, opts, url){
 xrf.frag.src.filterScene = (scene,opts) => {
   let { mesh, model, camera, renderer, THREE, hashbus, frag} = opts
 
-  scene = xrf.filter.scene({scene,frag,reparent:true}) // *TODO* ,copyScene: opts.isPortal})
+  scene = xrf.filter.scene({scene,frag,reparent:true,copyScene: opts.isPortal})
 
   if( !opts.isLocal ){
     scene.traverse( (m) => {

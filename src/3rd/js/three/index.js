@@ -7,7 +7,7 @@ xrf.init = ((init) => function(opts){
   opts.scene.add(scene)
   opts.scene = scene
   init(opts)
-  if( opts.loaders ) Object.values(opts.loaders).map( xrf.patchLoader )
+  //if( opts.loaders ) Object.values(opts.loaders).map( xrf.patchLoader )
 
   xrf.patchRenderer(opts)
   xrf.navigator.init()
@@ -30,21 +30,6 @@ xrf.patchRenderer = function(opts){
     xrf.emit('renderPost',{scene,camera,time,render,renderer}) // allow fragments to do something after renderframe
   })(renderer.render.bind(renderer))
 
-}
-
-xrf.patchLoader = function(loader){
-  if( loader.prototype.load.xrf_patched ) return // prevent patching aliased loaders twice
-  loader.prototype.load = ((load) => function(url, onLoad, onProgress, onError){
-    load.call(  this,
-                url,
-                (model) => { 
-                  onLoad(model); 
-                  xrf.parseModel(model,url) 
-                },
-                onProgress,
-                onError)
-  })(loader.prototype.load)
-  loader.prototype.load.xrf_patched = true
 }
 
 xrf.getFile = (url) => url.split("/").pop().replace(/#.*/,'')

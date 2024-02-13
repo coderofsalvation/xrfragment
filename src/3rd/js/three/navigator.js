@@ -53,7 +53,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
           if( xrf.model ) xrf.navigator.pushState( `${dir}${file}`, hash )
           xrf.model = model 
 
-          if( !model.isXRF ) xrf.emit('parseModel',{model,url,file}) // loader.load() does this automatically (but not loader.parse) 
+          if( !model.isXRF ) xrf.parseModel(model,url) // this marks the model as an XRF model
 
           if(xrf.debug ) model.animations.map( (a) => console.log("anim: "+a.name) )
 
@@ -96,7 +96,9 @@ xrf.navigator.init = () => {
 
   window.addEventListener('popstate', function (event){
     if( !xrf.navigator.updateHash.active ){ // ignore programmatic hash updates (causes infinite recursion)
-      xrf.navigator.to( document.location.search.substr(1) + document.location.hash )
+      if( !document.location.hash.match(/pos=/) ){
+        history.back() // go back until we find a position 
+      }else xrf.navigator.to( document.location.search.substr(1) + document.location.hash )
     }
   })
   
@@ -153,6 +155,9 @@ xrf.navigator.updateHash = (hash,opts) => {
 
 xrf.navigator.pushState = (file,hash) => {
   if( file == document.location.search.substr(1) ) return // page is in its default state
+  if( !hash.match(/pos=/) ){
+    history.forward() // go forward until we find a position 
+  }
   window.history.pushState({},`${file}#${hash}`, document.location.pathname + `?${file}#${hash}` )
   xrf.emit('pushState', {file, hash} )
 }

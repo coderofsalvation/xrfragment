@@ -56,7 +56,7 @@ xrf.frag.href = function(v, opts){
 
   let selected = mesh.userData.XRF.href.selected = (state) => () => {
     if( mesh.selected == state ) return // nothing changed 
-    console.log("state="+(selected?'selected':'unselected'))
+
     xrf.interactive.objects.map( (o) => {
       let newState = o.name == mesh.name ? state : false
       if( o.material ){
@@ -92,6 +92,47 @@ xrf.frag.href = function(v, opts){
     xrf.emit('interactionReady', {mesh,xrf:v,clickHandler: mesh.userData.XRF.href.exec })
   }, 0, mesh )
 }
+
+xrf.addEventListener('audioInited', function(opts){
+  let {THREE,listener} = opts
+  opts.audio = opts.audio || {}
+  opts.audio.click    = opts.audio.click || '/example/assets/audio/click.wav'
+  opts.audio.hover    = opts.audio.hover || '/example/assets/audio/hover.wav'
+  opts.audio.teleport = opts.audio.teleport || '/example/assets/audio/teleport.wav'
+
+  let audio = xrf.frag.href.audio = {}
+
+  actions = ['click','hover','teleport']
+  actions.map( (action) => {
+    const audioLoader = new THREE.AudioLoader();
+    audio[action] = new THREE.Audio( xrf.camera.listener )
+    audioLoader.load( opts.audio[action], function( buffer ) {
+      audio[action].setBuffer( buffer );
+    })
+  });
+
+  xrf.addEventListener('href', (opts) => {
+    let v = opts.xrf
+    if( opts.selected ){
+      xrf.frag.href.audio.hover.stop() 
+      xrf.frag.href.audio.hover.play() 
+      return
+    }
+    if( opts.click ){
+      xrf.frag.href.audio.click.stop() 
+      xrf.frag.href.audio.click.play() 
+      return
+    }
+  })
+
+  xrf.addEventListener('navigateLoading', (e) => {
+      xrf.frag.href.audio.click.stop() 
+      xrf.frag.href.audio.teleport.stop() 
+      xrf.frag.href.audio.teleport.play() 
+  })
+
+
+})
 
 /**
  * > above solutions were abducted from [[this|https://i.imgur.com/E3En0gJ.png]] and [[this|https://i.imgur.com/lpnTz3A.png]] survey result

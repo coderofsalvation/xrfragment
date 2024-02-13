@@ -1,4 +1,4 @@
-// this is the global #t mediafragment handler (which affects the 3D animation)
+// this ns the global #t mediafragment handler (which affects the 3D animation)
 
 xrf.frag.t = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
@@ -15,7 +15,7 @@ xrf.frag.t = function(v, opts){
     console.warn('no animations found in model')
     return xrf.emit( v.x == 0 ? 'stop' : 'play',{isPlaying: v.x != 0 })
   }
-
+    
   xrf.mixers.map ( (mixer) => {
     
     mixer.t = v
@@ -91,13 +91,12 @@ xrf.addEventListener('parseModel', (opts) => {
         action.setLoop( xrf.THREE.LoopOnce, )
         action.timeScale = mixer.timeScale
         action.enabled = true
-        if( t && t.x === 0 ) action.play() 
+        if( t && t.x != undefined ) action.play() 
       }
     })
     mixer.setTime(mixer.loop.timeStart)
     mixer.time = Math.abs( mixer.loop.timeStart )
     mixer.update(0)
-    mixer.checkZombies( model.animations)
   }
 
   // monkeypatch: update loop when needed 
@@ -118,6 +117,8 @@ xrf.addEventListener('parseModel', (opts) => {
     }
     mixer.update.patched = true
   }
+
+  mixer.checkZombies( model.animations)
 
   // calculate total duration/frame based on longest animation
   mixer.duration  = 0
