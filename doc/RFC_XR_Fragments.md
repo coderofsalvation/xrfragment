@@ -259,6 +259,7 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 | **MATERIALUPDATE** | `#<tag_or_objectname>[*]=<materialname>`   | string=string     | `#car=metallic`| sets material of car to material with name `metallic` (`*`=including children)|
 |   |                           |                          | `#soldout*=halfopacity`| set material of objects tagged with `product` to material with name `metallic` |
 | **VARIABLE UPDATE** | `#<variable>=<metadata-key>` | string=string | `#foo=bar` | sets [URI Template](https://www.rfc-editor.org/rfc/rfc6570) variable `foo` to the value `#t=0` from **existing** object metadata (`bar`:`#t=0` e.g.), This allows for reactive [URI Template](https://www.rfc-editor.org/rfc/rfc6570) defined in object metadata elsewhere (`src`:`://m.com/cat.mp4#{foo}` e.g., to play media using [media fragment URI](https://www.w3.org/TR/media-frags/#valid-uri)). NOTE: metadata-key should not start with `#` |
+| **ANIMATION**  | `#<tag_or_objectname>=<animationname>` | string=string | `#people=walk` `#people=noanim` | assign a different animation to object(s) |
 
 ## media fragments and datatypes
 
@@ -364,7 +365,7 @@ For example, to render a portal with a preview-version of the scene, create an 3
 1. the Y-coordinate of `pos` identifies the floorposition. This means that desktop-projections usually need to add 1.5m (average person height) on top (which is done automatically by VR/AR headsets).
 1. set the position of the camera accordingly to the vector3 values of `#pos`
 1. `rot` sets the rotation of the camera (only for non-VR/AR headsets)
-1. `t` sets the playbackspeed and animation-range of the current scene animation(s) or `src`-mediacontent (video/audioframes e.g., use `t=0,7,7` to 'STOP' at frame 7 e.g.) 
+1. `t` in the top-URL sets the playbackspeed and animation-range of the global scene animation
 1. after scene load: in case an `href` does not mention any `pos`-coordinate, `pos=0,0,0` will be assumed 
 
 Here's an ascii representation of a 3D scene-graph which contains 3D objects `◻` and their metadata:
@@ -487,6 +488,8 @@ navigation, portals & mutations
 9. ignore previous rule in special cases, like clicking an `href` using camera-portal collision (the back-button would cause a teleport-loop)
 
 10. href-events should bubble upward the node-tree
+
+11. the end-user navigator back/forward buttons should repeat a back/forward action until a `pos=...` primitive is found (the inbetween interaction URI's are only for UX research purposes)
 
 [» example implementation](https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/href.js)<br>
 [» example 3D asset](https://github.com/coderofsalvation/xrfragment/blob/main/example/assets/href.gltf#L192)<br>

@@ -13,9 +13,10 @@ import xrfragment.XRF;
  * ### XR Fragment URI Grammar 
  *
  * ```
- *     reserved    = gen-delims / sub-delims
+ *     reserved    = gen-delims / sub-delims / xrf-scheme
  *     gen-delims  = "#" / "&"                      
  *     sub-delims  = "," /  "="
+ *     xrf-scheme  = "xrf://"
  * ```
  *
  * In case your programming language has no parser ([check here](https://github.com/coderofsalvation/xrfragment/tree/main/dist)) you can [crosscompile it](https://github.com/coderofsalvation/xrfragment/blob/main/build.hxml), or roll your own `Parser.parse(k,v,store)` using the spec:
@@ -66,6 +67,7 @@ class URI {
       parts[1] = frag;
       return parts.join("#");
     }
+
 }
 
 /**

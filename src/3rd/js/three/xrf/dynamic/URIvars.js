@@ -39,21 +39,30 @@ xrf.addEventListener('dynamicKeyValue', (opts) => {
   if( !v.is( xrf.XRF.CUSTOMFRAG) ) return // only process custom frags from here
   if( v.string.match(/(<|>)/) )    return // ignore filter values
     
-  // check if fragment is an objectname
   if( match.length > 0 ){
-    xrf.frag.dynamic.material(v,opts)
+    xrf.frag.dynamic.material(v,opts) // check if fragment is an objectname
   }
   
-  if( !xrf.URI.vars[ v.string ] ) return console.warn(`'${v.string}' metadata not found in scene`)            // only assign to known values
+  if( !xrf.URI.vars[ v.string ] )           return console.error(`'${v.string}' metadata-key not found in scene`)        
+  if( xrf.URI.vars[ id ] && !match.length ) return console.error(`'${id}'       object/tag/metadata-key not found in scene`)
 
-  xrf.URI.vars[ id ] = xrf.URI.vars[ v.string ]     // update var
   if( xrf.debug ) console.log(`URI.vars[${id}]='${v.string}'`)
 
-  xrf.scene.traverse( (n) => {                      // reflect new changes
-    if( n.userData && n.userData.src && n.userData.srcTemplate && n.userData.srcTemplate.match(`{${id}}`) ){
-      let srcNewFragments = xrf.frag.src.expandURI( n ).replace(/.*#/,'')
-      console.log(`URI.vars[${id}] => updating ${n.name} => ${srcNewFragments}`)
-      let frag = xrf.hashbus.pub( srcNewFragments, n )
-    }
-  })
+  if( xrf.URI.vars[id] ){
+    xrf.URI.vars[ id ] = xrf.URI.vars[ v.string ]     // update var
+    xrf.scene.traverse( (n) => {                      
+      // re-expand src-values which use the updated URI Template var 
+      if( n.userData && n.userData.src && n.userData.srcTemplate && n.userData.srcTemplate.match(`{${id}}`) ){
+        let srcNewFragments = xrf.frag.src.expandURI( n ).replace(/.*#/,'')
+        console.log(`URI.vars[${id}] => updating ${n.name} => ${srcNewFragments}`)
+        let frag = xrf.hashbus.pub( srcNewFragments, n )
+      }
+    })
+  }else{
+    xrf.XRWG.deepApplyMatch(match, v, (match,v,node,type) => {
+      console.log(v.string)
+      if( node.geometry ) xrf.hashbus.pub( xrf.URI.vars[ v.string ](), node) // apply fragment mesh(es)
+    })
+  }
+
 })

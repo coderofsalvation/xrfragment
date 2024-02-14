@@ -51,7 +51,8 @@ class XRF {
   public static var isNumber:EReg  = ~/^[0-9\.]+$/;                         //  1. detect number values like `foo=1` (reference regex= `/^[0-9\.]+$/` )
   public static var isMediaFrag:EReg = ~/^([0-9\.,\*+-]+)$/;                //  1. detect (extended) media fragment
   public static var isReset:EReg   = ~/^!/;                                 //  1. detect reset operation
-  public static var isShift:EReg   = ~/[+-]/;
+  public static var isShift:EReg   = ~/^(\+|--)/;
+  public static var isXRFScheme    = ~/^xrf:\/\//;        
 
   // value holder(s)                                                       //  |------|------|--------|----------------------------------|
   public var fragment:String;
@@ -69,6 +70,7 @@ class XRF {
   public var filter:Filter;
   public var reset:Bool;
   public var loop:Bool;
+  public var xrfScheme:Bool;
                                                                            //
   public function new(_fragment:String,_flags:Int,?_index:Int){
     fragment = _fragment;
@@ -107,6 +109,12 @@ class XRF {
 
     if( str.length > 0 ){
 
+      if( isXRFScheme.match(str) ){
+        v.xrfScheme = true;
+        str = isXRFScheme.replace(str,"");
+        v.string = str;
+      }
+
       if( str.split(",").length > 1){                                      //  1. `,` assumes 1D/2D/3D vector-values like x[,y[,z]]
         var xyzn:Array<String> = str.split(",");                           //  1. parseFloat(..) and parseInt(..) is applied to vector/float and int values 
         if( xyzn.length > 0 ) v.x = Std.parseFloat(xyzn[0]);               //  1. anything else will be treated as string-value 
@@ -114,7 +122,7 @@ class XRF {
         if( xyzn.length > 2 ) v.z = Std.parseFloat(xyzn[2]);               //  
         for( i in 0...xyzn.length ){
           v.shift.push(  isShift.match(xyzn[i])  );
-          v.floats.push( Std.parseFloat(xyzn[i]) );
+          v.floats.push( Std.parseFloat( isShift.replace(xyzn[i],'') ) );
         }
       }                                                                    //  > the xrfragment specification should stay simple enough
                                                                            //  > for anyone to write a parser using either regexes or grammar/lexers

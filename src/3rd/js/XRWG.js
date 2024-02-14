@@ -69,3 +69,17 @@ XRWG.generate = (opts) => {
   XRWG = XRWG.reverse() // the cleankey/get functions e.g. will persist
   xrf.emit('XRWG',XRWG)
 }
+
+XRWG.deepApplyMatch = function(match,v,cb){
+  match.map( (m) => {
+    for( let i in m.types ){
+      let type = m.types[i]
+      let node = m.nodes[i]
+      if (type == 'name' || type == 'tag'){
+        cb(match,v,node,type)
+        if( v.filter.q.deep ) node.traverse( (c) => cb(match,v,c,t) )
+      }
+    }
+  })
+}
+

@@ -35,6 +35,8 @@ xrf.frag.href = function(v, opts){
 
   let click = mesh.userData.XRF.href.exec = (e) => {
 
+    if( !mesh.material.visible ) return
+
     // bubble up!
     mesh.traverseAncestors( (n) => n.userData && n.userData.href && n.dispatchEvent({type:e.type,data:{}}) )
 
@@ -48,8 +50,10 @@ xrf.frag.href = function(v, opts){
       const hasPos  = isLocal && v.string.match(/pos=/)
       const flags   = isLocal ? xrf.XRF.PV_OVERRIDE : undefined
 
-      let toFrag = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
-      xrf.navigator.to(v.string)    // let's surf
+      //let toFrag = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
+      if( v.xrfScheme ){
+        xrf.hashbus.pub(v.string)
+      } else xrf.navigator.to(v.string)    // let's surf
     }) 
     .catch( console.error )
   }
