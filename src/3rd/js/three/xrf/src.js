@@ -40,10 +40,11 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
   }else{
     xrf.frag.src.scale( scene, opts, url )           // scale scene
     mesh.add(scene)
-    xrf.emit('parseModel', {...opts, isSRC:true, scene, model}) 
   }
   // flag everything isSRC & isXRF
   mesh.traverse( (n) => { n.isSRC = n.isXRF = n[ opts.isLocal ? 'isSRCLocal' : 'isSRCExternal' ] = true })
+  
+  xrf.emit('parseModel', {...opts, isSRC:true, scene, model}) 
 }
 
 xrf.frag.src.renderAsPortal = (mesh) => {

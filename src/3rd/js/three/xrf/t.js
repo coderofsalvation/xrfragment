@@ -51,25 +51,6 @@ xrf.addEventListener('parseModel', (opts) => {
     mixer.actions.push( mixer.clipAction( anim, model.scene ) )
   })
 
-  mixer.checkZombies = (animations) => {
-    if( mixer.zombieCheck ) return // fire only once
-    animations.map( (anim) => {  
-      // collect zombie animations and warn user
-      let zombies = anim.tracks.map( (t) => {
-        let name = t.name.replace(/\..*/,'')
-        let obj  = model.scene.getObjectByName(name)
-        return !model.scene.getObjectByName(name) ? {anim:anim.name,obj:name} : undefined 
-      })
-      if( zombies.length > 0 && mixer.i == 0 ){ // only warn for zombies in main scene (because src-scenes might be filtered anyways)
-        zombies
-        .filter( (z) => z ) // filter out undefined
-        .map( (z) => console.warn(`gltf: object '${z.obj}' not found (anim: '${z.anim}'`) )
-        console.warn(`TIP: remove dots in objectnames in blender (which adds dots when duplicating)`)
-      } 
-    })
-    mixer.zombieCheck = true
-  }
-
   mixer.play  = (t) => {
     mixer.isPlaying = t.x !== undefined && t.x != t.y 
     mixer.updateLoop(t)
@@ -117,8 +98,6 @@ xrf.addEventListener('parseModel', (opts) => {
     }
     mixer.update.patched = true
   }
-
-  mixer.checkZombies( model.animations)
 
   // calculate total duration/frame based on longest animation
   mixer.duration  = 0
