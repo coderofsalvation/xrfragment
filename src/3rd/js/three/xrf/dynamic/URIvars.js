@@ -21,10 +21,19 @@ xrf.addEventListener('parseModel', (opts) => {
   })
 
   model.scene.traverse( (n) => {
+    const variables = /{([a-zA-Z0-9-]+)}/g
+
     if( n.userData ){
       for( let i in n.userData ){
-        if( i[0] == '#' || i.match(/^(href|src|tag)$/) ) continue // ignore XR Fragment aliases
-        xrf.URI.vars[i] = () => n.userData[i]
+        if( i[0] == '#' || i.match(/^(href|tag)$/) ) continue // ignore XR Fragment aliases
+        if( i == 'src' ){
+          // lets declare empty variables found in src-values ('https://foo.com/video.mp4#{somevar}') e.g.
+          if( n.userData[i].match(variables) ){
+            let vars = [].concat( n.userData[i].match(variables) )
+            const strip = (v) => v.replace(/[{}]/g,'')
+            vars.map( (v) => xrf.URI.vars[ strip(v) ] = () => '' )
+          }
+        }else xrf.URI.vars[i] = () => n.userData[i] // declare variables with values
       }
     }
   })
@@ -38,13 +47,13 @@ xrf.addEventListener('dynamicKeyValue', (opts) => {
 
   if( !v.is( xrf.XRF.CUSTOMFRAG) ) return // only process custom frags from here
   if( v.string.match(/(<|>)/) )    return // ignore filter values
-    
+   
   if( match.length > 0 ){
     xrf.frag.dynamic.material(v,opts) // check if fragment is an objectname
   }
   
   if( !xrf.URI.vars[ v.string ] )           return console.error(`'${v.string}' metadata-key not found in scene`)        
-  if( xrf.URI.vars[ id ] && !match.length ) return console.error(`'${id}'       object/tag/metadata-key not found in scene`)
+  //if( xrf.URI.vars[ id ] && !match.length ) return console.error(`'${id}'       object/tag/metadata-key not found in scene`)
 
   if( xrf.debug ) console.log(`URI.vars[${id}]='${v.string}'`)
 

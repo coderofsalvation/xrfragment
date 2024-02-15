@@ -9,7 +9,10 @@ const doFilter = (opts) => {
 }
 
 xrf.addEventListener('dynamicKey', doFilter )
-xrf.addEventListener('dynamicKeyValue', doFilter )
+xrf.addEventListener('dynamicKeyValue', (opts) => {
+  console.log("*TODO* filter integers only")
+  // doFilter(opts)
+})
 
 // spec: https://xrfragment.org/#filters
 xrf.filter = function(query, cb){

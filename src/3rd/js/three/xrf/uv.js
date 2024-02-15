@@ -36,7 +36,7 @@ xrf.frag.uv.scroll = function(){
     if( this.uv.uspeed == 1.0 ) uv.setX(i, this.uv.ushift ? uv.getX(i) + this.uv.u : uv.old.getX(i) + this.uv.u )
     if( this.uv.vspeed == 1.0 ) uv.setY(i, this.uv.vshift ? uv.getY(i) + this.uv.v : uv.old.getY(i) + this.uv.v )
 
-    if( this.uv.uloop || this.uv.vloop ){
+    if( this.uv.uspeed != 1.0 || this.uv.vspeed != 1.0 ){
       let u         = uv.getX(i)     
       let v         = uv.getY(i)     
       let uTarget   = this.uv.ushift ? uv.getX(i) + this.uv.u : uv.old.getX(i) + this.uv.u
