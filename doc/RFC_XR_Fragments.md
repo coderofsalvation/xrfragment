@@ -278,6 +278,8 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 |                               |                                   | +0.5,+0.5       | scroll instantly by adding 0.5 to the current uv coordinates |
 |                               |                                   | 0.2,1,0.1,0.1   | scroll (lerp) to uv coordinate `0,2,1` with `0.1` units per second |
 |                               |                                   | 0,0,0,+0.1      | scroll v coordinates with `0.1` units per second (infinitely) |
+|                               |                                   | +0.5,+0.5       | scroll instantly by adding 0.5 to the current uv coordinates |
+
 | media parameter (shader uniform) | u:<uniform>=<string|float|vec2|vec3|vec4> | u:color=1,0,0   | set shader uniform value |
 
 > \* = this is extending the [W3C media fragments](https://www.w3.org/TR/media-frags/#mf-advanced) with (missing) playback/viewport-control. Normally `#t=0,2` implies setting start/stop-values AND starting playback, whereas `#s=0&loop` allows pausing a video, speeding up/slowing down media, as well as enabling/disabling looping.

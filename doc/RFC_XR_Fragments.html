@@ -320,8 +320,8 @@ That way, if the link gets shared, the XR Fragments implementation at <code>http
 <tr>
 <td><a href="https://www.w3.org/TR/media-frags/">W3C Media Fragments</a></td>
 <td><a href="#media%20fragments%20and%20datatypes">media fragment</a></td>
-<td><code>#t=0,2</code> <code>#xywh</code></td>
-<td>play/loop 3D animation from 0 seconds till 2 seconds</td>
+<td><code>#t=0,2&amp;loop</code></td>
+<td>play (and loop) 3D animation from 0 seconds till 2 seconds</td>
 </tr>
 
 <tr>
@@ -448,6 +448,14 @@ That way, if the link gets shared, the XR Fragments implementation at <code>http
 <td><code>#foo=bar</code></td>
 <td>sets <a href="https://www.rfc-editor.org/rfc/rfc6570">URI Template</a> variable <code>foo</code> to the value <code>#t=0</code> from <strong>existing</strong> object metadata (<code>bar</code>:<code>#t=0</code> e.g.), This allows for reactive <a href="https://www.rfc-editor.org/rfc/rfc6570">URI Template</a> defined in object metadata elsewhere (<code>src</code>:<code>://m.com/cat.mp4#{foo}</code> e.g., to play media using <a href="https://www.w3.org/TR/media-frags/#valid-uri">media fragment URI</a>). NOTE: metadata-key should not start with <code>#</code></td>
 </tr>
+
+<tr>
+<td><strong>ANIMATION</strong></td>
+<td><code>#&lt;tag_or_objectname&gt;=&lt;animationname&gt;</code></td>
+<td>string=string</td>
+<td><code>#people=walk</code> <code>#people=noanim</code></td>
+<td>assign a different animation to object(s)</td>
+</tr>
 </tbody>
 </table>
 
@@ -546,13 +554,14 @@ That way, if the link gets shared, the XR Fragments implementation at <code>http
 </tr>
 
 <tr>
-<td>media parameter (shader uniform)</td>
-<td>u:<uniform>=<string</td>
-<td>float</td>
-<td>vec2</td>
+<td></td>
+<td></td>
+<td>+0.5,+0.5</td>
+<td>scroll instantly by adding 0.5 to the current uv coordinates</td>
 </tr>
 </tbody>
 </table>
+<p>| media parameter (shader uniform) | u:<uniform>=<string|float|vec2|vec3|vec4> | u:color=1,0,0   | set shader uniform value |</p>
 
 <blockquote>
 <p>* = this is extending the <a href="https://www.w3.org/TR/media-frags/#mf-advanced">W3C media fragments</a> with (missing) playback/viewport-control. Normally <code>#t=0,2</code> implies setting start/stop-values AND starting playback, whereas <code>#s=0&amp;loop</code> allows pausing a video, speeding up/slowing down media, as well as enabling/disabling looping.</p>
@@ -666,7 +675,7 @@ For example, to render a portal with a preview-version of the scene, create an 3
 <li>the Y-coordinate of <code>pos</code> identifies the floorposition. This means that desktop-projections usually need to add 1.5m (average person height) on top (which is done automatically by VR/AR headsets).</li>
 <li>set the position of the camera accordingly to the vector3 values of <code>#pos</code></li>
 <li><code>rot</code> sets the rotation of the camera (only for non-VR/AR headsets)</li>
-<li><code>t</code> sets the playbackspeed and animation-range of the current scene animation(s) or <code>src</code>-mediacontent (video/audioframes e.g., use <code>t=0,7,7</code> to &lsquo;STOP&rsquo; at frame 7 e.g.)</li>
+<li><code>t</code> in the top-URL sets the playbackspeed and animation-range of the global scene animation</li>
 <li>after scene load: in case an <code>href</code> does not mention any <code>pos</code>-coordinate, <code>pos=0,0,0</code> will be assumed</li>
 </ol>
 
@@ -825,6 +834,8 @@ Resizing will be happen accordingly to its placeholder object <code>aquariumcube
 <li><p>ignore previous rule in special cases, like clicking an <code>href</code> using camera-portal collision (the back-button would cause a teleport-loop)</p></li>
 
 <li><p>href-events should bubble upward the node-tree</p></li>
+
+<li><p>the end-user navigator back/forward buttons should repeat a back/forward action until a <code>pos=...</code> primitive is found (the inbetween interaction URI&rsquo;s are only for UX research purposes)</p></li>
 </ol>
 
 <p><a href="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/href.js">» example implementation</a><br>

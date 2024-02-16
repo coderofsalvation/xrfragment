@@ -11,7 +11,7 @@ xrf.optimize = (opts) => {
 
   // check unused animations
 xrf.optimize.checkAnimations = (opts) => {
-  console.log("TODO: fix freezeUnAnimatedObjects for SRC's")
+  if( xrf.debug ) console.log("TODO: fix freezeUnAnimatedObjects for SRC's")
   return xrf.optimize
 
   let {model} = opts
@@ -35,7 +35,7 @@ xrf.optimize.checkAnimations = (opts) => {
 }
 
 xrf.optimize.freezeUnAnimatedObjects = (opts) => {
-  console.log("TODO: fix freezeUnAnimatedObjects for SRC's")
+  if( xrf.todo ) console.log("TODO: fix freezeUnAnimatedObjects for SRC's")
   return xrf.optimize
 
   let {model}  = opts

@@ -25,9 +25,10 @@ xrf.addEventListener = function(eventName, callback, opts) {
   this._listeners[eventName].push(callback);
   // sort
   this._listeners[eventName] = this._listeners[eventName].sort( (a,b) => a.opts.weight > b.opts.weight )
-  return () => {
+  callback.unlisten = () => {
     this._listeners[eventName] = this._listeners[eventName].filter( (c) => c != callback )
   }
+  return callback.unlisten
 };
 
 xrf.emit = function(eventName, data){
@@ -76,7 +77,8 @@ xrf.emit.promise = function(e, opts){
 }
 
 xrf.addEventListener('reset', () => {
-// *TODO* do this nicely
-//  xrf._listeners['renderPost'] = []
-//  xrf._listeners['render'] = []
+  let events = ['renderPost']
+  events.map( (e) => {
+    if( xrf._listeners[e] ) xrf._listeners[e].map( (r) => r.unlisten && r.unlisten() )
+  })
 })

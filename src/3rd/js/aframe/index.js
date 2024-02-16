@@ -100,6 +100,7 @@ window.AFRAME.registerComponent('xrf', {
         let isLocal = url.match(/^#/)
         let hasPos  = url.match(/pos=/)
         let fastFadeMs = 200
+        if( !AFRAME.fade  ) return p.resolve()
 
         if( isLocal ){
           if( hasPos ){
