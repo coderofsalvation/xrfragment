@@ -204,14 +204,19 @@ local Math = _hx_e()
 local Reflect = _hx_e()
 local String = _hx_e()
 local Std = _hx_e()
+local StringBuf = _hx_e()
 local StringTools = _hx_e()
 __haxe_IMap = _hx_e()
 __haxe_Exception = _hx_e()
 __haxe_Log = _hx_e()
 __haxe_NativeStackTrace = _hx_e()
-__haxe_ValueException = _hx_e()
-__haxe_ds_StringMap = _hx_e()
+__haxe__Template_TemplateExpr = _hx_e()
 __haxe_iterators_ArrayIterator = _hx_e()
+__haxe_Template = _hx_e()
+__haxe_ValueException = _hx_e()
+__haxe_ds_List = _hx_e()
+__haxe_ds__List_ListNode = _hx_e()
+__haxe_ds_StringMap = _hx_e()
 __haxe_iterators_ArrayKeyValueIterator = _hx_e()
 __lua_Boot = _hx_e()
 __lua_UserData = _hx_e()
@@ -592,6 +597,46 @@ EReg.prototype.match = function(self,s)
     do return self.m[1] ~= nil end;
   end;
 end
+EReg.prototype.matched = function(self,n) 
+  if ((self.m[1] == nil) or (n < 0)) then 
+    _G.error(__haxe_Exception.thrown("EReg::matched"),0);
+  else
+    if (n == 0) then 
+      local k = _G.string.sub(self.s, self.m[1], self.m[2]);
+      do return k end;
+    else
+      if (__lua_Boot.__instanceof(self.m[3], _G.table)) then 
+        local mn = 2 * (n - 1);
+        if (__lua_Boot.__instanceof(self.m[3][mn + 1], Bool)) then 
+          do return nil end;
+        end;
+        do return _G.string.sub(self.s, self.m[3][mn + 1], self.m[3][mn + 2]) end;
+      else
+        _G.error(__haxe_Exception.thrown("EReg:matched"),0);
+      end;
+    end;
+  end;
+end
+EReg.prototype.matchedLeft = function(self) 
+  if (self.m[1] == nil) then 
+    _G.error(__haxe_Exception.thrown("No string matched"),0);
+  end;
+  do return _G.string.sub(self.s, 1, self.m[1] - 1) end
+end
+EReg.prototype.matchedRight = function(self) 
+  if (self.m[1] == nil) then 
+    _G.error(__haxe_Exception.thrown("No string matched"),0);
+  end;
+  do return _G.string.sub(self.s, self.m[2] + 1) end
+end
+EReg.prototype.matchedPos = function(self) 
+  local left = self:matchedLeft();
+  local matched = self:matched(0);
+  if (self.m[1] == nil) then 
+    _G.error(__haxe_Exception.thrown("No string matched"),0);
+  end;
+  do return _hx_o({__fields__={pos=true,len=true},pos=__lua_lib_luautf8_Utf8.len(left),len=__lua_lib_luautf8_Utf8.len(matched)}) end
+end
 EReg.prototype.split = function(self,s) 
   if (self.global) then 
     do return __lua_Lib.fillArray(_hx_wrap_if_string_field(__lua_lib_lrexlib_Rex,'split')(s, self.r)) end;
@@ -688,11 +733,64 @@ Reflect.field = function(o,field)
     end;
   end;
 end
+Reflect.getProperty = function(o,field) 
+  if (o == nil) then 
+    do return nil end;
+  else
+    if ((o.__properties__ ~= nil) and (Reflect.field(o, Std.string("get_") .. Std.string(field)) ~= nil)) then 
+      do return Reflect.callMethod(o,Reflect.field(o, Std.string("get_") .. Std.string(field)),_hx_tab_array({}, 0)) end;
+    else
+      do return Reflect.field(o, field) end;
+    end;
+  end;
+end
+Reflect.callMethod = function(o,func,args) 
+  if ((args == nil) or (args.length == 0)) then 
+    do return func(o) end;
+  else
+    local self_arg = false;
+    if ((o ~= nil) and (o.__name__ == nil)) then 
+      self_arg = true;
+    end;
+    if (self_arg) then 
+      do return func(o, _hx_table.unpack(args, 0, args.length - 1)) end;
+    else
+      do return func(_hx_table.unpack(args, 0, args.length - 1)) end;
+    end;
+  end;
+end
 Reflect.fields = function(o) 
   if (_G.type(o) == "string") then 
     do return Reflect.fields(String.prototype) end;
   else
     do return _hx_field_arr(o) end;
+  end;
+end
+Reflect.isObject = function(v) 
+  if (v == nil) then 
+    do return false end;
+  end;
+  local t = type(v);
+  if (not ((t == "string") or ((t == "table") and (v.__enum__ == nil)))) then 
+    if (t == "function") then 
+      do return ((function() 
+        local _hx_1
+        if (_G.type(v) ~= "table") then 
+        _hx_1 = false; else 
+        _hx_1 = v.__name__; end
+        return _hx_1
+      end )() or (function() 
+        local _hx_2
+        if (_G.type(v) ~= "table") then 
+        _hx_2 = false; else 
+        _hx_2 = v.__ename__; end
+        return _hx_2
+      end )()) ~= nil end;
+    else
+      do return false end;
+    end;
+  else
+    do return true end;
   end;
 end
 Reflect.deleteField = function(o,field) 
@@ -1024,6 +1122,20 @@ Std.parseFloat = function(x)
   end;
 end
 
+StringBuf.new = function() 
+  local self = _hx_new(StringBuf.prototype)
+  StringBuf.super(self)
+  return self
+end
+StringBuf.super = function(self) 
+  self.b = ({});
+  self.length = 0;
+end
+StringBuf.__name__ = true
+StringBuf.prototype = _hx_e();
+
+StringBuf.prototype.__class__ =  StringBuf
+
 StringTools.new = {}
 StringTools.__name__ = true
 StringTools.urlDecode = function(s) 
@@ -1102,6 +1214,31 @@ end
 StringTools.trim = function(s) 
   do return StringTools.ltrim(StringTools.rtrim(s)) end;
 end
+StringTools.replace = function(s,sub,by) 
+  local idx = 1;
+  local ret = _hx_tab_array({}, 0);
+  while (idx ~= nil) do 
+    local newidx = 0;
+    if (__lua_lib_luautf8_Utf8.len(sub) > 0) then 
+      newidx = __lua_lib_luautf8_Utf8.find(s, sub, idx, true);
+    else
+      if (idx >= __lua_lib_luautf8_Utf8.len(s)) then 
+        newidx = nil;
+      else
+        newidx = idx + 1;
+      end;
+    end;
+    if (newidx ~= nil) then 
+      local match = __lua_lib_luautf8_Utf8.sub(s, idx, newidx - 1);
+      ret:push(match);
+      idx = newidx + __lua_lib_luautf8_Utf8.len(sub);
+    else
+      ret:push(__lua_lib_luautf8_Utf8.sub(s, idx, __lua_lib_luautf8_Utf8.len(s)));
+      idx = nil;
+    end;
+  end;
+  do return ret:join(by) end;
+end
 
 __haxe_IMap.new = {}
 __haxe_IMap.__name__ = true
@@ -1125,6 +1262,13 @@ __haxe_Exception.super = function(self,message,previous,native)
   end;
 end
 __haxe_Exception.__name__ = true
+__haxe_Exception.caught = function(value) 
+  if (__lua_Boot.__instanceof(value, __haxe_Exception)) then 
+    do return value end;
+  else
+    do return __haxe_ValueException.new(value, nil, value) end;
+  end;
+end
 __haxe_Exception.thrown = function(value) 
   if (__lua_Boot.__instanceof(value, __haxe_Exception)) then 
     do return value:get_native() end;
@@ -1135,11 +1279,16 @@ __haxe_Exception.thrown = function(value)
   end;
 end
 __haxe_Exception.prototype = _hx_e();
+__haxe_Exception.prototype.unwrap = function(self) 
+  do return self.__nativeException end
+end
 __haxe_Exception.prototype.get_native = function(self) 
   do return self.__nativeException end
 end
 
 __haxe_Exception.prototype.__class__ =  __haxe_Exception
+
+__haxe_Exception.prototype.__properties__ =  {get_native="get_native"}
 
 __haxe_Log.new = {}
 __haxe_Log.__name__ = true
@@ -1203,26 +1352,15 @@ end
 __haxe_NativeStackTrace.exceptionStack = function() 
   do return _hx_tab_array({}, 0) end;
 end
-
-__haxe_ValueException.new = function(value,previous,native) 
-  local self = _hx_new(__haxe_ValueException.prototype)
-  __haxe_ValueException.super(self,value,previous,native)
-  return self
-end
-__haxe_ValueException.super = function(self,value,previous,native) 
-  __haxe_Exception.super(self,Std.string(value),previous,native);
-  self.value = value;
-end
-__haxe_ValueException.__name__ = true
-__haxe_ValueException.prototype = _hx_e();
-
-__haxe_ValueException.prototype.__class__ =  __haxe_ValueException
-__haxe_ValueException.__super__ = __haxe_Exception
-setmetatable(__haxe_ValueException.prototype,{__index=__haxe_Exception.prototype})
-
-__haxe_ds_StringMap.new = {}
-__haxe_ds_StringMap.__name__ = true
-__haxe_ds_StringMap.__interfaces__ = {__haxe_IMap}
+_hxClasses["haxe._Template.TemplateExpr"] = { __ename__ = true, __constructs__ = _hx_tab_array({[0]="OpVar","OpExpr","OpIf","OpStr","OpBlock","OpForeach","OpMacro"},7)}
+__haxe__Template_TemplateExpr = _hxClasses["haxe._Template.TemplateExpr"];
+__haxe__Template_TemplateExpr.OpVar = function(v) local _x = _hx_tab_array({[0]="OpVar",0,v,__enum__=__haxe__Template_TemplateExpr}, 3); return _x; end 
+__haxe__Template_TemplateExpr.OpExpr = function(expr) local _x = _hx_tab_array({[0]="OpExpr",1,expr,__enum__=__haxe__Template_TemplateExpr}, 3); return _x; end 
+__haxe__Template_TemplateExpr.OpIf = function(expr,eif,eelse) local _x = _hx_tab_array({[0]="OpIf",2,expr,eif,eelse,__enum__=__haxe__Template_TemplateExpr}, 5); return _x; end 
+__haxe__Template_TemplateExpr.OpStr = function(str) local _x = _hx_tab_array({[0]="OpStr",3,str,__enum__=__haxe__Template_TemplateExpr}, 3); return _x; end 
+__haxe__Template_TemplateExpr.OpBlock = function(l) local _x = _hx_tab_array({[0]="OpBlock",4,l,__enum__=__haxe__Template_TemplateExpr}, 3); return _x; end 
+__haxe__Template_TemplateExpr.OpForeach = function(expr,loop) local _x = _hx_tab_array({[0]="OpForeach",5,expr,loop,__enum__=__haxe__Template_TemplateExpr}, 4); return _x; end 
+__haxe__Template_TemplateExpr.OpMacro = function(name,params) local _x = _hx_tab_array({[0]="OpMacro",6,name,params,__enum__=__haxe__Template_TemplateExpr}, 4); return _x; end 
 
 __haxe_iterators_ArrayIterator.new = function(array) 
   local self = _hx_new(__haxe_iterators_ArrayIterator.prototype)
@@ -1249,6 +1387,941 @@ __haxe_iterators_ArrayIterator.prototype.next = function(self)
 end
 
 __haxe_iterators_ArrayIterator.prototype.__class__ =  __haxe_iterators_ArrayIterator
+
+__haxe_Template.new = function(str) 
+  local self = _hx_new(__haxe_Template.prototype)
+  __haxe_Template.super(self,str)
+  return self
+end
+__haxe_Template.super = function(self,str) 
+  local tokens = self:parseTokens(str);
+  self.expr = self:parseBlock(tokens);
+  if (not tokens:isEmpty()) then 
+    _G.error(__haxe_Exception.thrown(Std.string(Std.string("Unexpected '") .. Std.string(Std.string(tokens:first().s))) .. Std.string("'")),0);
+  end;
+end
+__haxe_Template.__name__ = true
+__haxe_Template.prototype = _hx_e();
+__haxe_Template.prototype.execute = function(self,context,macros) 
+  self.macros = (function() 
+    local _hx_1
+    if (macros == nil) then 
+    _hx_1 = _hx_e(); else 
+    _hx_1 = macros; end
+    return _hx_1
+  end )();
+  self.context = context;
+  self.stack = __haxe_ds_List.new();
+  self.buf = StringBuf.new();
+  self:run(self.expr);
+  do return _G.table.concat(self.buf.b) end
+end
+__haxe_Template.prototype.resolve = function(self,v) 
+  if (v == "__current__") then 
+    do return self.context end;
+  end;
+  if (Reflect.isObject(self.context)) then 
+    local value = Reflect.getProperty(self.context, v);
+    local tmp;
+    if (value == nil) then 
+      local o = self.context;
+      tmp = (function() 
+        local _hx_1
+        if ((_G.type(o) == "string") and ((String.prototype[v] ~= nil) or (v == "length"))) then 
+        _hx_1 = true; elseif (o.__fields__ ~= nil) then 
+        _hx_1 = o.__fields__[v] ~= nil; else 
+        _hx_1 = o[v] ~= nil; end
+        return _hx_1
+      end )();
+    else
+      tmp = true;
+    end;
+    if (tmp) then 
+      do return value end;
+    end;
+  end;
+  local _g_head = self.stack.h;
+  while (_g_head ~= nil) do 
+    local val = _g_head.item;
+    _g_head = _g_head.next;
+    local ctx = val;
+    local value = Reflect.getProperty(ctx, v);
+    local tmp;
+    if (value == nil) then 
+      local o = ctx;
+      tmp = (function() 
+        local _hx_2
+        if ((_G.type(o) == "string") and ((String.prototype[v] ~= nil) or (v == "length"))) then 
+        _hx_2 = true; elseif (o.__fields__ ~= nil) then 
+        _hx_2 = o.__fields__[v] ~= nil; else 
+        _hx_2 = o[v] ~= nil; end
+        return _hx_2
+      end )();
+    else
+      tmp = true;
+    end;
+    if (tmp) then 
+      do return value end;
+    end;
+  end;
+  do return Reflect.field(__haxe_Template.globals, v) end
+end
+__haxe_Template.prototype.parseTokens = function(self,data) 
+  local tokens = __haxe_ds_List.new();
+  local _hx_continue_1 = false;
+  while (__haxe_Template.splitter:match(data)) do repeat 
+    local p = __haxe_Template.splitter:matchedPos();
+    if (p.pos > 0) then 
+      local pos = 0;
+      local len = p.pos;
+      if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(data)))) then 
+        len = __lua_lib_luautf8_Utf8.len(data);
+      else
+        if (len < 0) then 
+          len = __lua_lib_luautf8_Utf8.len(data) + len;
+        end;
+      end;
+      if (pos < 0) then 
+        pos = __lua_lib_luautf8_Utf8.len(data) + pos;
+      end;
+      if (pos < 0) then 
+        pos = 0;
+      end;
+      tokens:add(_hx_o({__fields__={p=true,s=true,l=true},p=__lua_lib_luautf8_Utf8.sub(data, pos + 1, pos + len),s=true,l=nil}));
+    end;
+    if (__lua_lib_luautf8_Utf8.byte(data, p.pos + 1) == 58) then 
+      local pos = p.pos + 2;
+      local len = p.len - 4;
+      if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(data)))) then 
+        len = __lua_lib_luautf8_Utf8.len(data);
+      else
+        if (len < 0) then 
+          len = __lua_lib_luautf8_Utf8.len(data) + len;
+        end;
+      end;
+      if (pos < 0) then 
+        pos = __lua_lib_luautf8_Utf8.len(data) + pos;
+      end;
+      if (pos < 0) then 
+        pos = 0;
+      end;
+      tokens:add(_hx_o({__fields__={p=true,s=true,l=true},p=__lua_lib_luautf8_Utf8.sub(data, pos + 1, pos + len),s=false,l=nil}));
+      data = __haxe_Template.splitter:matchedRight();
+      break;
+    end;
+    local parp = p.pos + p.len;
+    local npar = 1;
+    local params = _hx_tab_array({}, 0);
+    local part = "";
+    while (true) do 
+      local c = __lua_lib_luautf8_Utf8.byte(data, parp + 1);
+      parp = parp + 1;
+      if (c == 40) then 
+        npar = npar + 1;
+      else
+        if (c == 41) then 
+          npar = npar - 1;
+          if (npar <= 0) then 
+            break;
+          end;
+        else
+          if (c == nil) then 
+            _G.error(__haxe_Exception.thrown("Unclosed macro parenthesis"),0);
+          end;
+        end;
+      end;
+      if ((c == 44) and (npar == 1)) then 
+        params:push(part);
+        part = "";
+      else
+        part = Std.string(part) .. Std.string(__lua_lib_luautf8_Utf8.char(c));
+      end;
+    end;
+    params:push(part);
+    tokens:add(_hx_o({__fields__={p=true,s=true,l=true},p=__haxe_Template.splitter:matched(2),s=false,l=params}));
+    local pos = parp;
+    local len = __lua_lib_luautf8_Utf8.len(data) - parp;
+    if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(data)))) then 
+      len = __lua_lib_luautf8_Utf8.len(data);
+    else
+      if (len < 0) then 
+        len = __lua_lib_luautf8_Utf8.len(data) + len;
+      end;
+    end;
+    if (pos < 0) then 
+      pos = __lua_lib_luautf8_Utf8.len(data) + pos;
+    end;
+    if (pos < 0) then 
+      pos = 0;
+    end;
+    data = __lua_lib_luautf8_Utf8.sub(data, pos + 1, pos + len);until true
+    if _hx_continue_1 then 
+    _hx_continue_1 = false;
+    break;
+    end;
+    
+  end;
+  if (__lua_lib_luautf8_Utf8.len(data) > 0) then 
+    tokens:add(_hx_o({__fields__={p=true,s=true,l=true},p=data,s=true,l=nil}));
+  end;
+  do return tokens end
+end
+__haxe_Template.prototype.parseBlock = function(self,tokens) 
+  local l = __haxe_ds_List.new();
+  while (true) do 
+    local t = tokens:first();
+    if (t == nil) then 
+      break;
+    end;
+    local tmp;
+    if (not t.s) then 
+      if (not ((t.p == "end") or (t.p == "else"))) then 
+        local _this = t.p;
+        local pos = 0;
+        local len = 7;
+        if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(_this)))) then 
+          len = __lua_lib_luautf8_Utf8.len(_this);
+        else
+          if (len < 0) then 
+            len = __lua_lib_luautf8_Utf8.len(_this) + len;
+          end;
+        end;
+        if (pos < 0) then 
+          pos = __lua_lib_luautf8_Utf8.len(_this) + pos;
+        end;
+        if (pos < 0) then 
+          pos = 0;
+        end;
+        tmp = __lua_lib_luautf8_Utf8.sub(_this, pos + 1, pos + len) == "elseif ";
+      else
+        tmp = true;
+      end;
+    else
+      tmp = false;
+    end;
+    if (tmp) then 
+      break;
+    end;
+    l:add(self:parse(tokens));
+  end;
+  if (l.length == 1) then 
+    do return l:first() end;
+  end;
+  do return __haxe__Template_TemplateExpr.OpBlock(l) end
+end
+__haxe_Template.prototype.parse = function(self,tokens) 
+  local t = tokens:pop();
+  local p = t.p;
+  if (t.s) then 
+    do return __haxe__Template_TemplateExpr.OpStr(p) end;
+  end;
+  if (t.l ~= nil) then 
+    local pe = __haxe_ds_List.new();
+    local _g = 0;
+    local _g1 = t.l;
+    while (_g < _g1.length) do 
+      local p = _g1[_g];
+      _g = _g + 1;
+      pe:add(self:parseBlock(self:parseTokens(p)));
+    end;
+    do return __haxe__Template_TemplateExpr.OpMacro(p, pe) end;
+  end;
+  local kwdEnd = function(kwd) 
+    local pos = -1;
+    local length = __lua_lib_luautf8_Utf8.len(kwd);
+    local pos1 = 0;
+    local len = length;
+    if ((len == nil) or (len > (pos1 + __lua_lib_luautf8_Utf8.len(p)))) then 
+      len = __lua_lib_luautf8_Utf8.len(p);
+    else
+      if (len < 0) then 
+        len = __lua_lib_luautf8_Utf8.len(p) + len;
+      end;
+    end;
+    if (pos1 < 0) then 
+      pos1 = __lua_lib_luautf8_Utf8.len(p) + pos1;
+    end;
+    if (pos1 < 0) then 
+      pos1 = 0;
+    end;
+    if (__lua_lib_luautf8_Utf8.sub(p, pos1 + 1, pos1 + len) == kwd) then 
+      pos = length;
+      local pos1 = length;
+      local len = nil;
+      if ((len == nil) or (len > (pos1 + __lua_lib_luautf8_Utf8.len(p)))) then 
+        len = __lua_lib_luautf8_Utf8.len(p);
+      else
+        if (len < 0) then 
+          len = __lua_lib_luautf8_Utf8.len(p) + len;
+        end;
+      end;
+      if (pos1 < 0) then 
+        pos1 = __lua_lib_luautf8_Utf8.len(p) + pos1;
+      end;
+      if (pos1 < 0) then 
+        pos1 = 0;
+      end;
+      local s = __lua_lib_luautf8_Utf8.sub(p, pos1 + 1, pos1 + len);
+      local _g_codes = __lua_lib_luautf8_Utf8.codes(s);
+      local _g_str = s;
+      local _hx_1_cp_position, _hx_1_cp_codepoint = _g_codes(_g_str, 0);
+      local _g_codepoint = _hx_1_cp_codepoint;
+      local _g_position = _hx_1_cp_position;
+      while (_g_codepoint ~= nil) do 
+        local ret = _g_codepoint;
+        local _hx_2_cp_position, _hx_2_cp_codepoint = _g_codes(_g_str, _g_position);
+        _g_codepoint = _hx_2_cp_codepoint;
+        _g_position = _hx_2_cp_position;
+        local c = ret;
+        if (c == 32) then 
+          pos = pos + 1;
+        else
+          break;
+        end;
+      end;
+    end;
+    do return pos end;
+  end;
+  local pos = kwdEnd("if");
+  if (pos > 0) then 
+    local pos1 = pos;
+    local len = __lua_lib_luautf8_Utf8.len(p) - pos;
+    if ((len == nil) or (len > (pos1 + __lua_lib_luautf8_Utf8.len(p)))) then 
+      len = __lua_lib_luautf8_Utf8.len(p);
+    else
+      if (len < 0) then 
+        len = __lua_lib_luautf8_Utf8.len(p) + len;
+      end;
+    end;
+    if (pos1 < 0) then 
+      pos1 = __lua_lib_luautf8_Utf8.len(p) + pos1;
+    end;
+    if (pos1 < 0) then 
+      pos1 = 0;
+    end;
+    p = __lua_lib_luautf8_Utf8.sub(p, pos1 + 1, pos1 + len);
+    local e = self:parseExpr(p);
+    local eif = self:parseBlock(tokens);
+    local t = tokens:first();
+    local eelse;
+    if (t == nil) then 
+      _G.error(__haxe_Exception.thrown("Unclosed 'if'"),0);
+    end;
+    if (t.p == "end") then 
+      tokens:pop();
+      eelse = nil;
+    else
+      if (t.p == "else") then 
+        tokens:pop();
+        eelse = self:parseBlock(tokens);
+        t = tokens:pop();
+        if ((t == nil) or (t.p ~= "end")) then 
+          _G.error(__haxe_Exception.thrown("Unclosed 'else'"),0);
+        end;
+      else
+        local _this = t.p;
+        local pos = 4;
+        local len = __lua_lib_luautf8_Utf8.len(t.p) - 4;
+        if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(_this)))) then 
+          len = __lua_lib_luautf8_Utf8.len(_this);
+        else
+          if (len < 0) then 
+            len = __lua_lib_luautf8_Utf8.len(_this) + len;
+          end;
+        end;
+        if (pos < 0) then 
+          pos = __lua_lib_luautf8_Utf8.len(_this) + pos;
+        end;
+        if (pos < 0) then 
+          pos = 0;
+        end;
+        t.p = __lua_lib_luautf8_Utf8.sub(_this, pos + 1, pos + len);
+        eelse = self:parse(tokens);
+      end;
+    end;
+    do return __haxe__Template_TemplateExpr.OpIf(e, eif, eelse) end;
+  end;
+  local pos = kwdEnd("foreach");
+  if (pos >= 0) then 
+    local pos1 = pos;
+    local len = __lua_lib_luautf8_Utf8.len(p) - pos;
+    if ((len == nil) or (len > (pos1 + __lua_lib_luautf8_Utf8.len(p)))) then 
+      len = __lua_lib_luautf8_Utf8.len(p);
+    else
+      if (len < 0) then 
+        len = __lua_lib_luautf8_Utf8.len(p) + len;
+      end;
+    end;
+    if (pos1 < 0) then 
+      pos1 = __lua_lib_luautf8_Utf8.len(p) + pos1;
+    end;
+    if (pos1 < 0) then 
+      pos1 = 0;
+    end;
+    p = __lua_lib_luautf8_Utf8.sub(p, pos1 + 1, pos1 + len);
+    local e = self:parseExpr(p);
+    local efor = self:parseBlock(tokens);
+    local t = tokens:pop();
+    if ((t == nil) or (t.p ~= "end")) then 
+      _G.error(__haxe_Exception.thrown("Unclosed 'foreach'"),0);
+    end;
+    do return __haxe__Template_TemplateExpr.OpForeach(e, efor) end;
+  end;
+  if (__haxe_Template.expr_splitter:match(p)) then 
+    do return __haxe__Template_TemplateExpr.OpExpr(self:parseExpr(p)) end;
+  end;
+  do return __haxe__Template_TemplateExpr.OpVar(p) end
+end
+__haxe_Template.prototype.parseExpr = function(self,data) 
+  local l = __haxe_ds_List.new();
+  local expr = data;
+  while (__haxe_Template.expr_splitter:match(data)) do 
+    local p = __haxe_Template.expr_splitter:matchedPos();
+    local k = p.pos + p.len;
+    if (p.pos ~= 0) then 
+      local pos = 0;
+      local len = p.pos;
+      if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(data)))) then 
+        len = __lua_lib_luautf8_Utf8.len(data);
+      else
+        if (len < 0) then 
+          len = __lua_lib_luautf8_Utf8.len(data) + len;
+        end;
+      end;
+      if (pos < 0) then 
+        pos = __lua_lib_luautf8_Utf8.len(data) + pos;
+      end;
+      if (pos < 0) then 
+        pos = 0;
+      end;
+      l:add(_hx_o({__fields__={p=true,s=true},p=__lua_lib_luautf8_Utf8.sub(data, pos + 1, pos + len),s=true}));
+    end;
+    local p = __haxe_Template.expr_splitter:matched(0);
+    local startIndex = nil;
+    if (startIndex == nil) then 
+      startIndex = 1;
+    else
+      startIndex = startIndex + 1;
+    end;
+    local r = __lua_lib_luautf8_Utf8.find(p, "\"", startIndex, true);
+    l:add(_hx_o({__fields__={p=true,s=true},p=p,s=(function() 
+      local _hx_1
+      if ((r ~= nil) and (r > 0)) then 
+      _hx_1 = r - 1; else 
+      _hx_1 = -1; end
+      return _hx_1
+    end )() >= 0}));
+    data = __haxe_Template.expr_splitter:matchedRight();
+  end;
+  if (__lua_lib_luautf8_Utf8.len(data) ~= 0) then 
+    local _g_offset = 0;
+    local _g_s = data;
+    while (_g_offset < __lua_lib_luautf8_Utf8.len(_g_s)) do 
+      local _g1_key = _g_offset;
+      _g_offset = _g_offset + 1;
+      local _g1_value = __lua_lib_luautf8_Utf8.byte(_g_s, (_g_offset - 1) + 1);
+      local i = _g1_key;
+      local c = _g1_value;
+      if (c ~= 32) then 
+        local pos = i;
+        local len = nil;
+        if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(data)))) then 
+          len = __lua_lib_luautf8_Utf8.len(data);
+        else
+          if (len < 0) then 
+            len = __lua_lib_luautf8_Utf8.len(data) + len;
+          end;
+        end;
+        if (pos < 0) then 
+          pos = __lua_lib_luautf8_Utf8.len(data) + pos;
+        end;
+        if (pos < 0) then 
+          pos = 0;
+        end;
+        l:add(_hx_o({__fields__={p=true,s=true},p=__lua_lib_luautf8_Utf8.sub(data, pos + 1, pos + len),s=true}));
+        break;
+      end;
+    end;
+  end;
+  local e;
+  local _hx_status, _hx_result = pcall(function() 
+  
+      e = self:makeExpr(l);
+      if (not l:isEmpty()) then 
+        _G.error(__haxe_Exception.thrown(l:first().p),0);
+      end;
+    return _hx_pcall_default
+  end)
+  if not _hx_status and _hx_result == "_hx_pcall_break" then
+  elseif not _hx_status then 
+    local _g = _hx_result;
+    local _g1 = __haxe_Exception.caught(_g):unwrap();
+    if (__lua_Boot.__instanceof(_g1, String)) then 
+      local s = _g1;
+      _G.error(__haxe_Exception.thrown(Std.string(Std.string(Std.string("Unexpected '") .. Std.string(s)) .. Std.string("' in ")) .. Std.string(expr)),0);
+    else
+      _G.error(_g,0);
+    end;
+  elseif _hx_result ~= _hx_pcall_default then
+    return _hx_result
+  end;
+  do return function() 
+    local _hx_status, _hx_result = pcall(function() 
+    
+        do return e() end;
+      return _hx_pcall_default
+    end)
+    if not _hx_status and _hx_result == "_hx_pcall_break" then
+    elseif not _hx_status then 
+      local _g = _hx_result;
+      local exc = __haxe_Exception.caught(_g):unwrap();
+      _G.error(__haxe_Exception.thrown(Std.string(Std.string(Std.string("Error : ") .. Std.string(Std.string(exc))) .. Std.string(" in ")) .. Std.string(expr)),0);
+    elseif _hx_result ~= _hx_pcall_default then
+      return _hx_result
+    end;
+  end end
+end
+__haxe_Template.prototype.makeConst = function(self,v) 
+  __haxe_Template.expr_trim:match(v);
+  v = __haxe_Template.expr_trim:matched(1);
+  if (__lua_lib_luautf8_Utf8.byte(v, 1) == 34) then 
+    local pos = 1;
+    local len = __lua_lib_luautf8_Utf8.len(v) - 2;
+    if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(v)))) then 
+      len = __lua_lib_luautf8_Utf8.len(v);
+    else
+      if (len < 0) then 
+        len = __lua_lib_luautf8_Utf8.len(v) + len;
+      end;
+    end;
+    if (pos < 0) then 
+      pos = __lua_lib_luautf8_Utf8.len(v) + pos;
+    end;
+    if (pos < 0) then 
+      pos = 0;
+    end;
+    local str = __lua_lib_luautf8_Utf8.sub(v, pos + 1, pos + len);
+    do return function() 
+      do return str end;
+    end end;
+  end;
+  if (__haxe_Template.expr_int:match(v)) then 
+    local i = Std.parseInt(v);
+    do return function() 
+      do return i end;
+    end end;
+  end;
+  if (__haxe_Template.expr_float:match(v)) then 
+    local f = Std.parseFloat(v);
+    do return function() 
+      do return f end;
+    end end;
+  end;
+  local me = self;
+  do return function() 
+    do return me:resolve(v) end;
+  end end
+end
+__haxe_Template.prototype.makePath = function(self,e,l) 
+  local p = l:first();
+  if ((p == nil) or (p.p ~= ".")) then 
+    do return e end;
+  end;
+  l:pop();
+  local field = l:pop();
+  if ((field == nil) or not field.s) then 
+    _G.error(__haxe_Exception.thrown(field.p),0);
+  end;
+  local f = field.p;
+  __haxe_Template.expr_trim:match(f);
+  f = __haxe_Template.expr_trim:matched(1);
+  do return self:makePath(function() 
+    do return Reflect.field(e(), f) end;
+  end, l) end
+end
+__haxe_Template.prototype.makeExpr = function(self,l) 
+  do return self:makePath(self:makeExpr2(l), l) end
+end
+__haxe_Template.prototype.skipSpaces = function(self,l) 
+  local p = l:first();
+  while (p ~= nil) do 
+    local s = p.p;
+    local _g_codes = __lua_lib_luautf8_Utf8.codes(s);
+    local _g_str = s;
+    local _hx_1_cp_position, _hx_1_cp_codepoint = _g_codes(_g_str, 0);
+    local _g_codepoint = _hx_1_cp_codepoint;
+    local _g_position = _hx_1_cp_position;
+    while (_g_codepoint ~= nil) do 
+      local ret = _g_codepoint;
+      local _hx_2_cp_position, _hx_2_cp_codepoint = _g_codes(_g_str, _g_position);
+      _g_codepoint = _hx_2_cp_codepoint;
+      _g_position = _hx_2_cp_position;
+      local c = ret;
+      if (c ~= 32) then 
+        do return end;
+      end;
+    end;
+    l:pop();
+    p = l:first();
+  end;
+end
+__haxe_Template.prototype.makeExpr2 = function(self,l) 
+  self:skipSpaces(l);
+  local p = l:pop();
+  self:skipSpaces(l);
+  if (p == nil) then 
+    _G.error(__haxe_Exception.thrown("<eof>"),0);
+  end;
+  if (p.s) then 
+    do return self:makeConst(p.p) end;
+  end;
+  local _g = p.p;
+  if (_g) == "!" then 
+    local e = self:makeExpr(l);
+    do return function() 
+      local v = e();
+      if (v ~= nil) then 
+        do return v == false end;
+      else
+        do return true end;
+      end;
+    end end;
+  elseif (_g) == "(" then 
+    self:skipSpaces(l);
+    local e1 = self:makeExpr(l);
+    self:skipSpaces(l);
+    local p = l:pop();
+    if ((p == nil) or p.s) then 
+      _G.error(__haxe_Exception.thrown(p),0);
+    end;
+    if (p.p == ")") then 
+      do return e1 end;
+    end;
+    self:skipSpaces(l);
+    local e2 = self:makeExpr(l);
+    self:skipSpaces(l);
+    local p2 = l:pop();
+    self:skipSpaces(l);
+    if ((p2 == nil) or (p2.p ~= ")")) then 
+      _G.error(__haxe_Exception.thrown(p2),0);
+    end;
+    local _g = p.p;
+    if (_g) == "!=" then 
+      do return function() 
+        do return e1() ~= e2() end;
+      end end;
+    elseif (_g) == "&&" then 
+      do return function() 
+        do return e1() and e2() end;
+      end end;
+    elseif (_g) == "*" then 
+      do return function() 
+        do return e1() * e2() end;
+      end end;
+    elseif (_g) == "+" then 
+      do return function() 
+        do return _hx_dyn_add(e1(),e2()) end;
+      end end;
+    elseif (_g) == "-" then 
+      do return function() 
+        do return e1() - e2() end;
+      end end;
+    elseif (_g) == "/" then 
+      do return function() 
+        do return e1() / e2() end;
+      end end;
+    elseif (_g) == "<" then 
+      do return function() 
+        do return e1() < e2() end;
+      end end;
+    elseif (_g) == "<=" then 
+      do return function() 
+        do return e1() <= e2() end;
+      end end;
+    elseif (_g) == "==" then 
+      do return function() 
+        do return e1() == e2() end;
+      end end;
+    elseif (_g) == ">" then 
+      do return function() 
+        do return e1() > e2() end;
+      end end;
+    elseif (_g) == ">=" then 
+      do return function() 
+        do return e1() >= e2() end;
+      end end;
+    elseif (_g) == "||" then 
+      do return function() 
+        do return e1() or e2() end;
+      end end;else
+    _G.error(__haxe_Exception.thrown(Std.string("Unknown operation ") .. Std.string(p.p)),0); end;
+  elseif (_g) == "-" then 
+    local e = self:makeExpr(l);
+    do return function() 
+      do return -e() end;
+    end end; end;
+  _G.error(__haxe_Exception.thrown(p.p),0);
+end
+__haxe_Template.prototype.run = function(self,e) 
+  local tmp = e[1];
+  if (tmp) == 0 then 
+    local v = e[2];
+    local _this = self.buf;
+    local str = Std.string(self:resolve(v));
+    _G.table.insert(_this.b, str);
+    local _this = _this;
+    _this.length = _this.length + __lua_lib_luautf8_Utf8.len(str);
+  elseif (tmp) == 1 then 
+    local e = e[2];
+    local _this = self.buf;
+    local str = Std.string(e());
+    _G.table.insert(_this.b, str);
+    local _this = _this;
+    _this.length = _this.length + __lua_lib_luautf8_Utf8.len(str);
+  elseif (tmp) == 2 then 
+    local e1 = e[2];
+    local eif = e[3];
+    local eelse = e[4];
+    local v = e1();
+    if ((v == nil) or (v == false)) then 
+      if (eelse ~= nil) then 
+        self:run(eelse);
+      end;
+    else
+      self:run(eif);
+    end;
+  elseif (tmp) == 3 then 
+    local str = e[2];
+    local _this = self.buf;
+    local str = Std.string(str);
+    _G.table.insert(_this.b, str);
+    local _this = _this;
+    _this.length = _this.length + __lua_lib_luautf8_Utf8.len(str);
+  elseif (tmp) == 4 then 
+    local l = e[2];
+    local _g_head = l.h;
+    while (_g_head ~= nil) do 
+      local val = _g_head.item;
+      _g_head = _g_head.next;
+      local e = val;
+      self:run(e);
+    end;
+  elseif (tmp) == 5 then 
+    local e1 = e[2];
+    local loop = e[3];
+    local v = e1();
+    local _hx_status, _hx_result = pcall(function() 
+    
+        local x = v:iterator();
+        if (x.hasNext == nil) then 
+          _G.error(__haxe_Exception.thrown(nil),0);
+        end;
+        v = x;
+      return _hx_pcall_default
+    end)
+    if not _hx_status and _hx_result == "_hx_pcall_break" then
+    elseif not _hx_status then 
+      local _g = _hx_result;
+      local _hx_status, _hx_result = pcall(function() 
+      
+          if (v.hasNext == nil) then 
+            _G.error(__haxe_Exception.thrown(nil),0);
+          end;
+        return _hx_pcall_default
+      end)
+      if not _hx_status and _hx_result == "_hx_pcall_break" then
+      elseif not _hx_status then 
+        local _g = _hx_result;
+        _G.error(__haxe_Exception.thrown(Std.string("Cannot iter on ") .. Std.string(Std.string(v))),0);
+      elseif _hx_result ~= _hx_pcall_default then
+        return _hx_result
+      end;
+    elseif _hx_result ~= _hx_pcall_default then
+      return _hx_result
+    end;
+    self.stack:push(self.context);
+    local v = v;
+    local ctx = v;
+    while (ctx:hasNext()) do 
+      local ctx = ctx:next();
+      self.context = ctx;
+      self:run(loop);
+    end;
+    self.context = self.stack:pop();
+  elseif (tmp) == 6 then 
+    local m = e[2];
+    local params = e[3];
+    local v = Reflect.field(self.macros, m);
+    local pl = Array.new();
+    local old = self.buf;
+    pl:push(_hx_bind(self,self.resolve));
+    local _g_head = params.h;
+    while (_g_head ~= nil) do 
+      local val = _g_head.item;
+      _g_head = _g_head.next;
+      local p = val;
+      if (p[1] == 0) then 
+        local v = p[2];
+        pl:push(self:resolve(v));
+      else
+        self.buf = StringBuf.new();
+        self:run(p);
+        pl:push(_G.table.concat(self.buf.b));
+      end;
+    end;
+    self.buf = old;
+    local _hx_status, _hx_result = pcall(function() 
+    
+        local _this = self.buf;
+        local str = Std.string(Reflect.callMethod(self.macros,v,pl));
+        _G.table.insert(_this.b, str);
+        local _this = _this;
+        _this.length = _this.length + __lua_lib_luautf8_Utf8.len(str);
+      return _hx_pcall_default
+    end)
+    if not _hx_status and _hx_result == "_hx_pcall_break" then
+    elseif not _hx_status then 
+      local _g = _hx_result;
+      local e = __haxe_Exception.caught(_g):unwrap();
+      local plstr;
+      local _hx_status, _hx_result = pcall(function() 
+      
+          plstr = pl:join(",");
+        return _hx_pcall_default
+      end)
+      if not _hx_status and _hx_result == "_hx_pcall_break" then
+      elseif not _hx_status then 
+        local _g = _hx_result;
+        plstr = "???";
+      elseif _hx_result ~= _hx_pcall_default then
+        return _hx_result
+      end;
+      local msg = Std.string(Std.string(Std.string(Std.string(Std.string(Std.string("Macro call ") .. Std.string(m)) .. Std.string("(")) .. Std.string(plstr)) .. Std.string(") failed (")) .. Std.string(Std.string(e))) .. Std.string(")");
+      _G.error(__haxe_Exception.thrown(msg),0);
+    elseif _hx_result ~= _hx_pcall_default then
+      return _hx_result
+    end; end;
+end
+
+__haxe_Template.prototype.__class__ =  __haxe_Template
+
+__haxe_ValueException.new = function(value,previous,native) 
+  local self = _hx_new(__haxe_ValueException.prototype)
+  __haxe_ValueException.super(self,value,previous,native)
+  return self
+end
+__haxe_ValueException.super = function(self,value,previous,native) 
+  __haxe_Exception.super(self,Std.string(value),previous,native);
+  self.value = value;
+end
+__haxe_ValueException.__name__ = true
+__haxe_ValueException.prototype = _hx_e();
+__haxe_ValueException.prototype.unwrap = function(self) 
+  do return self.value end
+end
+
+__haxe_ValueException.prototype.__class__ =  __haxe_ValueException
+__haxe_ValueException.__super__ = __haxe_Exception
+setmetatable(__haxe_ValueException.prototype,{__index=__haxe_Exception.prototype})
+setmetatable(__haxe_ValueException.prototype.__properties__,{__index=__haxe_Exception.prototype.__properties__})
+
+__haxe_ds_List.new = function() 
+  local self = _hx_new(__haxe_ds_List.prototype)
+  __haxe_ds_List.super(self)
+  return self
+end
+__haxe_ds_List.super = function(self) 
+  self.length = 0;
+end
+__haxe_ds_List.__name__ = true
+__haxe_ds_List.prototype = _hx_e();
+__haxe_ds_List.prototype.add = function(self,item) 
+  local next = nil;
+  local x = __haxe_ds__List_ListNode.new(item, next);
+  if (self.h == nil) then 
+    self.h = x;
+  else
+    self.q.next = x;
+  end;
+  self.q = x;
+  self.length = self.length + 1;
+end
+__haxe_ds_List.prototype.push = function(self,item) 
+  local x = __haxe_ds__List_ListNode.new(item, self.h);
+  self.h = x;
+  if (self.q == nil) then 
+    self.q = x;
+  end;
+  self.length = self.length + 1;
+end
+__haxe_ds_List.prototype.first = function(self) 
+  if (self.h == nil) then 
+    do return nil end;
+  else
+    do return self.h.item end;
+  end;
+end
+__haxe_ds_List.prototype.pop = function(self) 
+  if (self.h == nil) then 
+    do return nil end;
+  end;
+  local x = self.h.item;
+  self.h = self.h.next;
+  if (self.h == nil) then 
+    self.q = nil;
+  end;
+  self.length = self.length - 1;
+  do return x end
+end
+__haxe_ds_List.prototype.isEmpty = function(self) 
+  do return self.h == nil end
+end
+__haxe_ds_List.prototype.toString = function(self) 
+  local s_b = ({});
+  local s_length = 0;
+  local first = true;
+  local l = self.h;
+  local str = "{";
+  _G.table.insert(s_b, str);
+  s_length = s_length + __lua_lib_luautf8_Utf8.len(str);
+  while (l ~= nil) do 
+    if (first) then 
+      first = false;
+    else
+      local str = ", ";
+      _G.table.insert(s_b, str);
+      s_length = s_length + __lua_lib_luautf8_Utf8.len(str);
+    end;
+    local str = Std.string(l.item);
+    _G.table.insert(s_b, str);
+    s_length = s_length + __lua_lib_luautf8_Utf8.len(str);
+    l = l.next;
+  end;
+  local str = "}";
+  _G.table.insert(s_b, str);
+  s_length = s_length + __lua_lib_luautf8_Utf8.len(str);
+  do return _G.table.concat(s_b) end
+end
+
+__haxe_ds_List.prototype.__class__ =  __haxe_ds_List
+
+__haxe_ds__List_ListNode.new = function(item,next) 
+  local self = _hx_new(__haxe_ds__List_ListNode.prototype)
+  __haxe_ds__List_ListNode.super(self,item,next)
+  return self
+end
+__haxe_ds__List_ListNode.super = function(self,item,next) 
+  self.item = item;
+  self.next = next;
+end
+__haxe_ds__List_ListNode.__name__ = true
+__haxe_ds__List_ListNode.prototype = _hx_e();
+
+__haxe_ds__List_ListNode.prototype.__class__ =  __haxe_ds__List_ListNode
+
+__haxe_ds_StringMap.new = {}
+__haxe_ds_StringMap.__name__ = true
+__haxe_ds_StringMap.__interfaces__ = {__haxe_IMap}
 
 __haxe_iterators_ArrayKeyValueIterator.new = function(array) 
   local self = _hx_new(__haxe_iterators_ArrayKeyValueIterator.prototype)
@@ -1699,31 +2772,31 @@ _hx_exports["xrfragment"]["Parser"] = __xrfragment_Parser
 __xrfragment_Parser.__name__ = true
 __xrfragment_Parser.parse = function(key,value,store,index) 
   local Frag_h = ({});
-  local value1 = _hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_PREDEFINED_VIEW),__xrfragment_XRF.PV_EXECUTE);
+  local value1 = _hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.IMMUTABLE,__xrfragment_XRF.T_PREDEFINED_VIEW),__xrfragment_XRF.PV_EXECUTE);
   if (value1 == nil) then 
     Frag_h["#"] = __haxe_ds_StringMap.tnull;
   else
     Frag_h["#"] = value1;
   end;
-  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_URL);
+  local value1 = __xrfragment_XRF.T_URL;
   if (value1 == nil) then 
     Frag_h.src = __haxe_ds_StringMap.tnull;
   else
     Frag_h.src = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_URL),__xrfragment_XRF.T_PREDEFINED_VIEW);
+  local value1 = _hx_bit.bor(__xrfragment_XRF.T_URL,__xrfragment_XRF.T_PREDEFINED_VIEW);
   if (value1 == nil) then 
     Frag_h.href = __haxe_ds_StringMap.tnull;
   else
     Frag_h.href = value1;
   end;
-  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
+  local value1 = _hx_bit.bor(__xrfragment_XRF.IMMUTABLE,__xrfragment_XRF.T_STRING);
   if (value1 == nil) then 
     Frag_h.tag = __haxe_ds_StringMap.tnull;
   else
     Frag_h.tag = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.PV_OVERRIDE,__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.T_STRING),__xrfragment_XRF.T_STRING_OBJ),__xrfragment_XRF.METADATA),__xrfragment_XRF.NAVIGATOR);
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.PV_OVERRIDE,__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.T_STRING),__xrfragment_XRF.METADATA),__xrfragment_XRF.NAVIGATOR);
   if (value1 == nil) then 
     Frag_h.pos = __haxe_ds_StringMap.tnull;
   else
@@ -1735,54 +2808,66 @@ __xrfragment_Parser.parse = function(key,value,store,index)
   else
     Frag_h.rot = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_FLOAT),__xrfragment_XRF.T_VECTOR2),__xrfragment_XRF.T_STRING),__xrfragment_XRF.NAVIGATOR),__xrfragment_XRF.METADATA);
+  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.PV_OVERRIDE,__xrfragment_XRF.T_FLOAT),__xrfragment_XRF.T_VECTOR2),__xrfragment_XRF.NAVIGATOR),__xrfragment_XRF.METADATA);
   if (value1 == nil) then 
     Frag_h.t = __haxe_ds_StringMap.tnull;
   else
     Frag_h.t = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.T_FLOAT),__xrfragment_XRF.T_VECTOR2),__xrfragment_XRF.T_VECTOR3),__xrfragment_XRF.NAVIGATOR),__xrfragment_XRF.METADATA);
+  local value1 = _hx_bit.bor(__xrfragment_XRF.PV_OVERRIDE,__xrfragment_XRF.T_MEDIAFRAG);
   if (value1 == nil) then 
-    Frag_h.tv = __haxe_ds_StringMap.tnull;
+    Frag_h.s = __haxe_ds_StringMap.tnull;
   else
-    Frag_h.tv = value1;
+    Frag_h.s = value1;
   end;
-  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
+  local value1 = __xrfragment_XRF.PV_OVERRIDE;
+  if (value1 == nil) then 
+    Frag_h.loop = __haxe_ds_StringMap.tnull;
+  else
+    Frag_h.loop = value1;
+  end;
+  local value1 = _hx_bit.bor(__xrfragment_XRF.T_VECTOR2,__xrfragment_XRF.T_MEDIAFRAG);
+  if (value1 == nil) then 
+    Frag_h.uv = __haxe_ds_StringMap.tnull;
+  else
+    Frag_h.uv = value1;
+  end;
+  local value1 = _hx_bit.bor(__xrfragment_XRF.IMMUTABLE,__xrfragment_XRF.T_STRING);
   if (value1 == nil) then 
     Frag_h.namespace = __haxe_ds_StringMap.tnull;
   else
     Frag_h.namespace = value1;
   end;
-  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
+  local value1 = _hx_bit.bor(__xrfragment_XRF.IMMUTABLE,__xrfragment_XRF.T_STRING);
   if (value1 == nil) then 
     Frag_h.SPDX = __haxe_ds_StringMap.tnull;
   else
     Frag_h.SPDX = value1;
   end;
-  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
+  local value1 = _hx_bit.bor(__xrfragment_XRF.IMMUTABLE,__xrfragment_XRF.T_STRING);
   if (value1 == nil) then 
     Frag_h.unit = __haxe_ds_StringMap.tnull;
   else
     Frag_h.unit = value1;
   end;
-  local value1 = _hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_STRING);
+  local value1 = _hx_bit.bor(__xrfragment_XRF.IMMUTABLE,__xrfragment_XRF.T_STRING);
   if (value1 == nil) then 
     Frag_h.description = __haxe_ds_StringMap.tnull;
   else
     Frag_h.description = value1;
   end;
-  local value1 = _hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(_hx_bit.bor(__xrfragment_XRF.ASSET,__xrfragment_XRF.T_URL),__xrfragment_XRF.PV_OVERRIDE),__xrfragment_XRF.NAVIGATOR),__xrfragment_XRF.METADATA),__xrfragment_XRF.PROMPT);
-  if (value1 == nil) then 
-    Frag_h.session = __haxe_ds_StringMap.tnull;
-  else
-    Frag_h.session = value1;
-  end;
   local keyStripped = __xrfragment_XRF.operators:replace(key, "");
   local isPVDynamic = (__lua_lib_luautf8_Utf8.len(key) > 0) and (Frag_h[key] == nil);
-  local isPVDefault = ((__lua_lib_luautf8_Utf8.len(value) == 0) and (__lua_lib_luautf8_Utf8.len(key) > 0)) and (key == "#");
   if (isPVDynamic) then 
     local v = __xrfragment_XRF.new(key, _hx_bit.bor(__xrfragment_XRF.PV_EXECUTE,__xrfragment_XRF.NAVIGATOR), index);
     v:validate(value);
+    v.flags = __xrfragment_XRF.set(__xrfragment_XRF.T_DYNAMICKEY, v.flags);
+    if (Frag_h[key] == nil) then 
+      v.flags = __xrfragment_XRF.set(__xrfragment_XRF.CUSTOMFRAG, v.flags);
+    end;
+    if (__lua_lib_luautf8_Utf8.len(value) == 0) then 
+      v.flags = __xrfragment_XRF.set(__xrfragment_XRF.T_DYNAMICKEYVALUE, v.flags);
+    end;
     store[keyStripped] = v;
     do return true end;
   end;
@@ -1793,18 +2878,18 @@ __xrfragment_Parser.parse = function(key,value,store,index)
   local v = __xrfragment_XRF.new(key, ret, index);
   if (Frag_h[key] ~= nil) then 
     if (not v:validate(value)) then 
-      __haxe_Log.trace(Std.string(Std.string(Std.string(Std.string("⚠ fragment '") .. Std.string(key)) .. Std.string("' has incompatible value (")) .. Std.string(value)) .. Std.string(")"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=66,className="xrfragment.Parser",methodName="parse"}));
+      __haxe_Log.trace(Std.string(Std.string(Std.string(Std.string("⚠ fragment '") .. Std.string(key)) .. Std.string("' has incompatible value (")) .. Std.string(value)) .. Std.string(")"), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=67,className="xrfragment.Parser",methodName="parse"}));
       do return false end;
     end;
     store[keyStripped] = v;
     if (__xrfragment_Parser.debug) then 
-      __haxe_Log.trace(Std.string(Std.string(Std.string("✔ ") .. Std.string(key)) .. Std.string(": ")) .. Std.string(v.string), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=70,className="xrfragment.Parser",methodName="parse"}));
+      __haxe_Log.trace(Std.string(Std.string(Std.string("✔ ") .. Std.string(key)) .. Std.string(": ")) .. Std.string(v.string), _hx_o({__fields__={fileName=true,lineNumber=true,className=true,methodName=true},fileName="src/xrfragment/Parser.hx",lineNumber=71,className="xrfragment.Parser",methodName="parse"}));
     end;
   else
     if (__lua_Boot.__instanceof(value, String)) then 
       v:guessType(v, value);
     end;
-    v.noXRF = true;
+    v.flags = __xrfragment_XRF.set(__xrfragment_XRF.CUSTOMFRAG, v.flags);
     store[keyStripped] = v;
   end;
   do return true end;
@@ -1917,7 +3002,11 @@ __xrfragment_URI.parse = function(url,filter)
     local key = splitByEqual[0];
     local value = "";
     if (splitByEqual.length > 1) then 
-      value = StringTools.urlDecode(regexPlus:split(splitByEqual[1]):join(" "));
+      if (__xrfragment_XRF.isVector:match(splitByEqual[1])) then 
+        value = splitByEqual[1];
+      else
+        value = StringTools.urlDecode(regexPlus:split(splitByEqual[1]):join(" "));
+      end;
     end;
     local ok = __xrfragment_Parser.parse(key, value, store, i);
   end;
@@ -1935,6 +3024,41 @@ __xrfragment_URI.parse = function(url,filter)
   end;
   do return store end;
 end
+__xrfragment_URI.template = function(uri,vars) 
+  local idx = 1;
+  local ret = _hx_tab_array({}, 0);
+  while (idx ~= nil) do 
+    local newidx = 0;
+    if (__lua_lib_luautf8_Utf8.len("#") > 0) then 
+      newidx = __lua_lib_luautf8_Utf8.find(uri, "#", idx, true);
+    else
+      if (idx >= __lua_lib_luautf8_Utf8.len(uri)) then 
+        newidx = nil;
+      else
+        newidx = idx + 1;
+      end;
+    end;
+    if (newidx ~= nil) then 
+      local match = __lua_lib_luautf8_Utf8.sub(uri, idx, newidx - 1);
+      ret:push(match);
+      idx = newidx + __lua_lib_luautf8_Utf8.len("#");
+    else
+      ret:push(__lua_lib_luautf8_Utf8.sub(uri, idx, __lua_lib_luautf8_Utf8.len(uri)));
+      idx = nil;
+    end;
+  end;
+  local parts = ret;
+  if (parts.length == 1) then 
+    do return uri end;
+  end;
+  local frag = parts[1];
+  frag = StringTools.replace(frag, "{", "::");
+  frag = StringTools.replace(frag, "}", "::");
+  frag = __haxe_Template.new(frag):execute(vars);
+  frag = StringTools.replace(frag, "null", "");
+  parts[1] = frag;
+  do return parts:join("#") end;
+end
 
 __xrfragment_XRF.new = function(_fragment,_flags,_index) 
   local self = _hx_new(__xrfragment_XRF.prototype)
@@ -1942,6 +3066,8 @@ __xrfragment_XRF.new = function(_fragment,_flags,_index)
   return self
 end
 __xrfragment_XRF.super = function(self,_fragment,_flags,_index) 
+  self.floats = Array.new();
+  self.shift = Array.new();
   self.fragment = _fragment;
   self.flags = _flags;
   self.index = _index;
@@ -1974,10 +3100,21 @@ __xrfragment_XRF.prototype.validate = function(self,value)
 end
 __xrfragment_XRF.prototype.guessType = function(self,v,str) 
   v.string = str;
+  if (__xrfragment_XRF.isReset:match(v.fragment)) then 
+    v.reset = true;
+  end;
+  if (v.fragment == "loop") then 
+    v.loop = true;
+  end;
   if (not __lua_Boot.__instanceof(str, String)) then 
     do return end;
   end;
   if (__lua_lib_luautf8_Utf8.len(str) > 0) then 
+    if (__xrfragment_XRF.isXRFScheme:match(str)) then 
+      v.xrfScheme = true;
+      str = __xrfragment_XRF.isXRFScheme:replace(str, "");
+      v.string = str;
+    end;
     local idx = 1;
     local ret = _hx_tab_array({}, 0);
     while (idx ~= nil) do 
@@ -2023,18 +3160,23 @@ __xrfragment_XRF.prototype.guessType = function(self,v,str)
           idx = nil;
         end;
       end;
-      local xyzw = ret;
-      if (xyzw.length > 0) then 
-        v.x = Std.parseFloat(xyzw[0]);
+      local xyzn = ret;
+      if (xyzn.length > 0) then 
+        v.x = Std.parseFloat(xyzn[0]);
       end;
-      if (xyzw.length > 1) then 
-        v.y = Std.parseFloat(xyzw[1]);
+      if (xyzn.length > 1) then 
+        v.y = Std.parseFloat(xyzn[1]);
       end;
-      if (xyzw.length > 2) then 
-        v.z = Std.parseFloat(xyzw[2]);
+      if (xyzn.length > 2) then 
+        v.z = Std.parseFloat(xyzn[2]);
       end;
-      if (xyzw.length > 3) then 
-        v.w = Std.parseFloat(xyzw[3]);
+      local _g = 0;
+      local _g1 = xyzn.length;
+      while (_g < _g1) do 
+        _g = _g + 1;
+        local i = _g - 1;
+        v.shift:push(__xrfragment_XRF.isShift:match(xyzn[i]));
+        v.floats:push(Std.parseFloat(__xrfragment_XRF.isShift:replace(xyzn[i], "")));
       end;
     end;
     if (__xrfragment_XRF.isColor:match(str)) then 
@@ -2047,6 +3189,7 @@ __xrfragment_XRF.prototype.guessType = function(self,v,str)
     if (__xrfragment_XRF.isInt:match(str)) then 
       v.int = Std.parseInt(str);
       v.x = v.int;
+      v.floats:push(v.x);
     end;
     v.filter = __xrfragment_Filter.new(Std.string(Std.string(v.fragment) .. Std.string("=")) .. Std.string(v.string));
   else
@@ -2109,13 +3252,29 @@ local _hx_static_init = function()
   String.__name__ = true;
   Array.__name__ = true;EReg.FLAGS = __lua_lib_lrexlib_Rex.flags();
   
+  __haxe_Template.splitter = EReg.new("(::[A-Za-z0-9_ ()&|!+=/><*.\"-]+::|\\$\\$([A-Za-z0-9_-]+)\\()", "");
+  
+  __haxe_Template.expr_splitter = EReg.new("(\\(|\\)|[ \r\n\t]*\"[^\"]*\"[ \r\n\t]*|[!+=/><*.&|-]+)", "");
+  
+  __haxe_Template.expr_trim = EReg.new("^[ ]*([^ ]+)[ ]*$", "");
+  
+  __haxe_Template.expr_int = EReg.new("^[0-9]+$", "");
+  
+  __haxe_Template.expr_float = EReg.new("^([+-]?)(?=\\d|,\\d)\\d*(,\\d*)?([Ee]([+-]?\\d+))?$", "");
+  
+  __haxe_Template.globals = _hx_e();
+  
+  __haxe_Template.hxKeepArrayIterator = __haxe_iterators_ArrayIterator.new(_hx_tab_array({}, 0));
+  
   __haxe_ds_StringMap.tnull = ({});
   
   __xrfragment_Parser.error = "";
   
   __xrfragment_Parser.debug = false;
   
-  __xrfragment_XRF.ASSET = 1;
+  __xrfragment_URI.__meta__ = _hx_o({__fields__={statics=true},statics=_hx_o({__fields__={template=true},template=_hx_o({__fields__={keep=true},keep=nil})})});
+  
+  __xrfragment_XRF.IMMUTABLE = 1;
   
   __xrfragment_XRF.PROP_BIND = 2;
   
@@ -2123,7 +3282,7 @@ local _hx_static_init = function()
   
   __xrfragment_XRF.PROMPT = 8;
   
-  __xrfragment_XRF.ROUNDROBIN = 16;
+  __xrfragment_XRF.CUSTOMFRAG = 16;
   
   __xrfragment_XRF.NAVIGATOR = 32;
   
@@ -2149,9 +3308,11 @@ local _hx_static_init = function()
   
   __xrfragment_XRF.T_STRING = 1048576;
   
-  __xrfragment_XRF.T_STRING_OBJ = 2097152;
+  __xrfragment_XRF.T_MEDIAFRAG = 2097152;
   
-  __xrfragment_XRF.T_STRING_OBJ_PROP = 4194304;
+  __xrfragment_XRF.T_DYNAMICKEY = 4194304;
+  
+  __xrfragment_XRF.T_DYNAMICKEYVALUE = 8388608;
   
   __xrfragment_XRF.isColor = EReg.new("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", "");
   
@@ -2167,7 +3328,7 @@ local _hx_static_init = function()
   
   __xrfragment_XRF.isString = EReg.new(".*", "");
   
-  __xrfragment_XRF.operators = EReg.new("(^-|[\\*]+)", "");
+  __xrfragment_XRF.operators = EReg.new("(^[-]|^[!]|[\\*]$)", "g");
   
   __xrfragment_XRF.isProp = EReg.new("^.*=[><=]?", "");
   
@@ -2177,7 +3338,30 @@ local _hx_static_init = function()
   
   __xrfragment_XRF.isNumber = EReg.new("^[0-9\\.]+$", "");
   
+  __xrfragment_XRF.isMediaFrag = EReg.new("^([0-9\\.,\\*+-]+)$", "");
   
+  __xrfragment_XRF.isReset = EReg.new("^!", "");
+  
+  __xrfragment_XRF.isShift = EReg.new("^(\\+|--)", "");
+  
+  __xrfragment_XRF.isXRFScheme = EReg.new("^xrf://", "");
+  
+  
+end
+
+_hx_bind = function(o,m)
+  if m == nil then return nil end;
+  local f;
+  if o._hx__closures == nil then
+    _G.rawset(o, '_hx__closures', {});
+  else
+    f = o._hx__closures[m];
+  end
+  if (f == nil) then
+    f = function(...) return m(o, ...) end;
+    o._hx__closures[m] = f;
+  end
+  return f;
 end
 
 _hx_print = print or (function() end)
@@ -2206,6 +3390,14 @@ _hx_wrap_if_string_field = function(o, fld)
     return o[fld]
   end
 end
+
+_hx_dyn_add = function(a,b)
+  if (_G.type(a) == 'string' or _G.type(b) == 'string') then
+    return Std.string(a)..Std.string(b)
+  else
+    return a + b;
+  end;
+end;
 
 _hx_static_init();
 return _hx_exports

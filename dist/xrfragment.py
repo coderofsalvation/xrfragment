@@ -3,10 +3,11 @@ import sys
 import math as python_lib_Math
 import math as Math
 import inspect as python_lib_Inspect
+import re as python_lib_Re
 import sys as python_lib_Sys
 import functools as python_lib_Functools
-import re as python_lib_Re
 import traceback as python_lib_Traceback
+from io import StringIO as python_lib_io_StringIO
 import urllib.parse as python_lib_urllib_Parse
 
 
@@ -54,6 +55,7 @@ class Enum:
         else:
             return self.tag + '(' + (', '.join(str(v) for v in self.params)) + ')'
 
+Enum._hx_class = Enum
 
 
 class Class: pass
@@ -130,16 +132,52 @@ class EReg:
         replace = _hx_local_0
         return python_lib_Re.sub(self.pattern,replace,s,(0 if (self._hx_global) else 1))
 
+EReg._hx_class = EReg
 
 
 class Reflect:
     _hx_class_name = "Reflect"
     __slots__ = ()
-    _hx_statics = ["field", "deleteField", "copy"]
+    _hx_statics = ["field", "getProperty", "callMethod", "isObject", "deleteField", "copy"]
 
     @staticmethod
     def field(o,field):
         return python_Boot.field(o,field)
+
+    @staticmethod
+    def getProperty(o,field):
+        if (o is None):
+            return None
+        if (field in python_Boot.keywords):
+            field = ("_hx_" + field)
+        elif ((((len(field) > 2) and ((ord(field[0]) == 95))) and ((ord(field[1]) == 95))) and ((ord(field[(len(field) - 1)]) != 95))):
+            field = ("_hx_" + field)
+        if isinstance(o,_hx_AnonObject):
+            return Reflect.field(o,field)
+        tmp = Reflect.field(o,("get_" + ("null" if field is None else field)))
+        if ((tmp is not None) and callable(tmp)):
+            return tmp()
+        else:
+            return Reflect.field(o,field)
+
+    @staticmethod
+    def callMethod(o,func,args):
+        if callable(func):
+            return func(*args)
+        else:
+            return None
+
+    @staticmethod
+    def isObject(v):
+        _g = Type.typeof(v)
+        tmp = _g.index
+        if (tmp == 4):
+            return True
+        elif (tmp == 6):
+            _g1 = _g.params[0]
+            return True
+        else:
+            return False
 
     @staticmethod
     def deleteField(o,field):
@@ -165,6 +203,7 @@ class Reflect:
             value = Reflect.field(o,f)
             setattr(o2,(("_hx_" + f) if ((f in python_Boot.keywords)) else (("_hx_" + f) if (((((len(f) > 2) and ((ord(f[0]) == 95))) and ((ord(f[1]) == 95))) and ((ord(f[(len(f) - 1)]) != 95)))) else f)),value)
         return o2
+Reflect._hx_class = Reflect
 
 
 class Std:
@@ -359,6 +398,7 @@ class Std:
                 if (r1 != x):
                     return Std.parseFloat(r1)
             return Math.NaN
+Std._hx_class = Std
 
 
 class Float: pass
@@ -373,10 +413,21 @@ class Bool: pass
 class Dynamic: pass
 
 
+class StringBuf:
+    _hx_class_name = "StringBuf"
+    __slots__ = ("b",)
+    _hx_fields = ["b"]
+
+    def __init__(self):
+        self.b = python_lib_io_StringIO()
+
+StringBuf._hx_class = StringBuf
+
+
 class StringTools:
     _hx_class_name = "StringTools"
     __slots__ = ()
-    _hx_statics = ["isSpace", "ltrim", "rtrim", "trim"]
+    _hx_statics = ["isSpace", "ltrim", "rtrim", "trim", "replace"]
 
     @staticmethod
     def isSpace(s,pos):
@@ -414,18 +465,78 @@ class StringTools:
     def trim(s):
         return StringTools.ltrim(StringTools.rtrim(s))
 
+    @staticmethod
+    def replace(s,sub,by):
+        _this = (list(s) if ((sub == "")) else s.split(sub))
+        return by.join([python_Boot.toString1(x1,'') for x1 in _this])
+StringTools._hx_class = StringTools
+
+class ValueType(Enum):
+    __slots__ = ()
+    _hx_class_name = "ValueType"
+    _hx_constructs = ["TNull", "TInt", "TFloat", "TBool", "TObject", "TFunction", "TClass", "TEnum", "TUnknown"]
+
+    @staticmethod
+    def TClass(c):
+        return ValueType("TClass", 6, (c,))
+
+    @staticmethod
+    def TEnum(e):
+        return ValueType("TEnum", 7, (e,))
+ValueType.TNull = ValueType("TNull", 0, ())
+ValueType.TInt = ValueType("TInt", 1, ())
+ValueType.TFloat = ValueType("TFloat", 2, ())
+ValueType.TBool = ValueType("TBool", 3, ())
+ValueType.TObject = ValueType("TObject", 4, ())
+ValueType.TFunction = ValueType("TFunction", 5, ())
+ValueType.TUnknown = ValueType("TUnknown", 8, ())
+ValueType._hx_class = ValueType
+
+
+class Type:
+    _hx_class_name = "Type"
+    __slots__ = ()
+    _hx_statics = ["typeof"]
+
+    @staticmethod
+    def typeof(v):
+        if (v is None):
+            return ValueType.TNull
+        elif isinstance(v,bool):
+            return ValueType.TBool
+        elif isinstance(v,int):
+            return ValueType.TInt
+        elif isinstance(v,float):
+            return ValueType.TFloat
+        elif isinstance(v,str):
+            return ValueType.TClass(str)
+        elif isinstance(v,list):
+            return ValueType.TClass(list)
+        elif (isinstance(v,_hx_AnonObject) or python_lib_Inspect.isclass(v)):
+            return ValueType.TObject
+        elif isinstance(v,Enum):
+            return ValueType.TEnum(v.__class__)
+        elif (isinstance(v,type) or hasattr(v,"_hx_class")):
+            return ValueType.TClass(v.__class__)
+        elif callable(v):
+            return ValueType.TFunction
+        else:
+            return ValueType.TUnknown
+Type._hx_class = Type
+
 
 class haxe_IMap:
     _hx_class_name = "haxe.IMap"
     __slots__ = ()
+haxe_IMap._hx_class = haxe_IMap
 
 
 class haxe_Exception(Exception):
     _hx_class_name = "haxe.Exception"
-    __slots__ = ("_hx___nativeStack", "_hx___nativeException", "_hx___previousException")
-    _hx_fields = ["__nativeStack", "__nativeException", "__previousException"]
-    _hx_methods = ["unwrap"]
-    _hx_statics = ["caught"]
+    __slots__ = ("_hx___nativeStack", "_hx___skipStack", "_hx___nativeException", "_hx___previousException")
+    _hx_fields = ["__nativeStack", "__skipStack", "__nativeException", "__previousException"]
+    _hx_methods = ["unwrap", "get_native"]
+    _hx_statics = ["caught", "thrown"]
     _hx_interfaces = []
     _hx_super = Exception
 
@@ -434,6 +545,7 @@ class haxe_Exception(Exception):
         self._hx___previousException = None
         self._hx___nativeException = None
         self._hx___nativeStack = None
+        self._hx___skipStack = 0
         super().__init__(message)
         self._hx___previousException = previous
         if ((native is not None) and Std.isOfType(native,BaseException)):
@@ -450,6 +562,9 @@ class haxe_Exception(Exception):
     def unwrap(self):
         return self._hx___nativeException
 
+    def get_native(self):
+        return self._hx___nativeException
+
     @staticmethod
     def caught(value):
         if Std.isOfType(value,haxe_Exception):
@@ -459,6 +574,18 @@ class haxe_Exception(Exception):
         else:
             return haxe_ValueException(value,None,value)
 
+    @staticmethod
+    def thrown(value):
+        if Std.isOfType(value,haxe_Exception):
+            return value.get_native()
+        elif Std.isOfType(value,BaseException):
+            return value
+        else:
+            e = haxe_ValueException(value)
+            e._hx___skipStack = (e._hx___skipStack + 1)
+            return e
+
+haxe_Exception._hx_class = haxe_Exception
 
 
 class haxe_NativeStackTrace:
@@ -479,37 +606,41 @@ class haxe_NativeStackTrace:
             return infos
         else:
             return []
+haxe_NativeStackTrace._hx_class = haxe_NativeStackTrace
 
+class haxe__Template_TemplateExpr(Enum):
+    __slots__ = ()
+    _hx_class_name = "haxe._Template.TemplateExpr"
+    _hx_constructs = ["OpVar", "OpExpr", "OpIf", "OpStr", "OpBlock", "OpForeach", "OpMacro"]
 
-class haxe_ValueException(haxe_Exception):
-    _hx_class_name = "haxe.ValueException"
-    __slots__ = ("value",)
-    _hx_fields = ["value"]
-    _hx_methods = ["unwrap"]
-    _hx_statics = []
-    _hx_interfaces = []
-    _hx_super = haxe_Exception
+    @staticmethod
+    def OpVar(v):
+        return haxe__Template_TemplateExpr("OpVar", 0, (v,))
 
+    @staticmethod
+    def OpExpr(expr):
+        return haxe__Template_TemplateExpr("OpExpr", 1, (expr,))
 
-    def __init__(self,value,previous = None,native = None):
-        self.value = None
-        super().__init__(Std.string(value),previous,native)
-        self.value = value
+    @staticmethod
+    def OpIf(expr,eif,eelse):
+        return haxe__Template_TemplateExpr("OpIf", 2, (expr,eif,eelse))
 
-    def unwrap(self):
-        return self.value
+    @staticmethod
+    def OpStr(str):
+        return haxe__Template_TemplateExpr("OpStr", 3, (str,))
 
+    @staticmethod
+    def OpBlock(l):
+        return haxe__Template_TemplateExpr("OpBlock", 4, (l,))
 
+    @staticmethod
+    def OpForeach(expr,loop):
+        return haxe__Template_TemplateExpr("OpForeach", 5, (expr,loop))
 
-class haxe_ds_StringMap:
-    _hx_class_name = "haxe.ds.StringMap"
-    __slots__ = ("h",)
-    _hx_fields = ["h"]
-    _hx_interfaces = [haxe_IMap]
-
-    def __init__(self):
-        self.h = dict()
-
+    @staticmethod
+    def OpMacro(name,params):
+        return haxe__Template_TemplateExpr("OpMacro", 6, (name,params))
+haxe__Template_TemplateExpr._hx_class = haxe__Template_TemplateExpr
 
 
 class haxe_iterators_ArrayIterator:
@@ -535,6 +666,613 @@ class haxe_iterators_ArrayIterator:
             return python_internal_ArrayImpl._get(self.array, _hx_local_2())
         return _hx_local_3()
 
+haxe_iterators_ArrayIterator._hx_class = haxe_iterators_ArrayIterator
+
+
+class haxe_Template:
+    _hx_class_name = "haxe.Template"
+    __slots__ = ("expr", "context", "macros", "stack", "buf")
+    _hx_fields = ["expr", "context", "macros", "stack", "buf"]
+    _hx_methods = ["execute", "resolve", "parseTokens", "parseBlock", "parse", "parseExpr", "makeConst", "makePath", "makeExpr", "skipSpaces", "makeExpr2", "run"]
+    _hx_statics = ["splitter", "expr_splitter", "expr_trim", "expr_int", "expr_float", "globals", "hxKeepArrayIterator"]
+
+    def __init__(self,_hx_str):
+        self.buf = None
+        self.stack = None
+        self.macros = None
+        self.context = None
+        self.expr = None
+        tokens = self.parseTokens(_hx_str)
+        self.expr = self.parseBlock(tokens)
+        if (not tokens.isEmpty()):
+            raise haxe_Exception.thrown((("Unexpected '" + Std.string(tokens.first().s)) + "'"))
+
+    def execute(self,context,macros = None):
+        self.macros = (_hx_AnonObject({}) if ((macros is None)) else macros)
+        self.context = context
+        self.stack = haxe_ds_List()
+        self.buf = StringBuf()
+        self.run(self.expr)
+        return self.buf.b.getvalue()
+
+    def resolve(self,v):
+        if (v == "__current__"):
+            return self.context
+        if Reflect.isObject(self.context):
+            value = Reflect.getProperty(self.context,v)
+            if ((value is not None) or python_Boot.hasField(self.context,v)):
+                return value
+        _g_head = self.stack.h
+        while (_g_head is not None):
+            val = _g_head.item
+            _g_head = _g_head.next
+            ctx = val
+            value = Reflect.getProperty(ctx,v)
+            if ((value is not None) or python_Boot.hasField(ctx,v)):
+                return value
+        return Reflect.field(haxe_Template.globals,v)
+
+    def parseTokens(self,data):
+        tokens = haxe_ds_List()
+        while True:
+            _this = haxe_Template.splitter
+            _this.matchObj = python_lib_Re.search(_this.pattern,data)
+            if (not ((_this.matchObj is not None))):
+                break
+            _this1 = haxe_Template.splitter
+            p_pos = _this1.matchObj.start()
+            p_len = (_this1.matchObj.end() - _this1.matchObj.start())
+            if (p_pos > 0):
+                tokens.add(_hx_AnonObject({'p': HxString.substr(data,0,p_pos), 's': True, 'l': None}))
+            if (HxString.charCodeAt(data,p_pos) == 58):
+                tokens.add(_hx_AnonObject({'p': HxString.substr(data,(p_pos + 2),(p_len - 4)), 's': False, 'l': None}))
+                _this2 = haxe_Template.splitter
+                data = HxString.substr(_this2.matchObj.string,_this2.matchObj.end(),None)
+                continue
+            parp = (p_pos + p_len)
+            npar = 1
+            params = []
+            part = ""
+            while True:
+                c = HxString.charCodeAt(data,parp)
+                parp = (parp + 1)
+                if (c == 40):
+                    npar = (npar + 1)
+                elif (c == 41):
+                    npar = (npar - 1)
+                    if (npar <= 0):
+                        break
+                elif (c is None):
+                    raise haxe_Exception.thrown("Unclosed macro parenthesis")
+                if ((c == 44) and ((npar == 1))):
+                    params.append(part)
+                    part = ""
+                else:
+                    part = (("null" if part is None else part) + HxOverrides.stringOrNull("".join(map(chr,[c]))))
+            params.append(part)
+            tokens.add(_hx_AnonObject({'p': haxe_Template.splitter.matchObj.group(2), 's': False, 'l': params}))
+            data = HxString.substr(data,parp,(len(data) - parp))
+        if (len(data) > 0):
+            tokens.add(_hx_AnonObject({'p': data, 's': True, 'l': None}))
+        return tokens
+
+    def parseBlock(self,tokens):
+        l = haxe_ds_List()
+        while True:
+            t = tokens.first()
+            if (t is None):
+                break
+            if ((not t.s) and ((((t.p == "end") or ((t.p == "else"))) or ((HxString.substr(t.p,0,7) == "elseif "))))):
+                break
+            l.add(self.parse(tokens))
+        if (l.length == 1):
+            return l.first()
+        return haxe__Template_TemplateExpr.OpBlock(l)
+
+    def parse(self,tokens):
+        t = tokens.pop()
+        p = t.p
+        if t.s:
+            return haxe__Template_TemplateExpr.OpStr(p)
+        if (t.l is not None):
+            pe = haxe_ds_List()
+            _g = 0
+            _g1 = t.l
+            while (_g < len(_g1)):
+                p1 = (_g1[_g] if _g >= 0 and _g < len(_g1) else None)
+                _g = (_g + 1)
+                pe.add(self.parseBlock(self.parseTokens(p1)))
+            return haxe__Template_TemplateExpr.OpMacro(p,pe)
+        def _hx_local_2(kwd):
+            pos = -1
+            length = len(kwd)
+            if (HxString.substr(p,0,length) == kwd):
+                pos = length
+                _g_offset = 0
+                _g_s = HxString.substr(p,length,None)
+                while (_g_offset < len(_g_s)):
+                    index = _g_offset
+                    _g_offset = (_g_offset + 1)
+                    c = ord(_g_s[index])
+                    if (c == 32):
+                        pos = (pos + 1)
+                    else:
+                        break
+            return pos
+        kwdEnd = _hx_local_2
+        pos = kwdEnd("if")
+        if (pos > 0):
+            p = HxString.substr(p,pos,(len(p) - pos))
+            e = self.parseExpr(p)
+            eif = self.parseBlock(tokens)
+            t = tokens.first()
+            eelse = None
+            if (t is None):
+                raise haxe_Exception.thrown("Unclosed 'if'")
+            if (t.p == "end"):
+                tokens.pop()
+                eelse = None
+            elif (t.p == "else"):
+                tokens.pop()
+                eelse = self.parseBlock(tokens)
+                t = tokens.pop()
+                if ((t is None) or ((t.p != "end"))):
+                    raise haxe_Exception.thrown("Unclosed 'else'")
+            else:
+                t.p = HxString.substr(t.p,4,(len(t.p) - 4))
+                eelse = self.parse(tokens)
+            return haxe__Template_TemplateExpr.OpIf(e,eif,eelse)
+        pos = kwdEnd("foreach")
+        if (pos >= 0):
+            p = HxString.substr(p,pos,(len(p) - pos))
+            e = self.parseExpr(p)
+            efor = self.parseBlock(tokens)
+            t = tokens.pop()
+            if ((t is None) or ((t.p != "end"))):
+                raise haxe_Exception.thrown("Unclosed 'foreach'")
+            return haxe__Template_TemplateExpr.OpForeach(e,efor)
+        _this = haxe_Template.expr_splitter
+        _this.matchObj = python_lib_Re.search(_this.pattern,p)
+        if (_this.matchObj is not None):
+            return haxe__Template_TemplateExpr.OpExpr(self.parseExpr(p))
+        return haxe__Template_TemplateExpr.OpVar(p)
+
+    def parseExpr(self,data):
+        l = haxe_ds_List()
+        expr = data
+        while True:
+            _this = haxe_Template.expr_splitter
+            _this.matchObj = python_lib_Re.search(_this.pattern,data)
+            if (not ((_this.matchObj is not None))):
+                break
+            _this1 = haxe_Template.expr_splitter
+            p_pos = _this1.matchObj.start()
+            p_len = (_this1.matchObj.end() - _this1.matchObj.start())
+            k = (p_pos + p_len)
+            if (p_pos != 0):
+                l.add(_hx_AnonObject({'p': HxString.substr(data,0,p_pos), 's': True}))
+            p = haxe_Template.expr_splitter.matchObj.group(0)
+            startIndex = None
+            l.add(_hx_AnonObject({'p': p, 's': (((p.find("\"") if ((startIndex is None)) else HxString.indexOfImpl(p,"\"",startIndex))) >= 0)}))
+            _this2 = haxe_Template.expr_splitter
+            data = HxString.substr(_this2.matchObj.string,_this2.matchObj.end(),None)
+        if (len(data) != 0):
+            _g_offset = 0
+            _g_s = data
+            while (_g_offset < len(_g_s)):
+                _g1_key = _g_offset
+                s = _g_s
+                index = _g_offset
+                _g_offset = (_g_offset + 1)
+                _g1_value = (-1 if ((index >= len(s))) else ord(s[index]))
+                i = _g1_key
+                c = _g1_value
+                if (c != 32):
+                    l.add(_hx_AnonObject({'p': HxString.substr(data,i,None), 's': True}))
+                    break
+        e = None
+        try:
+            e = self.makeExpr(l)
+            if (not l.isEmpty()):
+                raise haxe_Exception.thrown(l.first().p)
+        except BaseException as _g:
+            None
+            _g1 = haxe_Exception.caught(_g).unwrap()
+            if Std.isOfType(_g1,str):
+                s = _g1
+                raise haxe_Exception.thrown(((("Unexpected '" + ("null" if s is None else s)) + "' in ") + ("null" if expr is None else expr)))
+            else:
+                raise _g
+        def _hx_local_0():
+            try:
+                return e()
+            except BaseException as _g:
+                None
+                exc = haxe_Exception.caught(_g).unwrap()
+                raise haxe_Exception.thrown(((("Error : " + Std.string(exc)) + " in ") + ("null" if expr is None else expr)))
+        return _hx_local_0
+
+    def makeConst(self,v):
+        _this = haxe_Template.expr_trim
+        _this.matchObj = python_lib_Re.search(_this.pattern,v)
+        v = haxe_Template.expr_trim.matchObj.group(1)
+        if (HxString.charCodeAt(v,0) == 34):
+            _hx_str = HxString.substr(v,1,(len(v) - 2))
+            def _hx_local_0():
+                return _hx_str
+            return _hx_local_0
+        _this = haxe_Template.expr_int
+        _this.matchObj = python_lib_Re.search(_this.pattern,v)
+        if (_this.matchObj is not None):
+            i = Std.parseInt(v)
+            def _hx_local_1():
+                return i
+            return _hx_local_1
+        _this = haxe_Template.expr_float
+        _this.matchObj = python_lib_Re.search(_this.pattern,v)
+        if (_this.matchObj is not None):
+            f = Std.parseFloat(v)
+            def _hx_local_2():
+                return f
+            return _hx_local_2
+        me = self
+        def _hx_local_3():
+            return me.resolve(v)
+        return _hx_local_3
+
+    def makePath(self,e,l):
+        p = l.first()
+        if ((p is None) or ((p.p != "."))):
+            return e
+        l.pop()
+        field = l.pop()
+        if ((field is None) or (not field.s)):
+            raise haxe_Exception.thrown(field.p)
+        f = field.p
+        _this = haxe_Template.expr_trim
+        _this.matchObj = python_lib_Re.search(_this.pattern,f)
+        f = haxe_Template.expr_trim.matchObj.group(1)
+        def _hx_local_1():
+            def _hx_local_0():
+                return Reflect.field(e(),f)
+            return self.makePath(_hx_local_0,l)
+        return _hx_local_1()
+
+    def makeExpr(self,l):
+        return self.makePath(self.makeExpr2(l),l)
+
+    def skipSpaces(self,l):
+        p = l.first()
+        while (p is not None):
+            _g_offset = 0
+            _g_s = p.p
+            while (_g_offset < len(_g_s)):
+                index = _g_offset
+                _g_offset = (_g_offset + 1)
+                c = ord(_g_s[index])
+                if (c != 32):
+                    return
+            l.pop()
+            p = l.first()
+
+    def makeExpr2(self,l):
+        self.skipSpaces(l)
+        p = l.pop()
+        self.skipSpaces(l)
+        if (p is None):
+            raise haxe_Exception.thrown("<eof>")
+        if p.s:
+            return self.makeConst(p.p)
+        _g = p.p
+        if (_g == "!"):
+            e = self.makeExpr(l)
+            def _hx_local_0():
+                v = e()
+                if (v is not None):
+                    return (v == False)
+                else:
+                    return True
+            return _hx_local_0
+        elif (_g == "("):
+            self.skipSpaces(l)
+            e1 = self.makeExpr(l)
+            self.skipSpaces(l)
+            p1 = l.pop()
+            if ((p1 is None) or p1.s):
+                raise haxe_Exception.thrown(p1)
+            if (p1.p == ")"):
+                return e1
+            self.skipSpaces(l)
+            e2 = self.makeExpr(l)
+            self.skipSpaces(l)
+            p2 = l.pop()
+            self.skipSpaces(l)
+            if ((p2 is None) or ((p2.p != ")"))):
+                raise haxe_Exception.thrown(p2)
+            _g = p1.p
+            _hx_local_1 = len(_g)
+            if (_hx_local_1 == 1):
+                if (_g == "*"):
+                    def _hx_local_2():
+                        return (e1() * e2())
+                    return _hx_local_2
+                elif (_g == "+"):
+                    def _hx_local_3():
+                        return python_Boot._add_dynamic(e1(),e2())
+                    return _hx_local_3
+                elif (_g == "-"):
+                    def _hx_local_4():
+                        return (e1() - e2())
+                    return _hx_local_4
+                elif (_g == "/"):
+                    def _hx_local_5():
+                        return (e1() / e2())
+                    return _hx_local_5
+                elif (_g == "<"):
+                    def _hx_local_6():
+                        return (e1() < e2())
+                    return _hx_local_6
+                elif (_g == ">"):
+                    def _hx_local_7():
+                        return (e1() > e2())
+                    return _hx_local_7
+                else:
+                    raise haxe_Exception.thrown(("Unknown operation " + HxOverrides.stringOrNull(p1.p)))
+            elif (_hx_local_1 == 2):
+                if (_g == "!="):
+                    def _hx_local_8():
+                        return not HxOverrides.eq(e1(),e2())
+                    return _hx_local_8
+                elif (_g == "&&"):
+                    def _hx_local_9():
+                        return (e1() and e2())
+                    return _hx_local_9
+                elif (_g == "<="):
+                    def _hx_local_10():
+                        return (e1() <= e2())
+                    return _hx_local_10
+                elif (_g == "=="):
+                    def _hx_local_11():
+                        return HxOverrides.eq(e1(),e2())
+                    return _hx_local_11
+                elif (_g == ">="):
+                    def _hx_local_12():
+                        return (e1() >= e2())
+                    return _hx_local_12
+                elif (_g == "||"):
+                    def _hx_local_13():
+                        return (e1() or e2())
+                    return _hx_local_13
+                else:
+                    raise haxe_Exception.thrown(("Unknown operation " + HxOverrides.stringOrNull(p1.p)))
+            else:
+                raise haxe_Exception.thrown(("Unknown operation " + HxOverrides.stringOrNull(p1.p)))
+        elif (_g == "-"):
+            e3 = self.makeExpr(l)
+            def _hx_local_14():
+                return -e3()
+            return _hx_local_14
+        else:
+            pass
+        raise haxe_Exception.thrown(p.p)
+
+    def run(self,e):
+        tmp = e.index
+        if (tmp == 0):
+            v = e.params[0]
+            _this = self.buf
+            s = Std.string(Std.string(self.resolve(v)))
+            _this.b.write(s)
+        elif (tmp == 1):
+            e1 = e.params[0]
+            _this = self.buf
+            s = Std.string(Std.string(e1()))
+            _this.b.write(s)
+        elif (tmp == 2):
+            e1 = e.params[0]
+            eif = e.params[1]
+            eelse = e.params[2]
+            v = e1()
+            if ((v is None) or ((v == False))):
+                if (eelse is not None):
+                    self.run(eelse)
+            else:
+                self.run(eif)
+        elif (tmp == 3):
+            _hx_str = e.params[0]
+            _this = self.buf
+            s = Std.string(_hx_str)
+            _this.b.write(s)
+        elif (tmp == 4):
+            l = e.params[0]
+            _g_head = l.h
+            while (_g_head is not None):
+                val = _g_head.item
+                _g_head = _g_head.next
+                e1 = val
+                self.run(e1)
+        elif (tmp == 5):
+            e1 = e.params[0]
+            loop = e.params[1]
+            v = e1()
+            try:
+                x = Reflect.field(v,"iterator")()
+                if (Reflect.field(x,"hasNext") is None):
+                    raise haxe_Exception.thrown(None)
+                v = x
+            except BaseException as _g:
+                None
+                try:
+                    if (Reflect.field(v,"hasNext") is None):
+                        raise haxe_Exception.thrown(None)
+                except BaseException as _g:
+                    raise haxe_Exception.thrown(("Cannot iter on " + Std.string(v)))
+            self.stack.push(self.context)
+            v1 = v
+            ctx = v1
+            while ctx.hasNext():
+                ctx1 = ctx.next()
+                self.context = ctx1
+                self.run(loop)
+            self.context = self.stack.pop()
+        elif (tmp == 6):
+            m = e.params[0]
+            params = e.params[1]
+            v = Reflect.field(self.macros,m)
+            pl = list()
+            old = self.buf
+            pl.append(self.resolve)
+            _g_head = params.h
+            while (_g_head is not None):
+                val = _g_head.item
+                _g_head = _g_head.next
+                p = val
+                if (p.index == 0):
+                    v1 = p.params[0]
+                    x = self.resolve(v1)
+                    pl.append(x)
+                else:
+                    self.buf = StringBuf()
+                    self.run(p)
+                    x1 = self.buf.b.getvalue()
+                    pl.append(x1)
+            self.buf = old
+            try:
+                _this = self.buf
+                s = Std.string(Std.string(Reflect.callMethod(self.macros,v,pl)))
+                _this.b.write(s)
+            except BaseException as _g:
+                None
+                e = haxe_Exception.caught(_g).unwrap()
+                plstr = None
+                try:
+                    plstr = ",".join([python_Boot.toString1(x1,'') for x1 in pl])
+                except BaseException as _g:
+                    plstr = "???"
+                msg = (((((("Macro call " + ("null" if m is None else m)) + "(") + ("null" if plstr is None else plstr)) + ") failed (") + Std.string(e)) + ")")
+                raise haxe_Exception.thrown(msg)
+        else:
+            pass
+
+haxe_Template._hx_class = haxe_Template
+
+
+class haxe_ValueException(haxe_Exception):
+    _hx_class_name = "haxe.ValueException"
+    __slots__ = ("value",)
+    _hx_fields = ["value"]
+    _hx_methods = ["unwrap"]
+    _hx_statics = []
+    _hx_interfaces = []
+    _hx_super = haxe_Exception
+
+
+    def __init__(self,value,previous = None,native = None):
+        self.value = None
+        super().__init__(Std.string(value),previous,native)
+        self.value = value
+
+    def unwrap(self):
+        return self.value
+
+haxe_ValueException._hx_class = haxe_ValueException
+
+
+class haxe_ds_List:
+    _hx_class_name = "haxe.ds.List"
+    __slots__ = ("h", "q", "length")
+    _hx_fields = ["h", "q", "length"]
+    _hx_methods = ["add", "push", "first", "pop", "isEmpty", "toString"]
+
+    def __init__(self):
+        self.q = None
+        self.h = None
+        self.length = 0
+
+    def add(self,item):
+        x = haxe_ds__List_ListNode(item,None)
+        if (self.h is None):
+            self.h = x
+        else:
+            self.q.next = x
+        self.q = x
+        _hx_local_0 = self
+        _hx_local_1 = _hx_local_0.length
+        _hx_local_0.length = (_hx_local_1 + 1)
+        _hx_local_1
+
+    def push(self,item):
+        x = haxe_ds__List_ListNode(item,self.h)
+        self.h = x
+        if (self.q is None):
+            self.q = x
+        _hx_local_0 = self
+        _hx_local_1 = _hx_local_0.length
+        _hx_local_0.length = (_hx_local_1 + 1)
+        _hx_local_1
+
+    def first(self):
+        if (self.h is None):
+            return None
+        else:
+            return self.h.item
+
+    def pop(self):
+        if (self.h is None):
+            return None
+        x = self.h.item
+        self.h = self.h.next
+        if (self.h is None):
+            self.q = None
+        _hx_local_0 = self
+        _hx_local_1 = _hx_local_0.length
+        _hx_local_0.length = (_hx_local_1 - 1)
+        _hx_local_1
+        return x
+
+    def isEmpty(self):
+        return (self.h is None)
+
+    def toString(self):
+        s_b = python_lib_io_StringIO()
+        first = True
+        l = self.h
+        s_b.write("{")
+        while (l is not None):
+            if first:
+                first = False
+            else:
+                s_b.write(", ")
+            s_b.write(Std.string(Std.string(l.item)))
+            l = l.next
+        s_b.write("}")
+        return s_b.getvalue()
+
+haxe_ds_List._hx_class = haxe_ds_List
+
+
+class haxe_ds__List_ListNode:
+    _hx_class_name = "haxe.ds._List.ListNode"
+    __slots__ = ("item", "next")
+    _hx_fields = ["item", "next"]
+
+    def __init__(self,item,next):
+        self.item = item
+        self.next = next
+
+haxe_ds__List_ListNode._hx_class = haxe_ds__List_ListNode
+
+
+class haxe_ds_StringMap:
+    _hx_class_name = "haxe.ds.StringMap"
+    __slots__ = ("h",)
+    _hx_fields = ["h"]
+    _hx_interfaces = [haxe_IMap]
+
+    def __init__(self):
+        self.h = dict()
+
+haxe_ds_StringMap._hx_class = haxe_ds_StringMap
 
 
 class haxe_iterators_ArrayKeyValueIterator:
@@ -560,12 +1298,21 @@ class haxe_iterators_ArrayKeyValueIterator:
             return _hx_AnonObject({'value': python_internal_ArrayImpl._get(self.array, self.current), 'key': _hx_local_2()})
         return _hx_local_3()
 
+haxe_iterators_ArrayKeyValueIterator._hx_class = haxe_iterators_ArrayKeyValueIterator
 
 
 class python_Boot:
     _hx_class_name = "python.Boot"
     __slots__ = ()
-    _hx_statics = ["keywords", "toString1", "fields", "simpleField", "hasField", "field", "getInstanceFields", "getSuperClass", "getClassFields", "prefixLength", "unhandleKeywords"]
+    _hx_statics = ["keywords", "_add_dynamic", "toString1", "fields", "simpleField", "hasField", "field", "getInstanceFields", "getSuperClass", "getClassFields", "prefixLength", "unhandleKeywords"]
+
+    @staticmethod
+    def _add_dynamic(a,b):
+        if (isinstance(a,str) and isinstance(b,str)):
+            return (a + b)
+        if (isinstance(a,str) or isinstance(b,str)):
+            return (python_Boot.toString1(a,"") + python_Boot.toString1(b,""))
+        return (a + b)
 
     @staticmethod
     def toString1(o,s):
@@ -981,6 +1728,7 @@ class python_Boot:
             if (real in python_Boot.keywords):
                 return real
         return name
+python_Boot._hx_class = python_Boot
 
 
 class python_HaxeIterator:
@@ -1016,12 +1764,13 @@ class python_HaxeIterator:
             self.checked = True
         return self.has
 
+python_HaxeIterator._hx_class = python_HaxeIterator
 
 
 class python_internal_ArrayImpl:
     _hx_class_name = "python.internal.ArrayImpl"
     __slots__ = ()
-    _hx_statics = ["get_length", "concat", "copy", "iterator", "keyValueIterator", "indexOf", "lastIndexOf", "join", "toString", "pop", "push", "unshift", "remove", "contains", "shift", "slice", "sort", "splice", "map", "filter", "insert", "reverse", "_get"]
+    _hx_statics = ["get_length", "concat", "copy", "iterator", "keyValueIterator", "indexOf", "lastIndexOf", "join", "toString", "pop", "push", "unshift", "remove", "contains", "shift", "slice", "sort", "splice", "map", "filter", "insert", "reverse", "_get", "_set"]
 
     @staticmethod
     def get_length(x):
@@ -1157,11 +1906,30 @@ class python_internal_ArrayImpl:
         else:
             return None
 
+    @staticmethod
+    def _set(x,idx,v):
+        l = len(x)
+        while (l < idx):
+            x.append(None)
+            l = (l + 1)
+        if (l == idx):
+            x.append(v)
+        else:
+            x[idx] = v
+        return v
+python_internal_ArrayImpl._hx_class = python_internal_ArrayImpl
+
 
 class HxOverrides:
     _hx_class_name = "HxOverrides"
     __slots__ = ()
-    _hx_statics = ["eq", "stringOrNull", "length", "arrayGet"]
+    _hx_statics = ["iterator", "eq", "stringOrNull", "length", "arrayGet"]
+
+    @staticmethod
+    def iterator(x):
+        if isinstance(x,list):
+            return haxe_iterators_ArrayIterator(x)
+        return x.iterator()
 
     @staticmethod
     def eq(a,b):
@@ -1194,6 +1962,7 @@ class HxOverrides:
                 return None
         else:
             return a[i]
+HxOverrides._hx_class = HxOverrides
 
 
 class python_internal_MethodClosure:
@@ -1209,6 +1978,7 @@ class python_internal_MethodClosure:
     def __call__(self,*args):
         return self.func(self.obj,*args)
 
+python_internal_MethodClosure._hx_class = python_internal_MethodClosure
 
 
 class HxString:
@@ -1323,6 +2093,7 @@ class HxString:
                 if (startIndex < 0):
                     startIndex = 0
             return s[startIndex:(startIndex + _hx_len)]
+HxString._hx_class = HxString
 
 
 class xrfragment_Filter:
@@ -1457,6 +2228,7 @@ class xrfragment_Filter:
                     qualify = (qualify + 1)
         return (qualify > 0)
 
+xrfragment_Filter._hx_class = xrfragment_Filter
 
 
 class xrfragment_Parser:
@@ -1467,25 +2239,30 @@ class xrfragment_Parser:
     @staticmethod
     def parse(key,value,store,index = None):
         Frag = haxe_ds_StringMap()
-        Frag.h["#"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.T_PREDEFINED_VIEW) | xrfragment_XRF.PV_EXECUTE)
-        Frag.h["src"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_URL)
-        Frag.h["href"] = ((xrfragment_XRF.ASSET | xrfragment_XRF.T_URL) | xrfragment_XRF.T_PREDEFINED_VIEW)
-        Frag.h["tag"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
-        Frag.h["pos"] = (((((xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.T_STRING) | xrfragment_XRF.T_STRING_OBJ) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
+        Frag.h["#"] = ((xrfragment_XRF.IMMUTABLE | xrfragment_XRF.T_PREDEFINED_VIEW) | xrfragment_XRF.PV_EXECUTE)
+        Frag.h["src"] = xrfragment_XRF.T_URL
+        Frag.h["href"] = (xrfragment_XRF.T_URL | xrfragment_XRF.T_PREDEFINED_VIEW)
+        Frag.h["tag"] = (xrfragment_XRF.IMMUTABLE | xrfragment_XRF.T_STRING)
+        Frag.h["pos"] = ((((xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.T_STRING) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
         Frag.h["rot"] = ((((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
-        Frag.h["t"] = ((((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_FLOAT) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.T_STRING) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
-        Frag.h["tv"] = ((((((xrfragment_XRF.ASSET | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_FLOAT) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
-        Frag.h["namespace"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
-        Frag.h["SPDX"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
-        Frag.h["unit"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
-        Frag.h["description"] = (xrfragment_XRF.ASSET | xrfragment_XRF.T_STRING)
-        Frag.h["session"] = (((((xrfragment_XRF.ASSET | xrfragment_XRF.T_URL) | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA) | xrfragment_XRF.PROMPT)
+        Frag.h["t"] = ((((xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_FLOAT) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
+        Frag.h["s"] = (xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_MEDIAFRAG)
+        Frag.h["loop"] = xrfragment_XRF.PV_OVERRIDE
+        Frag.h["uv"] = (xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.T_MEDIAFRAG)
+        Frag.h["namespace"] = (xrfragment_XRF.IMMUTABLE | xrfragment_XRF.T_STRING)
+        Frag.h["SPDX"] = (xrfragment_XRF.IMMUTABLE | xrfragment_XRF.T_STRING)
+        Frag.h["unit"] = (xrfragment_XRF.IMMUTABLE | xrfragment_XRF.T_STRING)
+        Frag.h["description"] = (xrfragment_XRF.IMMUTABLE | xrfragment_XRF.T_STRING)
         keyStripped = xrfragment_XRF.operators.replace(key,"")
         isPVDynamic = ((len(key) > 0) and (not (key in Frag.h)))
-        isPVDefault = (((len(value) == 0) and ((len(key) > 0))) and ((key == "#")))
         if isPVDynamic:
             v = xrfragment_XRF(key,(xrfragment_XRF.PV_EXECUTE | xrfragment_XRF.NAVIGATOR),index)
             v.validate(value)
+            v.flags = xrfragment_XRF.set(xrfragment_XRF.T_DYNAMICKEY,v.flags)
+            if (not (key in Frag.h)):
+                v.flags = xrfragment_XRF.set(xrfragment_XRF.CUSTOMFRAG,v.flags)
+            if (len(value) == 0):
+                v.flags = xrfragment_XRF.set(xrfragment_XRF.T_DYNAMICKEYVALUE,v.flags)
             setattr(store,(("_hx_" + keyStripped) if ((keyStripped in python_Boot.keywords)) else (("_hx_" + keyStripped) if (((((len(keyStripped) > 2) and ((ord(keyStripped[0]) == 95))) and ((ord(keyStripped[1]) == 95))) and ((ord(keyStripped[(len(keyStripped) - 1)]) != 95)))) else keyStripped)),v)
             return True
         v = xrfragment_XRF(key,Frag.h.get(key,None),index)
@@ -1499,15 +2276,16 @@ class xrfragment_Parser:
         else:
             if Std.isOfType(value,str):
                 v.guessType(v,value)
-            v.noXRF = True
+            v.flags = xrfragment_XRF.set(xrfragment_XRF.CUSTOMFRAG,v.flags)
             setattr(store,(("_hx_" + keyStripped) if ((keyStripped in python_Boot.keywords)) else (("_hx_" + keyStripped) if (((((len(keyStripped) > 2) and ((ord(keyStripped[0]) == 95))) and ((ord(keyStripped[1]) == 95))) and ((ord(keyStripped[(len(keyStripped) - 1)]) != 95)))) else keyStripped)),v)
         return True
+xrfragment_Parser._hx_class = xrfragment_Parser
 
 
 class xrfragment_URI:
     _hx_class_name = "xrfragment.URI"
     __slots__ = ()
-    _hx_statics = ["parse"]
+    _hx_statics = ["__meta__", "parse", "template"]
 
     @staticmethod
     def parse(url,_hx_filter):
@@ -1534,8 +2312,13 @@ class xrfragment_URI:
             key = (splitByEqual[0] if 0 < len(splitByEqual) else None)
             value = ""
             if (len(splitByEqual) > 1):
-                _this1 = regexPlus.split((splitByEqual[1] if 1 < len(splitByEqual) else None))
-                value = python_lib_urllib_Parse.unquote(" ".join([python_Boot.toString1(x1,'') for x1 in _this1]))
+                _this1 = xrfragment_XRF.isVector
+                _this1.matchObj = python_lib_Re.search(_this1.pattern,(splitByEqual[1] if 1 < len(splitByEqual) else None))
+                if (_this1.matchObj is not None):
+                    value = (splitByEqual[1] if 1 < len(splitByEqual) else None)
+                else:
+                    _this2 = regexPlus.split((splitByEqual[1] if 1 < len(splitByEqual) else None))
+                    value = python_lib_urllib_Parse.unquote(" ".join([python_Boot.toString1(x1,'') for x1 in _this2]))
             ok = xrfragment_Parser.parse(key,value,store,i)
         if ((_hx_filter is not None) and ((_hx_filter != 0))):
             _g = 0
@@ -1548,25 +2331,42 @@ class xrfragment_URI:
                     Reflect.deleteField(store,key)
         return store
 
+    @staticmethod
+    def template(uri,vars):
+        parts = uri.split("#")
+        if (len(parts) == 1):
+            return uri
+        frag = (parts[1] if 1 < len(parts) else None)
+        frag = StringTools.replace(frag,"{","::")
+        frag = StringTools.replace(frag,"}","::")
+        frag = haxe_Template(frag).execute(vars)
+        frag = StringTools.replace(frag,"null","")
+        python_internal_ArrayImpl._set(parts, 1, frag)
+        return "#".join([python_Boot.toString1(x1,'') for x1 in parts])
+xrfragment_URI._hx_class = xrfragment_URI
+
 
 class xrfragment_XRF:
     _hx_class_name = "xrfragment.XRF"
-    __slots__ = ("fragment", "flags", "index", "x", "y", "z", "w", "color", "string", "int", "float", "filter", "noXRF")
-    _hx_fields = ["fragment", "flags", "index", "x", "y", "z", "w", "color", "string", "int", "float", "filter", "noXRF"]
+    __slots__ = ("fragment", "flags", "index", "x", "y", "z", "shift", "floats", "color", "string", "int", "float", "filter", "reset", "loop", "xrfScheme")
+    _hx_fields = ["fragment", "flags", "index", "x", "y", "z", "shift", "floats", "color", "string", "int", "float", "filter", "reset", "loop", "xrfScheme"]
     _hx_methods = ["is", "validate", "guessType"]
-    _hx_statics = ["ASSET", "PROP_BIND", "QUERY_OPERATOR", "PROMPT", "ROUNDROBIN", "NAVIGATOR", "METADATA", "PV_OVERRIDE", "PV_EXECUTE", "T_COLOR", "T_INT", "T_FLOAT", "T_VECTOR2", "T_VECTOR3", "T_URL", "T_PREDEFINED_VIEW", "T_STRING", "T_STRING_OBJ", "T_STRING_OBJ_PROP", "isColor", "isInt", "isFloat", "isVector", "isUrl", "isUrlOrPretypedView", "isString", "operators", "isProp", "isExclude", "isDeep", "isNumber", "set", "unset"]
+    _hx_statics = ["IMMUTABLE", "PROP_BIND", "QUERY_OPERATOR", "PROMPT", "CUSTOMFRAG", "NAVIGATOR", "METADATA", "PV_OVERRIDE", "PV_EXECUTE", "T_COLOR", "T_INT", "T_FLOAT", "T_VECTOR2", "T_VECTOR3", "T_URL", "T_PREDEFINED_VIEW", "T_STRING", "T_MEDIAFRAG", "T_DYNAMICKEY", "T_DYNAMICKEYVALUE", "isColor", "isInt", "isFloat", "isVector", "isUrl", "isUrlOrPretypedView", "isString", "operators", "isProp", "isExclude", "isDeep", "isNumber", "isMediaFrag", "isReset", "isShift", "isXRFScheme", "set", "unset"]
 
     def __init__(self,_fragment,_flags,_index = None):
-        self.noXRF = None
+        self.xrfScheme = None
+        self.loop = None
+        self.reset = None
         self.filter = None
         self.float = None
         self.int = None
         self.string = None
         self.color = None
-        self.w = None
         self.z = None
         self.y = None
         self.x = None
+        self.floats = list()
+        self.shift = list()
         self.fragment = _fragment
         self.flags = _flags
         self.index = _index
@@ -1587,19 +2387,42 @@ class xrfragment_XRF:
 
     def guessType(self,v,_hx_str):
         v.string = _hx_str
+        _this = xrfragment_XRF.isReset
+        _this.matchObj = python_lib_Re.search(_this.pattern,v.fragment)
+        if (_this.matchObj is not None):
+            v.reset = True
+        if (v.fragment == "loop"):
+            v.loop = True
         if (not Std.isOfType(_hx_str,str)):
             return
         if (len(_hx_str) > 0):
+            _this = xrfragment_XRF.isXRFScheme
+            _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
+            if (_this.matchObj is not None):
+                v.xrfScheme = True
+                _hx_str = xrfragment_XRF.isXRFScheme.replace(_hx_str,"")
+                v.string = _hx_str
             if (len(_hx_str.split(",")) > 1):
-                xyzw = _hx_str.split(",")
-                if (len(xyzw) > 0):
-                    v.x = Std.parseFloat((xyzw[0] if 0 < len(xyzw) else None))
-                if (len(xyzw) > 1):
-                    v.y = Std.parseFloat((xyzw[1] if 1 < len(xyzw) else None))
-                if (len(xyzw) > 2):
-                    v.z = Std.parseFloat((xyzw[2] if 2 < len(xyzw) else None))
-                if (len(xyzw) > 3):
-                    v.w = Std.parseFloat((xyzw[3] if 3 < len(xyzw) else None))
+                xyzn = _hx_str.split(",")
+                if (len(xyzn) > 0):
+                    v.x = Std.parseFloat((xyzn[0] if 0 < len(xyzn) else None))
+                if (len(xyzn) > 1):
+                    v.y = Std.parseFloat((xyzn[1] if 1 < len(xyzn) else None))
+                if (len(xyzn) > 2):
+                    v.z = Std.parseFloat((xyzn[2] if 2 < len(xyzn) else None))
+                _g = 0
+                _g1 = len(xyzn)
+                while (_g < _g1):
+                    i = _g
+                    _g = (_g + 1)
+                    _this = v.shift
+                    _this1 = xrfragment_XRF.isShift
+                    _this1.matchObj = python_lib_Re.search(_this1.pattern,(xyzn[i] if i >= 0 and i < len(xyzn) else None))
+                    x = (_this1.matchObj is not None)
+                    _this.append(x)
+                    _this2 = v.floats
+                    x1 = Std.parseFloat(xrfragment_XRF.isShift.replace((xyzn[i] if i >= 0 and i < len(xyzn) else None),""))
+                    _this2.append(x1)
             _this = xrfragment_XRF.isColor
             _this.matchObj = python_lib_Re.search(_this.pattern,_hx_str)
             if (_this.matchObj is not None):
@@ -1614,6 +2437,9 @@ class xrfragment_XRF:
             if (_this.matchObj is not None):
                 v.int = Std.parseInt(_hx_str)
                 v.x = v.int
+                _this = v.floats
+                x = v.x
+                _this.append(x)
             v.filter = xrfragment_Filter(((HxOverrides.stringOrNull(v.fragment) + "=") + HxOverrides.stringOrNull(v.string)))
         else:
             v.filter = xrfragment_Filter(v.fragment)
@@ -1626,21 +2452,30 @@ class xrfragment_XRF:
     def unset(flag,flags):
         return (flags & ~flag)
 
+xrfragment_XRF._hx_class = xrfragment_XRF
 
 Math.NEGATIVE_INFINITY = float("-inf")
 Math.POSITIVE_INFINITY = float("inf")
 Math.NaN = float("nan")
 Math.PI = python_lib_Math.pi
 
+haxe_Template.splitter = EReg("(::[A-Za-z0-9_ ()&|!+=/><*.\"-]+::|\\$\\$([A-Za-z0-9_-]+)\\()","")
+haxe_Template.expr_splitter = EReg("(\\(|\\)|[ \r\n\t]*\"[^\"]*\"[ \r\n\t]*|[!+=/><*.&|-]+)","")
+haxe_Template.expr_trim = EReg("^[ ]*([^ ]+)[ ]*$","")
+haxe_Template.expr_int = EReg("^[0-9]+$","")
+haxe_Template.expr_float = EReg("^([+-]?)(?=\\d|,\\d)\\d*(,\\d*)?([Ee]([+-]?\\d+))?$","")
+haxe_Template.globals = _hx_AnonObject({})
+haxe_Template.hxKeepArrayIterator = haxe_iterators_ArrayIterator([])
 python_Boot.keywords = set(["and", "del", "from", "not", "with", "as", "elif", "global", "or", "yield", "assert", "else", "if", "pass", "None", "break", "except", "import", "raise", "True", "class", "exec", "in", "return", "False", "continue", "finally", "is", "try", "def", "for", "lambda", "while"])
 python_Boot.prefixLength = len("_hx_")
 xrfragment_Parser.error = ""
 xrfragment_Parser.debug = False
-xrfragment_XRF.ASSET = 1
+xrfragment_URI.__meta__ = _hx_AnonObject({'statics': _hx_AnonObject({'template': _hx_AnonObject({'keep': None})})})
+xrfragment_XRF.IMMUTABLE = 1
 xrfragment_XRF.PROP_BIND = 2
 xrfragment_XRF.QUERY_OPERATOR = 4
 xrfragment_XRF.PROMPT = 8
-xrfragment_XRF.ROUNDROBIN = 16
+xrfragment_XRF.CUSTOMFRAG = 16
 xrfragment_XRF.NAVIGATOR = 32
 xrfragment_XRF.METADATA = 64
 xrfragment_XRF.PV_OVERRIDE = 128
@@ -1653,8 +2488,9 @@ xrfragment_XRF.T_VECTOR3 = 131072
 xrfragment_XRF.T_URL = 262144
 xrfragment_XRF.T_PREDEFINED_VIEW = 524288
 xrfragment_XRF.T_STRING = 1048576
-xrfragment_XRF.T_STRING_OBJ = 2097152
-xrfragment_XRF.T_STRING_OBJ_PROP = 4194304
+xrfragment_XRF.T_MEDIAFRAG = 2097152
+xrfragment_XRF.T_DYNAMICKEY = 4194304
+xrfragment_XRF.T_DYNAMICKEYVALUE = 8388608
 xrfragment_XRF.isColor = EReg("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$","")
 xrfragment_XRF.isInt = EReg("^[-0-9]+$","")
 xrfragment_XRF.isFloat = EReg("^[-0-9]+\\.[0-9]+$","")
@@ -1662,8 +2498,12 @@ xrfragment_XRF.isVector = EReg("([,]+|\\w)","")
 xrfragment_XRF.isUrl = EReg("(://)?\\..*","")
 xrfragment_XRF.isUrlOrPretypedView = EReg("(^#|://)?\\..*","")
 xrfragment_XRF.isString = EReg(".*","")
-xrfragment_XRF.operators = EReg("(^-|[\\*]+)","")
+xrfragment_XRF.operators = EReg("(^[-]|^[!]|[\\*]$)","g")
 xrfragment_XRF.isProp = EReg("^.*=[><=]?","")
 xrfragment_XRF.isExclude = EReg("^-","")
 xrfragment_XRF.isDeep = EReg("\\*","")
 xrfragment_XRF.isNumber = EReg("^[0-9\\.]+$","")
+xrfragment_XRF.isMediaFrag = EReg("^([0-9\\.,\\*+-]+)$","")
+xrfragment_XRF.isReset = EReg("^!","")
+xrfragment_XRF.isShift = EReg("^(\\+|--)","")
+xrfragment_XRF.isXRFScheme = EReg("^xrf://","")
