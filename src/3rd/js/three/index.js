@@ -14,6 +14,8 @@ xrf.init = ((init) => function(opts){
   // return xrfragment lib as 'xrf' query functor (like jquery)
   for ( let i in xrf ) xrf.query[i] = xrf[i] 
 
+  if( xrf.debug ) xrf.stats()
+
   return xrf.query
 })(xrf.init)
 

@@ -11,7 +11,6 @@ xrf.init = function(opts){
     console.log("add #debug=[0-9] to URL to see XR Fragment debuglog")
     xrf.debug = parseInt( ( document.location.hash.match(/debug=([0-9])/) || [0,'0'] )[1] )
   }
-  if( xrf.debug != undefined ) xrf.stats()
 
   xrf.Parser.debug = xrf.debug 
   xrf.detectCameraRig(opts)

@@ -141,4 +141,11 @@ class XRF {
     }else v.filter = new Filter(v.fragment);
   }
 
+  #if python
+  @keep
+  public static function toDict(o:{}){
+    return python.Lib.anonToDict(o);
+  }
+  #end
+
 }

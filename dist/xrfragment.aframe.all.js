@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Fri Feb 16 04:36:12 PM UTC 2024
+ * v0.5.1 generated at Sat Feb 17 12:00:53 PM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -1357,7 +1357,6 @@ xrf.init = function(opts){
     console.log("add #debug=[0-9] to URL to see XR Fragment debuglog")
     xrf.debug = parseInt( ( document.location.hash.match(/debug=([0-9])/) || [0,'0'] )[1] )
   }
-  if( xrf.debug != undefined ) xrf.stats()
 
   xrf.Parser.debug = xrf.debug 
   xrf.detectCameraRig(opts)
@@ -1700,6 +1699,8 @@ xrf.init = ((init) => function(opts){
   xrf.navigator.init()
   // return xrfragment lib as 'xrf' query functor (like jquery)
   for ( let i in xrf ) xrf.query[i] = xrf[i] 
+
+  if( xrf.debug ) xrf.stats()
 
   return xrf.query
 })(xrf.init)

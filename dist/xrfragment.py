@@ -1767,6 +1767,20 @@ class python_HaxeIterator:
 python_HaxeIterator._hx_class = python_HaxeIterator
 
 
+class python_Lib:
+    _hx_class_name = "python.Lib"
+    __slots__ = ()
+    _hx_statics = ["anonToDict"]
+
+    @staticmethod
+    def anonToDict(o):
+        if isinstance(o,_hx_AnonObject):
+            return o.__dict__.copy()
+        else:
+            return None
+python_Lib._hx_class = python_Lib
+
+
 class python_internal_ArrayImpl:
     _hx_class_name = "python.internal.ArrayImpl"
     __slots__ = ()
@@ -2351,7 +2365,7 @@ class xrfragment_XRF:
     __slots__ = ("fragment", "flags", "index", "x", "y", "z", "shift", "floats", "color", "string", "int", "float", "filter", "reset", "loop", "xrfScheme")
     _hx_fields = ["fragment", "flags", "index", "x", "y", "z", "shift", "floats", "color", "string", "int", "float", "filter", "reset", "loop", "xrfScheme"]
     _hx_methods = ["is", "validate", "guessType"]
-    _hx_statics = ["IMMUTABLE", "PROP_BIND", "QUERY_OPERATOR", "PROMPT", "CUSTOMFRAG", "NAVIGATOR", "METADATA", "PV_OVERRIDE", "PV_EXECUTE", "T_COLOR", "T_INT", "T_FLOAT", "T_VECTOR2", "T_VECTOR3", "T_URL", "T_PREDEFINED_VIEW", "T_STRING", "T_MEDIAFRAG", "T_DYNAMICKEY", "T_DYNAMICKEYVALUE", "isColor", "isInt", "isFloat", "isVector", "isUrl", "isUrlOrPretypedView", "isString", "operators", "isProp", "isExclude", "isDeep", "isNumber", "isMediaFrag", "isReset", "isShift", "isXRFScheme", "set", "unset"]
+    _hx_statics = ["__meta__", "IMMUTABLE", "PROP_BIND", "QUERY_OPERATOR", "PROMPT", "CUSTOMFRAG", "NAVIGATOR", "METADATA", "PV_OVERRIDE", "PV_EXECUTE", "T_COLOR", "T_INT", "T_FLOAT", "T_VECTOR2", "T_VECTOR3", "T_URL", "T_PREDEFINED_VIEW", "T_STRING", "T_MEDIAFRAG", "T_DYNAMICKEY", "T_DYNAMICKEYVALUE", "isColor", "isInt", "isFloat", "isVector", "isUrl", "isUrlOrPretypedView", "isString", "operators", "isProp", "isExclude", "isDeep", "isNumber", "isMediaFrag", "isReset", "isShift", "isXRFScheme", "set", "unset", "toDict"]
 
     def __init__(self,_fragment,_flags,_index = None):
         self.xrfScheme = None
@@ -2452,6 +2466,10 @@ class xrfragment_XRF:
     def unset(flag,flags):
         return (flags & ~flag)
 
+    @staticmethod
+    def toDict(o):
+        return python_Lib.anonToDict(o)
+
 xrfragment_XRF._hx_class = xrfragment_XRF
 
 Math.NEGATIVE_INFINITY = float("-inf")
@@ -2471,6 +2489,7 @@ python_Boot.prefixLength = len("_hx_")
 xrfragment_Parser.error = ""
 xrfragment_Parser.debug = False
 xrfragment_URI.__meta__ = _hx_AnonObject({'statics': _hx_AnonObject({'template': _hx_AnonObject({'keep': None})})})
+xrfragment_XRF.__meta__ = _hx_AnonObject({'statics': _hx_AnonObject({'toDict': _hx_AnonObject({'keep': None})})})
 xrfragment_XRF.IMMUTABLE = 1
 xrfragment_XRF.PROP_BIND = 2
 xrfragment_XRF.QUERY_OPERATOR = 4
