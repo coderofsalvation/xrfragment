@@ -34,9 +34,10 @@ XR Fragments exploits the fact that all 3D models already contain such metadata:
 <t>It solves:</t>
 
 <ol spacing="compact">
-<li>addressibility and <eref target="https://github.com/coderofsalvation/hypermediatic">hypermediatic</eref> navigation of 3D scenes/objects: <eref target="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</eref> + src/href spatial metadata</li>
+<li>addressibility and <eref target="https://github.com/coderofsalvation/hypermediatic">hypermediatic</eref> navigation of 3D scenes/objects: <eref target="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</eref> using src/href spatial metadata</li>
 <li>Interlinking text &amp; spatial objects by collapsing space into a Word Graph (XRWG) to show <eref target="#visible-links">visible links</eref></li>
 <li>unlocking spatial potential of the (originally 2D) hashtag (which jumps to a chapter) for navigating XR documents</li>
+<li>refraining from introducing scripting-engines for mundane tasks (and preventing its inevitable security-headaches)</li>
 </ol>
 <blockquote><t>NOTE: The chapters in this document are ordered from highlevel to lowlevel (technical) as much as possible</t>
 </blockquote></section>
@@ -96,7 +97,7 @@ But approaches things from a higherlevel feedbackloop/hypermedia browser-perspec
  +───────────────────────────────────────────────────────────────────────────────────────────────+
 
 </artwork>
-<blockquote><t>?-linked and #-linked navigation allows a Hypermediatic FeedbackLoop (HFL) between external and internal 4D navigation.</t>
+<blockquote><t>?-linked and #-linked navigation are JUST one possible way to implement XR Fragments, to allow a Hypermediatic FeedbackLoop (HFL) between external and internal 4D navigation.</t>
 </blockquote><t>Traditional webbrowsers can become 4D document-ready by:</t>
 
 <ul spacing="compact">
@@ -282,6 +283,14 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
 <td>tag object (for filter-use / XRWG highlighting)</td>
 <td>custom property in 3D fileformats</td>
 </tr>
+
+<tr>
+<td><tt>#</tt></td>
+<td>string</td>
+<td><tt>&quot;#&quot;: &quot;#mypreset</tt></td>
+<td>trigger default fragment on load</td>
+<td>custom property in 3D fileformats</td>
+</tr>
 </tbody>
 </table><blockquote><t>Supported popular compatible 3D fileformats: <tt>.gltf</tt>, <tt>.obj</tt>, <tt>.fbx</tt>, <tt>.usdz</tt>, <tt>.json</tt> (THREE.js), <tt>.dae</tt> and so on.</t>
 </blockquote></section>
@@ -430,7 +439,7 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
 
 <tr>
 <td>vector2</td>
-<td>uv=uv,v,uspeed,vspeed</td>
+<td>uv=u,v,uspeed,vspeed</td>
 <td>0,0</td>
 <td>set uv offset instantly (default speed = <tt>1,1</tt>)</td>
 </tr>
@@ -465,13 +474,13 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
 </tbody>
 </table><t>| media parameter (shader uniform) | u:&lt;uniform&gt;=&lt;string|float|vec2|vec3|vec4&gt; | u:color=1,0,0   | set shader uniform value |</t>
 <blockquote><t>* = this is extending the <eref target="https://www.w3.org/TR/media-frags/#mf-advanced">W3C media fragments</eref> with (missing) playback/viewport-control. Normally <tt>#t=0,2</tt> implies setting start/stop-values AND starting playback, whereas <tt>#s=0&amp;loop</tt> allows pausing a video, speeding up/slowing down media, as well as enabling/disabling looping.</t>
-<t>The rationale for <tt>uv</tt> is that the <tt>xywh</tt> Media Fragment deals with rectangular media, which does not translate well to 3D models (which use triangular polygons, not rectangular) positioned by uv-coordinates.</t>
+<t>The rationale for <tt>uv</tt> is that the <tt>xywh</tt> Media Fragment deals with rectangular media, which does not translate well to 3D models (which use triangular polygons, not rectangular) positioned by uv-coordinates. This also explains the absense of a <tt>scale</tt> or <tt>rotate</tt> primitive, which is challenged by this, as well as multiple origins (mesh- or texture).</t>
 </blockquote><t>Example URI's:</t>
 
 <ul spacing="compact">
 <li><tt>https://images.org/credits.jpg#uv=0,0,0,+0.1</tt> (infinite vertical texturescrolling)</li>
-<li><tt>https://video.org/organogram.mp4#t=0&amp;loop&amp;uv:0.1,0.1,0.3,0.3</tt> (animated zoom towards region in looped video)</li>
-<li><tt>https://shaders.org/plasma.glsl#t=0&amp;u:col1=1,0,0&amp;u:col2=0,1,0</tt> (red-green shader plasma starts playing from time-offset 0)</li>
+<li><tt>https://video.org/organogram.mp4#t=0&amp;loop&amp;uv=0.1,0.1,0.3,0.3</tt> (animated zoom towards region in looped video)</li>
+<li><tt>https://shaders.org/plasma.glsl#t=0&amp;u:col2=0,1,0</tt> (red-green shader plasma starts playing from time-offset 0)</li>
 </ul>
 
 <artwork>  +──────────────────────────────────────────────────────────+  
@@ -482,10 +491,10 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
   │    ├ play     : #t=l:0,2                                 │ variable for [URI Templates (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570)
   │    │                                                     │ 
   │    ├── ◻ plane (with material)                           │    
-  │    │      └ #: #suv=l:0,0.1                              │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
+  │    │      └ #: #uv=0,0,0,+0.1                            │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
   │    │                                                     │ 
   │    ├── ◻ plane                                           │    
-  │    │      └ src: foo.jpg#suv=l:0,0.1                     │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
+  │    │      └ src: foo.jpg#uv=0,0,0,+0.1                   │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
   │    │                                                     │ 
   │    ├── ◻ media                                           │   
   │    │      └ src:  cat.mp4#t=l:2,10&amp;uv=0.5,0.5            │ loop cat.mp4 (or mp3/wav/jpg) between 2 and 10 seconds (uv's shifted with 0.5,0.5)

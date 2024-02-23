@@ -112,9 +112,10 @@ XR Fragments exploits the fact that all 3D models already contain such metadata:
 
 It solves:
 
-1. addressibility and [hypermediatic](https://github.com/coderofsalvation/hypermediatic) navigation of 3D scenes/objects: [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) + src/href spatial metadata 
+1. addressibility and [hypermediatic](https://github.com/coderofsalvation/hypermediatic) navigation of 3D scenes/objects: [URI Fragments](https://en.wikipedia.org/wiki/URI_fragment) using src/href spatial metadata 
 1. Interlinking text & spatial objects by collapsing space into a Word Graph (XRWG) to show [visible links](#visible-links)
 1. unlocking spatial potential of the (originally 2D) hashtag (which jumps to a chapter) for navigating XR documents
+1. refraining from introducing scripting-engines for mundane tasks (and preventing its inevitable security-headaches)
 
 > NOTE: The chapters in this document are ordered from highlevel to lowlevel (technical) as much as possible
 
@@ -178,7 +179,7 @@ Below you can see how this translates back into good-old URLs:
 
 ```
 
-> ?-linked and #-linked navigation allows a Hypermediatic FeedbackLoop (HFL) between external and internal 4D navigation.
+> ?-linked and #-linked navigation are JUST one possible way to implement XR Fragments, to allow a Hypermediatic FeedbackLoop (HFL) between external and internal 4D navigation.
  
 Traditional webbrowsers can become 4D document-ready by:
 
@@ -243,6 +244,7 @@ That way, if the link gets shared, the XR Fragments implementation at `https://m
 | `href`       | string   | `"href": "b.gltf"`     | XR teleport         | custom property in 3D fileformats      |
 | `src`        | string   | `"src": "#cube"`       | XR embed / teleport | custom property in 3D fileformats      |
 | `tag`        | string   | `"tag": "cubes geo"`   | tag object (for filter-use / XRWG highlighting) | custom property in 3D fileformats      |
+| `#`          | string   | `"#": "#mypreset`      | trigger default fragment on load | custom property in 3D fileformats |  
 
 > Supported popular compatible 3D fileformats: `.gltf`, `.obj`, `.fbx`, `.usdz`, `.json` (THREE.js), `.dae` and so on.
 
@@ -274,7 +276,7 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 | temporal W3C media fragment * | s=x                               | 1               | set playback speed of audio/video/3D anim |
 | temporal W3C media fragment * | [-]loop                           | loop            | enable looped playback of audio/video/3D anim |
 |                               |                                   | -loop           | disable looped playback (does not affect playbackstate of media) |
-| vector2                       | uv=uv,v,uspeed,vspeed             | 0,0             | set uv offset instantly (default speed = `1,1`) |
+| vector2                       | uv=u,v,uspeed,vspeed              | 0,0             | set uv offset instantly (default speed = `1,1`) |
 |                               |                                   | +0.5,+0.5       | scroll instantly by adding 0.5 to the current uv coordinates |
 |                               |                                   | 0.2,1,0.1,0.1   | scroll (lerp) to uv coordinate `0,2,1` with `0.1` units per second |
 |                               |                                   | 0,0,0,+0.1      | scroll v coordinates with `0.1` units per second (infinitely) |
@@ -284,13 +286,13 @@ These are automatic fragment-to-metadata mappings, which only trigger if the 3D 
 
 > \* = this is extending the [W3C media fragments](https://www.w3.org/TR/media-frags/#mf-advanced) with (missing) playback/viewport-control. Normally `#t=0,2` implies setting start/stop-values AND starting playback, whereas `#s=0&loop` allows pausing a video, speeding up/slowing down media, as well as enabling/disabling looping.
 
-> The rationale for `uv` is that the `xywh` Media Fragment deals with rectangular media, which does not translate well to 3D models (which use triangular polygons, not rectangular) positioned by uv-coordinates.
+> The rationale for `uv` is that the `xywh` Media Fragment deals with rectangular media, which does not translate well to 3D models (which use triangular polygons, not rectangular) positioned by uv-coordinates. This also explains the absense of a `scale` or `rotate` primitive, which is challenged by this, as well as multiple origins (mesh- or texture).
 
 Example URI's:
 
 * `https://images.org/credits.jpg#uv=0,0,0,+0.1` (infinite vertical texturescrolling)
-* `https://video.org/organogram.mp4#t=0&loop&uv:0.1,0.1,0.3,0.3` (animated zoom towards region in looped video)
-* `https://shaders.org/plasma.glsl#t=0&u:col1=1,0,0&u:col2=0,1,0` (red-green shader plasma starts playing from time-offset 0)
+* `https://video.org/organogram.mp4#t=0&loop&uv=0.1,0.1,0.3,0.3` (animated zoom towards region in looped video)
+* `https://shaders.org/plasma.glsl#t=0&u:col2=0,1,0` (red-green shader plasma starts playing from time-offset 0)
 
 ```
   +──────────────────────────────────────────────────────────+  
@@ -301,10 +303,10 @@ Example URI's:
   │    ├ play     : #t=l:0,2                                 │ variable for [URI Templates (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570)
   │    │                                                     │ 
   │    ├── ◻ plane (with material)                           │    
-  │    │      └ #: #suv=l:0,0.1                              │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
+  │    │      └ #: #uv=0,0,0,+0.1                            │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
   │    │                                                     │ 
   │    ├── ◻ plane                                           │    
-  │    │      └ src: foo.jpg#suv=l:0,0.1                     │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
+  │    │      └ src: foo.jpg#uv=0,0,0,+0.1                   │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
   │    │                                                     │ 
   │    ├── ◻ media                                           │   
   │    │      └ src:  cat.mp4#t=l:2,10&uv=0.5,0.5            │ loop cat.mp4 (or mp3/wav/jpg) between 2 and 10 seconds (uv's shifted with 0.5,0.5)
