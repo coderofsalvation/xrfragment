@@ -161,7 +161,7 @@ Below you can see how this translates back into good-old URLs:
  │   the soul of any URL:       ://macro        /meso           ?micro      #nano                │
  │                                                                                               │
  │                2D URL:       ://library.com  /document       ?search     #chapter             │
- │                                                                                               │
+ │                                                                                       xrf://  │
  │                4D URL:       ://park.com     /4Dscene.fbx ─> ?other.glb ─> #view ───> hashbus │
  │                                                │                           #filter     │      │
  │                                                │                           #tag        │      │
@@ -179,7 +179,7 @@ Below you can see how this translates back into good-old URLs:
 
 ```
 
-> ?-linked and #-linked navigation are JUST one possible way to implement XR Fragments, to allow a Hypermediatic FeedbackLoop (HFL) between external and internal 4D navigation.
+> ?-linked and #-linked navigation are JUST one possible way to implement XR Fragments: the essential goal is to allow a Hypermediatic FeedbackLoop (HFL) between external and internal 4D navigation.
  
 Traditional webbrowsers can become 4D document-ready by:
 
@@ -190,16 +190,20 @@ Traditional webbrowsers can become 4D document-ready by:
 
 XR Fragments itself are [hypermediatic](https://github.com/coderofsalvation/hypermediatic) and HTML-agnostic, though pseudo-XR Fragment browsers **can** be implemented on top of HTML/Javascript. 
 
-| principle            | XR 4D URL                                       | HTML 2D URL                           |
-|----------------------|-------------------------------------------------|---------------------------------------|
-| the XRWG             | wordgraph (collapses 3D scene to tags)          | Ctrl-F (find)                         |
-| the hashbus          | hashtags alter camera/scene/object-projections  | hashtags alter document positions     |
-| src metadata         | renders content and offers sourceportation      | renders content                       |
-| href metadata        | teleports to other XR document                  | jumps to other HTML document          |
-| href metadata        | triggers predefined view                        | Media fragments                       |
-| href metadata        | triggers camera/scene/object/projections        | n/a                                   |
-| href metadata        | draws visible connection(s) for XRWG 'tag'      | n/a                                   |
-| href metadata        | filters certain (in)visible objects             | n/a                                   |
+| principle                   | XR 4D URL                                       | HTML 2D URL                           |
+|-----------------------------|-------------------------------------------------|---------------------------------------|
+| the XRWG                    | wordgraph (collapses 3D scene to tags)          | Ctrl-F (find)                         |
+| the hashbus                 | hashtags alter camera/scene/object-projections  | hashtags alter document positions     |
+| src metadata                | renders content and offers sourceportation      | renders content                       |
+| href metadata               | teleports to other XR document                  | jumps to other HTML document          |
+| href metadata               | triggers predefined view                        | Media fragments                       |
+| href metadata               | triggers camera/scene/object/projections        | n/a                                   |
+| href metadata               | draws visible connection(s) for XRWG 'tag'      | n/a                                   |
+| href metadata               | filters certain (in)visible objects             | n/a                                   |
+| href metadata               | href="xrf://#-foo&bar"                          | href="javascript:hideFooAndShowBar()` |
+|                             | (this does not update topLevel URI)             | (this is non-standard, non-hypermediatic) |
+
+> An important aspect of HFL is that URI Fragments can be triggered without updating the top-level URI (default href-behaviour) thru their own 'bus' (`xrf://#.....`). This decoupling between navigation and interaction prevents non-standard things like (`href`:`javascript:dosomething()`).
 
 # Conventions and Definitions
 
@@ -234,7 +238,7 @@ That way, if the link gets shared, the XR Fragments implementation at `https://m
 |-------------------|------------|--------------------|----------------------------------------------------------------------|
 | `#pos`            | vector3    | `#pos=0.5,0,0`     | positions camera (or XR floor) to xyz-coord 0.5,0,0,                 |
 | `#rot`            | vector3    | `#rot=0,90,0`      | rotates camera to xyz-coord 0.5,0,0                                  |
-| [W3C Media Fragments](https://www.w3.org/TR/media-frags/) | [media fragment](#media%20fragments%20and%20datatypes) | `#t=0,2&loop`      | play (and loop) 3D animation from 0 seconds till 2 seconds|
+| [Media Fragments](https://www.w3.org/TR/media-frags/) | [media fragment](#media%20fragments%20and%20datatypes) | `#t=0,2&loop`      | play (and loop) 3D animation from 0 seconds till 2 seconds|
 |                   |            |                    | but can also crop, animate & configure uv-coordinates/shader uniforms |
 
 ## List of metadata for 3D nodes 
