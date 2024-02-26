@@ -152,7 +152,7 @@ Instead of forcing authors to combine 3D/2D objects programmatically (publishing
  │   the soul of any URL:       ://macro        /meso           ?micro      #nano                │
  │                                                                                               │
  │                2D URL:       ://library.com  /document       ?search     #chapter             │
- │                                                                                               │
+ │                                                                                       xrf://  │
  │                4D URL:       ://park.com     /4Dscene.fbx ─&gt; ?other.glb ─&gt; #view ───&gt; hashbus │
  │                                                │                           #filter     │      │
  │                                                │                           #tag        │      │
@@ -171,16 +171,25 @@ Instead of forcing authors to combine 3D/2D objects programmatically (publishing
 </code></pre>
 
 <blockquote>
-<p>?-linked and #-linked navigation are JUST one possible way to implement XR Fragments, to allow a Hypermediatic FeedbackLoop (HFL) between external and internal 4D navigation.</p>
+<p>?-linked and #-linked navigation are JUST one possible way to implement XR Fragments: the essential goal is to allow a Hypermediatic FeedbackLoop (HFL) between external and internal 4D navigation.</p>
 </blockquote>
 
-<p>Traditional webbrowsers can become 4D document-ready by:</p>
+<h1 id="hypermediatic-feedbackloop-for-xr-browsers">Hypermediatic FeedbackLoop for XR browsers</h1>
+
+<p><code>href</code> metadata traditionally implies <strong>click</strong> AND <strong>navigate</strong>, however XR Fragments adds <strong>click</strong> (<code>xrf://#....</code>) or <strong>navigate</strong> (<code>xrf://#pos=...</code>)<br>
+ as well (which allows many extra interactions which otherwise need a scripting language). This is known as <strong>hashbus</strong>-only events (see image above).</p>
+
+<blockquote>
+<p>Being able to use the same URI Fragment DSL for navigation (<code>href: #foo</code>) as well as interactions (<code>href: xrf://#bar</code>) greatly simplifies implementation, increases HFL, and reduces need for scripting languages.</p>
+</blockquote>
+
+<p>This opens up the following benefits for traditional &amp; future webbrowsers:</p>
 
 <ul>
-<li><a href="https://github.com/coderofsalvation/hypermediatic">hypermediatic</a> loading 3D assets (gltf/fbx e.g.) natively (with or without using HTML).</li>
-<li>allowing assets to publish hashtags to themselves (the scene) using the hashbus (like hashtags controlling the scrollbar).</li>
+<li><a href="https://github.com/coderofsalvation/hypermediatic">hypermediatic</a> loading/clicking 3D assets (gltf/fbx e.g.) natively (with or without using HTML).</li>
+<li>allowing 3D assets/nodes to publish XR Fragments to themselves/eachother using the <code>xrf://</code> hashbus</li>
 <li>collapsing the 3D scene to an wordgraph (for essential navigation purposes) controllable thru a hash(tag)bus</li>
-<li>completely bypasses the security-trap of loading external scripts (by loading 3D model-files, not HTML-javascriptable resources)</li>
+<li>completely bypassing the security-trap of loading external scripts (by loading 3D model-files, not HTML-javascriptable resources)</li>
 </ul>
 
 <p>XR Fragments itself are <a href="https://github.com/coderofsalvation/hypermediatic">hypermediatic</a> and HTML-agnostic, though pseudo-XR Fragment browsers <strong>can</strong> be implemented on top of HTML/Javascript.</p>
@@ -242,8 +251,24 @@ Instead of forcing authors to combine 3D/2D objects programmatically (publishing
 <td>filters certain (in)visible objects</td>
 <td>n/a</td>
 </tr>
+
+<tr>
+<td>href metadata</td>
+<td>href=&ldquo;xrf://#-foo&amp;bar&rdquo;</td>
+<td>href=&ldquo;javascript:hideFooAndShowBar()`</td>
+</tr>
+
+<tr>
+<td></td>
+<td>(this does not update topLevel URI)</td>
+<td>(this is non-standard, non-hypermediatic)</td>
+</tr>
 </tbody>
 </table>
+
+<blockquote>
+<p>An important aspect of HFL is that URI Fragments can be triggered without updating the top-level URI (default href-behaviour) thru their own &lsquo;bus&rsquo; (<code>xrf://#.....</code>). This decoupling between navigation and interaction prevents non-standard things like (<code>href</code>:<code>javascript:dosomething()</code>).</p>
+</blockquote>
 
 <h1 id="conventions-and-definitions">Conventions and Definitions</h1>
 
@@ -319,7 +344,7 @@ That way, if the link gets shared, the XR Fragments implementation at <code>http
 </tr>
 
 <tr>
-<td><a href="https://www.w3.org/TR/media-frags/">W3C Media Fragments</a></td>
+<td><a href="https://www.w3.org/TR/media-frags/">Media Fragments</a></td>
 <td><a href="#media%20fragments%20and%20datatypes">media fragment</a></td>
 <td><code>#t=0,2&amp;loop</code></td>
 <td>play (and loop) 3D animation from 0 seconds till 2 seconds</td>
@@ -582,7 +607,7 @@ That way, if the link gets shared, the XR Fragments implementation at <code>http
 
 <ul>
 <li><code>https://images.org/credits.jpg#uv=0,0,0,+0.1</code> (infinite vertical texturescrolling)</li>
-<li><code>https://video.org/organogram.mp4#t=0&amp;loop&amp;uv=0.1,0.1,0.3,0.3</code> (animated zoom towards region in looped video)</li>
+<li><code>https://video.org/organogram.mp4#t=0&amp;loop&amp;uv=0.1,0.1,0.3,0.3</code> (animated tween towards region in looped video)</li>
 <li><code>https://shaders.org/plasma.glsl#t=0&amp;u:col2=0,1,0</code> (red-green shader plasma starts playing from time-offset 0)</li>
 </ul>
 
