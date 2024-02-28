@@ -1036,6 +1036,37 @@ The following demonstrates a simple video player:
 
 ```
 
+# Author/Sharing metadata 
+
+XR Fragments does not contain static metadata attributes for this, but encourages browsers to scan nodes for the following custom properties:
+
+* [ARIA](https://www.w3.org/WAI/standards-guidelines/aria/) attributes (`aria-*: .....`)
+* [Open Graph](https://ogp.me) attributes (`og:*: .....`)
+* [Dublin-Core](https://www.dublincore.org/specifications/dublin-core/application-profile-guidelines/) attributes(`dc:*: .....`)
+* [BibTex](https://bibtex.eu/fields) when known bibtex-keys exist with values enclosed in `{` and `},`
+* [JSON-LD](https://json-ld.org/) when key matches `@type` JSON-value
+
+> ARIA (`aria-description`) is the most important to support (as it promotes accessibility)
+
+Individual nodes can be enriched with such metadata, but most importantly the scene node:
+
+| metadata key                                           | example value                                   |
+|--------------------------------------------------------|-------------------------------------------------|
+| `dc:creator`                                           | `John Doe`                                      |
+| `aria-description`, `og:description`, `dc:description` | `An immersive experience about Triceratops` (*) |
+| `dc:title`, `og:title`                                 | 'Triceratops` (*)                               |
+| `og:site_name`                                         | `https://xrfragment.org`                        |
+| `dc.publisher`                                         | `NLNET`                                         |
+| `dc.date`                                              | `2024-01-01`                                    |  
+| `dc.identifier`                                        | `XRFRAGMENT-001`                                |
+| `journal` (bibTeX)                                     | `{Future Of Text Vol 3},`                       |
+| Person (JSON-LD)                                       | `{"@type":"Person",................}`           |
+
+> \* = these are interchangable (only one needs to be defined)
+
+There's no silver bullet when it comes to metadata, so one should support where the metadata is/goes.
+For future formats it's absolutely fine to follow the same heuristics as used with JSON-LD (key matches `@type` value) or bibtex (value matches field-delimiter).
+
 # Security Considerations
 
 The only dynamic parts are [W3C Media Fragments](https://www.w3.org/TR/media-frags/) and [URI Templates (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570).<br>
