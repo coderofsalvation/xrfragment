@@ -290,16 +290,21 @@ document.head.innerHTML += `
 
     .badge,
     #messages .msg.ui div.badge{
+      box-sizing:border-box;
       display:inline-block;
       color: var(--xrf-white);
       font-weight: bold;
-      background: var(--xrf-gray);
-      border-radius:5px;
-      padding:0px 4px;
+      background: var(--xrf-dark-gray);
+      border-radius:16px;
+      padding:0px 12px;
       font-size: var(--xrf-font-size-0);
       margin-right:10px;
       text-decoration:none !important;
     }
+    #messages .msg.ui div.badge a{
+      color:#FFF;
+    }
+
     .ruler{
       width:97%; 
       margin:7px 0px;
@@ -356,6 +361,15 @@ document.head.innerHTML += `
 
   body.menu .js-snackbar__wrapper {
     top: 64px; 
+  }
+
+  .transcript{
+    max-height:105px;
+    max-width:405px;
+    overflow-y:auto;
+    border: 1px solid var(--xrf-gray);
+    border-radius: 5px;
+    padding: 10px;
   }
 
   .right { float:right }
@@ -535,7 +549,7 @@ document.head.innerHTML += `
       position: relative;
       display: inline-block;
       -moz-transform: rotate(-45deg) scale(var(--ggs,1));
-      transform: translate(4px,1px) rotate(-45deg) scale(var(--ggs,1));
+      transform: translate(4px,-5px) rotate(-45deg) scale(var(--ggs,1));
       width: 8px;
       height: 2px;
       background: currentColor;
@@ -701,7 +715,7 @@ document.head.innerHTML += `
       box-sizing: border-box;
       position: relative;
       display: inline-block;
-      transform: scale(var(--ggs,1)) translate(3px,9px); 
+      transform: scale(var(--ggs,1)) translate(3px,3px); 
       width: 16px;
       height: 6px;
       border: 2px solid;

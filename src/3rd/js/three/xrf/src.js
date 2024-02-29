@@ -4,16 +4,18 @@ xrf.frag.src = function(v, opts){
   opts.embedded = v // indicate embedded XR fragment
   let { mesh, model, camera, scene, renderer, THREE, hashbus, frag} = opts
 
+  if( mesh.isSRC ) return // only embed src once 
+
   let url       = xrf.frag.src.expandURI( mesh, v.string )
   let srcFrag   = opts.srcFrag = xrfragment.URI.parse(url)
   opts.isLocal  = v.string[0] == '#'
   opts.isPortal = xrf.frag.src.renderAsPortal(mesh)
-  opts.isSRC    = true 
+  opts.isSRC    = mesh.isSRC = true 
 
   if(xrf.debug) console.log(`src.js: instancing ${opts.isLocal?'local':'remote'} object ${url}`)
 
   if( opts.isLocal ){
-    xrf.frag.src.localSRC(url,srcFrag,opts)     // local
+    xrf.frag.src.localSRC(url,srcFrag,opts)         // local
   }else xrf.frag.src.externalSRC(url,srcFrag,opts)  // external file
 
   xrf.hashbus.pub( url.replace(/.*#/,''), mesh)     // eval src-url fragments
@@ -31,7 +33,6 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
   scene = xrf.frag.src.filterScene(scene,{...opts,frag})         // get filtered scene
   if( mesh.material && mesh.userData.src ) mesh.material.visible = false  // hide placeholder object
 
-  //enableSourcePortation(scene)
   if( opts.isPortal ){
     // only add remote objects, because 
     // local scene-objects are already added to scene
@@ -41,10 +42,11 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
     xrf.frag.src.scale( scene, opts, url )           // scale scene
     mesh.add(scene)
   }
+  xrf.frag.src.enableSourcePortation({scene,mesh,url,model})
   // flag everything isSRC & isXRF
   mesh.traverse( (n) => { n.isSRC = n.isXRF = n[ opts.isLocal ? 'isSRCLocal' : 'isSRCExternal' ] = true })
   
-  xrf.emit('parseModel', {...opts, isSRC:true, scene, model}) 
+  xrf.emit('parseModel', {...opts, isSRC:true, mesh, model}) // this will execute all embedded metadata/fragments e.g.
 }
 
 xrf.frag.src.renderAsPortal = (mesh) => {
@@ -53,28 +55,42 @@ xrf.frag.src.renderAsPortal = (mesh) => {
   return xrf.hasNoMaterial(mesh) && isPlane
 }
 
-xrf.frag.src.enableSourcePortation = (src) => {
-  // show sourceportation clickable plane
-  if( srcFrag.href || v.string[0] == '#' ) return
-  let scale = new THREE.Vector3()
-  let size  = new THREE.Vector3()
-  mesh.getWorldScale(scale)
-  new THREE.Box3().setFromObject(src).getSize(size)
-  const geo    = new THREE.SphereGeometry( Math.max(size.x, size.y, size.z) / scale.x, 10, 10 )
-  const mat    = new THREE.MeshBasicMaterial()
-  mat.transparent = true
-  mat.roughness = 0.05
-  mat.metalness = 1
-  mat.opacity = 0
-  const cube = new THREE.Mesh( geo, mat )
-  // *TODO* sourceportate?
-  return xrf.frag.src
+xrf.frag.src.enableSourcePortation = (opts) => {
+  let {scene,mesh,url,model} = opts
+  if( url[0] == '#' ) return
+  if( !mesh.userData.href ){ 
+    // show sourceportation clickable sphere for non-portals
+    let scale = new THREE.Vector3()
+    let size  = new THREE.Vector3()
+    scene.getWorldScale(scale)
+    new THREE.Box3().setFromObject(scene).getSize(size)
+    const geo    = new THREE.SphereGeometry( Math.max(size.x, size.y, size.z) * scale.x * 0.6, 10, 10 )
+    const mat    = new THREE.MeshBasicMaterial()
+    mat.visible = false // we just use this for collisions
+    const sphere = new THREE.Mesh( geo, mat )
+    // reparent scene to sphere
+    let children = mesh.children
+    mesh.children = []
+    mesh.add(sphere)
+    children.map( (c) => sphere.add(c) )
+    // make sphere clickable/hoverable
+    let frag = {}
+    xrf.Parser.parse("href", url, frag)
+    sphere.userData = scene.userData  // allow rich href notifications/hovers
+    sphere.userData.href = url.replace(/(&)?[-][\w-+\.]+(&)?/g,'&') // remove negative selectors to refer to original scene
+    sphere.userData.XRF  = frag
+    xrf.hashbus.pub.fragment("href", {...opts, mesh:sphere, frag, skipXRWG:true, renderer:xrf.renderer, camera:xrf.camera }) 
+  }
+  for ( let i in scene.userData ) {
+    if( !mesh.userData[i] ) mesh.userData[i] = scene.userData[i] // allow rich href notifications/hovers
+  }
 }
 
 xrf.frag.src.externalSRC = (url,frag,opts) => {
   fetch(url, { method: 'HEAD' })
   .then( (res) => {
     let mimetype = res.headers.get('Content-type')
+    if(xrf.debug != undefined ) console.log("HEAD "+url+" => "+mimetype)
     if( url.replace(/#.*/,'').match(/\.(gltf|glb)$/)     ) mimetype = 'gltf'
     if( url.replace(/#.*/,'').match(/\.(frag|fs|glsl)$/) ) mimetype = 'x-shader/x-fragment'
     if( url.replace(/#.*/,'').match(/\.(vert|vs)$/)      ) mimetype = 'x-shader/x-fragment'
@@ -138,12 +154,12 @@ xrf.frag.src.scale = function(scene, opts, url){
 xrf.frag.src.filterScene = (scene,opts) => {
   let { mesh, model, camera, renderer, THREE, hashbus, frag} = opts
 
-  scene = xrf.filter.scene({scene,frag,reparent:true,copyScene: opts.isPortal})
+  scene = xrf.filter.scene({scene,frag,reparent:true}) //,copyScene: opts.isPortal})
 
   if( !opts.isLocal ){
     scene.traverse( (m) => {
       if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 
-      hashbus.pub.mesh(m,{scene,recursive:true})                       // cool idea: recursion-depth based distance between face & src
+      xrf.parseModel.metadataInMesh(m,{scene,recursive:true})
     })
   }
   return scene

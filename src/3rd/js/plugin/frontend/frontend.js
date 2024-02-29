@@ -88,8 +88,40 @@ window.frontend = (opts) => new Proxy({
     // notify navigation + href mouseovers to user
     setTimeout( () => {
       window.notify('loading '+document.location.search.substr(1))
+
       setTimeout( () => window.notify("use WASD-keys and mouse-drag to move around",{timeout:false}),2000 )
-      setTimeout( () => xrf.addEventListener('href', (data) => data.selected ? window.notify(`href: ${data.xrf.string}`) : false ), 5000)
+
+      xrf.addEventListener('href', (data) => {
+        if( !data.selected ) return 
+        let html     = `<b class="badge">${data.mesh.isSRC && !data.mesh.portal ? 'src' : 'href'}</b>${data.xrf.string}<br>`
+        let metadata = data.mesh.userData 
+        let meta     = xrf.Parser.getMetaData()
+
+        let hasMeta = false
+        for ( let label in meta ) {
+          let fields = meta[label]
+          for ( let i = 0; i < fields.length;i++ ) {
+            let field = fields[i]
+            if( metadata[field] ){
+              hasMeta = true
+              html += `<br><b style="min-width:110px;display:inline-block">${label}:</b> ${metadata[field]}\n`
+              break
+            }
+          }
+        }
+        let transcript = ''
+        let root = data.mesh.portal ? data.mesh.portal.stencilObject : data.mesh
+        root.traverse( (n) => {
+          if( n.userData['aria-description'] && n.uuid != data.mesh.uuid ){
+            transcript += `<b>#${n.name}</b> ${n.userData['aria-description']}. `
+          }
+        })
+        if( transcript.length ) html += `<br><b>transcript:</b><br><div class="transcript">${transcript}</div>`
+
+        if (hasMeta && !data.mesh.portal ) html += `<br><br><a class="btn" style="float:right" onclick="xrf.navigator.to('${data.mesh.userData.href}')">Visit embedded scene</a>`
+        window.notify(html,{timeout: 7000 * (hasMeta ? 1.5 : 1) })
+      })
+
     },100)
     return this
   },

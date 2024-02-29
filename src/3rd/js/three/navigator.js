@@ -2,7 +2,7 @@ xrf.navigator = {}
 
 xrf.navigator.to = (url,flags,loader,data) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
-  let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
+  let {urlObj,dir,file,hash,ext} = xrf.navigator.origin = xrf.parseUrl(url)
   let hashChange = (!file && hash) || !data && xrf.model.file == file
   let hasPos     = String(hash).match(/pos=/)
 
@@ -62,7 +62,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
 
           // spec: 2. init metadata inside model for non-SRC data
           if( !model.isSRC ){ 
-            model.scene.traverse( (mesh) => xrf.hashbus.pub.mesh(mesh,model) )
+            model.scene.traverse( (mesh) => xrf.parseModel.metadataInMesh(mesh,model) )
           }
 
           // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)

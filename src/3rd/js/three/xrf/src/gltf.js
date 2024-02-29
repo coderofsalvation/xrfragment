@@ -11,9 +11,11 @@ xrf.frag.src.type['gltf'] = function( url, opts ){
     const Loader = xrf.loaders[ext]
     if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 
     if( !dir.match("://") ){ // force relative path 
-      dir = dir[0] == './' ? dir : `./${dir}`
+      dir = dir.substr(0,2) == './' ? dir : `./${dir}`
       loader = new Loader().setPath( dir )
-    }else loader = new Loader()
+    }else{
+      loader = new Loader() 
+    }
 
     loader.load(url, (model) => {
       model.isSRC = true

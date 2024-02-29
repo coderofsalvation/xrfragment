@@ -20,7 +20,9 @@ let loadAudio = (mimetype) => function(url,opts){
   mesh.media = mesh.media || {}
   mesh.media.audio = { set: (mediafragment,v) => mesh.media.audio[mediafragment] = v }
 
-  audioLoader.load( url.replace(/#.*/,''), function( buffer ) {
+  let finalUrl = url.replace(/#.*/,'')
+  if( xrf.debug != undefined ) console.log("GET "+finalUrl)
+  audioLoader.load( finalUrl, function( buffer ) {
 
     sound.setBuffer( buffer );
     sound.setLoop(false);
@@ -68,7 +70,7 @@ let loadAudio = (mimetype) => function(url,opts){
     }
 
     let lazySet = {}
-    let mediaFragments = ['t','loop','s']
+    let mediaFragments = ['loop','s','t']
     mediaFragments.map( (f) => mesh.media.audio[f] && (lazySet[f] = mesh.media.audio[f]) )
     mesh.media.audio = sound
 

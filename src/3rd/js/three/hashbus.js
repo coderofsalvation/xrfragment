@@ -9,13 +9,14 @@ let pub = function( url, node_or_model, flags ){  // evaluate fragments in url
   let { THREE, camera } = xrf
   let frag     = xrf.URI.parse( url, flags )
   let fromNode = node_or_model != xrf.model
+  let isNode   = node_or_model && node_or_model.children
 
   let opts = {
     frag, 
     mesh:  fromNode ? node_or_model : xrf.camera, 
     model: xrf.model,
     camera: xrf.camera, 
-    scene: xrf.scene, 
+    scene: isNode ? node_or_model : xrf.scene, 
     renderer: xrf.renderer,
     THREE: xrf.THREE, 
     hashbus: xrf.hashbus 
@@ -29,20 +30,6 @@ let pub = function( url, node_or_model, flags ){  // evaluate fragments in url
     }
   })
   return frag
-}
-
-// deprecated: (XR Macros) evaluate embedded fragments (metadata) inside mesh of model *REMOVEME*
-pub.mesh     = (mesh,model) => { 
-  if( mesh.userData ){
-    let frag = {}
-    for( let k in mesh.userData ) xrf.Parser.parse( k, mesh.userData[k], frag )
-    for( let k in frag ){
-      let opts = {frag, mesh, model, camera: xrf.camera, scene: model.scene, renderer: xrf.renderer, THREE: xrf.THREE, hashbus: xrf.hashbus }
-      mesh.userData.XRF = frag // allow fragment impl to access XRF obj already
-      xrf.emit('frag2mesh',opts)
-      .then( () => pub.fragment(k, {...opts, skipXRWG:true}) )
-    }
-  }
 }
 
 pub.fragment = (k, opts ) => { // evaluate one fragment

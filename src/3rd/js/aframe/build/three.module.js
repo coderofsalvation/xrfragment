@@ -10,6 +10,7 @@ import { ColladaLoader } from 'super-three/examples/jsm/loaders/ColladaLoader';
 import { MTLLoader } from 'super-three/examples/jsm/loaders/MTLLoader';
 import * as BufferGeometryUtils from 'super-three/examples/jsm/utils/BufferGeometryUtils';
 import { LightProbeGenerator } from 'super-three/examples/jsm/lights/LightProbeGenerator';
+//import {Text} from 'troika-three-text' 
 
 var THREE = window.THREE = SUPER_THREE;
 
@@ -26,5 +27,6 @@ THREE.ColladaLoader = ColladaLoader;
 THREE.OBB = OBB;
 THREE.BufferGeometryUtils = BufferGeometryUtils;
 THREE.LightProbeGenerator = LightProbeGenerator;
+//THREE.Text = Text
 
 export default THREE;

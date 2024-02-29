@@ -42,8 +42,25 @@ xrf.parseModel = function(model,url){
   model.file             = file
   model.isXRF            = true
   model.scene.traverse( (n) => n.isXRF = true ) // mark for deletion during reset()
+
   xrf.emit('parseModel',{model,url,file})
 }
+
+xrf.parseModel.metadataInMesh =  (mesh,model) => { 
+  if( mesh.userData ){
+    let frag = {}
+    for( let k in mesh.userData ) xrf.Parser.parse( k, mesh.userData[k], frag )
+    for( let k in frag ){
+      let opts = {frag, mesh, model, camera: xrf.camera, scene: model.scene, renderer: xrf.renderer, THREE: xrf.THREE, hashbus: xrf.hashbus }
+      mesh.userData.XRF = frag // allow fragment impl to access XRF obj already
+      xrf.emit('frag2mesh',opts)
+      .then( () => {
+        xrf.hashbus.pub.fragment(k, {...opts, skipXRWG:true}) 
+      })
+    }
+  }
+}
+
 
 xrf.getLastModel = ()           => xrf.model.last 
 

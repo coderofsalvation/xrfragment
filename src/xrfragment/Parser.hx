@@ -77,6 +77,19 @@ class Parser {
       return true;
     }
 
+    @:keep
+    public static function getMetaData(): Dynamic {
+      var meta:Dynamic = {
+        title: ["title", "og:title", "dc.title"],
+        description: ["aria-description", "og:description", "dc.description"],
+        author: ["author", "dc.creator"],
+        publisher: ["publisher", "dc.publisher"],
+        website: ["og:site_name", "og:url", "dc.publisher"],
+        license: ["SPDX","dc.rights"],
+      };
+      return meta;
+    }
+
 }
 
 /**

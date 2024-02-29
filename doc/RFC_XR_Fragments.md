@@ -116,6 +116,7 @@ It solves:
 1. Interlinking text & spatial objects by collapsing space into a Word Graph (XRWG) to show [visible links](#visible-links)
 1. unlocking spatial potential of the (originally 2D) hashtag (which jumps to a chapter) for navigating XR documents
 1. refraining from introducing scripting-engines for mundane tasks (and preventing its inevitable security-headaches)
+1. the gap between text an 3d objects: object-names directly map to hashtags (=fragments), which allows 3D to text transcription.
 
 > NOTE: The chapters in this document are ordered from highlevel to lowlevel (technical) as much as possible
 
@@ -1038,10 +1039,12 @@ The following demonstrates a simple video player:
 
 ```
 
-# Author/Sharing metadata 
+# Additional scene metadata 
 
-XR Fragments does not contain static metadata attributes for this, but encourages browsers to scan nodes for the following custom properties:
+XR Fragments does not aim to redefine the metadata-space by introducing its own cataloging-metadata fields.
+Instead, it encourages browsers to scan nodes for the following custom properties:
 
+* [SPDX](https://spdx.dev/) license information
 * [ARIA](https://www.w3.org/WAI/standards-guidelines/aria/) attributes (`aria-*: .....`)
 * [Open Graph](https://ogp.me) attributes (`og:*: .....`)
 * [Dublin-Core](https://www.dublincore.org/specifications/dublin-core/application-profile-guidelines/) attributes(`dc:*: .....`)
@@ -1054,15 +1057,16 @@ Individual nodes can be enriched with such metadata, but most importantly the sc
 
 | metadata key                                           | example value                                   |
 |--------------------------------------------------------|-------------------------------------------------|
-| `dc:creator`                                           | `John Doe`                                      |
 | `aria-description`, `og:description`, `dc:description` | `An immersive experience about Triceratops` (*) |
+| `SPDX`                                                 | `CC0-1.0`                                       |
+| `dc:creator`                                           | `John Doe`                                      |
 | `dc:title`, `og:title`                                 | 'Triceratops` (*)                               |
 | `og:site_name`                                         | `https://xrfragment.org`                        |
 | `dc.publisher`                                         | `NLNET`                                         |
 | `dc.date`                                              | `2024-01-01`                                    |  
 | `dc.identifier`                                        | `XRFRAGMENT-001`                                |
 | `journal` (bibTeX)                                     | `{Future Of Text Vol 3},`                       |
-| Person (JSON-LD)                                       | `{"@type":"Person",................}`           |
+| `Person` (JSON-LD)                                     | `{"@type":"Person",................}`           |
 
 > \* = these are interchangable (only one needs to be defined)
 

@@ -101,7 +101,7 @@ xrf.filter.process = function(frag,scene,opts){
     let processed = {}
     let extembeds = {}
 
-    // hide external objects temporarely
+    // hide external objects temporarely (prevent them getting filtered too)
     scene.traverse( (m) => {
       if( m.isSRCExternal ){
         m.traverse( (n) => (extembeds[ n.uuid ] = m) && (m.visible = false) )

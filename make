@@ -56,7 +56,8 @@ build(){
     test -d src/3rd/js/aframe/build/aframe || git clone https://github.com/aframevr/aframe src/3rd/js/aframe/build/aframe --depth=1
     curdir=$(pwd)
     cd src/3rd/js/aframe/build && cp three.module.js aframe/src/lib/. # override to add extra loaders like fbx/collada e.g.
-    cd aframe && npm run dist
+    #cd aframe && npm install && npm install troika-three-text && npm run dist
+    cd aframe && npm install && npm run dist
     cd "$curdir"
     cp src/3rd/js/aframe/build/aframe/dist/aframe-master.min.js dist/aframe.min.js
     test -f dist/aframe-blink-controls.min.js || {
@@ -124,7 +125,7 @@ build(){
     return $ok
   }
 
-  test -z $1 && { parser && js; }
+  test -z $1 && { parser && aframe && js; }
   test -z $1 || "$@"
 }
 
