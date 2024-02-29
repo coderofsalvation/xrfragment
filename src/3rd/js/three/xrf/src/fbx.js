@@ -8,8 +8,9 @@ xrf.frag.src.type['fbx'] = function( url, opts ){
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
     let loader
 
-    //let {THREE}        = await import('https://unpkg.com/three@0.161.0/build/three.module.js')
-    //let  { FBXLoader } = await import('three/addons/loaders/FBXLoader.js')
+    let {THREE}        = await import('https://unpkg.com/three@0.161.0/build/three.module.js')
+    let  { FBXLoader } = await import('three/addons/loaders/FBXLoader.js')
+    debugger
 
     //const Loader = xrf.loaders[ext]
     //if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 

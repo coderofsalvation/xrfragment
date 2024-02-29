@@ -180,6 +180,8 @@ Below you can see how this translates back into good-old URLs:
 ```
 
 > ?-linked and #-linked navigation are JUST one possible way to implement XR Fragments: the essential goal is to allow a Hypermediatic FeedbackLoop (HFL) between external and internal 4D navigation.
+ 
+Traditional webbrowsers can become 4D document-ready by:
 
 # Hypermediatic FeedbackLoop for XR browsers 
 

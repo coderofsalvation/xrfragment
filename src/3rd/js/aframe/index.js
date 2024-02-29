@@ -3,13 +3,13 @@ window.AFRAME.registerComponent('xrf', {
     http: { type:'string'},
     https: { type:'string'},
   },
-  init: function () {
+  init: async function () {
 
     // override this.data when URL has passed (`://....com/?https://foo.com/index.glb` e.g.)
     if( typeof this.data == "string" ){
       let searchIsUri = document.location.search && 
                         !document.location.search.match(/=/) &&
-                        document.location.search.match("://")
+                        document.location.search.match("/")
       if( searchIsUri || document.location.hash.length > 1 ){ // override url
         this.data = `${document.location.search.substr(1)}${document.location.hash}`
       }
@@ -32,8 +32,11 @@ window.AFRAME.registerComponent('xrf', {
         renderer:  aScene.renderer,
         loaders: { 
           gltf: THREE.GLTFLoader, // which 3D assets (exts) to check for XR fragments?
-          glb: THREE.GLTFLoader,
-          obj: THREE.OBJLoader
+          glb:  THREE.GLTFLoader,
+          obj:  THREE.OBJLoader,
+          fbx:  THREE.FBXLoader,
+          usdz: THREE.USDZLoader,
+          col:  THREE.ColladaLoader
         }
       })
       aScene.renderer.toneMapping = THREE.ACESFilmicToneMapping;

@@ -164,18 +164,14 @@ xrf.portalNonEuclidian.setMaterial = function(mesh){
   mesh.material.colorWrite   = false;
   mesh.material.stencilWrite = true;
   mesh.material.stencilRef   = xrf.portalNonEuclidian.stencilRef;
- // mesh.renderOrder           = 0;//xrf.portalNonEuclidian.stencilRef;
   mesh.material.stencilFunc  = xrf.THREE.AlwaysStencilFunc;
   mesh.material.stencilZPass = xrf.THREE.ReplaceStencilOp;
   mesh.material.stencilZFail = xrf.THREE.ReplaceStencilOp;
-    //n.material.depthFunc    = stencilRef > 0 ? xrf.THREE.AlwaysDepth : xrf.THREE.LessEqualDepth
-  //mesh.material.depthTest    = false;
   return mesh
 }
 
 xrf.addEventListener('parseModel',(opts) => {
   const scene = opts.model.scene
-  //for( let i in scene.children ) scene.children[i].renderOrder = 10 // render outer layers last (worldspheres e.g.)
 })
 
 

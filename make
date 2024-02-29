@@ -52,6 +52,18 @@ server(){
 
 build(){
 
+  aframe(){
+    test -d src/3rd/js/aframe/build/aframe || git clone https://github.com/aframevr/aframe src/3rd/js/aframe/build/aframe --depth=1
+    curdir=$(pwd)
+    cd src/3rd/js/aframe/build && cp three.module.js aframe/src/lib/. # override to add extra loaders like fbx/collada e.g.
+    cd aframe && npm run dist
+    cd "$curdir"
+    cp src/3rd/js/aframe/build/aframe/dist/aframe-master.min.js dist/aframe.min.js
+    test -f dist/aframe-blink-controls.min.js || {
+      wget "https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js" -O dist/aframe-blink-controls.min.js
+    }
+  }
+
   parser(){
     try rm dist/xrfragment.* 
     haxe build.hxml || exit 1
@@ -92,12 +104,6 @@ build(){
     jscat src/3rd/js/plugin/matrix/{matrix-crdt,matrix}.js          > dist/xrfragment.plugin.matrix.js 
     jscat src/3rd/js/plugin/p2p/{trystero-torrent.min,trystero}.js  > dist/xrfragment.plugin.p2p.js 
     
-    # fat all-in-one standalone xrf release
-    test -f dist/aframe.min.js || {
-      wget "https://aframe.io/releases/1.5.0/aframe.min.js" -O dist/aframe.min.js
-      wget "https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js" -O dist/aframe-blink-controls.min.js
-    }
-
     cat dist/aframe.min.js dist/aframe-blink-controls.min.js dist/xrfragment.aframe.js > dist/xrfragment.aframe.all.js
     
     # add license headers

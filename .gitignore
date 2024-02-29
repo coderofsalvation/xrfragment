@@ -3,4 +3,5 @@ src/spec/tmp.json
 tags
 example/assets/*.blend*
 2wa.gitlab.io/*
+src/3rd/js/aframe/build/aframe
 
