@@ -2894,6 +2894,10 @@ __xrfragment_Parser.parse = function(key,value,store,index)
   end;
   do return true end;
 end
+__xrfragment_Parser.getMetaData = function() 
+  local meta = _hx_o({__fields__={title=true,description=true,author=true,publisher=true,website=true,license=true},title=_hx_tab_array({[0]="title", "og:title", "dc.title"}, 3),description=_hx_tab_array({[0]="aria-description", "og:description", "dc.description"}, 3),author=_hx_tab_array({[0]="author", "dc.creator"}, 2),publisher=_hx_tab_array({[0]="publisher", "dc.publisher"}, 2),website=_hx_tab_array({[0]="og:site_name", "og:url", "dc.publisher"}, 3),license=_hx_tab_array({[0]="SPDX", "dc.rights"}, 2)});
+  do return meta end;
+end
 
 __xrfragment_URI.new = {}
 _hx_exports["xrfragment"]["URI"] = __xrfragment_URI

@@ -58,6 +58,7 @@ xrf.portalNonEuclidian = function(opts){
     // put it into a scene (without .add() because it reparents objects) so we can render it separately
     mesh.portal.stencilObjects = new xrf.THREE.Scene()
     mesh.portal.stencilObjects.children = stencilObjects 
+    mesh.portal.stencilObjects.isXRF = true 
 
     xrf.portalNonEuclidian.stencilRef += 1 // each portal has unique stencil id
     if( xrf.debug ) console.log(`enabling portal for object '${mesh.name}' (stencilRef:${mesh.portal.stencilRef})`)

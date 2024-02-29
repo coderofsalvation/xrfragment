@@ -1234,16 +1234,21 @@ document.head.innerHTML += `
 
     .badge,
     #messages .msg.ui div.badge{
+      box-sizing:border-box;
       display:inline-block;
       color: var(--xrf-white);
       font-weight: bold;
-      background: var(--xrf-gray);
-      border-radius:5px;
-      padding:0px 4px;
+      background: var(--xrf-dark-gray);
+      border-radius:16px;
+      padding:0px 12px;
       font-size: var(--xrf-font-size-0);
       margin-right:10px;
       text-decoration:none !important;
     }
+    #messages .msg.ui div.badge a{
+      color:#FFF;
+    }
+
     .ruler{
       width:97%; 
       margin:7px 0px;
@@ -1300,6 +1305,15 @@ document.head.innerHTML += `
 
   body.menu .js-snackbar__wrapper {
     top: 64px; 
+  }
+
+  .transcript{
+    max-height:105px;
+    max-width:405px;
+    overflow-y:auto;
+    border: 1px solid var(--xrf-gray);
+    border-radius: 5px;
+    padding: 10px;
   }
 
   .right { float:right }
@@ -1479,7 +1493,7 @@ document.head.innerHTML += `
       position: relative;
       display: inline-block;
       -moz-transform: rotate(-45deg) scale(var(--ggs,1));
-      transform: translate(4px,1px) rotate(-45deg) scale(var(--ggs,1));
+      transform: translate(4px,-5px) rotate(-45deg) scale(var(--ggs,1));
       width: 8px;
       height: 2px;
       background: currentColor;
@@ -1645,7 +1659,7 @@ document.head.innerHTML += `
       box-sizing: border-box;
       position: relative;
       display: inline-block;
-      transform: scale(var(--ggs,1)) translate(3px,9px); 
+      transform: scale(var(--ggs,1)) translate(3px,3px); 
       width: 16px;
       height: 6px;
       border: 2px solid;
@@ -1803,8 +1817,44 @@ window.frontend = (opts) => new Proxy({
     // notify navigation + href mouseovers to user
     setTimeout( () => {
       window.notify('loading '+document.location.search.substr(1))
-      setTimeout( () => window.notify("use WASD-keys and mouse-drag to move around",{timeout:false}),2000 )
-      setTimeout( () => xrf.addEventListener('href', (data) => data.selected ? window.notify(`href: ${data.xrf.string}`) : false ), 5000)
+
+      setTimeout( () => {
+        window.notify("use WASD-keys and mouse-drag to move around",{timeout:false})
+        xrf.addEventListener('navigate', () => SnackBar() ) // close dialogs when url changes
+      },2000 )
+
+      xrf.addEventListener('href', (data) => {
+        if( !data.selected  ) return 
+
+        let html     = `<b class="badge">${data.mesh.isSRC && !data.mesh.portal ? 'src' : 'href'}</b>${ data.xrf ? data.xrf.string : data.mesh.userData.src}<br>`
+        let metadata = data.mesh.userData 
+        let meta     = xrf.Parser.getMetaData()
+
+        let hasMeta = false
+        for ( let label in meta ) {
+          let fields = meta[label]
+          for ( let i = 0; i < fields.length;i++ ) {
+            let field = fields[i]
+            if( metadata[field] ){
+              hasMeta = true
+              html += `<br><b style="min-width:110px;display:inline-block">${label}:</b> ${metadata[field]}\n`
+              break
+            }
+          }
+        }
+        let transcript = ''
+        let root = data.mesh.portal ? data.mesh.portal.stencilObject : data.mesh
+        root.traverse( (n) => {
+          if( n.userData['aria-description'] && n.uuid != data.mesh.uuid ){
+            transcript += `<b>#${n.name}</b> ${n.userData['aria-description']}. `
+          }
+        })
+        if( transcript.length ) html += `<br><b>transcript:</b><br><div class="transcript">${transcript}</div>`
+
+        if (hasMeta && !data.mesh.portal ) html += `<br><br><a class="btn" style="float:right" onclick="xrf.navigator.to('${data.mesh.userData.href}')">Visit embedded scene</a>`
+        window.notify(html,{timeout: 7000 * (hasMeta ? 1.5 : 1) })
+      })
+
     },100)
     return this
   },
@@ -2229,7 +2279,7 @@ window.SnackBar = function(userOptions) {
 
     _Options = { ..._OptionDefaults, ...userOptions }
     _Create();
-    snackbar.Open();
+    if( userOptions ) snackbar.Open();
 }
 
 document.head.innerHTML += `

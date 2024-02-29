@@ -135,7 +135,7 @@ window.SnackBar = function(userOptions) {
 
     _Options = { ..._OptionDefaults, ...userOptions }
     _Create();
-    snackbar.Open();
+    if( userOptions ) snackbar.Open();
 }
 
 document.head.innerHTML += `

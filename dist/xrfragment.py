@@ -2248,7 +2248,7 @@ xrfragment_Filter._hx_class = xrfragment_Filter
 class xrfragment_Parser:
     _hx_class_name = "xrfragment.Parser"
     __slots__ = ()
-    _hx_statics = ["error", "debug", "parse"]
+    _hx_statics = ["error", "debug", "parse", "getMetaData"]
 
     @staticmethod
     def parse(key,value,store,index = None):
@@ -2293,6 +2293,11 @@ class xrfragment_Parser:
             v.flags = xrfragment_XRF.set(xrfragment_XRF.CUSTOMFRAG,v.flags)
             setattr(store,(("_hx_" + keyStripped) if ((keyStripped in python_Boot.keywords)) else (("_hx_" + keyStripped) if (((((len(keyStripped) > 2) and ((ord(keyStripped[0]) == 95))) and ((ord(keyStripped[1]) == 95))) and ((ord(keyStripped[(len(keyStripped) - 1)]) != 95)))) else keyStripped)),v)
         return True
+
+    @staticmethod
+    def getMetaData():
+        meta = _hx_AnonObject({'title': ["title", "og:title", "dc.title"], 'description': ["aria-description", "og:description", "dc.description"], 'author': ["author", "dc.creator"], 'publisher': ["publisher", "dc.publisher"], 'website': ["og:site_name", "og:url", "dc.publisher"], 'license': ["SPDX", "dc.rights"]})
+        return meta
 xrfragment_Parser._hx_class = xrfragment_Parser
 
 

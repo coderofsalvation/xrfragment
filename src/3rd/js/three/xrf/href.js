@@ -35,7 +35,7 @@ xrf.frag.href = function(v, opts){
 
   let click = mesh.userData.XRF.href.exec = (e) => {
 
-    if( !mesh.material.visible ) return
+    if( !mesh.material.visible ) return // ignore invisible nodes
 
     // bubble up!
     mesh.traverseAncestors( (n) => n.userData && n.userData.href && n.dispatchEvent({type:e.type,data:{}}) )
@@ -59,6 +59,7 @@ xrf.frag.href = function(v, opts){
   }
 
   let selected = mesh.userData.XRF.href.selected = (state) => () => {
+    if( !mesh.material.visible && !mesh.isSRC ) return // ignore invisible nodes
     if( mesh.selected == state ) return // nothing changed 
 
     xrf.interactive.objects.map( (o) => {

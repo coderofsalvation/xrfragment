@@ -58,16 +58,20 @@ xrf.frag.src.renderAsPortal = (mesh) => {
 xrf.frag.src.enableSourcePortation = (opts) => {
   let {scene,mesh,url,model} = opts
   if( url[0] == '#' ) return
+
+  url = url.replace(/(&)?[-][\w-+\.]+(&)?/g,'&') // remove negative selectors to refer to original scene
+
   if( !mesh.userData.href ){ 
     // show sourceportation clickable sphere for non-portals
     let scale = new THREE.Vector3()
     let size  = new THREE.Vector3()
     scene.getWorldScale(scale)
     new THREE.Box3().setFromObject(scene).getSize(size)
-    const geo    = new THREE.SphereGeometry( Math.max(size.x, size.y, size.z) * scale.x * 0.6, 10, 10 )
+    const geo    = new THREE.SphereGeometry( Math.max(size.x, size.y, size.z) * scale.x * 0.33, 10, 10 )
     const mat    = new THREE.MeshBasicMaterial()
     mat.visible = false // we just use this for collisions
     const sphere = new THREE.Mesh( geo, mat )
+    sphere.isXRF = true
     // reparent scene to sphere
     let children = mesh.children
     mesh.children = []
@@ -113,8 +117,8 @@ xrf.frag.src.localSRC = (url,frag,opts) => {
     let _model = {
       animations: model.animations,
       scene: scene.clone()
-     // scene: opts.isPortal ? scene : scene.clone() 
     }
+    _model.scene.traverse( (n) => n.isXRF = true )  // make sure they respond to xrf.reset()
     _model.scenes = [_model.scene]
     xrf.frag.src.addModel(_model,url,frag, opts)    // current file 
   //},1000,mesh,scene )
@@ -148,7 +152,6 @@ xrf.frag.src.scale = function(scene, opts, url){
       // spec 2 of https://xrfragment.org/#scaling%20of%20instanced%20objects
       scene.scale.multiply( mesh.scale ) 
     }
-    scene.isXRF = model.scene.isSRC = true
 }
 
 xrf.frag.src.filterScene = (scene,opts) => {

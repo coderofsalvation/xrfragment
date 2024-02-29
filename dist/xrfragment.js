@@ -1129,6 +1129,10 @@ xrfragment_Parser.parse = function(key,value,store,index) {
 	}
 	return true;
 };
+xrfragment_Parser.getMetaData = function() {
+	var meta = { title : ["title","og:title","dc.title"], description : ["aria-description","og:description","dc.description"], author : ["author","dc.creator"], publisher : ["publisher","dc.publisher"], website : ["og:site_name","og:url","dc.publisher"], license : ["SPDX","dc.rights"]};
+	return meta;
+};
 var xrfragment_URI = $hx_exports["xrfragment"]["URI"] = function() { };
 xrfragment_URI.__name__ = true;
 xrfragment_URI.parse = function(url,filter) {

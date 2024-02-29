@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Sat Feb 17 12:00:53 PM UTC 2024
+ * v0.5.1 generated at Thu Feb 29 01:34:17 PM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -1134,6 +1134,10 @@ xrfragment_Parser.parse = function(key,value,store,index) {
 	}
 	return true;
 };
+xrfragment_Parser.getMetaData = function() {
+	var meta = { title : ["title","og:title","dc.title"], description : ["aria-description","og:description","dc.description"], author : ["author","dc.creator"], publisher : ["publisher","dc.publisher"], website : ["og:site_name","og:url","dc.publisher"], license : ["SPDX","dc.rights"]};
+	return meta;
+};
 var xrfragment_URI = $hx_exports["xrfragment"]["URI"] = function() { };
 xrfragment_URI.__name__ = true;
 xrfragment_URI.parse = function(url,filter) {
@@ -1594,13 +1598,14 @@ let pub = function( url, node_or_model, flags ){  // evaluate fragments in url
   let { THREE, camera } = xrf
   let frag     = xrf.URI.parse( url, flags )
   let fromNode = node_or_model != xrf.model
+  let isNode   = node_or_model && node_or_model.children
 
   let opts = {
     frag, 
     mesh:  fromNode ? node_or_model : xrf.camera, 
     model: xrf.model,
     camera: xrf.camera, 
-    scene: xrf.scene, 
+    scene: isNode ? node_or_model : xrf.scene, 
     renderer: xrf.renderer,
     THREE: xrf.THREE, 
     hashbus: xrf.hashbus 
@@ -1614,20 +1619,6 @@ let pub = function( url, node_or_model, flags ){  // evaluate fragments in url
     }
   })
   return frag
-}
-
-// deprecated: (XR Macros) evaluate embedded fragments (metadata) inside mesh of model *REMOVEME*
-pub.mesh     = (mesh,model) => { 
-  if( mesh.userData ){
-    let frag = {}
-    for( let k in mesh.userData ) xrf.Parser.parse( k, mesh.userData[k], frag )
-    for( let k in frag ){
-      let opts = {frag, mesh, model, camera: xrf.camera, scene: model.scene, renderer: xrf.renderer, THREE: xrf.THREE, hashbus: xrf.hashbus }
-      mesh.userData.XRF = frag // allow fragment impl to access XRF obj already
-      xrf.emit('frag2mesh',opts)
-      .then( () => pub.fragment(k, {...opts, skipXRWG:true}) )
-    }
-  }
 }
 
 pub.fragment = (k, opts ) => { // evaluate one fragment
@@ -1726,8 +1717,25 @@ xrf.parseModel = function(model,url){
   model.file             = file
   model.isXRF            = true
   model.scene.traverse( (n) => n.isXRF = true ) // mark for deletion during reset()
+
   xrf.emit('parseModel',{model,url,file})
 }
+
+xrf.parseModel.metadataInMesh =  (mesh,model) => { 
+  if( mesh.userData ){
+    let frag = {}
+    for( let k in mesh.userData ) xrf.Parser.parse( k, mesh.userData[k], frag )
+    for( let k in frag ){
+      let opts = {frag, mesh, model, camera: xrf.camera, scene: model.scene, renderer: xrf.renderer, THREE: xrf.THREE, hashbus: xrf.hashbus }
+      mesh.userData.XRF = frag // allow fragment impl to access XRF obj already
+      xrf.emit('frag2mesh',opts)
+      .then( () => {
+        xrf.hashbus.pub.fragment(k, {...opts, skipXRWG:true}) 
+      })
+    }
+  }
+}
+
 
 xrf.getLastModel = ()           => xrf.model.last 
 
@@ -1787,7 +1795,7 @@ xrf.navigator = {}
 
 xrf.navigator.to = (url,flags,loader,data) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
-  let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
+  let {urlObj,dir,file,hash,ext} = xrf.navigator.origin = xrf.parseUrl(url)
   let hashChange = (!file && hash) || !data && xrf.model.file == file
   let hasPos     = String(hash).match(/pos=/)
 
@@ -1847,7 +1855,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
 
           // spec: 2. init metadata inside model for non-SRC data
           if( !model.isSRC ){ 
-            model.scene.traverse( (mesh) => xrf.hashbus.pub.mesh(mesh,model) )
+            model.scene.traverse( (mesh) => xrf.parseModel.metadataInMesh(mesh,model) )
           }
 
           // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
@@ -1941,21 +1949,6 @@ xrf.navigator.pushState = (file,hash) => {
   window.history.pushState({},`${file}#${hash}`, document.location.pathname + `?${file}#${hash}` )
   xrf.emit('pushState', {file, hash} )
 }
-xrf.addEventListener('env', (opts) => {
-  let { frag, mesh, model, camera, scene, renderer, THREE} = opts
-  if( frag.env && !scene.environment ){
-    //let env = scene.getObjectByName(frag.env.string)
-    //if( !env ) env = xrf.scene.getObjectByName(frag.env.string) // repurpose from parent scene
-    //if( !env ) return console.warn("xrf.env "+frag.env.string+" not found")
-    //env.material.map.mapping = THREE.EquirectangularReflectionMapping;
-    //scene.environment = env.material.map
-    //scene.texture = env.material.map    
- //   renderer.toneMapping = THREE.ACESFilmicToneMapping;
- //   renderer.toneMappingExposure = 2;
-  //  console.log(`   └ applied image '${frag.env.string}' as environment map`)
-  }
-
-})
 /**
  * 
  * navigation, portals & mutations
@@ -1993,7 +1986,7 @@ xrf.frag.href = function(v, opts){
 
   let click = mesh.userData.XRF.href.exec = (e) => {
 
-    if( !mesh.material.visible ) return
+    if( !mesh.material.visible ) return // ignore invisible nodes
 
     // bubble up!
     mesh.traverseAncestors( (n) => n.userData && n.userData.href && n.dispatchEvent({type:e.type,data:{}}) )
@@ -2017,6 +2010,7 @@ xrf.frag.href = function(v, opts){
   }
 
   let selected = mesh.userData.XRF.href.selected = (state) => () => {
+    if( !mesh.material.visible && !mesh.isSRC ) return // ignore invisible nodes
     if( mesh.selected == state ) return // nothing changed 
 
     xrf.interactive.objects.map( (o) => {
@@ -2211,16 +2205,18 @@ xrf.frag.src = function(v, opts){
   opts.embedded = v // indicate embedded XR fragment
   let { mesh, model, camera, scene, renderer, THREE, hashbus, frag} = opts
 
+  if( mesh.isSRC ) return // only embed src once 
+
   let url       = xrf.frag.src.expandURI( mesh, v.string )
   let srcFrag   = opts.srcFrag = xrfragment.URI.parse(url)
   opts.isLocal  = v.string[0] == '#'
   opts.isPortal = xrf.frag.src.renderAsPortal(mesh)
-  opts.isSRC    = true 
+  opts.isSRC    = mesh.isSRC = true 
 
   if(xrf.debug) console.log(`src.js: instancing ${opts.isLocal?'local':'remote'} object ${url}`)
 
   if( opts.isLocal ){
-    xrf.frag.src.localSRC(url,srcFrag,opts)     // local
+    xrf.frag.src.localSRC(url,srcFrag,opts)         // local
   }else xrf.frag.src.externalSRC(url,srcFrag,opts)  // external file
 
   xrf.hashbus.pub( url.replace(/.*#/,''), mesh)     // eval src-url fragments
@@ -2238,7 +2234,6 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
   scene = xrf.frag.src.filterScene(scene,{...opts,frag})         // get filtered scene
   if( mesh.material && mesh.userData.src ) mesh.material.visible = false  // hide placeholder object
 
-  //enableSourcePortation(scene)
   if( opts.isPortal ){
     // only add remote objects, because 
     // local scene-objects are already added to scene
@@ -2248,10 +2243,11 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
     xrf.frag.src.scale( scene, opts, url )           // scale scene
     mesh.add(scene)
   }
+  xrf.frag.src.enableSourcePortation({scene,mesh,url,model})
   // flag everything isSRC & isXRF
   mesh.traverse( (n) => { n.isSRC = n.isXRF = n[ opts.isLocal ? 'isSRCLocal' : 'isSRCExternal' ] = true })
   
-  xrf.emit('parseModel', {...opts, isSRC:true, scene, model}) 
+  xrf.emit('parseModel', {...opts, isSRC:true, mesh, model}) // this will execute all embedded metadata/fragments e.g.
 }
 
 xrf.frag.src.renderAsPortal = (mesh) => {
@@ -2260,28 +2256,46 @@ xrf.frag.src.renderAsPortal = (mesh) => {
   return xrf.hasNoMaterial(mesh) && isPlane
 }
 
-xrf.frag.src.enableSourcePortation = (src) => {
-  // show sourceportation clickable plane
-  if( srcFrag.href || v.string[0] == '#' ) return
-  let scale = new THREE.Vector3()
-  let size  = new THREE.Vector3()
-  mesh.getWorldScale(scale)
-  new THREE.Box3().setFromObject(src).getSize(size)
-  const geo    = new THREE.SphereGeometry( Math.max(size.x, size.y, size.z) / scale.x, 10, 10 )
-  const mat    = new THREE.MeshBasicMaterial()
-  mat.transparent = true
-  mat.roughness = 0.05
-  mat.metalness = 1
-  mat.opacity = 0
-  const cube = new THREE.Mesh( geo, mat )
-  // *TODO* sourceportate?
-  return xrf.frag.src
+xrf.frag.src.enableSourcePortation = (opts) => {
+  let {scene,mesh,url,model} = opts
+  if( url[0] == '#' ) return
+
+  url = url.replace(/(&)?[-][\w-+\.]+(&)?/g,'&') // remove negative selectors to refer to original scene
+
+  if( !mesh.userData.href ){ 
+    // show sourceportation clickable sphere for non-portals
+    let scale = new THREE.Vector3()
+    let size  = new THREE.Vector3()
+    scene.getWorldScale(scale)
+    new THREE.Box3().setFromObject(scene).getSize(size)
+    const geo    = new THREE.SphereGeometry( Math.max(size.x, size.y, size.z) * scale.x * 0.33, 10, 10 )
+    const mat    = new THREE.MeshBasicMaterial()
+    mat.visible = false // we just use this for collisions
+    const sphere = new THREE.Mesh( geo, mat )
+    sphere.isXRF = true
+    // reparent scene to sphere
+    let children = mesh.children
+    mesh.children = []
+    mesh.add(sphere)
+    children.map( (c) => sphere.add(c) )
+    // make sphere clickable/hoverable
+    let frag = {}
+    xrf.Parser.parse("href", url, frag)
+    sphere.userData = scene.userData  // allow rich href notifications/hovers
+    sphere.userData.href = url.replace(/(&)?[-][\w-+\.]+(&)?/g,'&') // remove negative selectors to refer to original scene
+    sphere.userData.XRF  = frag
+    xrf.hashbus.pub.fragment("href", {...opts, mesh:sphere, frag, skipXRWG:true, renderer:xrf.renderer, camera:xrf.camera }) 
+  }
+  for ( let i in scene.userData ) {
+    if( !mesh.userData[i] ) mesh.userData[i] = scene.userData[i] // allow rich href notifications/hovers
+  }
 }
 
 xrf.frag.src.externalSRC = (url,frag,opts) => {
   fetch(url, { method: 'HEAD' })
   .then( (res) => {
     let mimetype = res.headers.get('Content-type')
+    if(xrf.debug != undefined ) console.log("HEAD "+url+" => "+mimetype)
     if( url.replace(/#.*/,'').match(/\.(gltf|glb)$/)     ) mimetype = 'gltf'
     if( url.replace(/#.*/,'').match(/\.(frag|fs|glsl)$/) ) mimetype = 'x-shader/x-fragment'
     if( url.replace(/#.*/,'').match(/\.(vert|vs)$/)      ) mimetype = 'x-shader/x-fragment'
@@ -2304,8 +2318,8 @@ xrf.frag.src.localSRC = (url,frag,opts) => {
     let _model = {
       animations: model.animations,
       scene: scene.clone()
-     // scene: opts.isPortal ? scene : scene.clone() 
     }
+    _model.scene.traverse( (n) => n.isXRF = true )  // make sure they respond to xrf.reset()
     _model.scenes = [_model.scene]
     xrf.frag.src.addModel(_model,url,frag, opts)    // current file 
   //},1000,mesh,scene )
@@ -2339,18 +2353,17 @@ xrf.frag.src.scale = function(scene, opts, url){
       // spec 2 of https://xrfragment.org/#scaling%20of%20instanced%20objects
       scene.scale.multiply( mesh.scale ) 
     }
-    scene.isXRF = model.scene.isSRC = true
 }
 
 xrf.frag.src.filterScene = (scene,opts) => {
   let { mesh, model, camera, renderer, THREE, hashbus, frag} = opts
 
-  scene = xrf.filter.scene({scene,frag,reparent:true,copyScene: opts.isPortal})
+  scene = xrf.filter.scene({scene,frag,reparent:true}) //,copyScene: opts.isPortal})
 
   if( !opts.isLocal ){
     scene.traverse( (m) => {
       if( m.userData && (m.userData.src || m.userData.href) ) return ; // prevent infinite recursion 
-      hashbus.pub.mesh(m,{scene,recursive:true})                       // cool idea: recursion-depth based distance between face & src
+      xrf.parseModel.metadataInMesh(m,{scene,recursive:true})
     })
   }
   return scene
@@ -2956,7 +2969,7 @@ xrf.filter.process = function(frag,scene,opts){
     let processed = {}
     let extembeds = {}
 
-    // hide external objects temporarely
+    // hide external objects temporarely (prevent them getting filtered too)
     scene.traverse( (m) => {
       if( m.isSRCExternal ){
         m.traverse( (n) => (extembeds[ n.uuid ] = m) && (m.visible = false) )
@@ -3180,7 +3193,9 @@ let loadAudio = (mimetype) => function(url,opts){
   mesh.media = mesh.media || {}
   mesh.media.audio = { set: (mediafragment,v) => mesh.media.audio[mediafragment] = v }
 
-  audioLoader.load( url.replace(/#.*/,''), function( buffer ) {
+  let finalUrl = url.replace(/#.*/,'')
+  if( xrf.debug != undefined ) console.log("GET "+finalUrl)
+  audioLoader.load( finalUrl, function( buffer ) {
 
     sound.setBuffer( buffer );
     sound.setLoop(false);
@@ -3228,7 +3243,7 @@ let loadAudio = (mimetype) => function(url,opts){
     }
 
     let lazySet = {}
-    let mediaFragments = ['t','loop','s']
+    let mediaFragments = ['loop','s','t']
     mediaFragments.map( (f) => mesh.media.audio[f] && (lazySet[f] = mesh.media.audio[f]) )
     mesh.media.audio = sound
 
@@ -3292,8 +3307,9 @@ xrf.frag.src.type['fbx'] = function( url, opts ){
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
     let loader
 
-    //let {THREE}        = await import('https://unpkg.com/three@0.161.0/build/three.module.js')
-    //let  { FBXLoader } = await import('three/addons/loaders/FBXLoader.js')
+    let {THREE}        = await import('https://unpkg.com/three@0.161.0/build/three.module.js')
+    let  { FBXLoader } = await import('three/addons/loaders/FBXLoader.js')
+    debugger
 
     //const Loader = xrf.loaders[ext]
     //if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 
@@ -3388,9 +3404,11 @@ xrf.frag.src.type['gltf'] = function( url, opts ){
     const Loader = xrf.loaders[ext]
     if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 
     if( !dir.match("://") ){ // force relative path 
-      dir = dir[0] == './' ? dir : `./${dir}`
+      dir = dir.substr(0,2) == './' ? dir : `./${dir}`
       loader = new Loader().setPath( dir )
-    }else loader = new Loader()
+    }else{
+      loader = new Loader() 
+    }
 
     loader.load(url, (model) => {
       model.isSRC = true
@@ -3530,6 +3548,7 @@ xrf.portalNonEuclidian = function(opts){
     // put it into a scene (without .add() because it reparents objects) so we can render it separately
     mesh.portal.stencilObjects = new xrf.THREE.Scene()
     mesh.portal.stencilObjects.children = stencilObjects 
+    mesh.portal.stencilObjects.isXRF = true 
 
     xrf.portalNonEuclidian.stencilRef += 1 // each portal has unique stencil id
     if( xrf.debug ) console.log(`enabling portal for object '${mesh.name}' (stencilRef:${mesh.portal.stencilRef})`)
@@ -3636,18 +3655,14 @@ xrf.portalNonEuclidian.setMaterial = function(mesh){
   mesh.material.colorWrite   = false;
   mesh.material.stencilWrite = true;
   mesh.material.stencilRef   = xrf.portalNonEuclidian.stencilRef;
- // mesh.renderOrder           = 0;//xrf.portalNonEuclidian.stencilRef;
   mesh.material.stencilFunc  = xrf.THREE.AlwaysStencilFunc;
   mesh.material.stencilZPass = xrf.THREE.ReplaceStencilOp;
   mesh.material.stencilZFail = xrf.THREE.ReplaceStencilOp;
-    //n.material.depthFunc    = stencilRef > 0 ? xrf.THREE.AlwaysDepth : xrf.THREE.LessEqualDepth
-  //mesh.material.depthTest    = false;
   return mesh
 }
 
 xrf.addEventListener('parseModel',(opts) => {
   const scene = opts.model.scene
-  //for( let i in scene.children ) scene.children[i].renderOrder = 10 // render outer layers last (worldspheres e.g.)
 })
 
 

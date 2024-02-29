@@ -89,11 +89,15 @@ window.frontend = (opts) => new Proxy({
     setTimeout( () => {
       window.notify('loading '+document.location.search.substr(1))
 
-      setTimeout( () => window.notify("use WASD-keys and mouse-drag to move around",{timeout:false}),2000 )
+      setTimeout( () => {
+        window.notify("use WASD-keys and mouse-drag to move around",{timeout:false})
+        xrf.addEventListener('navigate', () => SnackBar() ) // close dialogs when url changes
+      },2000 )
 
       xrf.addEventListener('href', (data) => {
-        if( !data.selected ) return 
-        let html     = `<b class="badge">${data.mesh.isSRC && !data.mesh.portal ? 'src' : 'href'}</b>${data.xrf.string}<br>`
+        if( !data.selected  ) return 
+
+        let html     = `<b class="badge">${data.mesh.isSRC && !data.mesh.portal ? 'src' : 'href'}</b>${ data.xrf ? data.xrf.string : data.mesh.userData.src}<br>`
         let metadata = data.mesh.userData 
         let meta     = xrf.Parser.getMetaData()
 

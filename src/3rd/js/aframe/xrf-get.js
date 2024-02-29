@@ -51,7 +51,12 @@ window.AFRAME.registerComponent('xrf-get', {
 
     AFRAME.XRF.addEventListener('reset', () => {
       try{
-        if( this.el ) this.el.remove()
+        if( this.el ){
+          while ( this.el.object3D.children.length ){
+            this.el.object3D.children[0].remove()
+          }
+          this.el.remove()
+        }
       }catch(e){}
     })
 
