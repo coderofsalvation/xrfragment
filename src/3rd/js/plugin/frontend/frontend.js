@@ -9,7 +9,7 @@ window.frontend = (opts) => new Proxy({
       <button id="navback"  onclick="history.back()">&#8249;</button>
       <button id="navforward" onclick="history.forward()">&#8250;</button>
       <input id="load" type="submit" value="load 3D file"></input>
-      <input type="text" id="uri" value="" onchange="AFRAME.XRF.navigator.to( $('#uri').value )" style="display:none"/> 
+      <input type="text" id="uri" value="" onchange="AFRAME.XRF.navigator.to( $('#uri').value )" style="display:none"/>
     </div>
   `,
   el:   null,
@@ -95,10 +95,10 @@ window.frontend = (opts) => new Proxy({
       },2000 )
 
       xrf.addEventListener('href', (data) => {
-        if( !data.selected  ) return 
+        if( !data.selected  ) return
 
         let html     = `<b class="badge">${data.mesh.isSRC && !data.mesh.portal ? 'src' : 'href'}</b>${ data.xrf ? data.xrf.string : data.mesh.userData.src}<br>`
-        let metadata = data.mesh.userData 
+        let metadata = data.mesh.userData
         let meta     = xrf.Parser.getMetaData()
 
         let hasMeta = false
@@ -134,18 +134,18 @@ window.frontend = (opts) => new Proxy({
 
     document.addEventListener('network.connect',    (e) => {
       console.log("network.connect")
-      window.notify("🪐 connecting to awesomeness..") 
+      window.notify("🪐 connecting to awesomeness..")
       $chat.send({message:`🪐 connecting to awesomeness..`,class:['info'], timeout:5000})
     })
 
     document.addEventListener('network.connected',    (e) => {
-      window.notify("🪐 connected to awesomeness..") 
+      window.notify("🪐 connected to awesomeness..")
       $chat.visibleChatbar = true
       $chat.send({message:`🎉 ${e.detail.plugin.profile.name||''} connected!`,class:['info'], timeout:5000})
     })
 
     document.addEventListener('network.disconnect', () => {
-      window.notify("🪐 disconnecting..") 
+      window.notify("🪐 disconnecting..")
     })
 
     document.addEventListener('network.info',    (e) => {
@@ -179,7 +179,7 @@ window.frontend = (opts) => new Proxy({
       if( show ){
         $chat.visible = true
       }else{
-        $chat.visible = false 
+        $chat.visible = false
         $menu.toggle(false)
       }
       return true
@@ -199,7 +199,7 @@ window.frontend = (opts) => new Proxy({
       input.accept = Object.keys(contentLoaders).join(",");
       input.onchange = () => {
           let files = Array.from(input.files);
-          let file = files.slice ? files[0] : files 
+          let file = files.slice ? files[0] : files
           for( var i in contentLoaders ){
             let r = new RegExp('\\'+i+'$')
             if( file.name.match(r) ) return contentLoaders[i](file)
@@ -213,12 +213,12 @@ window.frontend = (opts) => new Proxy({
   notify(_str,opts){
       if( window.outerWidth < 800 ) return
       if( window.accessibility && window.accessibility.enabled ) return $chat.send({message:_str,class:['info']})
-      opts = opts || {status:'info'}        
+      opts = opts || {status:'info'}
       opts = Object.assign({ status, timeout:4000 },opts)
       opts.message = _str
       if( typeof str == 'string' ){
-        str = _str.replace(/(^\w+):/,"<div class='badge'>\$1</div>") 
-        if( !opts.status ){      
+        str = _str.replace(/(^\w+):/,"<div class='badge'>\$1</div>")
+        if( !opts.status ){
           if( str.match(/error/g)   ) opts.status = "danger"
           if( str.match(/warning/g) ) opts.status = "warning"
         }
@@ -243,7 +243,7 @@ window.frontend = (opts) => new Proxy({
 
   updateHashPosition(randomize){
     // *TODO* this should be part of the XRF Threejs framework
-    if( typeof THREE == 'undefined' ) THREE = xrf.THREE 
+    if( typeof THREE == 'undefined' ) THREE = xrf.THREE
     let radToDeg  = THREE.MathUtils.radToDeg
     let toDeg     = (x) => x / (Math.PI / 180)
     let camera    = document.querySelector('[camera]').object3D.parent // *TODO* fix for threejs
@@ -267,13 +267,13 @@ window.frontend = (opts) => new Proxy({
   },
 
   copyToClipboard(text){
-    // copy url to clipboard 
+    // copy url to clipboard
     var dummy = document.createElement('input')
     document.body.appendChild(dummy);
     dummy.value = text;
     dummy.select();
     document.execCommand('copy');
-    document.body.removeChild(dummy); 
+    document.body.removeChild(dummy);
   },
 
   share(opts){
@@ -285,9 +285,9 @@ window.frontend = (opts) => new Proxy({
       document.location.hash += `&pos=${ network.posName || network.pos }`
     }
     let url = window.location.href
-    if( opts.linkonly ) return url 
+    if( opts.linkonly ) return url
     this.copyToClipboard( url )
-    // End of *TODO* 
+    // End of *TODO*
     if( opts.notify ){
       window.notify(`<h2>${ network.connected ? 'Meeting link ' : 'Link'} copied to clipboard!</h2>
         Now share it with your friends ❤️<br>
@@ -316,12 +316,12 @@ window.frontend = (opts) => new Proxy({
         title: 'your meeting link'
       })
     }
-    $menu.collapse = true 
+    $menu.collapse = true
   }
 
 },
-{ 
-  // auto-trigger events on changes 
+{
+  // auto-trigger events on changes
   get(me,k,receiver){ return me[k] },
   set(me,k,v){
     let from   = me[k]
@@ -332,5 +332,5 @@ window.frontend = (opts) => new Proxy({
     }
   }
 })
-    
+
 frontend = frontend({xrf,document}).init()

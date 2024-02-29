@@ -1049,9 +1049,10 @@ Instead, it encourages browsers to scan nodes for the following custom propertie
 * [Open Graph](https://ogp.me) attributes (`og:*: .....`)
 * [Dublin-Core](https://www.dublincore.org/specifications/dublin-core/application-profile-guidelines/) attributes(`dc:*: .....`)
 * [BibTex](https://bibtex.eu/fields) when known bibtex-keys exist with values enclosed in `{` and `},`
-* [JSON-LD](https://json-ld.org/) when key matches `@type` JSON-value
 
-> ARIA (`aria-description`) is the most important to support (as it promotes accessibility)
+**ARIA** (`aria-description`) is the most important to support, as it promotes accessibility and allows scene transcripts. Please start `aria-description` with a verb to aid transcripts. 
+
+> Example: object 'tryceratops' with `aria-description: is a huge dinosaurus standing on a #mountain` generates transcript `#tryceratops is a huge dinosaurus standing on a #mountain`, where the hashtags are clickable XR Fragments (activating the visible-links in the XR browser).
 
 Individual nodes can be enriched with such metadata, but most importantly the scene node:
 
@@ -1066,12 +1067,12 @@ Individual nodes can be enriched with such metadata, but most importantly the sc
 | `dc.date`                                              | `2024-01-01`                                    |  
 | `dc.identifier`                                        | `XRFRAGMENT-001`                                |
 | `journal` (bibTeX)                                     | `{Future Of Text Vol 3},`                       |
-| `Person` (JSON-LD)                                     | `{"@type":"Person",................}`           |
 
 > \* = these are interchangable (only one needs to be defined)
 
 There's no silver bullet when it comes to metadata, so one should support where the metadata is/goes.
-For future formats it's absolutely fine to follow the same heuristics as used with JSON-LD (key matches `@type` value) or bibtex (value matches field-delimiter).
+
+> These attributes can be scanned and presented during an `href` or `src` eye/mouse-over.
 
 # Security Considerations
 
