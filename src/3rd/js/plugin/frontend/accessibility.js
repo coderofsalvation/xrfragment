@@ -149,6 +149,7 @@ window.accessibility = (opts) => new Proxy({
 })
 
 document.addEventListener('$menu:ready', (e) => {
+  return
   try{
     accessibility = accessibility(e.detail) 
     accessibility.init()

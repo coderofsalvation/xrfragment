@@ -935,6 +935,7 @@ window.accessibility = (opts) => new Proxy({
 })
 
 document.addEventListener('$menu:ready', (e) => {
+  return
   try{
     accessibility = accessibility(e.detail) 
     accessibility.init()
@@ -1819,8 +1820,13 @@ window.frontend = (opts) => new Proxy({
       window.notify('loading '+document.location.search.substr(1))
 
       setTimeout( () => {
-        window.notify("use WASD-keys and mouse-drag to move around",{timeout:false})
-        xrf.addEventListener('navigate', () => SnackBar() ) // close dialogs when url changes
+        let instructions = AFRAME.utils.device.isMobile() 
+                           ? "hold 2-3 fingers to move forward/backward" 
+                           :  "use WASD-keys and mouse-drag to move around"
+        window.notify(instructions,{timeout:false})
+        xrf.addEventListener('navigate', (opts) => {
+          window.notify('<b class="badge">teleporting</b> to <b>'+opts.url+"</b><br><br>use back/forward browserbutton to undo")
+        }) // close dialogs when url changes
       },2000 )
 
       xrf.addEventListener('href', (data) => {
@@ -1940,7 +1946,6 @@ window.frontend = (opts) => new Proxy({
   },
 
   notify(_str,opts){
-      if( window.outerWidth < 800 ) return
       if( window.accessibility && window.accessibility.enabled ) return $chat.send({message:_str,class:['info']})
       opts = opts || {status:'info'}
       opts = Object.assign({ status, timeout:4000 },opts)

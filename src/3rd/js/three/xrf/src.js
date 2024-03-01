@@ -81,7 +81,7 @@ xrf.frag.src.enableSourcePortation = (opts) => {
     let frag = {}
     xrf.Parser.parse("href", url, frag)
     sphere.userData = scene.userData  // allow rich href notifications/hovers
-    sphere.userData.href = url.replace(/(&)?[-][\w-+\.]+(&)?/g,'&') // remove negative selectors to refer to original scene
+    sphere.userData.href = url.replace(/#.*/,'') // remove fragments to refer to original scene
     sphere.userData.XRF  = frag
     xrf.hashbus.pub.fragment("href", {...opts, mesh:sphere, frag, skipXRWG:true, renderer:xrf.renderer, camera:xrf.camera }) 
   }

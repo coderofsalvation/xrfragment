@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Thu Feb 29 01:43:17 PM UTC 2024
+ * v0.5.1 generated at Fri Mar  1 01:33:23 PM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -2282,7 +2282,7 @@ xrf.frag.src.enableSourcePortation = (opts) => {
     let frag = {}
     xrf.Parser.parse("href", url, frag)
     sphere.userData = scene.userData  // allow rich href notifications/hovers
-    sphere.userData.href = url.replace(/(&)?[-][\w-+\.]+(&)?/g,'&') // remove negative selectors to refer to original scene
+    sphere.userData.href = url.replace(/#.*/,'') // remove fragments to refer to original scene
     sphere.userData.XRF  = frag
     xrf.hashbus.pub.fragment("href", {...opts, mesh:sphere, frag, skipXRWG:true, renderer:xrf.renderer, camera:xrf.camera }) 
   }

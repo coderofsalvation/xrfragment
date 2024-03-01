@@ -42,18 +42,30 @@ window.AFRAME.registerComponent('xrf', {
       aScene.renderer.toneMapping = THREE.ACESFilmicToneMapping;
       aScene.renderer.toneMappingExposure = 1.25;
       if( !XRF.camera ) throw 'xrfragment: no camera detected, please declare <a-entity camera..> ABOVE entities with xrf-attributes'
+        
+      if( AFRAME.utils.device.isMobile() ){
+ //        aScene.setAttribute('webxr',"requiredFeatures: dom-overlay; overlayElement: canvas; referenceSpaceType: local")
+      }
 
-      // this is just for convenience (not part of spec): hide/show stuff based on VR/AR tags in 3D model 
-      ARbutton = document.querySelector('.a-enter-ar-button')
-      VRbutton = document.querySelector('.a-enter-vr-button')
-      if( ARbutton ) ARbutton.addEventListener('click', () => AFRAME.XRF.hashbus.pub( '#AR' ) )
-      if( VRbutton ) VRbutton.addEventListener('click', () => AFRAME.XRF.hashbus.pub( '#VR' ) )
+      aScene.addEventListener('loaded', () => {
+        // this is just for convenience (not part of spec): enforce AR + hide/show stuff based on VR tags in 3D model 
+        ARbutton = document.querySelector('.a-enter-ar-button')
+        VRbutton = document.querySelector('.a-enter-vr-button')
+        if( ARbutton ) ARbutton.addEventListener('click', () => AFRAME.XRF.hashbus.pub( '#-VR' ) )
+        if( VRbutton ) VRbutton.addEventListener('click', () => AFRAME.XRF.hashbus.pub( '#VR' ) )
+        //if( AFRAME.utils.device.checkARSupport() && VRbutton ){
+        //  VRbutton.style.display = 'none'
+        //  ARbutton.parentNode.style.right = '20px'
+        //}
+      })
 
-      aScene.addEventListener('enter-vr', () => {
+      let repositionUser = (scale) => () => {
         // sometimes AFRAME resets the user position to 0,0,0 when entering VR (not sure why)
         let pos = xrf.frag.pos.last
-        if( pos ){ AFRAME.XRF.camera.position.set(pos.x, pos.y, pos.z) }
-      })
+        if( pos ){ AFRAME.XRF.camera.position.set(pos.x, pos.y*scale, pos.z) }
+      }
+      aScene.addEventListener('enter-vr', repositionUser(1) )
+      aScene.addEventListener('enter-ar', repositionUser(2) )
 
       xrf.addEventListener('navigateLoaded', (opts) => {
         setTimeout( () => AFRAME.fade.out(),500) 
