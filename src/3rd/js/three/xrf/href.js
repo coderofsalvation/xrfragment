@@ -36,10 +36,6 @@ xrf.frag.href = function(v, opts){
   let click = mesh.userData.XRF.href.exec = (e) => {
 
     if( !mesh.material || !mesh.material.visible ) return // ignore invisible nodes
-    if( e.type == "pressedended" && !e.detail ){
-      console.dir(e)
-      return
-    }
 
     // bubble up!
     mesh.traverseAncestors( (n) => n.userData && n.userData.href && n.dispatchEvent({type:e.type,data:{}}) )

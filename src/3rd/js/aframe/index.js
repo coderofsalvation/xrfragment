@@ -146,7 +146,7 @@ window.AFRAME.registerComponent('xrf', {
           el.addEventListener("click",          clickHandler )
           el.addEventListener("mouseenter",     mesh.userData.XRF.href.selected(true) )
           el.addEventListener("mouseleave",     mesh.userData.XRF.href.selected(false) )
-          el.addEventListener("pressedended",   clickHandler )
+          el.addEventListener("pressedstarted", clickHandler )
           $('a-scene').appendChild(el)
         }
         createEl(mesh)

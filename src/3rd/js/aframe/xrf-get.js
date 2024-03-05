@@ -38,9 +38,12 @@ window.AFRAME.registerComponent('xrf-get', {
             mesh.setRotationFromQuaternion(world.quat);
           }else{
             // lets create a dummy add function so that the mesh won't get reparented during setObject3D
+            // as this would break animations
             this.el.object3D.add = (a) => a 
           }
-          this.el.object3D = mesh //setObject3D('mesh',mesh)
+
+          this.el.setObject3D('mesh',mesh)
+          this.el.object3D.child = mesh // keep reference (because .children will be empty)
 
           if( !this.el.id ) this.el.setAttribute("id",`xrf-${mesh.name}`)
         }else console.warn("xrf-get ignore: "+JSON.stringify(this.data))

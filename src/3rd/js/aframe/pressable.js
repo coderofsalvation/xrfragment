@@ -17,6 +17,10 @@ AFRAME.registerComponent('pressable', {
         var handEls = this.handEls;
         var handEl;
         var distance;
+
+        // compensate for xrf-get AFRAME component (which references non-reparented buffergeometries from the 3D model)
+        let object3D = this.el.object3D.child || this.el.object3D
+
         for (var i = 0; i < handEls.length; i++) {
             handEl = handEls[i];
             let indexTipPosition  = handEl.components['hand-tracking-controls'].indexTipPosition
@@ -25,29 +29,19 @@ AFRAME.registerComponent('pressable', {
             handEl.object3D.getWorldPosition( this.fingerWorldPosition )
             this.fingerWorldPosition.add( indexTipPosition )
 
-            //distance = this.calculateFingerDistance(this.fingerWorldPosition);
-
-            //if (distance < this.data.pressDistance && distance !== 0.0 ) {
-            //    if (!this.pressed) {
-            //        this.el.emit('pressedstarted');
-            //    }
-            //    this.pressed = true;
-            //    return;
-            //}
             this.raycaster.far = 0.05
             // Create a direction vector (doesnt matter because it is supershort for 'touch' purposes)
             const direction = new THREE.Vector3(1.0,0,0);
             this.raycaster.set(this.fingerWorldPosition, direction)
-            intersects = this.raycaster.intersectObjects([this.el.object3D])
+            intersects = this.raycaster.intersectObjects([object3D],true)
 
-            this.el.object3D.getWorldPosition(this.worldPosition)
+            object3D.getWorldPosition(this.worldPosition)
       
             this.distance = this.fingerWorldPosition.distanceTo(this.worldPosition)
 
-            //if( xrf.debug == 10 && this.el.id == "xrf-button_teleport_me_down_there" ){ debugger }
-
             if (intersects.length ){
-              debugger //if( xrf.debug == 10 && this.el.id == "xrf-button_teleport_me_down_there" ){ debugger }
+              this.pressed = true
+              this.el.emit('pressedstarted');
             }
         }
         if (this.pressed) {
