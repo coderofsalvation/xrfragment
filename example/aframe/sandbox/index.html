@@ -18,13 +18,13 @@
              light="defaultLightsEnabled: false">
       <a-entity id="player" movement-controls touch-controls wasd-controls="fly:false" look-controls>
         <a-entity camera="fov:90" position="0 1.6 0" id="camera"></a-entity>
-        <a-entity id="left-hand"  laser-controls="hand: left" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: .floor">
+        <a-entity id="left-hand" hand-tracking-controls="hand:left" laser-controls="hand: left" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: .floor" xrf-pinchmove="rig: #player">
           <a-entity rotation="-35 0 0" position="0 0.1 0" id="navigator"> 
             <a-entity id="back" xrf-button="label: <; width:0.05; action: history.back()"    position="-0.025 0 0" class="ray"></a-entity>
             <a-entity id="next" xrf-button="label: >; width:0.05; action: history.forward()" position=" 0.025 0 0" class="ray"></a-entity>
           </a-entity>
         </a-entity>
-        <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: .floor"></a-entity>
+        <a-entity id="right-hand" hand-tracking-controls="hand:right" laser-controls="hand: right" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: .floor"></a-entity>
       </a-entity>
 
       <a-entity id="home" xrf="index.glb" xrf-menu></a-entity>
@@ -73,8 +73,7 @@
 
     <!-- everything below is completely optional and not part of the spec -->
 
-    <script src="./../../../dist/aframe-blink-controls.min.js"></script>                               <!-- teleporting using controllers -->
-    <script src="https://cdn.jsdelivr.net/npm/handy-work@3.1.9/build/handy-controls.min.js"></script>  <!-- hand controllers -->
+    <script src="./../../../dist/aframe-blink-controls.min.js"></script>  <!-- teleporting using controllers -->
     <script src="./../../../dist/xrfragment.plugin.p2p.js"></script>      <!-- serverless p2p connectivity   -->
     <script src="./../../../dist/xrfragment.plugin.matrix.js"></script>   <!-- matrix connectivity           -->
     <script src="./../../../dist/xrfragment.plugin.frontend.js"></script> <!-- menu + chat interface         -->

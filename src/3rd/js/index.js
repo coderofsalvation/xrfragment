@@ -38,19 +38,6 @@ xrf.detectCameraRig = function(opts){
   }
 }
 
-xrf.roundrobin = (frag, store) => {
-  if( !frag.args || frag.args.length == 0 ) return 0
-  if( !store.rr                 ) store.rr = {}
-  let label = frag.fragment
-  if( store.rr[label] ) return store.rr[label].next()
-  store.rr[label] = frag.args
-  store.rr[label].next  = () => {
-    store.rr[label].index = (store.rr[label].index + 1) % store.rr[label].length 
-    return store.rr[label].index
-  }
-  return store.rr[label].index = 0
-}
-
 xrf.stats = () => {
   // bookmarklet from https://github.com/zlgenuine/threejs_stats
   (function(){

@@ -139,14 +139,14 @@ window.AFRAME.registerComponent('xrf', {
         let {mesh,clickHandler} = opts;
         let createEl            = function(c){
           let el = document.createElement("a-entity")
-          el.setAttribute("xrf-get",c.name )  // turn into AFRAME entity
+          el.setAttribute("xrf-get",c.name )     // turn into AFRAME entity
+          el.setAttribute("pressable", '' )      // detect click via hand-detection
           el.setAttribute("class","ray")         // expose to raycaster 
-          el.setAttribute("pressable", '')       // detect hand-controller click
           // respond to cursor via laser-controls (https://aframe.io/docs/1.4.0/components/laser-controls.html)
           el.addEventListener("click",          clickHandler )
           el.addEventListener("mouseenter",     mesh.userData.XRF.href.selected(true) )
           el.addEventListener("mouseleave",     mesh.userData.XRF.href.selected(false) )
-          el.addEventListener("pressedstarted", clickHandler )
+          el.addEventListener("pressedended",   clickHandler )
           $('a-scene').appendChild(el)
         }
         createEl(mesh)

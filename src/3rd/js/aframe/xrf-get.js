@@ -37,10 +37,11 @@ window.AFRAME.registerComponent('xrf-get', {
             mesh.scale.copy(world.scale)
             mesh.setRotationFromQuaternion(world.quat);
           }else{
-            // lets create a dummy add function so that the mesh won't get reparented 
+            // lets create a dummy add function so that the mesh won't get reparented during setObject3D
             this.el.object3D.add = (a) => a 
           }
-          this.el.setObject3D('mesh',mesh)
+          this.el.object3D = mesh //setObject3D('mesh',mesh)
+
           if( !this.el.id ) this.el.setAttribute("id",`xrf-${mesh.name}`)
         }else console.warn("xrf-get ignore: "+JSON.stringify(this.data))
       }, evt && evt.timeout ? evt.timeout: 500)
