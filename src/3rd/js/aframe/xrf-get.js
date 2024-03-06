@@ -42,8 +42,8 @@ window.AFRAME.registerComponent('xrf-get', {
             this.el.object3D.add = (a) => a 
           }
 
-          this.el.setObject3D('mesh',mesh)
-          this.el.object3D.child = mesh // keep reference (because .children will be empty)
+          this.el.setObject3D('mesh',mesh) // (doing this.el.object3D = mesh causes AFRAME to crash when resetting scene)
+          this.el.object3D.child = mesh    // keep reference (because .children will be empty)
 
           if( !this.el.id ) this.el.setAttribute("id",`xrf-${mesh.name}`)
         }else console.warn("xrf-get ignore: "+JSON.stringify(this.data))

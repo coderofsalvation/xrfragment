@@ -3,7 +3,7 @@ AFRAME.registerComponent('vconsole', {
       //AFRAME.XRF.navigator.to("https://coderofsalvation.github.io/xrsh-media/assets/background.glb")
     let aScene = AFRAME.scenes[0] 
 
-    return
+ //   return
     document.head.innerHTML += `
       <style type="text/css">
         .vc-panel  {

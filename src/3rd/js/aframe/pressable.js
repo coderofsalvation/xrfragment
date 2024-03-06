@@ -12,11 +12,27 @@ AFRAME.registerComponent('pressable', {
         this.raycaster = new THREE.Raycaster()
         this.handEls = document.querySelectorAll('[hand-tracking-controls]');
         this.pressed = false;
+        this.distance = -1
+        // we throttle by distance, to support scenes with loads of clickable objects (far away)
+        this.tick = this.throttleByDistance( () => this.detectPress() )
     },
-    tick: function() {
+    throttleByDistance: function(f){
+        return function(){
+           if( this.distance < 0 ) return f() // first call
+           if( !f.tid ){
+             let x = this.distance
+             let y = x*(x*0.05)*1000 // parabolic curve
+             f.tid = setTimeout( function(){
+               f.tid = null
+               f()
+             }, y )
+           }
+        }
+    },
+    detectPress: function(){
         var handEls = this.handEls;
         var handEl;
-        var distance;
+        let minDistance = 5
 
         // compensate for xrf-get AFRAME component (which references non-reparented buffergeometries from the 3D model)
         let object3D = this.el.object3D.child || this.el.object3D
@@ -37,25 +53,19 @@ AFRAME.registerComponent('pressable', {
 
             object3D.getWorldPosition(this.worldPosition)
       
-            this.distance = this.fingerWorldPosition.distanceTo(this.worldPosition)
+            distance    = this.fingerWorldPosition.distanceTo(this.worldPosition)
+            minDistance = distance < minDistance ? distance : minDistance 
 
             if (intersects.length ){
-              this.pressed = true
-              this.el.emit('pressedstarted');
+              if( !this.pressed ){
+                this.el.emit('pressedstarted');
+                this.pressed = setTimeout( () => {
+                  this.el.emit('pressedended');
+                  this.pressed = null 
+                },300)
+              }
             }
         }
-        if (this.pressed) {
-            this.el.emit('pressedended');
-        }
-        this.pressed = false;
-    },
-    calculateFingerDistance: function(fingerPosition) {
-        var el = this.el;
-        //worldPosition.copy(el.object3D.position);
-        el.object3D.updateMatrixWorld();
-        el.object3D.localToWorld(this.worldPosition);
-            if( xrf.debug == 10 && this.el.id == "xrf-button_teleport_me_down_there" ){ debugger }
-
-        return this.worldPosition.distanceTo(fingerPosition);
+        this.distance = minDistance
     }
 });
