@@ -45,7 +45,7 @@ AFRAME.registerComponent('pressable', {
             handEl.object3D.getWorldPosition( this.fingerWorldPosition )
             this.fingerWorldPosition.add( indexTipPosition )
 
-            this.raycaster.far = 0.05
+            this.raycaster.far = this.data.pressDistance
             // Create a direction vector (doesnt matter because it is supershort for 'touch' purposes)
             const direction = new THREE.Vector3(1.0,0,0);
             this.raycaster.set(this.fingerWorldPosition, direction)
@@ -59,6 +59,7 @@ AFRAME.registerComponent('pressable', {
             if (intersects.length ){
               if( !this.pressed ){
                 this.el.emit('pressedstarted');
+                this.el.emit('click');
                 this.pressed = setTimeout( () => {
                   this.el.emit('pressedended');
                   this.pressed = null 

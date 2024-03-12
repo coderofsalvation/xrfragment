@@ -100,7 +100,7 @@ window.AFRAME.registerComponent('xrf', {
         }
 
         // give headset users way to debug without a cumbersome usb-tapdance
-        if( xrf.debug || document.location.hostname.match(/^(localhost|[1-9])/) && !aScene.getAttribute("vconsole") ){
+        if( document.location.hostname.match(/^(localhost|[1-9])/) && !aScene.getAttribute("vconsole") ){
           aScene.setAttribute('vconsole','')
         }
 
@@ -146,7 +146,6 @@ window.AFRAME.registerComponent('xrf', {
           el.addEventListener("click",          clickHandler )
           el.addEventListener("mouseenter",     mesh.userData.XRF.href.selected(true) )
           el.addEventListener("mouseleave",     mesh.userData.XRF.href.selected(false) )
-          el.addEventListener("pressedstarted", clickHandler )
           $('a-scene').appendChild(el)
         }
         createEl(mesh)

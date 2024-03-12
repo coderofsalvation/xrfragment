@@ -178,9 +178,14 @@ window.frontend = (opts) => new Proxy({
       let isChatMsg        = e.target.closest('.msg')
       let isChatLine       = e.target.id == 'chatline'
       let isChatEmptySpace = e.target.id == 'messages'
-      let isUI             = e.target.closest('.ui')
+      let isUI             = e.target.closest('.ui')      || 
+                             e.target.closest('.btn')     ||
+                             e.target.closest('button')   ||
+                             e.target.closest('textarea') ||
+                             e.target.closest('input')    ||
+                             e.target.closest('a')
       //console.dir({class: e.target.className, id: e.target.id, isChatMsg,isChatLine,isChatEmptySpace,isUI, tagName: e.target.tagName})
-      if( isUI || e.target.tagName.match(/^(BUTTON|TEXTAREA|INPUT|A)/) || e.target.className.match(/(btn)/) ) return
+      if( isUI ) return 
       if( show ){
         $chat.visible = true
       }else{

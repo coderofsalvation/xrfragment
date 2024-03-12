@@ -1,4 +1,4 @@
-// wrapper to survive in/outside modules
+// wrapper to collect interactive raycastable objects 
 
 xrf.interactiveGroup = function(THREE,renderer,camera){
 
@@ -26,6 +26,8 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
 
       const scope = this;
       scope.objects = []
+      scope.raycastAll = false
+
 
       const raycaster = new Raycaster();
       const tempMatrix = new Matrix4();
@@ -44,7 +46,8 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
 
         raycaster.setFromCamera( _pointer, camera );
 
-        const intersects = raycaster.intersectObjects( scope.objects, false );
+        let objects = scope.raycastAll ? xrf.scene.children : scope.objects
+        const intersects = raycaster.intersectObjects( objects, scope.raycastAll );
 
         if ( intersects.length > 0 ) {
 
@@ -54,7 +57,7 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
           const uv = intersection.uv;
 
           _event.type = event.type;
-          _event.data.set( uv.x, 1 - uv.y );
+          if( uv ) _event.data.set( uv.x, 1 - uv.y );
           object.dispatchEvent( _event );
 
         }else{
@@ -93,7 +96,8 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
         raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
         raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
 
-        const intersections = raycaster.intersectObjects( scope.objects, false );
+        let objects = scope.raycastAll ? xrf.scene.children : scope.objects
+        const intersections = raycaster.intersectObjects( objects, scope.raycastAll );
 
         if ( intersections.length > 0 ) {
 
@@ -105,7 +109,7 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
           const uv = intersection.uv;
 
           _event.type = eventsMapper[ event.type ];
-          _event.data.set( uv.x, 1 - uv.y );
+          if( uv ) _event.data.set( uv.x, 1 - uv.y );
 
           object.dispatchEvent( _event );
 
@@ -132,6 +136,8 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
 
     }
 
+    // we create our own add to avoid unnecessary unparenting of buffergeometries from 
+    // their 3D model (which breaks animations)
     add(obj, unparent){
       if( unparent ) Group.prototype.add.call( this, obj )
       this.objects.push(obj)
