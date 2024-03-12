@@ -131,6 +131,8 @@ window.SnackBar = function(userOptions) {
               _Container.removeChild(_Element); 
             } catch (e) { }
         }, 1000);
+        if( _Options.onclose ) _Options.onclose()
+
     };
 
     _Options = { ..._OptionDefaults, ...userOptions }

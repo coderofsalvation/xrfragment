@@ -11,6 +11,7 @@ import { MTLLoader } from 'super-three/examples/jsm/loaders/MTLLoader';
 import * as BufferGeometryUtils from 'super-three/examples/jsm/utils/BufferGeometryUtils';
 import { LightProbeGenerator } from 'super-three/examples/jsm/lights/LightProbeGenerator';
 import { TransformControls } from 'super-three/examples/jsm/controls/TransformControls.js';
+import { GLTFExporter } from 'super-three/examples/jsm/exporters/GLTFExporter.js';
 
 var THREE = window.THREE = SUPER_THREE;
 
@@ -28,6 +29,7 @@ THREE.OBB = OBB;
 THREE.BufferGeometryUtils = BufferGeometryUtils;
 THREE.LightProbeGenerator = LightProbeGenerator;
 THREE.TransformControls = TransformControls;
+THREE.GLTFExporter      = GLTFExporter;
 //THREE.Text = Text
 
 export default THREE;

@@ -239,15 +239,38 @@ window.frontend = (opts) => new Proxy({
   },
 
   download(){
-    function fetchAndDownload(dataurl, filename) {
+    // setup exporters
+    let defaultExporter = THREE.GLTFExporter
+    xrf.loaders['gltf'].exporter    = defaultExporter
+    xrf.loaders['glb'].exporter     = defaultExporter
+
+    function download(dataurl, filename) {
       var a = document.createElement("a");
       a.href = dataurl;
       a.setAttribute("download", filename);
       a.click();
       return false;
     }
-    let file = document.location.search.replace(/\?/,'')
-    fetchAndDownload( file, file )
+
+    function exportScene(scene,ext){
+      const exporter = new (xrf.loaders[ext].exporter || defaultExporter)
+      document.dispatchEvent( new CustomEvent('download',{detail:{scene,ext}}) )
+      exporter.parse(
+        scene,
+        function ( glb   ) { download(glb, `${file}.${ext}`) },    // ready
+        function ( error ) { console.error(error) },   // error
+        {binary:true} 
+      );
+    }
+
+    // load original scene and overwrite with updates
+    let url = document.location.search.replace(/\?/,'')
+    let {urlObj,dir,file,hash,ext} = xrf.navigator.origin = xrf.parseUrl(url)
+    const Loader = xrf.loaders[ext]
+    loader = new Loader().setPath( dir )
+    loader.load(url, (model) => {
+      exportScene(model.scene,ext,file)
+    })
   },
 
   updateHashPosition(randomize){
@@ -269,9 +292,11 @@ window.frontend = (opts) => new Proxy({
 
     let lastPos = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
     let newHash = document.location.hash.replace(/[&]?(pos|rot)=[0-9\.-]+,[0-9\.-]+,[0-9\.-]+/,'')
-    newHash += `&${lastPos}`
-    document.location.hash = newHash.replace(/&&/,'&')
-                                    .replace(/#&/,'')
+    if( lastPos != "pos=" ){
+      newHash += `&${lastPos}`
+      document.location.hash = newHash.replace(/&&/,'&')
+                                      .replace(/#&/,'')
+    }
     this.copyToClipboard( window.location.href );
   },
 

@@ -1,4 +1,62 @@
 // reactive component for displaying the menu 
+
+$editorPopup = (el) => new Proxy({
+
+  html: (opts) => `
+    <div>
+      <b>#${$editor.selected.name}</b>
+      <table class="editorPopup">
+        <tbody>
+          <tr>
+            <td><b class="badge">href</a></td>
+            <td>
+              <input type="text" id="href" placeholder="https://foo.com" maxlength="255" 
+                     onkeyup="$editor.selected.edited = $editor.selected.userData.href = this.value" 
+                     value="${$editor.selected.userData.href||''}" />
+            </td>
+          </tr>
+          <tr>
+            <td><b class="badge">src</a></td>
+            <td>
+              <input type="text" id="src" placeholder="https://foo.com" maxlength="255" 
+                     onkeyup="$editor.selected.edited = $editor.selected.userData.src = this.value" 
+                     value="${$editor.selected.userData.src||''}" />
+            </td>
+          </tr>
+          <tr>
+            <td><b class="badge">tag</a></td>
+            <td>
+              <input type="text" id="tag" placeholder="foo bar" maxlength="255" 
+                     onkeyup="$editor.selected.edited = $editor.selected.userData.tag = this.value" 
+                     value="${$editor.selected.userData.tag||''}" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <style type="text/css">
+      table.editorPopup input{
+        min-width:200px;
+      }
+    </style>
+  `,
+
+  init(opts){
+    el.innerHTML = this.html(opts)
+    return el
+  },
+
+},{
+
+  get(me,k,v){ return me[k] },
+
+  set(me,k,v){ 
+    me[k] = v    
+  }
+
+})
+
+
 $editor = (el,opts) => new Proxy({
 
   html: `
@@ -12,6 +70,10 @@ $editor = (el,opts) => new Proxy({
         height: 32px;
         width: 30px;
         margin-top: 7px;
+      }
+      .edit-btn.enabled,
+      .edit-btn.enabled:hover{
+        background:black;
       }
       .edit-btn i.gg-pen{
          margin-top: -26px;
@@ -30,23 +92,26 @@ $editor = (el,opts) => new Proxy({
     el.innerHTML = this.html
     window.frontend.el.querySelector('#topbar').appendChild(el);
     el.querySelector('.edit-btn').addEventListener('click', () =>  $editor.enabled = true )
+
+    document.addEventListener('download', (e) => this.updateOriginalScene(e.detail) )
     return this
   },
 
   editNode(){
     if( !this.enabled ) return console.log("not editing")
-    console.log("click!")
-    $editor.enabled = false     // disable selections
+    $editor.enabled = false             // disable selections
     this.enableHref(this.selected,true) // re-enable hrefs 
-    notify(`${this.selected.name}<br>${this.getMetaData(this.selected)}`)
-    notify(`<b>XR Fragment:</b> #${this.selected.name}<br><br>${this.getMetaData(this.selected)}`)
+      //`<b>XR Fragment:</b> #${this.selected.name}<br><br>${this.getMetaData(this.selected)}`),{
+    notify( $editorPopup( document.createElement('div') ).init(this) , {
+      timeout:false,
+      onclose: () => xrf.scene.remove( this.helper )
+    })
   },
 
   initEdit(scene){
     AFRAME.scenes[0].addEventListener('click', () => this.editNode() )
     scene.traverse( (n) => {
       let highlight = (n) => (e) => {
-        console.log(n.name)
         if( this.selected ) this.enableHref(this.selected,true) // re-enable href of previous selection
         if( this.helper){
           if( this.helper.selected == n.uuid ) return // already selected
@@ -62,17 +127,20 @@ $editor = (el,opts) => new Proxy({
         xrf.scene.add(this.helper)
 
         let div = document.createElement('div')
-        notify(`<b>XR Fragment:</b> #${n.name}<br><br>${this.getMetaData(this.selected)}`)
+        notify(`<b>#${n.name}</b><br>${this.getMetaData(this.selected)}`)
 
         this.enableHref(n,false) // prevent clicks from doing their usual teleporting/executions
       }
-      if( n.geometry ) n.addEventListener('mousemove', n.highlightOnMouseMove = highlight(n) )
+      if( n.material ) n.addEventListener('mousemove', n.highlightOnMouseMove = highlight(n) )
     }) 
     console.log("inited scene")
   },
 
   getMetaData(n){
-    return `href: ${n.userData.href}<br>src: ${n.userData.src}<br>tag: ${n.userData.tag}`
+    let html = `${n.userData.href ? `<b class="badge">href</b>${n.userData.href}<br>`:''}`
+    html    += `${n.userData.src  ? `<b class="badge">src</b>${n.userData.src}<br>`  :''}` 
+    html    += `${n.userData.tag  ? `<b class="badge">tag</b>${n.userData.tag}<br>`  :''}` 
+    return html
   },
 
   enableHref(n, state){
@@ -86,6 +154,15 @@ $editor = (el,opts) => new Proxy({
         n.userData.XRF.href.exec = exec.bak
       }
     }
+  },
+
+  updateOriginalScene(opts){
+    let {scene,ext} = opts
+    xrf.scene.traverse( (n) => {
+      if( n.edited && scene.getObjectByName(n.name) ){
+        scene.getObjectByName(n.name).userData = n.userData
+      }
+    })
   }
 
 },
@@ -98,20 +175,25 @@ $editor = (el,opts) => new Proxy({
     switch( k ){
 
       case "enabled":{ 
+          lookctl = $('[look-controls]').components['look-controls']
           if( v ){
+            lookctl.pause() // prevent click-conflict
             notify("click an object to reveal XR Fragment metadata")
             xrf.interactive.raycastAll = true
             if( !xrf.scene.initEdit ) me.initEdit(xrf.scene)
+
+            lookctl.pause() // prevent click-conflict
+            el.querySelector('.edit-btn').classList.add(['enabled'])
           }else{
-            console.log("idsabled")
+            lookctl.pause() // prevent click-conflict
             xrf.scene.traverse( (n) => {
               me.enableHref(n,true)
               if( n.highlightOnMouseMove ){
                n.removeEventListener( 'mousemove', n.highlightOnMouseMove )    
               }
             })
-            me.helper.remove()
-            console.log("removed events")
+            lookctl.play() // prevent click-conflict (resume)
+            el.querySelector('.edit-btn').classList.remove(['enabled'])
           }
           break;
       }
