@@ -44,13 +44,13 @@ xrf.emit = function(eventName, data){
   return xrf.emit.promise(eventName,data)
 }
 
-xrf.emit.normal = function(eventName, data) {
+xrf.emit.normal = function(eventName, opts) {
     if( !xrf._listeners ) xrf._listeners = []
     var callbacks = xrf._listeners[eventName]
     if (callbacks) {
-        for (var i = 0; i < callbacks.length; i++) {
+        for (var i = 0; i < callbacks.length && !opts.halt; i++) {
           try{
-            callbacks[i](data);
+            callbacks[i](opts);
           }catch(e){ console.error(e) }
         }
     }
@@ -67,7 +67,10 @@ xrf.emit.promise = function(e, opts){
           let succesful = opts.promises.reduce( (a,b) => a+b )
           if( succesful == opts.promises.length ) resolve(opts)
         })(opts.promises.length-1),
-        reject: console.error
+        reject: (reason) => {
+          opts.halt = true
+          console.warn(`'${e}' event rejected: ${reason}`)
+        }
       }
     }
     xrf.emit.normal(e, opts)     
