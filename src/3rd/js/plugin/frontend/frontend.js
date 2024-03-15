@@ -239,34 +239,37 @@ window.frontend = (opts) => new Proxy({
   },
 
   download(){
-    // setup exporters
-    let defaultExporter = THREE.GLTFExporter
-    xrf.loaders['gltf'].exporter    = defaultExporter
-    xrf.loaders['glb'].exporter     = defaultExporter
 
     function download(dataurl, filename) {
       var a = document.createElement("a");
-      a.href = dataurl;
+      a.href = URL.createObjectURL( new Blob([dataurl]) );
       a.setAttribute("download", filename);
       a.click();
       return false;
     }
 
-    function exportScene(model,ext){
-      const exporter = new (xrf.loaders[ext].exporter || defaultExporter)
+    function exportScene(model,ext,file){
       document.dispatchEvent( new CustomEvent('frontend.export',{detail:{ scene: model.scene,ext}}) )
-      exporter.parse(
-        model.scene,
-        function ( glb   ) { download(glb, `${file}`) },    // ready
-        function ( error ) { console.error(error) },   // error
-        {
-          binary:true, 
-          onlyVisible: false, 
-          animations: model.animations,
-          includeCustomExtensions: true,
-          trs:true
-        } 
-      );
+      xrf.emit('export', {scene: model.scene, ext})
+      .then( () => {
+        // setup exporters
+        let defaultExporter = THREE.GLTFExporter
+        xrf.loaders['gltf'].exporter    = defaultExporter
+        xrf.loaders['glb'].exporter     = defaultExporter
+        const exporter = new THREE.GLTFExporter() 
+        exporter.parse(
+          model.scene,
+          function ( glb   ) { download(glb, `${file}`) },    // ready
+          function ( error ) { console.error(error) },   // error
+          {
+            binary:true, 
+            onlyVisible: false, 
+            animations: model.animations,
+            includeCustomExtensions: true,
+            trs:true
+          } 
+        );
+      })      
     }
 
     // load original scene and overwrite with updates

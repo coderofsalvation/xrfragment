@@ -117,7 +117,7 @@ $editor = (el,opts) => new Proxy({
       }
     })
 
-    document.addEventListener('frontend.export', (e) => this.updateOriginalScene(e.detail) )
+    xrf.addEventListener('export', (e) => this.updateOriginalScene(e) )
     xrf.addEventListener('href', (opts) => {
       if( this.selecting || this.editing ) return opts.promise().reject("$editor should block hrefs while editing") // never resolve (block hrefs from interfering)
     })
