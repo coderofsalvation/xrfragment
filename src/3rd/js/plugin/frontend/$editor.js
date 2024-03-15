@@ -11,6 +11,7 @@ $editorPopup = (el) => new Proxy({
             <td><b class="badge">href</a></td>
             <td>
               <input type="text" id="href" placeholder="https://foo.com" maxlength="255" 
+                     onkeydown="document.querySelector('#editActions').classList.add('show')" 
                      onkeyup="$editor.selected.edited = $editor.selected.userData.href = this.value" 
                      value="${$editor.selected.userData.href||''}" />
             </td>
@@ -19,6 +20,7 @@ $editorPopup = (el) => new Proxy({
             <td><b class="badge">src</a></td>
             <td>
               <input type="text" id="src" placeholder="https://foo.com" maxlength="255" 
+                     onkeydown="document.querySelector('#editActions').classList.add('show')" 
                      onkeyup="$editor.selected.edited = $editor.selected.userData.src = this.value" 
                      value="${$editor.selected.userData.src||''}" />
             </td>
@@ -27,23 +29,38 @@ $editorPopup = (el) => new Proxy({
             <td><b class="badge">tag</a></td>
             <td>
               <input type="text" id="tag" placeholder="foo bar" maxlength="255" 
+                     onkeydown="document.querySelector('#editActions').classList.add('show')" 
                      onkeyup="$editor.selected.edited = $editor.selected.userData.tag = this.value" 
                      value="${$editor.selected.userData.tag||''}" />
             </td>
           </tr>
         </tbody>
       </table>
+      <br>
+      <div id="editActions">
+        <button class="download" onclick="$editor.export()"><i class="gg-software-download"></i> &nbsp;&nbsp;&nbsp;download scene file</button> 
+        <br>
+      </div>
     </div>
     <style type="text/css">
       table.editorPopup input{
         min-width:200px;
+      }
+      table.editorPopup tr td:nth-child(1){
+        text-align:left;
+      }
+      #editActions{
+        visibility:hidden;
+      }
+      #editActions.show{
+        visibility:visible;
       }
     </style>
   `,
 
   init(opts){
     el.innerHTML = this.html(opts)
-    return el
+    return (this.el = el)
   },
 
 },{
@@ -84,52 +101,76 @@ $editor = (el,opts) => new Proxy({
     </style>
   `,
 
-  enabled: false,
+  selecting: false,
+  editing: false,
   helper: null,
   selected: null,
 
   init(opts){
     el.innerHTML = this.html
     window.frontend.el.querySelector('#topbar').appendChild(el);
-    el.querySelector('.edit-btn').addEventListener('click', () =>  $editor.enabled = true )
+    el.querySelector('.edit-btn').addEventListener('click', () =>  {
+      if( $editor.selecting || $editor.editing ) this.reset()
+      else{
+        $editor.selecting = true 
+        $editor.editing   = false 
+      }
+    })
 
-    document.addEventListener('download', (e) => this.updateOriginalScene(e.detail) )
+    document.addEventListener('frontend.export', (e) => this.updateOriginalScene(e.detail) )
+    xrf.addEventListener('href', (opts) => {
+      if( this.selecting || this.editing ) return opts.promise().reject("$editor should block hrefs while editing") // never resolve (block hrefs from interfering)
+    })
     return this
   },
 
+  reset(){
+    if( this.helper) xrf.scene.remove(this.helper)
+    this.selecting = false
+    this.editing = false
+  },
+
+  export(){
+    window.frontend.download()
+    this.reset()
+  },
+
   editNode(){
-    if( !this.enabled ) return console.log("not editing")
-    $editor.enabled = false             // disable selections
-    this.enableHref(this.selected,true) // re-enable hrefs 
+    if( !this.selecting ) return console.log("not editing")
+    $editor.editing = true
       //`<b>XR Fragment:</b> #${this.selected.name}<br><br>${this.getMetaData(this.selected)}`),{
+    setTimeout( () => this.reset(), 4000 )
     notify( $editorPopup( document.createElement('div') ).init(this) , {
       timeout:false,
-      onclose: () => xrf.scene.remove( this.helper )
+      onclose: () => this.reset()
     })
   },
 
   initEdit(scene){
-    AFRAME.scenes[0].addEventListener('click', () => this.editNode() )
+    if( !this.listenersInstalled ){
+      AFRAME.scenes[0].addEventListener('click', () => this.editNode() )
+      this.listenersInstalled = true
+    }
     scene.traverse( (n) => {
       let highlight = (n) => (e) => {
-        if( this.selected ) this.enableHref(this.selected,true) // re-enable href of previous selection
+        if( !this.selecting || this.editing ) return // do nothing
         if( this.helper){
           if( this.helper.selected == n.uuid ) return // already selected
           xrf.scene.remove(this.helper)
         }
-        if( !this.enabled ) return // do nothing
 
         this.selected = n
         this.helper = new THREE.BoxHelper( n, 0xFF00FF )
-        this.helper.material.linewidth = 5
-        this.helper.material.color = xrf.focusLine.material.color
+        this.helper.material.linewidth = 4
+        this.helper.material.color     = xrf.focusLine.material.color
+        this.helper.material.dashSize  = xrf.focusLine.material.dashSize
+        this.helper.material.gapSize   = xrf.focusLine.material.gapSize  
         this.helper.selected = n.uuid
         xrf.scene.add(this.helper)
 
         let div = document.createElement('div')
         notify(`<b>#${n.name}</b><br>${this.getMetaData(this.selected)}`)
 
-        this.enableHref(n,false) // prevent clicks from doing their usual teleporting/executions
       }
       if( n.material ) n.addEventListener('mousemove', n.highlightOnMouseMove = highlight(n) )
     }) 
@@ -143,24 +184,15 @@ $editor = (el,opts) => new Proxy({
     return html
   },
 
-  enableHref(n, state){
-    if( n.userData.XRF && n.userData.XRF.href && n.userData.XRF.href.exec ){
-      let exec = n.userData.XRF.href.exec
-      if( !state && !exec.bak ){
-        exec.bak = exec
-        n.userData.XRF.href.exec = function(){}
-      }
-      if( state && exec.bak ){
-        n.userData.XRF.href.exec = exec.bak
-      }
-    }
-  },
-
-  updateOriginalScene(opts){
-    let {scene,ext} = opts
-    xrf.scene.traverse( (n) => {
-      if( n.edited && scene.getObjectByName(n.name) ){
-        scene.getObjectByName(n.name).userData = n.userData
+  updateOriginalScene(e){
+    const {scene,ext} = e
+    scene.traverse( (n) => {
+      if( !n.name ) return
+      // overwrite node with modified userData from scene
+      let o = xrf.scene.getObjectByName(n.name)
+      if( o && o.edited ){
+        for( let i in o.userData ) n.userData[i] = o.userData[i]
+        console.log("updating export")
       }
     })
   }
@@ -174,20 +206,18 @@ $editor = (el,opts) => new Proxy({
     me[k] = v    
     switch( k ){
 
-      case "enabled":{ 
+      case "selecting":{ 
           lookctl = $('[look-controls]').components['look-controls']
           if( v ){
             lookctl.pause() // prevent click-conflict
             notify("click an object to reveal XR Fragment metadata")
             xrf.interactive.raycastAll = true
-            if( !xrf.scene.initEdit ) me.initEdit(xrf.scene)
-
+            me.initEdit(xrf.scene)
             lookctl.pause() // prevent click-conflict
             el.querySelector('.edit-btn').classList.add(['enabled'])
           }else{
             lookctl.pause() // prevent click-conflict
             xrf.scene.traverse( (n) => {
-              me.enableHref(n,true)
               if( n.highlightOnMouseMove ){
                n.removeEventListener( 'mousemove', n.highlightOnMouseMove )    
               }

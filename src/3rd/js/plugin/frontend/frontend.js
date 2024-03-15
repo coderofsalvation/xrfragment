@@ -252,14 +252,20 @@ window.frontend = (opts) => new Proxy({
       return false;
     }
 
-    function exportScene(scene,ext){
+    function exportScene(model,ext){
       const exporter = new (xrf.loaders[ext].exporter || defaultExporter)
-      document.dispatchEvent( new CustomEvent('download',{detail:{scene,ext}}) )
+      document.dispatchEvent( new CustomEvent('frontend.export',{detail:{ scene: model.scene,ext}}) )
       exporter.parse(
-        scene,
-        function ( glb   ) { download(glb, `${file}.${ext}`) },    // ready
+        model.scene,
+        function ( glb   ) { download(glb, `${file}`) },    // ready
         function ( error ) { console.error(error) },   // error
-        {binary:true} 
+        {
+          binary:true, 
+          onlyVisible: false, 
+          animations: model.animations,
+          includeCustomExtensions: true,
+          trs:true
+        } 
       );
     }
 
@@ -268,8 +274,9 @@ window.frontend = (opts) => new Proxy({
     let {urlObj,dir,file,hash,ext} = xrf.navigator.origin = xrf.parseUrl(url)
     const Loader = xrf.loaders[ext]
     loader = new Loader().setPath( dir )
+    notify('exporting scene<br><br>please wait..')
     loader.load(url, (model) => {
-      exportScene(model.scene,ext,file)
+      exportScene(model,ext,file)
     })
   },
 
@@ -315,7 +322,7 @@ window.frontend = (opts) => new Proxy({
     if( network.meetingLink && !document.location.hash.match(/meet=/) ){
       document.location.hash += `&meet=${network.meetingLink}`
     }
-    if( !document.location.hash.match(/pos=/) ){
+    if( !document.location.hash.match(/pos=/) && (network.posName || network.pos) ){
       document.location.hash += `&pos=${ network.posName || network.pos }`
     }
     let url = window.location.href
