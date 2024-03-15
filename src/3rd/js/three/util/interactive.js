@@ -35,6 +35,15 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
       // Pointer Events
       const element = renderer.domElement;
 
+      const getAllMeshes = (scene) => {
+        let objects = []
+        xrf.scene.traverse( (n) => {
+          if( !n.material || n.type != 'Mesh' ) return
+          objects.push(n)
+        })
+        return objects
+      }
+
       function onPointerEvent( event ) {
 
         //event.stopPropagation();
@@ -46,8 +55,8 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
 
         raycaster.setFromCamera( _pointer, camera );
 
-        let objects = scope.raycastAll ? xrf.scene.children : scope.objects
-        const intersects = raycaster.intersectObjects( objects, scope.raycastAll );
+        let objects = scope.raycastAll ? getAllMeshes(xrf.scene) : scope.objects 
+        const intersects = raycaster.intersectObjects( objects, false )
 
         if ( intersects.length > 0 ) {
 
@@ -96,14 +105,14 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
         raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
         raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
 
-        let objects = scope.raycastAll ? xrf.scene.children : scope.objects
-        const intersections = raycaster.intersectObjects( objects, scope.raycastAll );
+        let objects = scope.raycastAll ? getAllMeshes(xrf.scene) : scope.objects 
+        const intersects = raycaster.intersectObjects( objects, false )
 
-        if ( intersections.length > 0 ) {
+        if ( intersects.length > 0 ) {
 
           console.log(object.name)
 
-          const intersection = intersections[ 0 ];
+          const intersection = intersects[ 0 ];
 
           object = intersection.object;
           const uv = intersection.uv;
