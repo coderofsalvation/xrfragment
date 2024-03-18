@@ -37,6 +37,9 @@ xrf.frag.href = function(v, opts){
 
     if( !mesh.material || !mesh.material.visible ) return // ignore invisible nodes
 
+    // update our values to the latest value (might be edited)
+    v = {string: mesh.userData.href }
+
     // bubble up!
     mesh.traverseAncestors( (n) => n.userData && n.userData.href && n.dispatchEvent({type:e.type,data:{}}) )
 

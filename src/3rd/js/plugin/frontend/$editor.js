@@ -10,7 +10,7 @@ $editorPopup = (el) => new Proxy({
           <tr>
             <td><b class="badge">href</a></td>
             <td>
-              <input type="text" id="href" placeholder="https://foo.com" maxlength="255" 
+              <input type="text" id="href" placeholder="https://foo.com" maxlength="255" list="objects" 
                      onkeydown="document.querySelector('#editActions').classList.add('show')" 
                      onkeyup="$editor.selected.edited = $editor.selected.userData.href = this.value" 
                      value="${$editor.selected.userData.href||''}" />
@@ -19,7 +19,7 @@ $editorPopup = (el) => new Proxy({
           <tr>
             <td><b class="badge">src</a></td>
             <td>
-              <input type="text" id="src" placeholder="https://foo.com" maxlength="255" 
+              <input type="text" id="src" placeholder="https://foo.com" maxlength="255" list="objects"
                      onkeydown="document.querySelector('#editActions').classList.add('show')" 
                      onkeyup="$editor.selected.edited = $editor.selected.userData.src = this.value" 
                      value="${$editor.selected.userData.src||''}" />
@@ -36,10 +36,17 @@ $editorPopup = (el) => new Proxy({
           </tr>
         </tbody>
       </table>
+      <datalist id="objects">
+        <option>https://xrfragment.org/index.glb#pos=start</option>
+        <option>
+        ${opts.objectNames.join('</option><option>')}
+        </option>
+      </datalist>
       <br>
       <div id="editActions">
         <button class="download" onclick="$editor.export()"><i class="gg-software-download"></i> &nbsp;&nbsp;&nbsp;download scene file</button> 
         <br>
+        NOTE: updates to src-values will require reloading the scene 
       </div>
     </div>
     <style type="text/css">
@@ -105,6 +112,7 @@ $editor = (el,opts) => new Proxy({
   editing: false,
   helper: null,
   selected: null,
+  objectNames: [],
 
   init(opts){
     el.innerHTML = this.html
@@ -119,15 +127,15 @@ $editor = (el,opts) => new Proxy({
 
     xrf.addEventListener('export', (e) => this.updateOriginalScene(e) )
     xrf.addEventListener('href', (opts) => {
-      if( this.selecting || this.editing ) return opts.promise().reject("$editor should block hrefs while editing") // never resolve (block hrefs from interfering)
+      if( $editor.selecting || $editor.editing ) return opts.promise().reject("$editor should block hrefs while editing") // never resolve (block hrefs from interfering)
     })
     return this
   },
 
   reset(){
     if( this.helper) xrf.scene.remove(this.helper)
-    this.selecting = false
-    this.editing = false
+    $editor.selecting = false
+    $editor.editing = false
   },
 
   export(){
@@ -137,13 +145,31 @@ $editor = (el,opts) => new Proxy({
 
   editNode(){
     if( !this.selecting ) return console.log("not editing")
+    this.reset()
     $editor.editing = true
+    this.collectObjects()
       //`<b>XR Fragment:</b> #${this.selected.name}<br><br>${this.getMetaData(this.selected)}`),{
-    setTimeout( () => this.reset(), 4000 )
     notify( $editorPopup( document.createElement('div') ).init(this) , {
       timeout:false,
       onclose: () => this.reset()
     })
+  },
+
+  collectObjects(){
+    this.objectNames = []
+    const escape = (str) => {
+      let d = document.createElement('div')
+      d.innerText = str
+      return d.innerHTML
+    }
+    xrf.scene.traverse( (n) => {
+      if( n.userData && n.userData.href ){
+        this.objectNames.push( escape(n.userData.href) )
+      }
+    })
+    xrf.scene.traverse( (n) => {
+      if( n.name ) this.objectNames.push( escape('#'+n.name) )
+    }) 
   },
 
   initEdit(scene){
@@ -174,7 +200,6 @@ $editor = (el,opts) => new Proxy({
       }
       if( n.material ) n.addEventListener('mousemove', n.highlightOnMouseMove = highlight(n) )
     }) 
-    console.log("inited scene")
   },
 
   getMetaData(n){
@@ -192,7 +217,6 @@ $editor = (el,opts) => new Proxy({
       let o = xrf.scene.getObjectByName(n.name)
       if( o && o.edited ){
         for( let i in o.userData ) n.userData[i] = o.userData[i]
-        console.log("updating export")
       }
     })
   }
@@ -204,6 +228,7 @@ $editor = (el,opts) => new Proxy({
 
   set(me,k,v){ 
     me[k] = v    
+
     switch( k ){
 
       case "selecting":{ 

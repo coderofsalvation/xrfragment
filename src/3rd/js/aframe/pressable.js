@@ -30,6 +30,8 @@ AFRAME.registerComponent('pressable', {
         }
     },
     detectPress: function(){
+        if( !AFRAME.scenes[0].renderer.xr.isPresenting ) return
+
         var handEls = this.handEls;
         var handEl;
         let minDistance = 5
