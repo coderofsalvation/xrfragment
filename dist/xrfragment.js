@@ -1212,6 +1212,9 @@ xrfragment_XRF.prototype = {
 	,validate: function(value) {
 		this.guessType(this,value);
 		var ok = true;
+		if(value.length == 0) {
+			ok = false;
+		}
 		if(!this.is(xrfragment_XRF.T_FLOAT) && this.is(xrfragment_XRF.T_VECTOR2) && !(typeof(this.x) == "number" && typeof(this.y) == "number")) {
 			ok = false;
 		}

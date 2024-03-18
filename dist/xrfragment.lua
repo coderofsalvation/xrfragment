@@ -3094,6 +3094,9 @@ end
 __xrfragment_XRF.prototype.validate = function(self,value) 
   self:guessType(self, value);
   local ok = true;
+  if (__lua_lib_luautf8_Utf8.len(value) == 0) then 
+    ok = false;
+  end;
   if ((not self:is(__xrfragment_XRF.T_FLOAT) and self:is(__xrfragment_XRF.T_VECTOR2)) and not (__lua_Boot.__instanceof(self.x, Float) and __lua_Boot.__instanceof(self.y, Float))) then 
     ok = false;
   end;
