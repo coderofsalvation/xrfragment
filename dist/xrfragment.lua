@@ -2820,7 +2820,7 @@ __xrfragment_Parser.parse = function(key,value,store,index)
   else
     Frag_h.s = value1;
   end;
-  local value1 = __xrfragment_XRF.PV_OVERRIDE;
+  local value1 = _hx_bit.bor(__xrfragment_XRF.PV_OVERRIDE,__xrfragment_XRF.T_PREDEFINED_VIEW);
   if (value1 == nil) then 
     Frag_h.loop = __haxe_ds_StringMap.tnull;
   else
@@ -3094,7 +3094,7 @@ end
 __xrfragment_XRF.prototype.validate = function(self,value) 
   self:guessType(self, value);
   local ok = true;
-  if (__lua_lib_luautf8_Utf8.len(value) == 0) then 
+  if ((__lua_lib_luautf8_Utf8.len(value) == 0) and not self:is(__xrfragment_XRF.T_PREDEFINED_VIEW)) then 
     ok = false;
   end;
   if ((not self:is(__xrfragment_XRF.T_FLOAT) and self:is(__xrfragment_XRF.T_VECTOR2)) and not (__lua_Boot.__instanceof(self.x, Float) and __lua_Boot.__instanceof(self.y, Float))) then 

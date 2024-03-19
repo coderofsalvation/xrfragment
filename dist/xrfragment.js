@@ -1089,7 +1089,7 @@ xrfragment_Parser.parse = function(key,value,store,index) {
 	Frag_h["rot"] = xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_VECTOR3 | xrfragment_XRF.METADATA | xrfragment_XRF.NAVIGATOR;
 	Frag_h["t"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_FLOAT | xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.NAVIGATOR | xrfragment_XRF.METADATA;
 	Frag_h["s"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_MEDIAFRAG;
-	Frag_h["loop"] = xrfragment_XRF.PV_OVERRIDE;
+	Frag_h["loop"] = xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_PREDEFINED_VIEW;
 	Frag_h["uv"] = xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.T_MEDIAFRAG;
 	Frag_h["namespace"] = xrfragment_XRF.IMMUTABLE | xrfragment_XRF.T_STRING;
 	Frag_h["SPDX"] = xrfragment_XRF.IMMUTABLE | xrfragment_XRF.T_STRING;
@@ -1212,7 +1212,7 @@ xrfragment_XRF.prototype = {
 	,validate: function(value) {
 		this.guessType(this,value);
 		var ok = true;
-		if(value.length == 0) {
+		if(value.length == 0 && !this.is(xrfragment_XRF.T_PREDEFINED_VIEW)) {
 			ok = false;
 		}
 		if(!this.is(xrfragment_XRF.T_FLOAT) && this.is(xrfragment_XRF.T_VECTOR2) && !(typeof(this.x) == "number" && typeof(this.y) == "number")) {

@@ -2261,7 +2261,7 @@ class xrfragment_Parser:
         Frag.h["rot"] = ((((xrfragment_XRF.QUERY_OPERATOR | xrfragment_XRF.PV_OVERRIDE) | xrfragment_XRF.T_VECTOR3) | xrfragment_XRF.METADATA) | xrfragment_XRF.NAVIGATOR)
         Frag.h["t"] = ((((xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_FLOAT) | xrfragment_XRF.T_VECTOR2) | xrfragment_XRF.NAVIGATOR) | xrfragment_XRF.METADATA)
         Frag.h["s"] = (xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_MEDIAFRAG)
-        Frag.h["loop"] = xrfragment_XRF.PV_OVERRIDE
+        Frag.h["loop"] = (xrfragment_XRF.PV_OVERRIDE | xrfragment_XRF.T_PREDEFINED_VIEW)
         Frag.h["uv"] = (xrfragment_XRF.T_VECTOR2 | xrfragment_XRF.T_MEDIAFRAG)
         Frag.h["namespace"] = (xrfragment_XRF.IMMUTABLE | xrfragment_XRF.T_STRING)
         Frag.h["SPDX"] = (xrfragment_XRF.IMMUTABLE | xrfragment_XRF.T_STRING)
@@ -2398,7 +2398,7 @@ class xrfragment_XRF:
     def validate(self,value):
         self.guessType(self,value)
         ok = True
-        if (len(value) == 0):
+        if ((len(value) == 0) and (not self._hx_is(xrfragment_XRF.T_PREDEFINED_VIEW))):
             ok = False
         if (((not self._hx_is(xrfragment_XRF.T_FLOAT)) and self._hx_is(xrfragment_XRF.T_VECTOR2)) and (not ((Std.isOfType(self.x,Float) and Std.isOfType(self.y,Float))))):
             ok = False

@@ -27,7 +27,7 @@ class Parser {
       // category: media fragments
       Frag.set("t",             XRF.PV_OVERRIDE | XRF.T_FLOAT | XRF.T_VECTOR2  | XRF.NAVIGATOR | XRF.METADATA);
       Frag.set("s",             XRF.PV_OVERRIDE | XRF.T_MEDIAFRAG );
-      Frag.set("loop",          XRF.PV_OVERRIDE );
+      Frag.set("loop",          XRF.PV_OVERRIDE | XRF.T_PREDEFINED_VIEW );
       Frag.set("uv",            XRF.T_VECTOR2 | XRF.T_MEDIAFRAG );
 
       // category: author / metadata

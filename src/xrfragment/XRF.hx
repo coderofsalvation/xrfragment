@@ -95,7 +95,7 @@ class XRF {
     guessType(this, value);                                             //  1. extract the type
     // validate
     var ok:Bool = true;
-    if( value.length == 0 ) ok = false;
+    if( value.length == 0 && !is(T_PREDEFINED_VIEW) ) ok = false;
     if( !is(T_FLOAT)   && is(T_VECTOR2) && !(Std.isOfType(x,Float) && Std.isOfType(y,Float)) ) ok = false;
     if( !(is(T_VECTOR2) || is(T_STRING)) && is(T_VECTOR3) && !(Std.isOfType(x,Float) && Std.isOfType(y,Float) && Std.isOfType(z,Float)) ) ok = false;
     return ok;
