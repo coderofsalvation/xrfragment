@@ -2398,6 +2398,8 @@ class xrfragment_XRF:
     def validate(self,value):
         self.guessType(self,value)
         ok = True
+        if (len(value) == 0):
+            ok = False
         if (((not self._hx_is(xrfragment_XRF.T_FLOAT)) and self._hx_is(xrfragment_XRF.T_VECTOR2)) and (not ((Std.isOfType(self.x,Float) and Std.isOfType(self.y,Float))))):
             ok = False
         if (((not ((self._hx_is(xrfragment_XRF.T_VECTOR2) or self._hx_is(xrfragment_XRF.T_STRING)))) and self._hx_is(xrfragment_XRF.T_VECTOR3)) and (not (((Std.isOfType(self.x,Float) and Std.isOfType(self.y,Float)) and Std.isOfType(self.z,Float))))):

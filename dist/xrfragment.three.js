@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Fri Mar  1 01:33:23 PM UTC 2024
+ * v0.5.1 generated at Tue Mar 19 09:13:06 AM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -1217,6 +1217,9 @@ xrfragment_XRF.prototype = {
 	,validate: function(value) {
 		this.guessType(this,value);
 		var ok = true;
+		if(value.length == 0) {
+			ok = false;
+		}
 		if(!this.is(xrfragment_XRF.T_FLOAT) && this.is(xrfragment_XRF.T_VECTOR2) && !(typeof(this.x) == "number" && typeof(this.y) == "number")) {
 			ok = false;
 		}
@@ -1386,19 +1389,6 @@ xrf.detectCameraRig = function(opts){
   }
 }
 
-xrf.roundrobin = (frag, store) => {
-  if( !frag.args || frag.args.length == 0 ) return 0
-  if( !store.rr                 ) store.rr = {}
-  let label = frag.fragment
-  if( store.rr[label] ) return store.rr[label].next()
-  store.rr[label] = frag.args
-  store.rr[label].next  = () => {
-    store.rr[label].index = (store.rr[label].index + 1) % store.rr[label].length 
-    return store.rr[label].index
-  }
-  return store.rr[label].index = 0
-}
-
 xrf.stats = () => {
   // bookmarklet from https://github.com/zlgenuine/threejs_stats
   (function(){
@@ -1459,13 +1449,13 @@ xrf.emit = function(eventName, data){
   return xrf.emit.promise(eventName,data)
 }
 
-xrf.emit.normal = function(eventName, data) {
+xrf.emit.normal = function(eventName, opts) {
     if( !xrf._listeners ) xrf._listeners = []
     var callbacks = xrf._listeners[eventName]
     if (callbacks) {
-        for (var i = 0; i < callbacks.length; i++) {
+        for (var i = 0; i < callbacks.length && !opts.halt; i++) {
           try{
-            callbacks[i](data);
+            callbacks[i](opts);
           }catch(e){ console.error(e) }
         }
     }
@@ -1482,7 +1472,10 @@ xrf.emit.promise = function(e, opts){
           let succesful = opts.promises.reduce( (a,b) => a+b )
           if( succesful == opts.promises.length ) resolve(opts)
         })(opts.promises.length-1),
-        reject: console.error
+        reject: (reason) => {
+          opts.halt = true
+          console.warn(`'${e}' event rejected: ${reason}`)
+        }
       }
     }
     xrf.emit.normal(e, opts)     
@@ -1986,7 +1979,11 @@ xrf.frag.href = function(v, opts){
 
   let click = mesh.userData.XRF.href.exec = (e) => {
 
-    if( !mesh.material.visible ) return // ignore invisible nodes
+    if( !mesh.material || !mesh.material.visible ) return // ignore invisible nodes
+
+    // update our values to the latest value (might be edited)
+    xrf.Parser.parse( "href", mesh.userData.href, frag )
+    const v  = frag.href
 
     // bubble up!
     mesh.traverseAncestors( (n) => n.userData && n.userData.href && n.dispatchEvent({type:e.type,data:{}}) )
@@ -2010,7 +2007,7 @@ xrf.frag.href = function(v, opts){
   }
 
   let selected = mesh.userData.XRF.href.selected = (state) => () => {
-    if( !mesh.material.visible && !mesh.isSRC ) return // ignore invisible nodes
+    if( (!mesh.material && !mesh.material.visible) && !mesh.isSRC ) return // ignore invisible nodes
     if( mesh.selected == state ) return // nothing changed 
 
     xrf.interactive.objects.map( (o) => {
@@ -2107,7 +2104,9 @@ xrf.frag.defaultPredefinedViews = (opts) => {
   let {scene,model} = opts;
   scene.traverse( (n) => {
     if( n.userData && n.userData['#'] ){
-      xrf.hashbus.pub( n.userData['#'], n )   // evaluate default XR fragments without affecting URL
+      if( !n.parent && !document.location.hash ){
+        xrf.navigator.to( n.userData['#'] )
+      }else xrf.hashbus.pub( n.userData['#'], n )   // evaluate default XR fragments without affecting URL
     }
   })
 }
@@ -2624,7 +2623,7 @@ xrf.getCollisionMeshes = () => {
   })
   return meshes
 }
-// wrapper to survive in/outside modules
+// wrapper to collect interactive raycastable objects 
 
 xrf.interactiveGroup = function(THREE,renderer,camera){
 
@@ -2652,12 +2651,23 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
 
       const scope = this;
       scope.objects = []
+      scope.raycastAll = false
+
 
       const raycaster = new Raycaster();
       const tempMatrix = new Matrix4();
 
       // Pointer Events
       const element = renderer.domElement;
+
+      const getAllMeshes = (scene) => {
+        let objects = []
+        xrf.scene.traverse( (n) => {
+          if( !n.material || n.type != 'Mesh' ) return
+          objects.push(n)
+        })
+        return objects
+      }
 
       function onPointerEvent( event ) {
 
@@ -2670,7 +2680,8 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
 
         raycaster.setFromCamera( _pointer, camera );
 
-        const intersects = raycaster.intersectObjects( scope.objects, false );
+        let objects = scope.raycastAll ? getAllMeshes(xrf.scene) : scope.objects 
+        const intersects = raycaster.intersectObjects( objects, false )
 
         if ( intersects.length > 0 ) {
 
@@ -2680,7 +2691,7 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
           const uv = intersection.uv;
 
           _event.type = event.type;
-          _event.data.set( uv.x, 1 - uv.y );
+          if( uv ) _event.data.set( uv.x, 1 - uv.y );
           object.dispatchEvent( _event );
 
         }else{
@@ -2719,19 +2730,20 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
         raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
         raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
 
-        const intersections = raycaster.intersectObjects( scope.objects, false );
+        let objects = scope.raycastAll ? getAllMeshes(xrf.scene) : scope.objects 
+        const intersects = raycaster.intersectObjects( objects, false )
 
-        if ( intersections.length > 0 ) {
+        if ( intersects.length > 0 ) {
 
           console.log(object.name)
 
-          const intersection = intersections[ 0 ];
+          const intersection = intersects[ 0 ];
 
           object = intersection.object;
           const uv = intersection.uv;
 
           _event.type = eventsMapper[ event.type ];
-          _event.data.set( uv.x, 1 - uv.y );
+          if( uv ) _event.data.set( uv.x, 1 - uv.y );
 
           object.dispatchEvent( _event );
 
@@ -2758,6 +2770,8 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
 
     }
 
+    // we create our own add to avoid unnecessary unparenting of buffergeometries from 
+    // their 3D model (which breaks animations)
     add(obj, unparent){
       if( unparent ) Group.prototype.add.call( this, obj )
       this.objects.push(obj)
