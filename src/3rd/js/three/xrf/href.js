@@ -117,10 +117,25 @@ xrf.addEventListener('audioInited', function(opts){
     audio[action] = new THREE.Audio( xrf.camera.listener )
     audioLoader.load( opts.audio[action], function( buffer ) {
       audio[action].setBuffer( buffer );
+      audio.loaded = true
+    },
+    function(){}, // progress
+    function(err){
+      console.warn(`XR Fragment UI sounds not inited, please host default files or specify your own:
+
+xrf.opts = {
+  audio: {
+    click: '/example/assets/audio/click.wav'
+    hover: '/example/assets/audio/hover.wav'
+    teleport: '/example/assets/audio/teleport.wav'
+  }
+}`
+      )
     })
   });
 
   xrf.addEventListener('href', (opts) => {
+    if( !xrf.frag.href.audio.loaded ) return 
     let v = opts.xrf
     if( opts.selected ){
       xrf.frag.href.audio.hover.stop() 
@@ -135,9 +150,11 @@ xrf.addEventListener('audioInited', function(opts){
   })
 
   xrf.addEventListener('navigateLoading', (e) => {
-      xrf.frag.href.audio.click.stop() 
-      xrf.frag.href.audio.teleport.stop() 
-      xrf.frag.href.audio.teleport.play() 
+    if( !xrf.frag.href.audio.loaded ) return 
+    let v = opts.xrf
+    xrf.frag.href.audio.click.stop() 
+    xrf.frag.href.audio.teleport.stop() 
+    xrf.frag.href.audio.teleport.play() 
   })
 
 

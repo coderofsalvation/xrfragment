@@ -21,9 +21,16 @@ xrf.frag.src = function(v, opts){
   xrf.hashbus.pub( url.replace(/.*#/,''), mesh)     // eval src-url fragments
 }
 
+xrf.frag.src.isRelativeURI = function(mesh,uri){
+  return uri.match("://") ? false : true
+}
+
 xrf.frag.src.expandURI = function(mesh,uri){
   if( uri ) mesh.userData.srcTemplate = uri
   mesh.userData.src = xrf.URI.template( mesh.userData.srcTemplate, xrf.URI.vars.__object )
+  if( xrf.frag.src.isRelativeURI(mesh,uri) ){
+    mesh.userData.src = ( mesh.userData.src[0] != '/' ? xrf.navigator.origin.dir : xrf.navigator.origin.urlObj.origin ) + mesh.userData.src
+  }
   return mesh.userData.src
 }
 

@@ -17,7 +17,8 @@ xrf.frag.src.type['image/png'] = function(url,opts){
   });
 
   let renderImage = (texture) => {
-    let img = {w: texture.source.data.width, h: texture.source.data.height}
+    //let   h = texture.source ? texture.source.data.height : texture.image.height 
+    //let   w = texture.source ? texture.source.data.width : texture.image.width 
 
     // stretch image by pinning uv-coordinates to corners 
     if( mesh.geometry ){

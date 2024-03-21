@@ -5,8 +5,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
   let {urlObj,dir,file,hash,ext} = xrf.navigator.origin = xrf.parseUrl(url)
   let hashChange = (!file && hash) || !data && xrf.model.file == file
   let hasPos     = String(hash).match(/pos=/)
-
-
+  
   let hashbus = xrf.hashbus
 
   return new Promise( (resolve,reject) => {
