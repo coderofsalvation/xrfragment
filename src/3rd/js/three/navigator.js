@@ -7,6 +7,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
   let hasPos     = String(hash).match(/pos=/)
   
   let hashbus = xrf.hashbus
+  console.dir({urlObj,dir,file,hash,ext})
 
   return new Promise( (resolve,reject) => {
     xrf
@@ -123,8 +124,7 @@ xrf.navigator.setupNavigateFallbacks = () => {
     let {url} = opts
     let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
 
-    // handle http links
-    if( url.match(/^http/) && !xrf.loaders[ext] ){
+    const openNewTab = (url) => {
       let inIframe
       try { inIframe = window.self !== window.top; } catch (e) { inIframe = true; }
       return inIframe ? window.parent.postMessage({ url }, '*') : window.open( url, '_blank')
@@ -138,8 +138,23 @@ xrf.navigator.setupNavigateFallbacks = () => {
       //   false,
       // );
     }
+
+    // handle http links
+    if( url.match(/^http/) && !xrf.loaders[ext] ){
+
+      xrf.navigator.pollIndexFallback(url)
+      .then( (indexUrl) => { })
+      .catch( openNewTab )
+
+    }
   })
 
+}
+
+xrf.navigator.pollIndexFallback = (url) => {
+  return new Promise( (resolve,reject) => {
+    reject(url)
+  })
 }
 
 xrf.navigator.updateHash = (hash,opts) => {
