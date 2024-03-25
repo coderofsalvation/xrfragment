@@ -2,12 +2,12 @@ xrf.navigator = {}
 
 xrf.navigator.to = (url,flags,loader,data) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
-  let {urlObj,dir,file,hash,ext} = xrf.navigator.origin = xrf.parseUrl(url)
-  let hashChange = (!file && hash) || !data && xrf.model.file == file
-  let hasPos     = String(hash).match(/pos=/)
-  
-  let hashbus = xrf.hashbus
-  console.dir({urlObj,dir,file,hash,ext})
+  let oldOrigin        = xrf.navigator.origin
+  let {URN,urlObj,dir,file,hash,ext} = xrf.navigator.origin = xrf.parseUrl(url)
+  const hasPos         = String(hash).match(/pos=/)
+  const hashbus        = xrf.hashbus
+  const newFile        = !oldOrigin || xrf.navigator.origin.URN != oldOrigin.URN
+  const hashChangeOnly = ((!newFile || !file) && hash) || (!data && !newFile) && xrf.model.file == file
 
   return new Promise( (resolve,reject) => {
     xrf
@@ -22,17 +22,18 @@ xrf.navigator.to = (url,flags,loader,data) => {
 
       if( !hash && !file && !ext ) return resolve(xrf.model) // nothing we can do here
 
-      if( hashChange && !hasPos ){
+      if( hashChangeOnly && !hasPos ){
         hashbus.pub( url, xrf.model, flags )     // eval local URI XR fragments 
         xrf.navigator.updateHash(hash)           // which don't require 
         return resolve(xrf.model)                // positional navigation
       }
 
+
       xrf
       .emit('navigateLoading', {url,loader,data})
       .then( () => {
-        if( hashChange && hasPos ){                 // we're already loaded
-          hashbus.pub( url, xrf.model, flags )     // and eval local URI XR fragments 
+        if( hashChangeOnly && hasPos ){         // we're already loaded
+          hashbus.pub( url, xrf.model, flags )  // and eval local URI XR fragments 
           xrf.navigator.updateHash(hash)
           xrf.emit('navigateLoaded',{url})
           return resolve(xrf.model) 
@@ -141,19 +142,41 @@ xrf.navigator.setupNavigateFallbacks = () => {
 
     // handle http links
     if( url.match(/^http/) && !xrf.loaders[ext] ){
-
       xrf.navigator.pollIndexFallback(url)
-      .then( (indexUrl) => { })
+      .then( (indexUrl) =>  xrf.navigator.to(indexUrl) )
       .catch( openNewTab )
-
     }
   })
 
 }
 
 xrf.navigator.pollIndexFallback = (url) => {
+  let indexes = {}
+  let p       = []
+
+  const pollURL = (url) => new Promise( (resolve,reject) => {
+    fetch(url, { method: 'HEAD' })
+    .then( (res) => {
+      resolve( res.ok ? url : null )
+    })
+    .catch( () => resolve(null) )
+  })
+
+  for( let i in xrf.loaders){
+    let index = `${url}${url[ url.length-1 ] == '/' ? `index.${i}` :`/index.${i}`}`
+    indexes[ index ] = false
+    console.info(`trying ${index}`)
+    p.push( pollURL(index) )
+  }
+
   return new Promise( (resolve,reject) => {
-    reject(url)
+    Promise.all(p)
+    .then( ( results ) => {
+      results = results.filter( (r) => r )
+      if( results.length && results[0] ) resolve(results[0]) 
+      else reject(url)
+    })
+    .catch(console.error)
   })
 }
 

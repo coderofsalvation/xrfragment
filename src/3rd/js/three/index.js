@@ -91,7 +91,7 @@ xrf.reset = () => {
 xrf.parseUrl = (url) => {
   let urlExHash = url.replace(/#.*/,'')
   let urlObj,file
-  let   store = {}
+  let store = {}
   try{
     urlObj = new URL( urlExHash.match(/:\/\//) ? urlExHash : String(`${document.location.origin}/${url}`).replace(/\/\//,'/') )
     file = urlObj.pathname.substring(urlObj.pathname.lastIndexOf('/') + 1);
@@ -103,7 +103,8 @@ xrf.parseUrl = (url) => {
   let   dir  = url.substring(0, url.lastIndexOf('/') + 1)
   const hash = url.match(/#/) ? url.replace(/.*#/,'') : ''
   const ext  = file.split('.').pop()
-  return {urlObj,dir,file,hash,ext,store}
+  const URN = urlObj.origin+urlObj.pathname
+  return {urlObj,dir,file,hash,ext,store, URN }
 }
 
 xrf.add = (object) => {
