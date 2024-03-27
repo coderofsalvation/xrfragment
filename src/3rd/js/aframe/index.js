@@ -17,11 +17,6 @@ window.AFRAME.registerComponent('xrf', {
 
     if( !AFRAME.XRF ){
 
-      let camera = document.querySelector('[camera]')
-      // start with black
-      camera.setAttribute('xrf-fade','')
-      AFRAME.fade = camera.components['xrf-fade']
-
       let aScene = AFRAME.scenes[0] 
 
       // enable XR fragments
@@ -66,6 +61,14 @@ window.AFRAME.registerComponent('xrf', {
       }
       aScene.addEventListener('enter-vr', repositionUser(1) )
       aScene.addEventListener('enter-ar', repositionUser(2) )
+
+      xrf.addEventListener('navigate', (opts) => {
+        if( !AFRAME.fade ){
+          const camera = $('[camera]')
+          camera.setAttribute('xrf-fade','')
+          AFRAME.fade = camera.components['xrf-fade']
+        }
+      })
 
       xrf.addEventListener('navigateLoaded', (opts) => {
         setTimeout( () => AFRAME.fade.out(),500) 

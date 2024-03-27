@@ -3,7 +3,10 @@ xrf.navigator = {}
 xrf.navigator.to = (url,flags,loader,data) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
   let oldOrigin        = xrf.navigator.origin
-  let {URN,urlObj,dir,file,hash,ext} = xrf.navigator.origin = xrf.parseUrl(url)
+  let origin           = xrf.parseUrl(url)
+  let {URN,urlObj,dir,file,hash,ext} = origin 
+  if( !URN.match(document.location.origin) ) xrf.navigator.origin = origin // new baseURN
+
   const hasPos         = String(hash).match(/pos=/)
   const hashbus        = xrf.hashbus
   const newFile        = !oldOrigin || xrf.navigator.origin.URN != oldOrigin.URN
