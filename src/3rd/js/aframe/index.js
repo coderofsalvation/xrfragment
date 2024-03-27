@@ -17,7 +17,7 @@ window.AFRAME.registerComponent('xrf', {
 
     if( !AFRAME.XRF ){
 
-      let aScene = AFRAME.scenes[0] 
+      let aScene = this.el.sceneEl
 
       // enable XR fragments
       let XRF = AFRAME.XRF = xrf.init({
@@ -75,22 +75,16 @@ window.AFRAME.registerComponent('xrf', {
         let isLocal = opts.url.match(/^#/)
         if( isLocal ) return 
 
-        // *TODO* this does not really belong here perhaps
+        // make collisionmeshes raycastable via AFRAME
+        xrf.addEventListener('collisionMesh', (mesh) => {
+          let el = document.createElement("a-entity")
+          el.setAttribute("xrf-get", mesh.name )
+          el.setAttribute("class","floor")
+          $('a-scene').appendChild(el)
+        })
+
         let blinkControls = document.querySelector('[blink-controls]')
         if( blinkControls ){
-          let els       = xrf.getCollisionMeshes()
-          let invisible = false
-          els.map( (mesh) => {
-            if( !invisible ){
-              invisible = mesh.material.clone()
-              invisible.visible = false
-            }
-            mesh.material = invisible 
-            let el = document.createElement("a-entity")
-            el.setAttribute("xrf-get", mesh.name )
-            el.setAttribute("class","floor")
-            $('a-scene').appendChild(el)
-          })
           let com = blinkControls.components['blink-controls']
           if( com ) com.update({collisionEntities:true})
           else console.warn("xrfragments: blink-controls is not mounted, please run manually: $('[blink-controls]).components['blink-controls'].update({collisionEntities:true})")
