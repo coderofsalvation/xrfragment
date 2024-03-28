@@ -93,7 +93,7 @@ xrf.parseUrl = (url) => {
   let urlObj,file
   let store = {}
   try{
-    urlObj = new URL( urlExHash.match(/:\/\//) ? urlExHash : String(`${document.location.origin}/${url}`).replace(/\/\//,'/') )
+    urlObj = new URL( urlExHash.match(/:\/\//) ? urlExHash : String(`${xrf.navigator.origin.urlObj.origin}/${url}`).replace(/\/\//,'/') )
     file = urlObj.pathname.substring(urlObj.pathname.lastIndexOf('/') + 1);
     let   search = urlObj.search.substr(1).split("&")
     for( let i in search )  store[  (search[i].split("=")[0])  ]  = search[i].split("=")[1] || ''

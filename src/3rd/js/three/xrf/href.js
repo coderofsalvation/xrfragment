@@ -104,10 +104,10 @@ xrf.frag.href = function(v, opts){
 
 xrf.addEventListener('audioInited', function(opts){
   let {THREE,listener} = opts
-  opts.audio = opts.audio || {}
-  opts.audio.click    = opts.audio.click || '/example/assets/audio/click.wav'
-  opts.audio.hover    = opts.audio.hover || '/example/assets/audio/hover.wav'
-  opts.audio.teleport = opts.audio.teleport || '/example/assets/audio/teleport.wav'
+  opts.audio = opts.audio || window.audio || {}
+  opts.audio.click    = opts.audio.click    || 'https://xrfragment.org/example/assets/audio/click.wav'
+  opts.audio.hover    = opts.audio.hover    || 'https://xrfragment.org/example/assets/audio/hover.wav'
+  opts.audio.teleport = opts.audio.teleport || 'https://xrfragment.org/example/assets/audio/teleport.wav'
 
   let audio = xrf.frag.href.audio = {}
 
@@ -121,16 +121,7 @@ xrf.addEventListener('audioInited', function(opts){
     },
     function(){}, // progress
     function(err){
-      console.warn(`XR Fragment UI sounds not inited, please host default files or specify your own:
-
-xrf.opts = {
-  audio: {
-    click: '/example/assets/audio/click.wav'
-    hover: '/example/assets/audio/hover.wav'
-    teleport: '/example/assets/audio/teleport.wav'
-  }
-}`
-      )
+      console.warn(`XR Fragment UI sounds not inited, please host default files or specify your own *TODO*`)
     })
   });
 

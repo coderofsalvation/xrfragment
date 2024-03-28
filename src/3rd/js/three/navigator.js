@@ -2,15 +2,22 @@ xrf.navigator = {}
 
 xrf.navigator.to = (url,flags,loader,data) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
+  if( !xrf.navigator.origin ) xrf.navigator.origin = xrf.parseUrl(document.location.href)
   let oldOrigin        = xrf.navigator.origin
-  let origin           = xrf.parseUrl(url)
-  let {URN,urlObj,dir,file,hash,ext} = origin 
-  if( !URN.match(document.location.origin) ) xrf.navigator.origin = origin // new baseURN
+  let {URN,urlObj,dir,file,hash,ext} = xrf.parseUrl(url) 
 
   const hasPos         = String(hash).match(/pos=/)
   const hashbus        = xrf.hashbus
-  const newFile        = !oldOrigin || xrf.navigator.origin.URN != oldOrigin.URN
+  const newFile        = URN != oldOrigin.URN 
+  const newOrigin      = urlObj.origin != oldOrigin.urlObj.origin 
   const hashChangeOnly = ((!newFile || !file) && hash) || (!data && !newFile) && xrf.model.file == file
+  if( newOrigin || newFile ){
+    xrf.navigator.origin = {URN,urlObj,dir,hash,ext} // apply new BASE URL
+  }
+  if( urlObj.origin != document.location.origin && url[0] != '#' && !url.match('://') ){
+    url = urlObj.href // absolute link *TODO* reflect in URLbar search-parm (see pushState)
+  }
+
 
   return new Promise( (resolve,reject) => {
     xrf
