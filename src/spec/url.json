@@ -2,5 +2,6 @@
   {"fn":"url","data":"http://foo.com?foo=1#mypredefinedview", "expect":{ "fn":"testPredefinedView", "input":"mypredefinedview","out":true},"label":"test predefined view executed"},
   {"fn":"url","data":"http://foo.com?foo=1#mypredefinedview&another", "expect":{ "fn":"testPredefinedView", "input":"another","out":true},"label":"test predefined view executed (multiple)"},
   {"fn":"url","data":"http://foo.com?foo=1#mypredefinedview&another", "expect":{ "fn":"testPredefinedView", "input":"mypredefinedview","out":true},"label":"test predefined view executed (multiple)"},
-  {"fn":"url","data":"http://foo.com?foo=1#mycustom=foo", "expect":{ "fn":"testParsed", "input":"mycustom","out":true},"label":"test custom property"}
+  {"fn":"url","data":"http://foo.com?foo=1#mycustom=foo", "expect":{ "fn":"testParsed", "input":"mycustom","out":true},"label":"test custom property"},
+  {"fn":"url","data":"http://foo.com?foo=1#mycustom=foo", "expect":{ "fn":"testURL", "input":"scheme","out":"https://"},"label":"test URL scheme"}
 ]

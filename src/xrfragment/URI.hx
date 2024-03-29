@@ -26,6 +26,9 @@ import xrfragment.XRF;
 @:expose                                                                   // <- makes the class reachable from plain JavaScript
 @:keep                                                                     // <- avoids accidental removal by dead code elimination
 class URI {
+
+    public static var fragment:haxe.DynamicAccess<Dynamic>;
+
     @:keep
     public static function parse(url:String,filter:Int):haxe.DynamicAccess<Dynamic> {
       var store:haxe.DynamicAccess<Dynamic> = {};                          //  1. store key/values into a associative array or dynamic object

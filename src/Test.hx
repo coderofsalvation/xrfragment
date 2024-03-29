@@ -1,5 +1,6 @@
 import xrfragment.Filter;
 import xrfragment.URI;
+import xrfragment.URL;
 import xrfragment.XRF;
 
 class Spec {
@@ -44,6 +45,8 @@ class Test {
       if( item.expect.fn == "testPropertyAssign"    ) valid = res.exists(item.expect.input) && item.expect.out == res.get(item.expect.input).is( XRF.PROP_BIND) ;
       if( item.expect.fn == "testBrowserOverride"   ) valid = item.expect.out == (URI.parse(item.data,XRF.NAVIGATOR)).exists(item.expect.input);
       if( item.expect.fn == "testEmbedOverride"     ) valid = item.expect.out == (URI.parse(item.data,XRF.METADATA)).exists(item.expect.input);
+      if( item.expect.fn == "testURL"               ) testURL( item.data, item.expect.input, item.expect.out );
+
       if( item.expect.fn == "equal.string"          ) valid = res.get(item.expect.input) && item.expect.out == res.get(item.expect.input).string;
       if( item.expect.fn == "equal.x"               ) valid = equalX(res,item);
       if( item.expect.fn == "equal.xy"              ) valid = equalXY(res,item);
@@ -53,6 +56,7 @@ class Test {
       if( item.expect.fn == "equal.mediafragmentS") valid = equalMediaFragment(res,item,"s");
       if( item.expect.fn == "testFilterRoot"        ) valid = res.exists(item.expect.input[0]) && res.get(item.expect.input[0]).filter.get().root == item.expect.out;
       if( item.expect.fn == "testFilterDeep"        ) valid = res.exists(item.expect.input[0]) && res.get(item.expect.input[0]).filter.get().deep == item.expect.out;
+
       var ok:String = valid ? "[ ✔ ] " : "[ ❌] ";
       trace( ok + item.fn + ": '" + item.data + "'" + (item.label ? "    (" + (item.label?item.label:item.expect.fn) +")" : ""));
 			if( !valid ) errors += 1;
@@ -79,11 +83,11 @@ class Test {
     else return res.get( key ).floats[ Std.parseInt(item.expect.input) ] == Std.parseFloat(item.expect.out);
   }
 
-  static public function testUrl():Void {
-    var Uri   = xrfragment.URI;
-    var url:String = "http://foo.com?foo=1#bar=flop&a=1,2&b=c|d|1,2,3";
-    trace(url);
-    trace( Uri.parse(url,0) );
+  static public function testURL( url:String, attr:String, output:String): Bool {
+    var URL = xrfragment.URL;
+    var url = URL.parse(url,false);
+    if( attr == 'scheme' && url.scheme == output ) return true; 
+    return false; 
   }
 
   static public function testFilter():Void {
