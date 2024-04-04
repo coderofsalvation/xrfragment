@@ -52,6 +52,7 @@ class URL
     public var browserMode: Bool;
     public var fragment : String;
     public var hash : haxe.DynamicAccess<Dynamic>;
+    public var XRF : haxe.DynamicAccess<Dynamic>;
 
     /**
      * class constructor
@@ -77,7 +78,6 @@ class URL
  
         var url:URL = new URL();
         url.browserMode = browserMode;
-          trace(url);
         
         // Use reflection to set each part
         for (i in 0..._parts.length)
@@ -95,17 +95,20 @@ class URL
             }
         }
 
+        url.hash = {};
         if( url.fragment.length > 0 ){
-          trace("ja");
-          url.hash = xrfragment.URI.parse( url.fragment, 0 );
-          trace(url.hash.get('mycustom'));
-        }else url.hash = {};
-        
+          url.XRF = xrfragment.URI.parse( "#"+url.fragment, 0 );
+          var key:String;
+          for( key in url.XRF.keys() ){
+            var v:haxe.DynamicAccess<Dynamic> = url.XRF.get(key);
+            url.hash[key] = v.get("string");
+          }
+        }
         return url;
     }
     
     /**
-     * Serialize an URL object into an 
+     * Serialize an URl OBJect into an 
      * URL string
      */
     public static function toString(url:URL):String
