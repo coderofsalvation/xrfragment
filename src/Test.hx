@@ -45,7 +45,7 @@ class Test {
       if( item.expect.fn == "testPropertyAssign"    ) valid = res.exists(item.expect.input) && item.expect.out == res.get(item.expect.input).is( XRF.PROP_BIND) ;
       if( item.expect.fn == "testBrowserOverride"   ) valid = item.expect.out == (URI.parse(item.data,XRF.NAVIGATOR)).exists(item.expect.input);
       if( item.expect.fn == "testEmbedOverride"     ) valid = item.expect.out == (URI.parse(item.data,XRF.METADATA)).exists(item.expect.input);
-      if( item.expect.fn == "testURL"               ) testURL( item.data, item.expect.input, item.expect.out );
+      if( item.expect.fn == "testURL"               ) valid = testURL( item.data, item.expect.input, item.expect.out );
 
       if( item.expect.fn == "equal.string"          ) valid = res.get(item.expect.input) && item.expect.out == res.get(item.expect.input).string;
       if( item.expect.fn == "equal.x"               ) valid = equalX(res,item);
@@ -83,10 +83,27 @@ class Test {
     else return res.get( key ).floats[ Std.parseInt(item.expect.input) ] == Std.parseFloat(item.expect.out);
   }
 
-  static public function testURL( url:String, attr:String, output:String): Bool {
+  static public function testURL( url:String, attr:String, output:String, browserMode: Bool = false): Bool {
     var URL = xrfragment.URL;
     var url = URL.parse(url,false);
-    if( attr == 'scheme' && url.scheme == output ) return true; 
+    trace("url:"+url.url);
+    trace("source:"+url.source);
+    trace("scheme:"+url.scheme);
+    trace("auth:"+url.authority);
+    trace("uinfo:"+url.userInfo);
+    trace("u:"+url.user);
+    trace("pw:"+url.password);
+    trace("host:"+url.host);
+    trace("port:"+url.port);
+    trace("relative:"+url.relative);
+    trace("path:"+url.path);
+    trace("directory:"+url.directory);
+    trace("file:"+url.file);
+    trace("query:"+url.query);
+    trace("browserMode:"+url.browserMode);
+    trace("fragment:"+url.fragment);
+    trace("hash:"+url.hash);
+    if( Reflect.hasField(url, attr) && Reflect.field(url,attr) == output ) return true; 
     return false; 
   }
 

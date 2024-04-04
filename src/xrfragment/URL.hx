@@ -22,6 +22,8 @@ import xrfragment.URI;
  * 
  * @author Yannick Dominguez
  */
+@:expose                                                                   // <- makes the class reachable from plain JavaScript
+@:keep                                                                     // <- avoids accidental removal by dead code elimination
 class URL
 {    
     /**
@@ -67,7 +69,6 @@ class URL
      */
     public static function parse(stringUrl:String, browserMode:Bool ):URL
     {
-
         // The almighty regexp (courtesy of http://blog.stevenlevithan.com/archives/parseuri)
         var r : EReg = ~/^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
  
@@ -76,6 +77,7 @@ class URL
  
         var url:URL = new URL();
         url.browserMode = browserMode;
+          trace(url);
         
         // Use reflection to set each part
         for (i in 0..._parts.length)
@@ -94,7 +96,9 @@ class URL
         }
 
         if( url.fragment.length > 0 ){
+          trace("ja");
           url.hash = xrfragment.URI.parse( url.fragment, 0 );
+          trace(url.hash.get('mycustom'));
         }else url.hash = {};
         
         return url;
