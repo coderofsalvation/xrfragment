@@ -5,5 +5,6 @@
   {"fn":"url","data":"http://foo.com?foo=1#mycustom=foo", "expect":{ "fn":"testParsed", "input":"mycustom","out":true},"label":"test custom property"},
   {"fn":"url","data":"http://foo.com?foo=1#mycustom=foo", "expect":{ "fn":"testURL", "input":"scheme","out":"http"},"label":"test URL scheme http"},
   {"fn":"url","data":"http://foo.com/a/b?foo=1#mycustom=foo", "expect":{ "fn":"testURL", "input":"path","out":"/a/b"},"label":"test URL path /a/b"},
-  {"fn":"url","data":"http://foo.com/a/b?foo=1#mycustom=foo", "expect":{ "fn":"testURL", "input":"hash.mycustom","out":"foo"},"label":"test URL hash #mycustom == foo"}
+  {"fn":"url","data":"http://foo.com/a/b?foo=1#mycustom=foo", "expect":{ "fn":"testURL", "input":"hash.mycustom","out":"foo"},"label":"test URL hash #mycustom == foo"},
+  {"fn":"url","data":"http://foo.com/a/b?foo=1#mycustom=foo", "expect":{ "fn":"testURLBrowse", "input":"host","out":"foo.com"},"label":"test URLBrowser"}
 ]

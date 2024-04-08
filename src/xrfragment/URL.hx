@@ -49,7 +49,6 @@ class URL
     public var directory : String;
     public var file : String;
     public var query : String;
-    public var browserMode: Bool;
     public var fragment : String;
     public var hash : haxe.DynamicAccess<Dynamic>;
     public var XRF : haxe.DynamicAccess<Dynamic>;
@@ -68,7 +67,7 @@ class URL
      * note : implementation originate from here :
      * http://haxe.org/doc/snip/uri_parser
      */
-    public static function parse(stringUrl:String, browserMode:Bool ):URL
+    public static function parse(stringUrl:String ):URL
     {
         // The almighty regexp (courtesy of http://blog.stevenlevithan.com/archives/parseuri)
         var r : EReg = ~/^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
@@ -77,7 +76,6 @@ class URL
         r.match(stringUrl);
  
         var url:URL = new URL();
-        url.browserMode = browserMode;
         
         // Use reflection to set each part
         for (i in 0..._parts.length)
@@ -91,7 +89,6 @@ class URL
             if (url.directory == null && url.host != null)
             {
                 url.file = url.host;
-                if( !url.browserMode ) url.host = null;
             }
         }
 
@@ -104,6 +101,22 @@ class URL
             url.hash[key] = v.get("string");
           }
         }
+        trace("host:"+url.host);
+        trace("path:"+url.path);
+        trace("frag:"+url.fragment);
+        trace("source:"+url.source);
+        trace("scheme:"+url.scheme);
+        trace("authority:"+url.authority);
+        trace("userInfo:"+url.userInfo);
+        trace("user:"+url.user);
+        trace("password:"+url.password);
+        trace("host:"+url.host);
+        trace("port:"+url.port);
+        trace("relative:"+url.relative);
+        trace("path:"+url.path);
+        trace("directory:"+url.directory);
+        trace("file:"+url.file);
+        trace("query:"+url.query);
         return url;
     }
     
@@ -192,6 +205,14 @@ class URL
     {
         return url.scheme == null;
     }
+
+    /*
+     *
+     */
+    public static function toAbsolute( oldUrl:URL, newUrl:String ) : URL {
+      var newURL:URL = new URL(newUrl);
+      return appendURL( oldUrl, newURL );
+    }
     
     /**
      * append the appended url to a relative url 
@@ -204,7 +225,7 @@ class URL
         //part of the base url anyway
         if (url.directory == null || url.host == null)
         {
-            return cloneURL(appendedURL, url.browserMode);
+            return cloneURL(appendedURL);
         }
         
         var resultURL:URL = new URL();
@@ -310,7 +331,7 @@ class URL
     /**
      * clone the provided url
      */
-    private static function cloneURL(url:URL, browserMode:Bool):URL
+    private static function cloneURL(url:URL):URL
     {
         var clonedURL:URL = new URL();
         
@@ -327,7 +348,6 @@ class URL
         clonedURL.directory = url.directory;
         clonedURL.file = url.file;
         clonedURL.query = url.query;
-        clonedURL.browserMode = browserMode;
         clonedURL.fragment = url.fragment;
         
         return clonedURL;

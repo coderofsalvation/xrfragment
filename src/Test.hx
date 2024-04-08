@@ -14,6 +14,7 @@ class Spec {
 class Test {
 
   static var errors:Int = 0;
+  static var browser : xrfragment.URL = null;
 
   static public function main():Void {
     test( "url.json",         Spec.load("src/spec/url.json") );
@@ -85,9 +86,13 @@ class Test {
     else return res.get( key ).floats[ Std.parseInt(item.expect.input) ] == Std.parseFloat(item.expect.out);
   }
 
-  static public function testURL( url:String, attr:String, output:String, browserMode: Bool = false): Bool {
+  static public function testURL( _url:String, attr:String, output:String, browserMode: Bool = false): Bool {
     var URL = xrfragment.URL;
-    var url = URL.parse(url,false);
+    var url:URL = URL.parse(_url,true);
+    if( browserMode ){
+      if( browser == null ) browser = url;
+      url = URL.toAbsolute( browser, _url );
+    }
     var parts:Array<String> = attr.split(".");
     if( parts.length > 1 && parts[0] == "hash" && url.hash.exists( parts[1]) ){
       return url.hash.get( parts[1] ) == output;
