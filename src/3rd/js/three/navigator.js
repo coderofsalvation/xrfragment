@@ -1,39 +1,49 @@
-xrf.navigator = {}
+xrf.navigator = {URL:{}}
 
 xrf.navigator.to = (url,flags,loader,data) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
-  let {urlObj,dir,file,hash,ext} = xrf.navigator.origin = xrf.parseUrl(url)
-  let hashChange = (!file && hash) || !data && xrf.model.file == file
-  let hasPos     = String(hash).match(/pos=/)
 
+  let URL = xrfragment.URL.toAbsolute( xrf.navigator.URL, url )
+  console.dir({URL, nav: xrf.navigator.URL})
+  let fileChange    = URL.file && URL.file != xrf.navigator.URL.file
+  let hasPos        = URL.hash.pos 
+  let hashChange    = String(xrf.navigator.URL.fragment||"") != String(URL.fragment||"")
+  let hashbus       = xrf.hashbus
+  xrf.navigator.URL = URL
+  let {directory,file,fragment,fileExt} = URL;
 
-  let hashbus = xrf.hashbus
+  debugger
+  const evalFragment  = () => {
+    if( URL.fragment ){
+      hashbus.pub( URL.fragment, xrf.model, flags )     // eval local URI XR fragments 
+      xrf.navigator.updateHash(fragment)                // which don't require 
+    }
+  }
 
   return new Promise( (resolve,reject) => {
     xrf
     .emit('navigate', {url,loader,data})
     .then( () => {
 
-      if( ext && !loader ){  
-        const Loader = xrf.loaders[ext]
+        console.log("URN: "+URL.URN)
+      if( fileExt && !loader ){  
+        const Loader = xrf.loaders[fileExt]
         if( !Loader ) return resolve()
-        loader = loader || new Loader().setPath( dir )
+        loader = loader || new Loader().setPath( URL.URN )
       }
 
-      if( !hash && !file && !ext ) return resolve(xrf.model) // nothing we can do here
+      if( !URL.fragment && !URL.file && !URL.fileExt ) return resolve(xrf.model) // nothing we can do here
 
-      if( hashChange && !hasPos ){
-        hashbus.pub( url, xrf.model, flags )     // eval local URI XR fragments 
-        xrf.navigator.updateHash(hash)           // which don't require 
-        return resolve(xrf.model)                // positional navigation
+      if( xrf.model && hashChange && !hasPos  ){
+        evalFragment()
+        return resolve(xrf.model)                         // positional navigation
       }
 
       xrf
       .emit('navigateLoading', {url,loader,data})
       .then( () => {
-        if( hashChange && hasPos ){                 // we're already loaded
-          hashbus.pub( url, xrf.model, flags )     // and eval local URI XR fragments 
-          xrf.navigator.updateHash(hash)
+        if( !fileChange && hashChange && hasPos ){                 // we're already loaded
+          evalFragment()
           xrf.emit('navigateLoaded',{url})
           return resolve(xrf.model) 
         }
@@ -43,17 +53,21 @@ xrf.navigator.to = (url,flags,loader,data) => {
         xrf.reset() 
 
         // force relative path for files which dont include protocol or relative path
-        if( dir ) dir = dir[0] == '.' || dir.match("://") ? dir : `.${dir}`
-        url = url.replace(dir,"")
-        loader = loader || new Loader().setPath( dir )
+        if( directory ) directory = directory[0] == '.' || directory.match("://") ? directory : `.${directory}`
+
+        loader = loader || new Loader().setPath( URL.URN )
         const onLoad = (model) => {
 
-          model.file = file
+          model.file = URL.file
           // only change url when loading *another* file
-          if( xrf.model ) xrf.navigator.pushState( `${dir}${file}`, hash )
+          if( xrf.model ){
+            let path = URL.directory != document.location.pathname ? URL.directory : '';
+            xrf.navigator.pushState( `${path}${URL.file}`, fragment )
+          }
+          //if( xrf.model ) xrf.navigator.pushState( `${ document.location.pathname != URL.directory ? URL.directory: ''}${URL.file}`, fragment )
           xrf.model = model 
 
-          if( !model.isXRF ) xrf.parseModel(model,url) // this marks the model as an XRF model
+          if( !model.isXRF ) xrf.parseModel(model,url.replace(directory,"")) // this marks the model as an XRF model
 
           if(xrf.debug ) model.animations.map( (a) => console.log("anim: "+a.name) )
 
@@ -71,7 +85,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
           let frag = xrf.hashbus.pub( url, model) // and eval URI XR fragments 
 
           xrf.add( model.scene )
-          if( hash ) xrf.navigator.updateHash(hash)
+          if( fragment ) xrf.navigator.updateHash(fragment)
           xrf.emit('navigateLoaded',{url,model})
           resolve(model)
         }
@@ -80,7 +94,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
           loader.parse(data, "", onLoad )
         }else{
           try{
-            loader.load(url, onLoad )
+            loader.load(file, onLoad )
           }catch(e){ 
             console.error(e)
             xrf.emit('navigateError',{url})
@@ -93,6 +107,8 @@ xrf.navigator.to = (url,flags,loader,data) => {
 
 xrf.navigator.init = () => {
   if( xrf.navigator.init.inited ) return
+
+  xrf.navigator.URL = xrfragment.URL.parse(document.location.href)
 
   window.addEventListener('popstate', function (event){
     if( !xrf.navigator.updateHash.active ){ // ignore programmatic hash updates (causes infinite recursion)

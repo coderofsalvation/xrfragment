@@ -88,10 +88,10 @@ class Test {
 
   static public function testURL( _url:String, attr:String, output:String, browserMode: Bool = false): Bool {
     var URL = xrfragment.URL;
-    var url:URL = URL.parse(_url,true);
+    var url:URL = URL.parse(_url);
     if( browserMode ){
       if( browser == null ) browser = url;
-      url = URL.toAbsolute( browser, _url );
+      url = browser = URL.toAbsolute( browser, _url );
     }
     var parts:Array<String> = attr.split(".");
     if( parts.length > 1 && parts[0] == "hash" && url.hash.exists( parts[1]) ){

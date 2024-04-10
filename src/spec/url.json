@@ -6,5 +6,15 @@
   {"fn":"url","data":"http://foo.com?foo=1#mycustom=foo", "expect":{ "fn":"testURL", "input":"scheme","out":"http"},"label":"test URL scheme http"},
   {"fn":"url","data":"http://foo.com/a/b?foo=1#mycustom=foo", "expect":{ "fn":"testURL", "input":"path","out":"/a/b"},"label":"test URL path /a/b"},
   {"fn":"url","data":"http://foo.com/a/b?foo=1#mycustom=foo", "expect":{ "fn":"testURL", "input":"hash.mycustom","out":"foo"},"label":"test URL hash #mycustom == foo"},
-  {"fn":"url","data":"http://foo.com/a/b?foo=1#mycustom=foo", "expect":{ "fn":"testURLBrowse", "input":"host","out":"foo.com"},"label":"test URLBrowser"}
+  {"fn":"url","data":"http://foo.com/a/b", "expect":{ "fn":"testURL", "input":"path","out":"/a/b"},"label":"test URL path /a/b/"},
+  {"fn":"url","data":"http://foo.com/a/b?foo=1#mycustom=foo", "expect":{ "fn":"testURLBrowse", "input":"host","out":"foo.com"},"label":"test URLBrowser"},
+  {"fn":"url","data":"http://foo.com/a/b?https://foo.com/abc#mycustom=foo", "expect":{ "fn":"testURL", "input":"path","out":"/a/b"},"label":"test URL url-in-query"},
+  {"fn":"url","data":"http://foo.com/a/b?https://foo.com/abc#mycustom=foo", "expect":{ "fn":"testURLBrowse", "input":"path","out":"/a/b"},"label":"test URLBrowser url-in-query"},
+  {"fn":"url","data":"/bar/flop#mycustom=foo", "expect":{ "fn":"testURLBrowse", "input":"host","out":"foo.com"},"label":"test URLBrowser (maintain host)"},
+  {"fn":"url","data":"/bar/flop?foo=1#mycustom=foo", "expect":{ "fn":"testURLBrowse", "input":"query","out":"foo=1"},"label":"test URLBrowser (parse query)"},
+  {"fn":"url","data":"/flop/flap#mycustom=foo", "expect":{ "fn":"testURLBrowse", "input":"path","out":"/flop/flap"},"label":"test URLBrowser (overwrite path)"},
+  {"fn":"url","data":"/bar/flop#mycustom=foo", "expect":{ "fn":"testURLBrowse", "input":"path","out":"/bar/flop"},"label":"test URLBrowser (overwrite path 2)"},
+  {"fn":"url","data":"/bar/flop#mycustom=foo", "expect":{ "fn":"testURLBrowse", "input":"host","out":"foo.com"},"label":"test URLBrowser (maintain host)"},
+  {"fn":"url","data":"c/d?foo=1#mycustom=foo", "expect":{ "fn":"testURLBrowse", "input":"path","out":"/bar/flop/c/d"},"label":"test URLBrowser (append path+query)"},
+  {"fn":"url","data":"a/b#foo=bar", "expect":{ "fn":"testURL", "input":"hash.foo","out":"bar"},"label":"test URL hash #mycustom == foo"}
 ]

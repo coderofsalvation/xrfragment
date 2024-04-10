@@ -48,10 +48,12 @@ class URL
     public var path : String;
     public var directory : String;
     public var file : String;
+    public var fileExt : String;
     public var query : String;
     public var fragment : String;
-    public var hash : haxe.DynamicAccess<Dynamic>;
-    public var XRF : haxe.DynamicAccess<Dynamic>;
+    public var hash : haxe.DynamicAccess<Dynamic> = {};
+    public var XRF : haxe.DynamicAccess<Dynamic>  = {};
+    public var URN : String;
 
     /**
      * class constructor
@@ -71,6 +73,10 @@ class URL
     {
         // The almighty regexp (courtesy of http://blog.stevenlevithan.com/archives/parseuri)
         var r : EReg = ~/^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
+
+        if( stringUrl.indexOf("://") == -1 && stringUrl.charAt(0) != '/' ){
+          stringUrl = "/" + stringUrl; // workaround for relative urls
+        }
  
         // Match the regexp to the url
         r.match(stringUrl);
@@ -93,7 +99,7 @@ class URL
         }
 
         url.hash = {};
-        if( url.fragment.length > 0 ){
+        if( url.fragment != null && url.fragment.length > 0 ){
           url.XRF = xrfragment.URI.parse( "#"+url.fragment, 0 );
           var key:String;
           for( key in url.XRF.keys() ){
@@ -101,23 +107,37 @@ class URL
             url.hash[key] = v.get("string");
           }
         }
-        trace("host:"+url.host);
-        trace("path:"+url.path);
-        trace("frag:"+url.fragment);
-        trace("source:"+url.source);
-        trace("scheme:"+url.scheme);
-        trace("authority:"+url.authority);
-        trace("userInfo:"+url.userInfo);
-        trace("user:"+url.user);
-        trace("password:"+url.password);
-        trace("host:"+url.host);
-        trace("port:"+url.port);
-        trace("relative:"+url.relative);
-        trace("path:"+url.path);
-        trace("directory:"+url.directory);
-        trace("file:"+url.file);
-        trace("query:"+url.query);
+
+        computeVars(url);
+
         return url;
+    }
+
+    private static function computeVars( url:URL ) {
+        // clean up url
+        var r = ~/\/\//g;
+        if( url.directory != null && url.directory.indexOf("//") != -1 ){
+          url.directory = r.replace(url.directory,"/");
+        }
+        if( url.path != null && url.path.indexOf("//") != -1 ){
+          url.path = r.replace(url.path,"/");
+        }
+        if( url.file != null && url.file.indexOf("//") != -1 ){
+          url.file = r.replace(url.file,"/");
+        }
+        // generate URN
+        url.URN = url.scheme + "://" + url.host;
+        if( url.port != null ) url.URN += ":"+url.port;
+        url.URN += url.directory;
+
+        // extract file extension if any
+        if( url.file != null){
+          var parts:Array<String> = url.file.split(".");
+          if( parts.length > 1 ){
+            url.fileExt = parts.pop();
+          }
+        }
+
     }
     
     /**
@@ -205,19 +225,11 @@ class URL
     {
         return url.scheme == null;
     }
-
-    /*
-     *
-     */
-    public static function toAbsolute( oldUrl:URL, newUrl:String ) : URL {
-      var newURL:URL = new URL(newUrl);
-      return appendURL( oldUrl, newURL );
-    }
     
     /**
      * append the appended url to a relative url 
      */
-    private static function appendToRelativeURL(url:URL, appendedURL:URL):URL
+    public static function appendToRelativeURL(url:URL, appendedURL:URL):URL
     {
         //when relative url parsed, if it contains only a file (ex : "style.css")
         //then it will store it in the host attribute. So if the url has no directory
@@ -276,7 +288,7 @@ class URL
     /**
      * append the appended url to an absolute url 
      */
-    private static function appendToAbsoluteURL(url:URL, appendedURL:URL):URL
+    public static function appendToAbsoluteURL(url:URL, appendedURL:URL):URL
     {
         var resultURL:URL = new URL();
         
@@ -324,6 +336,75 @@ class URL
         {
             resultURL.fragment = appendedURL.fragment;
         }
+        
+        return resultURL;
+    }
+
+    /**
+     * append the appended url to an absolute url 
+     */
+    public static function toAbsolute(url:URL, newUrl:String ):URL
+    {
+        var newURL:URL = parse(newUrl);
+        var resultURL:URL = new URL();
+        
+        resultURL.port = url.port;
+
+        if (newURL.scheme != null)
+        {
+            resultURL.scheme = newURL.scheme;
+        }else{
+            resultURL.scheme = url.scheme;
+        }
+       
+        if (newURL.host != null && newURL.host.length > 0 )
+        {
+            trace("host: "+newURL.host);
+            resultURL.host = newURL.host;
+            resultURL.port = null;
+            if( newURL.port != null ){
+              resultURL.port = newURL.port;
+            }
+        }else{
+            resultURL.host = url.host;
+        }
+        
+        var directory:String = "";
+        if (url.directory != null)
+        {
+            directory = url.directory;
+        }
+        
+        if (newURL.directory != null)
+        {
+            if( newUrl.charAt(0) != '/' && newUrl.indexOf("://") == -1 ){
+              directory += newURL.directory;
+            }else{
+              directory = newURL.directory;
+            }
+        }
+        
+        resultURL.directory = directory;
+        
+        if (newURL.file != null)
+        {
+            resultURL.file = newURL.file;
+        }
+        
+        resultURL.path = resultURL.directory + resultURL.file;
+        
+        if (newURL.query != null)
+        {
+            resultURL.query = newURL.query;
+        }
+        
+        if (newURL.fragment != null)
+        {
+            resultURL.fragment = newURL.fragment;
+        }
+        resultURL.hash = newURL.hash;
+        resultURL.XRF  = newURL.XRF;
+        computeVars(resultURL);
         
         return resultURL;
     }
