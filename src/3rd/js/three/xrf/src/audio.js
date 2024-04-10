@@ -8,8 +8,8 @@
 
 let loadAudio = (mimetype) => function(url,opts){
   let {mesh,src,camera,THREE} = opts
-  let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
-  let frag = xrf.URI.parse( url )
+  let URL  = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
+  let frag = URL.XRF 
 
   xrf.init.audio()
   let isPositionalAudio = !(mesh.position.x == 0 && mesh.position.y == 0 && mesh.position.z == 0)
@@ -20,7 +20,7 @@ let loadAudio = (mimetype) => function(url,opts){
   mesh.media = mesh.media || {}
   mesh.media.audio = { set: (mediafragment,v) => mesh.media.audio[mediafragment] = v }
 
-  let finalUrl = url.replace(/#.*/,'')
+  let finalUrl = URL.URN + URL.file 
   if( xrf.debug != undefined ) console.log("GET "+finalUrl)
   audioLoader.load( finalUrl, function( buffer ) {
 

@@ -88,24 +88,6 @@ xrf.reset = () => {
   xrf.layers = 0
 }
 
-xrf.parseUrl = (url) => {
-  let urlExHash = url.replace(/#.*/,'')
-  let urlObj,file
-  let   store = {}
-  try{
-    urlObj = new URL( urlExHash.match(/:\/\//) ? urlExHash : String(`https://fake.com/${url}`).replace(/\/\//,'/') )
-    file = urlObj.pathname.substring(urlObj.pathname.lastIndexOf('/') + 1);
-    let   search = urlObj.search.substr(1).split("&")
-    for( let i in search )  store[  (search[i].split("=")[0])  ]  = search[i].split("=")[1] || ''
-  }catch(e){ }
-  let   hashmap = url.match("#") ? url.replace(/.*#/,'').split("&") : []
-  for( let i in hashmap ) store[  (hashmap[i].split("=")[0]) ]  = hashmap[i].split("=")[1] || ''
-  let   dir  = url.substring(0, url.lastIndexOf('/') + 1)
-  const hash = url.match(/#/) ? url.replace(/.*#/,'') : ''
-  const ext  = file.split('.').pop()
-  return {urlObj,dir,file,hash,ext,store}
-}
-
 xrf.add = (object) => {
   object.isXRF = true // mark for easy deletion when replacing scene
   xrf.scene.add(object)

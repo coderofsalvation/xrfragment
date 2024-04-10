@@ -7,7 +7,7 @@ xrf.frag.src = function(v, opts){
   if( mesh.isSRC ) return // only embed src once 
 
   let url       = xrf.frag.src.expandURI( mesh, v.string )
-  let srcFrag   = opts.srcFrag = xrfragment.URI.parse(url)
+  let srcFrag   = opts.srcFrag = xrfragment.URI.parse(url).XRF
   opts.isLocal  = v.string[0] == '#'
   opts.isPortal = xrf.frag.src.renderAsPortal(mesh)
   opts.isSRC    = mesh.isSRC = true 

@@ -1,6 +1,5 @@
 import xrfragment.Filter;
 import xrfragment.URI;
-import xrfragment.URL;
 import xrfragment.XRF;
 
 class Spec {
@@ -14,7 +13,7 @@ class Spec {
 class Test {
 
   static var errors:Int = 0;
-  static var browser : xrfragment.URL = null;
+  static var browser : xrfragment.URI = null;
 
   static public function main():Void {
     test( "url.json",         Spec.load("src/spec/url.json") );
@@ -36,7 +35,7 @@ class Test {
       var valid:Bool     = false;
       var item:Dynamic = spec[i];
       f   = new Filter(item.data);
-      res = URI.parse(item.data,null);
+      res = URI.parseFragment(item.data,null);
       if( item.expect.fn == "test"                  ) valid = item.expect.out == f.test( item.expect.input[0] );
       if( item.expect.fn == "testProperty"          ) valid = item.expect.out == f.testProperty( item.expect.input[0], item.expect.input[1] );
       if( item.expect.fn == "testPropertyInt"       ) valid = item.expect.out == f.testProperty( item.expect.input[0], item.expect.input[1] );
@@ -44,8 +43,8 @@ class Test {
       if( item.expect.fn == "testParsed"            ) valid = item.expect.out == res.exists(item.expect.input);
       if( item.expect.fn == "testPredefinedView"    ) valid = res.exists(item.expect.input) && item.expect.out == res.get(item.expect.input).is( XRF.PV_EXECUTE) ;
       if( item.expect.fn == "testPropertyAssign"    ) valid = res.exists(item.expect.input) && item.expect.out == res.get(item.expect.input).is( XRF.PROP_BIND) ;
-      if( item.expect.fn == "testBrowserOverride"   ) valid = item.expect.out == (URI.parse(item.data,XRF.NAVIGATOR)).exists(item.expect.input);
-      if( item.expect.fn == "testEmbedOverride"     ) valid = item.expect.out == (URI.parse(item.data,XRF.METADATA)).exists(item.expect.input);
+      if( item.expect.fn == "testBrowserOverride"   ) valid = item.expect.out == (URI.parseFragment(item.data,XRF.NAVIGATOR)).exists(item.expect.input);
+      if( item.expect.fn == "testEmbedOverride"     ) valid = item.expect.out == (URI.parseFragment(item.data,XRF.METADATA)).exists(item.expect.input);
       if( item.expect.fn == "testURL"               ) valid = testURL( item.data, item.expect.input, item.expect.out, false );
       if( item.expect.fn == "testURLHash"           ) valid = testURL( item.data, item.expect.input, item.expect.out, false );
       if( item.expect.fn == "testURLBrowse"         ) valid = testURL( item.data, item.expect.input, item.expect.out, true );
@@ -87,11 +86,11 @@ class Test {
   }
 
   static public function testURL( _url:String, attr:String, output:String, browserMode: Bool = false): Bool {
-    var URL = xrfragment.URL;
-    var url:URL = URL.parse(_url);
+    var URI = xrfragment.URI;
+    var url:URI = URI.parse(_url,0);
     if( browserMode ){
       if( browser == null ) browser = url;
-      url = browser = URL.toAbsolute( browser, _url );
+      url = browser = URI.toAbsolute( browser, _url );
     }
     var parts:Array<String> = attr.split(".");
     if( parts.length > 1 && parts[0] == "hash" && url.hash.exists( parts[1]) ){

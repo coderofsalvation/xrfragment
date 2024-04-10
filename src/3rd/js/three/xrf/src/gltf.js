@@ -5,19 +5,15 @@
 xrf.frag.src.type['gltf'] = function( url, opts ){
   return new Promise( (resolve,reject) => {
     let {mesh,src} = opts
-    let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
+    let URL = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
+    let {directory,file,fileExt,URN} = URL;
     let loader
 
-    const Loader = xrf.loaders[ext]
+    const Loader = xrf.loaders[fileExt]
     if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 
-    if( !dir.match("://") ){ // force relative path 
-      dir = dir.substr(0,2) == './' ? dir : `./${dir}`
-      loader = new Loader().setPath( dir )
-    }else{
-      loader = new Loader() 
-    }
+    loader = new Loader().setPath( URN )
 
-    loader.load(url, (model) => {
+    loader.load(file, (model) => {
       model.isSRC = true
       resolve(model)
     })

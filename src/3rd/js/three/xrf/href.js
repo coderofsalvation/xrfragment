@@ -49,7 +49,6 @@ xrf.frag.href = function(v, opts){
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
 
-      let {urlObj,dir,file,hash,ext} = xrf.parseUrl(v.string)
       const isLocal = v.string[0] == '#'
       const hasPos  = isLocal && v.string.match(/pos=/)
       const flags   = isLocal ? xrf.XRF.PV_OVERRIDE : undefined

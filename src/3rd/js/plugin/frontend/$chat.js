@@ -106,7 +106,7 @@ chatComponent = {
         div.classList.add.apply(div.classList, opts.class.concat(["envelope"]))
       }
       if( !msg.className.match(/(info|guide|ui)/) ){
-        let frag = xrf.URI.parse(document.location.hash)
+        let frag = xrf.URI.parse(document.location.hash).XRF
         opts.from = 'you'
         if( frag.pos ) opts.pos = frag.pos.string
         msg.classList.add('self')

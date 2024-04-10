@@ -274,7 +274,7 @@ window.frontend = (opts) => new Proxy({
 
     // load original scene and overwrite with updates
     let url = document.location.search.replace(/\?/,'')
-    let {urlObj,dir,file,hash,ext} = xrf.navigator.origin = xrf.parseUrl(url)
+    let {urlObj,dir,file,hash,ext} = xrf.navigator.origin = xrf.URI.parse(url)
     const Loader = xrf.loaders[ext]
     loader = new Loader().setPath( dir )
     notify('exporting scene<br><br>please wait..')

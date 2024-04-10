@@ -7,7 +7,7 @@ let pub = function( url, node_or_model, flags ){  // evaluate fragments in url
   if( !url ) return 
   if( !url.match(/#/) ) url = `#${url}`
   let { THREE, camera } = xrf
-  let frag     = xrf.URI.parse( url, flags )
+  let frag     = xrf.URI.parse( url, flags ).XRF
   let fromNode = node_or_model != xrf.model
   let isNode   = node_or_model && node_or_model.children
 

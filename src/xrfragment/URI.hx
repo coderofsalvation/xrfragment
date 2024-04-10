@@ -1,5 +1,13 @@
 // SPDX-License-Identifier: MPL-2.0        
 // Copyright (c) 2023 Leon van Kammen/NLNET 
+
+/*
+ * various snippets originate from:
+ *
+ * http://haxe.org/doc/snip/uri_parser,
+ * https://github.com/haxecocktail/cocktail-url/blob/master/cocktail/url/URI.hx
+ */
+
 package xrfragment;
 
 import xrfragment.Parser;
@@ -27,10 +35,44 @@ import xrfragment.XRF;
 @:keep                                                                     // <- avoids accidental removal by dead code elimination
 class URI {
 
-    public static var fragment:haxe.DynamicAccess<Dynamic>;
+    /**
+     * URI parts names
+     */
+    private static var _parts : Array<String> = ["source", "scheme", "authority", "userInfo", "user",
+    "password","host","port","relative","path","directory","file","query","fragment"];
+
+    /**
+     * URI parts
+     */
+    public var url : String;
+    public var source : String;
+    public var scheme : String;
+    public var authority : String;
+    public var userInfo : String;
+    public var user : String;
+    public var password : String;
+    public var host : String;
+    public var port : String;
+    public var relative : String;
+    public var path : String;
+    public var directory : String;
+    public var file : String;
+    public var fileExt : String;
+    public var query : String;
+    public var fragment : String = "";
+    public var hash : haxe.DynamicAccess<Dynamic> = {};
+    public var XRF : haxe.DynamicAccess<Dynamic>  = {};
+    public var URN : String;
+
+    /**
+     * class constructor
+     */
+    public function new( )
+    {
+    }
 
     @:keep
-    public static function parse(url:String,filter:Int):haxe.DynamicAccess<Dynamic> {
+    public static function parseFragment(url:String,filter:Int):haxe.DynamicAccess<Dynamic> {
       var store:haxe.DynamicAccess<Dynamic> = {};                          //  1. store key/values into a associative array or dynamic object
       if( url == null || url.indexOf("#") == -1 ) return store;
       var fragment:Array<String>    = url.split("#");                      //  1. fragment URI starts with `#`
@@ -69,6 +111,381 @@ class URI {
       frag = StringTools.replace(frag,"null",""); // *TODO* needs regex to check for [#&]null[&]
       parts[1] = frag;
       return parts.join("#");
+    }
+
+    /**
+     * Parse a string url and return a typed
+     * object from it.
+     * 
+     * note : implementation originate from here :
+     * http://haxe.org/doc/snip/uri_parser
+     */
+    public static function parse(stringUrl:String, flags:Int ):URI
+    {
+        // The almighty regexp (courtesy of http://blog.stevenlevithan.com/archives/parseuri)
+        var r : EReg = ~/^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
+
+        if( stringUrl.indexOf("://") == -1 && stringUrl.charAt(0) != '/' ){
+          stringUrl = "/" + stringUrl; // workaround for relative urls
+        }
+ 
+        // Match the regexp to the url
+        r.match(stringUrl);
+ 
+        var url:URI = new URI();
+        
+        // Use reflection to set each part
+        for (i in 0..._parts.length)
+        {
+            Reflect.setField(url, _parts[i],  r.matched(i));
+        }
+        
+        //hack for relative url with only a file
+        if (isRelative(url) == true)
+        {
+            if (url.directory == null && url.host != null)
+            {
+                url.file = url.host;
+            }
+        }
+
+        url.hash = {};
+        if( url.fragment != null && url.fragment.length > 0 ){
+          url.XRF = xrfragment.URI.parseFragment( "#"+url.fragment, flags );
+          var key:String;
+          for( key in url.XRF.keys() ){
+            var v:haxe.DynamicAccess<Dynamic> = url.XRF.get(key);
+            url.hash[key] = v.get("string");
+          }
+        }
+
+        computeVars(url);
+
+        return url;
+    }
+
+    private static function computeVars( url:URI ) {
+        // clean up url
+        var r = ~/\/\//g;
+        if( url.directory != null && url.directory.indexOf("//") != -1 ){
+          url.directory = r.replace(url.directory,"/");
+        }
+        if( url.path != null && url.path.indexOf("//") != -1 ){
+          url.path = r.replace(url.path,"/");
+        }
+        if( url.file != null && url.file.indexOf("//") != -1 ){
+          url.file = r.replace(url.file,"/");
+        }
+        // generate URN
+        url.URN = url.scheme + "://" + url.host;
+        if( url.port != null ) url.URN += ":"+url.port;
+        url.URN += url.directory;
+
+        // extract file extension if any
+        if( url.file != null){
+          var parts:Array<String> = url.file.split(".");
+          if( parts.length > 1 ){
+            url.fileExt = parts.pop();
+          }
+        }
+
+    }
+    
+    /**
+     * Serialize an URl OBJect into an 
+     * URI string
+     */
+    public static function toString(url:URI):String
+    {
+        var result:String = "";
+        
+        if (url.scheme != null)
+        {
+            result += url.scheme + "://";
+        }
+        
+        if (url.user != null)
+        {
+            result += url.user + ":";
+        }
+        
+        if (url.password != null)
+        {
+            result += url.password + "@";
+        }
+        
+        if (url.host != null)
+        {
+            result += url.host;
+        }
+        
+        if (url.port != null)
+        {
+            result += ":" + url.port;
+        }
+        
+        if (url.directory != null)
+        {
+            result += url.directory;
+        }
+        
+        if (url.file != null)
+        {
+            result += url.file;
+        }
+        
+        if (url.query != null)
+        {
+            result += "?" + url.query;
+        }
+        
+        if (url.fragment != null)
+        {
+            result += "#" + url.fragment;
+        }
+        
+        return result;
+    }
+    
+    /**
+     * takes 2 urls and return a new url which is the result
+     * of appending the second url to the first.
+     * 
+     * if the first url points to a file, the file is removed
+     * and the appended url is added after the last directory
+     * 
+     * only the query string and fragment of the appended url are used
+     */
+    public static function appendURI(url:URI, appendedURI:URI):URI
+    {
+        if (isRelative(url) == true)
+        {
+            return appendToRelativeURI(url, appendedURI);
+        }
+        else
+        {
+            return appendToAbsoluteURI(url, appendedURI);
+        }
+    }
+    
+    /**
+     * return wether the url is relative (true)
+     * or absolute (false)
+     */
+    public static function isRelative(url:URI):Bool
+    {
+        return url.scheme == null;
+    }
+    
+    /**
+     * append the appended url to a relative url 
+     */
+    public static function appendToRelativeURI(url:URI, appendedURI:URI):URI
+    {
+        //when relative url parsed, if it contains only a file (ex : "style.css")
+        //then it will store it in the host attribute. So if the url has no directory
+        //then only the appended url content is returned, as this method replace the file
+        //part of the base url anyway
+        if (url.directory == null || url.host == null)
+        {
+            return cloneURI(appendedURI);
+        }
+        
+        var resultURI:URI = new URI();
+        resultURI.host = url.host;
+        resultURI.directory = url.directory;
+
+        if (appendedURI.host != null)
+        {
+            resultURI.directory += appendedURI.host;
+        }
+        
+        if (appendedURI.directory != null)
+        {
+            var directory = appendedURI.directory;
+            if (appendedURI.host == null)
+            {
+                //remove the initial '/' char if no host, as already present
+                //in base url
+                resultURI.directory += directory.substr(1);
+            }
+            else
+            {
+                resultURI.directory += directory;
+            }
+            
+        }
+        
+        if (appendedURI.file != null)
+        {
+            resultURI.file = appendedURI.file;
+        }
+        
+        resultURI.path = resultURI.directory + resultURI.file;
+        
+        if (appendedURI.query != null)
+        {
+            resultURI.query = appendedURI.query;
+        }
+        
+        if (appendedURI.fragment != null)
+        {
+            resultURI.fragment = appendedURI.fragment;
+        }
+        
+        return resultURI;
+    }
+    
+    /**
+     * append the appended url to an absolute url 
+     */
+    public static function appendToAbsoluteURI(url:URI, appendedURI:URI):URI
+    {
+        var resultURI:URI = new URI();
+        
+        if (url.scheme != null)
+        {
+            resultURI.scheme = url.scheme;
+        }
+        
+        if (url.host != null)
+        {
+            resultURI.host = url.host;
+        }
+        
+        var directory:String = "";
+        if (url.directory != null)
+        {
+            directory = url.directory;
+        }
+        
+        if (appendedURI.host != null)
+        {
+            appendedURI.directory += appendedURI.host;
+        }
+        
+        if (appendedURI.directory != null)
+        {
+            directory += appendedURI.directory;
+        }
+        
+        resultURI.directory = directory;
+        
+        if (appendedURI.file != null)
+        {
+            resultURI.file = appendedURI.file;
+        }
+        
+        resultURI.path = resultURI.directory + resultURI.file;
+        
+        if (appendedURI.query != null)
+        {
+            resultURI.query = appendedURI.query;
+        }
+        
+        if (appendedURI.fragment != null)
+        {
+            resultURI.fragment = appendedURI.fragment;
+        }
+        
+        return resultURI;
+    }
+
+    /**
+     * append the appended url to an absolute url 
+     */
+    public static function toAbsolute(url:URI, newUrl:String ):URI
+    {
+        var newURI:URI    = parse(newUrl,0);
+        var resultURI:URI = new URI();
+        
+        resultURI.port = url.port;
+
+        if (newURI.scheme != null)
+        {
+            resultURI.scheme = newURI.scheme;
+        }else{
+            resultURI.scheme = url.scheme;
+        }
+       
+        if (newURI.host != null && newURI.host.length > 0 )
+        {
+            trace("host: "+newURI.host);
+            resultURI.host = newURI.host;
+            resultURI.port = null;
+            resultURI.fragment = null;
+            resultURI.hash = {};
+            resultURI.XRF = {};
+            if( newURI.port != null ){
+              resultURI.port = newURI.port;
+            }
+        }else{
+            resultURI.host = url.host;
+        }
+        
+        var directory:String = "";
+        if (url.directory != null)
+        {
+            directory = url.directory;
+        }
+        
+        if (newURI.directory != null)
+        {
+            if( newUrl.charAt(0) != '/' && newUrl.indexOf("://") == -1 ){
+              directory += newURI.directory;
+            }else{
+              directory = newURI.directory;
+            }
+        }
+        
+        resultURI.directory = directory;
+        
+        if (newURI.file != null)
+        {
+            resultURI.file = newURI.file;
+        }
+        
+        resultURI.path = resultURI.directory + resultURI.file;
+        
+        if (newURI.query != null)
+        {
+            resultURI.query = newURI.query;
+        }
+        
+        if (newURI.fragment != null)
+        {
+            resultURI.fragment = newURI.fragment;
+        }
+        resultURI.hash = newURI.hash;
+        resultURI.XRF  = newURI.XRF;
+        computeVars(resultURI);
+        
+        return resultURI;
+    }
+    
+    /**
+     * clone the provided url
+     */
+    private static function cloneURI(url:URI):URI
+    {
+        var clonedURI:URI = new URI();
+        
+        clonedURI.url = url.url;
+        clonedURI.source = url.source;
+        clonedURI.scheme = url.scheme;
+        clonedURI.authority = url.authority;
+        clonedURI.userInfo = url.userInfo;
+        clonedURI.password = url.password;
+        clonedURI.host = url.host;
+        clonedURI.port = url.port;
+        clonedURI.relative = url.relative;
+        clonedURI.path = url.path;
+        clonedURI.directory = url.directory;
+        clonedURI.file = url.file;
+        clonedURI.query = url.query;
+        clonedURI.fragment = url.fragment;
+        
+        return clonedURI;
     }
 
 }

@@ -5,7 +5,8 @@
 xrf.frag.src.type['fbx'] = function( url, opts ){
   return new Promise( async (resolve,reject) => {
     let {mesh,src} = opts
-    let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
+    let URL  = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
+    let frag = URL.XRF 
     let loader
 
     let {THREE}        = await import('https://unpkg.com/three@0.161.0/build/three.module.js')

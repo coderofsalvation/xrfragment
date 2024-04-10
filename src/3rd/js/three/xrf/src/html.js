@@ -2,7 +2,7 @@
 let loadHTML = (mimetype) => function(url,opts){
   let {mesh,src,camera} = opts
   let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
-  let frag = xrf.URI.parse( url )
+  let frag = xrf.URI.parse( url ).XRF
   console.warn("todo: html viewer for src not implemented")
 }
 

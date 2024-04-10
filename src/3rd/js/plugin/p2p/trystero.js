@@ -258,7 +258,7 @@ window.trystero = (opts) => new Proxy({
       let isTeleport = href.match(/(pos=|http:)/)
       if( isLocal && !isTeleport && this.href.send ) this.href.send({href})
     })
-    let hashvars = xrf.URI.parse( document.location.hash )
+    let hashvars = xrf.URI.parse( document.location.hash ).XRF
     if( hashvars.meet ) this.parseLink(hashvars.meet.string)
   }
 

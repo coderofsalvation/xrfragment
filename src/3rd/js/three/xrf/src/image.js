@@ -7,6 +7,8 @@
 xrf.frag.src.type['image/png'] = function(url,opts){
   let {mesh,THREE} = opts
   let restrictTo3DBoundingBox = mesh.geometry
+  let URL  = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
+  let frag = URL.XRF 
 
   mesh.material = new xrf.THREE.MeshBasicMaterial({ 
     map: null, 
@@ -50,7 +52,7 @@ xrf.frag.src.type['image/png'] = function(url,opts){
     renderImage(texture)
   }
 
-  new THREE.TextureLoader().load( url, onLoad, null, console.error );
+  new THREE.TextureLoader().load( URL.URN + URL.file, onLoad, null, console.error );
 
 }
 

@@ -1,9 +1,9 @@
 
 let loadVideo = (mimetype) => function(url,opts){
   let {mesh,src,camera} = opts
-  let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
   const THREE = xrf.THREE
-  let frag = xrf.URI.parse( url )
+  let URL  = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
+  let frag = URL.XRF 
 
   mesh.media = mesh.media || {}
 
@@ -25,7 +25,7 @@ let loadVideo = (mimetype) => function(url,opts){
     },false)
   })
 
-  video.src = url
+  video.src = URL.URN + URL.file 
   video.speed = 1.0
   video.looping = false
   video.set = (mediafragment,v) => {

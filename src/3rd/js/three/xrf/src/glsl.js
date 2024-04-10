@@ -5,14 +5,17 @@
 xrf.frag.src.type['x-shader/x-fragment'] = function(url,opts){
   let {mesh,THREE} = opts
 
+  let URL  = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
+  let frag = URL.XRF 
+
   let isFragmentShader = /\.(fs|frag|glsl)$/
   let isVertexShader   = /\.(vs|vert)$/
 
   let shaderReqs = []
   let shaderCode = {}
   let shader   = {
-    fragment: { code: '', url: url.match( isFragmentShader ) ? url : '' },
-    vertex:   { code: '', url: url.match( isVertexShader   ) ? url : '' }
+    fragment: { code: '', url: url.match( isFragmentShader ) ? URL.URN + URL.file : '' },
+    vertex:   { code: '', url: url.match( isVertexShader   ) ? URL.URN + URL.file : '' }
   }
   
   var onShaderLoaded = ((args) => (type, status, code) => {
