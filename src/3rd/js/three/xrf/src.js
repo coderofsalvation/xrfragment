@@ -94,7 +94,7 @@ xrf.frag.src.externalSRC = (url,frag,opts) => {
   fetch(url, { method: 'HEAD' })
   .then( (res) => {
     let mimetype = res.headers.get('Content-type')
-    if(xrf.debug != undefined ) console.log("HEAD "+url+" => "+mimetype)
+    if(xrf.debug > 0 ) console.log("HEAD "+url+" => "+mimetype)
     if( url.replace(/#.*/,'').match(/\.(gltf|glb)$/)     ) mimetype = 'gltf'
     if( url.replace(/#.*/,'').match(/\.(frag|fs|glsl)$/) ) mimetype = 'x-shader/x-fragment'
     if( url.replace(/#.*/,'').match(/\.(vert|vs)$/)      ) mimetype = 'x-shader/x-fragment'

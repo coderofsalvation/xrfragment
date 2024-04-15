@@ -57,8 +57,10 @@ window.AFRAME.registerComponent('xrf-button', {
         this.el.addEventListener('mouseenter', (e) => this.onMouseEnter(e) );
         this.el.addEventListener('mouseleave', (e) => this.onMouseLeave(e) );
 
+        let cb = new Function(this.data.action)
+
         if( this.data.action ){ 
-          this.el.addEventListener('click', new Function(this.data.action) )
+          this.el.addEventListener('click', AFRAME.utils.throttle(cb, 500 ) )
         }
     },
     bindMethods: function() {

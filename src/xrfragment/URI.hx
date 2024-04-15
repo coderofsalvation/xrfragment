@@ -410,7 +410,6 @@ class URI {
        
         if (newURI.host != null && newURI.host.length > 0 )
         {
-            trace("host: "+newURI.host);
             resultURI.host = newURI.host;
             resultURI.port = null;
             resultURI.fragment = null;

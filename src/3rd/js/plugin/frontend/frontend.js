@@ -284,29 +284,8 @@ window.frontend = (opts) => new Proxy({
   },
 
   updateHashPosition(randomize){
-    // *TODO* this should be part of the XRF Threejs framework
-    if( typeof THREE == 'undefined' ) THREE = xrf.THREE
-    let radToDeg  = THREE.MathUtils.radToDeg
-    let toDeg     = (x) => x / (Math.PI / 180)
-    let camera    = document.querySelector('[camera]').object3D.parent // *TODO* fix for threejs
-    camera.position.x += Math.random()/10
-    camera.position.z += Math.random()/10
-
-    // *TODO* add camera direction
-    let direction = new xrf.THREE.Vector3()
-    camera.getWorldDirection(direction)
-    const pitch   = Math.asin(direction.y);
-    const yaw     = Math.atan2(direction.x, direction.z);
-    const pitchInDegrees = pitch * 180 / Math.PI;
-    const yawInDegrees = yaw * 180 / Math.PI;
-
-    let lastPos = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
-    let newHash = document.location.hash.replace(/[&]?(pos|rot)=[0-9\.-]+,[0-9\.-]+,[0-9\.-]+/,'')
-    if( lastPos != "pos=" ){
-      newHash += `&${lastPos}`
-      document.location.hash = newHash.replace(/&&/,'&')
-                                      .replace(/#&/,'')
-    }
+    const pos = xrf.frag.pos.get()
+    xrf.navigator.URI.hash.pos = `${pos.x},${pos.y},${pos.z}`
     this.copyToClipboard( window.location.href );
   },
 
@@ -326,8 +305,9 @@ window.frontend = (opts) => new Proxy({
       document.location.hash += `&meet=${network.meetingLink}`
     }
     if( !document.location.hash.match(/pos=/) && (network.posName || network.pos) ){
-      document.location.hash += `&pos=${ network.posName || network.pos }`
-    }
+      xrf.navigator.URI.hash.pos = network.posName || network.pos
+    }else frontend.updateHashPosition()
+
     let url = window.location.href
     if( opts.linkonly ) return url
     this.copyToClipboard( url )

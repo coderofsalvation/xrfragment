@@ -12,7 +12,6 @@ xrf.navigator.to = (url,flags,loader,data) => {
   let hashbus       = xrf.hashbus
   xrf.navigator.URI = URI
   let {directory,file,fragment,fileExt} = URI;
-  console.dir({URI, nav: xrf.navigator.URI})
 
   const evalFragment  = () => {
     if( URI.fragment ){

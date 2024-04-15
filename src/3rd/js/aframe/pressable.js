@@ -64,7 +64,7 @@ AFRAME.registerComponent('pressable', {
                 this.el.emit('click');
                 this.pressed = setTimeout( () => {
                   this.el.emit('pressedended');
-                  this.pressed = null 
+                  this.pressed = false 
                 },300)
               }
             }
