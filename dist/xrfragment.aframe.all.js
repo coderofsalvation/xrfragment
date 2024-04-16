@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Tue Apr 16 12:47:01 PM UTC 2024
+ * v0.5.1 generated at Tue Apr 16 04:44:21 PM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -1215,6 +1215,7 @@ xrfragment_URI.parse = function(stringUrl,flags) {
 		if(url.directory == null && url.host != null) {
 			url.file = url.host;
 		}
+		url.host = "";
 	}
 	url.hash = { };
 	if(url.fragment != null && url.fragment.length > 0) {
@@ -1393,6 +1394,8 @@ xrfragment_URI.toAbsolute = function(url,newUrl) {
 	resultURI.directory = directory;
 	if(newURI.file != null) {
 		resultURI.file = newURI.file;
+	} else {
+		resultURI.file = url.file;
 	}
 	resultURI.path = resultURI.directory + resultURI.file;
 	if(newURI.query != null) {
@@ -1999,7 +2002,15 @@ xrf.hasNoMaterial = (mesh) => {
   const hasMaterialName   = mesh.material && mesh.material.name.length > 0 
   return mesh.geometry && !hasMaterialName && !hasTexture
 }
-xrf.navigator = {URI:{}}
+xrf.navigator = {
+  URI:{
+    scheme:    document.location.protocol.replace(/:$/,''),
+    directory: document.location.pathname,
+    host:      document.location.hostname,
+    port:      document.location.port,
+    file:      'index.glb'
+  }
+}
 
 xrf.navigator.to = (url,flags,loader,data) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
@@ -2111,7 +2122,6 @@ xrf.navigator.init = () => {
 
   window.addEventListener('popstate', function (event){
     if( !xrf.navigator.updateHash.active ){ // ignore programmatic hash updates (causes infinite recursion)
-      //xrf.navigator.to( document.location.search.substr(1) + document.location.hash )
       xrf.navigator.to( document.location.href.replace(/\?/,'') )
     }
   })
@@ -2183,7 +2193,7 @@ xrf.navigator.reactifyHash = ( obj ) => {
     toString(me){
       let parts = []
       Object.keys(me).map( (k) => {
-        parts.push( me[k] ? `${k}=${encodeURIComponent(me[k])}` : k ) 
+        parts.push( me[k] ? `${k}=${me[k]}` : k ) 
       })
       return parts.join('&')
     }

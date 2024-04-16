@@ -1208,6 +1208,7 @@ xrfragment_URI.parse = function(stringUrl,flags) {
 		if(url.directory == null && url.host != null) {
 			url.file = url.host;
 		}
+		url.host = "";
 	}
 	url.hash = { };
 	if(url.fragment != null && url.fragment.length > 0) {
@@ -1386,6 +1387,8 @@ xrfragment_URI.toAbsolute = function(url,newUrl) {
 	resultURI.directory = directory;
 	if(newURI.file != null) {
 		resultURI.file = newURI.file;
+	} else {
+		resultURI.file = url.file;
 	}
 	resultURI.path = resultURI.directory + resultURI.file;
 	if(newURI.query != null) {

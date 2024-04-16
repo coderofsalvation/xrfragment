@@ -2404,6 +2404,7 @@ class xrfragment_URI:
         if (xrfragment_URI.isRelative(url) == True):
             if ((url.directory is None) and ((url.host is not None))):
                 url.file = url.host
+            url.host = ""
         url.hash = _hx_AnonObject({})
         if ((url.fragment is not None) and ((len(url.fragment) > 0))):
             url.XRF = xrfragment_URI.parseFragment(("#" + HxOverrides.stringOrNull(url.fragment)),flags)
@@ -2579,6 +2580,8 @@ class xrfragment_URI:
         resultURI.directory = directory
         if (newURI.file is not None):
             resultURI.file = newURI.file
+        else:
+            resultURI.file = url.file
         resultURI.path = (HxOverrides.stringOrNull(resultURI.directory) + HxOverrides.stringOrNull(resultURI.file))
         if (newURI.query is not None):
             resultURI.query = newURI.query

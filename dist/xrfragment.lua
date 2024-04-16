@@ -3103,6 +3103,7 @@ __xrfragment_URI.parse = function(stringUrl,flags)
     if ((url.directory == nil) and (url.host ~= nil)) then 
       url.file = url.host;
     end;
+    url.host = "";
   end;
   url.hash = _hx_e();
   if ((url.fragment ~= nil) and (__lua_lib_luautf8_Utf8.len(url.fragment) > 0)) then 
@@ -3406,6 +3407,8 @@ __xrfragment_URI.toAbsolute = function(url,newUrl)
   resultURI.directory = directory;
   if (newURI.file ~= nil) then 
     resultURI.file = newURI.file;
+  else
+    resultURI.file = url.file;
   end;
   resultURI.path = Std.string(resultURI.directory) .. Std.string(resultURI.file);
   if (newURI.query ~= nil) then 
