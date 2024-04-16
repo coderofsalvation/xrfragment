@@ -33,7 +33,7 @@ createScene = (noadd) => {
 
 filterScene = (URI,opts) => {
   opts = opts || {}
-  frag = xrf.URI.parse(URI)
+  frag = xrf.URI.parse(URI).XRF
   var {a,b,c,d,extembed,scene} = createScene()
   xrf.filter.scene({...opts,scene,frag})
 

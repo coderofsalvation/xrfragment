@@ -21,7 +21,7 @@ let loadAudio = (mimetype) => function(url,opts){
   mesh.media.audio = { set: (mediafragment,v) => mesh.media.audio[mediafragment] = v }
 
   let finalUrl = URL.URN + URL.file 
-  if( xrf.debug != undefined ) console.log("GET "+finalUrl)
+  if( xrf.debug > 0 ) console.log("GET "+finalUrl)
   audioLoader.load( finalUrl, function( buffer ) {
 
     sound.setBuffer( buffer );

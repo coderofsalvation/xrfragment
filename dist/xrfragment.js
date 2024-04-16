@@ -1133,9 +1133,13 @@ xrfragment_Parser.getMetaData = function() {
 	var meta = { title : ["title","og:title","dc.title"], description : ["aria-description","og:description","dc.description"], author : ["author","dc.creator"], publisher : ["publisher","dc.publisher"], website : ["og:site_name","og:url","dc.publisher"], license : ["SPDX","dc.rights"]};
 	return meta;
 };
-var xrfragment_URI = $hx_exports["xrfragment"]["URI"] = function() { };
+var xrfragment_URI = $hx_exports["xrfragment"]["URI"] = function() {
+	this.XRF = { };
+	this.hash = { };
+	this.fragment = "";
+};
 xrfragment_URI.__name__ = true;
-xrfragment_URI.parse = function(url,filter) {
+xrfragment_URI.parseFragment = function(url,filter) {
 	var store = { };
 	if(url == null || url.indexOf("#") == -1) {
 		return store;
@@ -1186,6 +1190,232 @@ xrfragment_URI.template = function(uri,vars) {
 	frag = StringTools.replace(frag,"null","");
 	parts[1] = frag;
 	return parts.join("#");
+};
+xrfragment_URI.parse = function(stringUrl,flags) {
+	var r = new EReg("^(?:(?![^:@]+:[^:@/]*@)([^:/?#.]+):)?(?://)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:/?#]*)(?::(\\d*))?)(((/(?:[^?#](?![^?#/]*\\.[^?#/.]+(?:[?#]|$)))*/?)?([^?#/]*))(?:\\?([^#]*))?(?:#(.*))?)","");
+	if(stringUrl.indexOf("://") == -1 && stringUrl.charAt(0) != "/") {
+		stringUrl = "/" + stringUrl;
+	}
+	r.match(stringUrl);
+	var url = new xrfragment_URI();
+	var _g = 0;
+	var _g1 = xrfragment_URI._parts.length;
+	while(_g < _g1) {
+		var i = _g++;
+		url[xrfragment_URI._parts[i]] = r.matched(i);
+	}
+	if(xrfragment_URI.isRelative(url) == true) {
+		if(url.directory == null && url.host != null) {
+			url.file = url.host;
+		}
+	}
+	url.hash = { };
+	if(url.fragment != null && url.fragment.length > 0) {
+		url.XRF = xrfragment_URI.parseFragment("#" + url.fragment,flags);
+		var key;
+		var _g = 0;
+		var _g1 = Reflect.fields(url.XRF);
+		while(_g < _g1.length) {
+			var key = _g1[_g];
+			++_g;
+			var v = url.XRF[key];
+			url.hash[key] = v["string"];
+		}
+	}
+	xrfragment_URI.computeVars(url);
+	return url;
+};
+xrfragment_URI.computeVars = function(url) {
+	var r_r = new RegExp("//","g".split("u").join(""));
+	if(url.directory != null && url.directory.indexOf("//") != -1) {
+		url.directory = url.directory.replace(r_r,"/");
+	}
+	if(url.path != null && url.path.indexOf("//") != -1) {
+		url.path = url.path.replace(r_r,"/");
+	}
+	if(url.file != null && url.file.indexOf("//") != -1) {
+		url.file = url.file.replace(r_r,"/");
+	}
+	url.URN = url.scheme + "://" + url.host;
+	if(url.port != null) {
+		url.URN += ":" + url.port;
+	}
+	url.URN += url.directory;
+	if(url.file != null) {
+		var parts = url.file.split(".");
+		if(parts.length > 1) {
+			url.fileExt = parts.pop();
+		}
+	}
+};
+xrfragment_URI.toString = function(url) {
+	var result = "";
+	if(url.scheme != null) {
+		result += url.scheme + "://";
+	}
+	if(url.user != null) {
+		result += url.user + ":";
+	}
+	if(url.password != null) {
+		result += url.password + "@";
+	}
+	if(url.host != null) {
+		result += url.host;
+	}
+	if(url.port != null) {
+		result += ":" + url.port;
+	}
+	if(url.directory != null) {
+		result += url.directory;
+	}
+	if(url.file != null) {
+		result += url.file;
+	}
+	if(url.query != null) {
+		result += "?" + url.query;
+	}
+	if(url.fragment != null) {
+		result += "#" + url.fragment;
+	}
+	return result;
+};
+xrfragment_URI.appendURI = function(url,appendedURI) {
+	if(xrfragment_URI.isRelative(url) == true) {
+		return xrfragment_URI.appendToRelativeURI(url,appendedURI);
+	} else {
+		return xrfragment_URI.appendToAbsoluteURI(url,appendedURI);
+	}
+};
+xrfragment_URI.isRelative = function(url) {
+	return url.scheme == null;
+};
+xrfragment_URI.appendToRelativeURI = function(url,appendedURI) {
+	if(url.directory == null || url.host == null) {
+		return xrfragment_URI.cloneURI(appendedURI);
+	}
+	var resultURI = new xrfragment_URI();
+	resultURI.host = url.host;
+	resultURI.directory = url.directory;
+	if(appendedURI.host != null) {
+		resultURI.directory += appendedURI.host;
+	}
+	if(appendedURI.directory != null) {
+		var directory = appendedURI.directory;
+		if(appendedURI.host == null) {
+			resultURI.directory += HxOverrides.substr(directory,1,null);
+		} else {
+			resultURI.directory += directory;
+		}
+	}
+	if(appendedURI.file != null) {
+		resultURI.file = appendedURI.file;
+	}
+	resultURI.path = resultURI.directory + resultURI.file;
+	if(appendedURI.query != null) {
+		resultURI.query = appendedURI.query;
+	}
+	if(appendedURI.fragment != null) {
+		resultURI.fragment = appendedURI.fragment;
+	}
+	return resultURI;
+};
+xrfragment_URI.appendToAbsoluteURI = function(url,appendedURI) {
+	var resultURI = new xrfragment_URI();
+	if(url.scheme != null) {
+		resultURI.scheme = url.scheme;
+	}
+	if(url.host != null) {
+		resultURI.host = url.host;
+	}
+	var directory = "";
+	if(url.directory != null) {
+		directory = url.directory;
+	}
+	if(appendedURI.host != null) {
+		appendedURI.directory += appendedURI.host;
+	}
+	if(appendedURI.directory != null) {
+		directory += appendedURI.directory;
+	}
+	resultURI.directory = directory;
+	if(appendedURI.file != null) {
+		resultURI.file = appendedURI.file;
+	}
+	resultURI.path = resultURI.directory + resultURI.file;
+	if(appendedURI.query != null) {
+		resultURI.query = appendedURI.query;
+	}
+	if(appendedURI.fragment != null) {
+		resultURI.fragment = appendedURI.fragment;
+	}
+	return resultURI;
+};
+xrfragment_URI.toAbsolute = function(url,newUrl) {
+	var newURI = xrfragment_URI.parse(newUrl,0);
+	var resultURI = new xrfragment_URI();
+	resultURI.port = url.port;
+	resultURI.source = newUrl;
+	if(newURI.scheme != null) {
+		resultURI.scheme = newURI.scheme;
+	} else {
+		resultURI.scheme = url.scheme;
+	}
+	if(newURI.host != null && newURI.host.length > 0) {
+		resultURI.host = newURI.host;
+		resultURI.port = null;
+		resultURI.fragment = null;
+		resultURI.hash = { };
+		resultURI.XRF = { };
+		if(newURI.port != null) {
+			resultURI.port = newURI.port;
+		}
+	} else {
+		resultURI.host = url.host;
+	}
+	var directory = "";
+	if(url.directory != null) {
+		directory = url.directory;
+	}
+	if(newURI.directory != null) {
+		if(newUrl.charAt(0) != "/" && newUrl.indexOf("://") == -1) {
+			directory += newURI.directory;
+		} else {
+			directory = newURI.directory;
+		}
+	}
+	resultURI.directory = directory;
+	if(newURI.file != null) {
+		resultURI.file = newURI.file;
+	}
+	resultURI.path = resultURI.directory + resultURI.file;
+	if(newURI.query != null) {
+		resultURI.query = newURI.query;
+	}
+	if(newURI.fragment != null) {
+		resultURI.fragment = newURI.fragment;
+	}
+	resultURI.hash = newURI.hash;
+	resultURI.XRF = newURI.XRF;
+	xrfragment_URI.computeVars(resultURI);
+	return resultURI;
+};
+xrfragment_URI.cloneURI = function(url) {
+	var clonedURI = new xrfragment_URI();
+	clonedURI.url = url.url;
+	clonedURI.source = url.source;
+	clonedURI.scheme = url.scheme;
+	clonedURI.authority = url.authority;
+	clonedURI.userInfo = url.userInfo;
+	clonedURI.password = url.password;
+	clonedURI.host = url.host;
+	clonedURI.port = url.port;
+	clonedURI.relative = url.relative;
+	clonedURI.path = url.path;
+	clonedURI.directory = url.directory;
+	clonedURI.file = url.file;
+	clonedURI.query = url.query;
+	clonedURI.fragment = url.fragment;
+	return clonedURI;
 };
 var xrfragment_XRF = $hx_exports["xrfragment"]["XRF"] = function(_fragment,_flags,_index) {
 	this.floats = [];
@@ -1297,6 +1527,7 @@ haxe_Template.hxKeepArrayIterator = new haxe_iterators_ArrayIterator([]);
 xrfragment_Parser.error = "";
 xrfragment_Parser.debug = false;
 xrfragment_URI.__meta__ = { statics : { template : { keep : null}}};
+xrfragment_URI._parts = ["source","scheme","authority","userInfo","user","password","host","port","relative","path","directory","file","query","fragment"];
 xrfragment_XRF.IMMUTABLE = 1;
 xrfragment_XRF.PROP_BIND = 2;
 xrfragment_XRF.QUERY_OPERATOR = 4;

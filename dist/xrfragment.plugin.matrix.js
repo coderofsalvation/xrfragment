@@ -316,7 +316,7 @@
         this.ydoc.scene.set('href',document.location.hash )
       } 
     })
-    let hashvars = xrf.URI.parse( document.location.hash )
+    let hashvars = xrf.URI.parse( document.location.hash ).XRF
     if( hashvars.meet ) this.parseLink(hashvars.meet.string)
   }
 },

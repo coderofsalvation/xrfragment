@@ -10,6 +10,8 @@ window.AFRAME.registerComponent('xrf-get', {
     var el = this.el;
     var meshname = this.data.name || this.data;
 
+    if( !meshname || typeof meshname != 'string' ) return
+
     this.el.addEventListener('update', (evt) => {
 
       setTimeout( () => {
@@ -46,7 +48,8 @@ window.AFRAME.registerComponent('xrf-get', {
           this.el.object3D.child = mesh    // keep reference (because .children will be empty)
 
           if( !this.el.id ) this.el.setAttribute("id",`xrf-${mesh.name}`)
-        }else console.warn("xrf-get ignore: "+JSON.stringify(this.data))
+        }
+
       }, evt && evt.timeout ? evt.timeout: 500)
 
     })

@@ -401,6 +401,8 @@ class URI {
         
         resultURI.port = url.port;
 
+        resultURI.source = newUrl;
+
         if (newURI.scheme != null)
         {
             resultURI.scheme = newURI.scheme;
