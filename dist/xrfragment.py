@@ -2303,11 +2303,33 @@ xrfragment_Parser._hx_class = xrfragment_Parser
 
 class xrfragment_URI:
     _hx_class_name = "xrfragment.URI"
-    __slots__ = ()
-    _hx_statics = ["__meta__", "parse", "template"]
+    __slots__ = ("url", "source", "scheme", "authority", "userInfo", "user", "password", "host", "port", "relative", "path", "directory", "file", "fileExt", "query", "fragment", "hash", "XRF", "URN")
+    _hx_fields = ["url", "source", "scheme", "authority", "userInfo", "user", "password", "host", "port", "relative", "path", "directory", "file", "fileExt", "query", "fragment", "hash", "XRF", "URN"]
+    _hx_statics = ["__meta__", "_parts", "parseFragment", "template", "parse", "computeVars", "toString", "appendURI", "isRelative", "appendToRelativeURI", "appendToAbsoluteURI", "toAbsolute", "cloneURI"]
+
+    def __init__(self):
+        self.URN = None
+        self.query = None
+        self.fileExt = None
+        self.file = None
+        self.directory = None
+        self.path = None
+        self.relative = None
+        self.port = None
+        self.host = None
+        self.password = None
+        self.user = None
+        self.userInfo = None
+        self.authority = None
+        self.scheme = None
+        self.source = None
+        self.url = None
+        self.XRF = _hx_AnonObject({})
+        self.hash = _hx_AnonObject({})
+        self.fragment = ""
 
     @staticmethod
-    def parse(url,_hx_filter):
+    def parseFragment(url,_hx_filter):
         store = _hx_AnonObject({})
         tmp = None
         if (url is not None):
@@ -2362,6 +2384,230 @@ class xrfragment_URI:
         frag = StringTools.replace(frag,"null","")
         python_internal_ArrayImpl._set(parts, 1, frag)
         return "#".join([python_Boot.toString1(x1,'') for x1 in parts])
+
+    @staticmethod
+    def parse(stringUrl,flags):
+        r = EReg("^(?:(?![^:@]+:[^:@/]*@)([^:/?#.]+):)?(?://)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:/?#]*)(?::(\\d*))?)(((/(?:[^?#](?![^?#/]*\\.[^?#/.]+(?:[?#]|$)))*/?)?([^?#/]*))(?:\\?([^#]*))?(?:#(.*))?)","")
+        startIndex = None
+        if ((((stringUrl.find("://") if ((startIndex is None)) else HxString.indexOfImpl(stringUrl,"://",startIndex))) == -1) and (((("" if ((0 >= len(stringUrl))) else stringUrl[0])) != "/"))):
+            stringUrl = ("/" + ("null" if stringUrl is None else stringUrl))
+        r.matchObj = python_lib_Re.search(r.pattern,stringUrl)
+        url = xrfragment_URI()
+        _g = 0
+        _g1 = len(xrfragment_URI._parts)
+        while (_g < _g1):
+            i = _g
+            _g = (_g + 1)
+            field = python_internal_ArrayImpl._get(xrfragment_URI._parts, i)
+            value = r.matchObj.group(i)
+            setattr(url,(("_hx_" + field) if ((field in python_Boot.keywords)) else (("_hx_" + field) if (((((len(field) > 2) and ((ord(field[0]) == 95))) and ((ord(field[1]) == 95))) and ((ord(field[(len(field) - 1)]) != 95)))) else field)),value)
+        if (xrfragment_URI.isRelative(url) == True):
+            if ((url.directory is None) and ((url.host is not None))):
+                url.file = url.host
+        url.hash = _hx_AnonObject({})
+        if ((url.fragment is not None) and ((len(url.fragment) > 0))):
+            url.XRF = xrfragment_URI.parseFragment(("#" + HxOverrides.stringOrNull(url.fragment)),flags)
+            key = None
+            _g = 0
+            _g1 = python_Boot.fields(url.XRF)
+            while (_g < len(_g1)):
+                key = (_g1[_g] if _g >= 0 and _g < len(_g1) else None)
+                _g = (_g + 1)
+                v = Reflect.field(url.XRF,key)
+                this1 = url.hash
+                value = Reflect.field(v,"string")
+                setattr(this1,(("_hx_" + key) if ((key in python_Boot.keywords)) else (("_hx_" + key) if (((((len(key) > 2) and ((ord(key[0]) == 95))) and ((ord(key[1]) == 95))) and ((ord(key[(len(key) - 1)]) != 95)))) else key)),value)
+        xrfragment_URI.computeVars(url)
+        return url
+
+    @staticmethod
+    def computeVars(url):
+        r = EReg("//","g")
+        tmp = None
+        if (url.directory is not None):
+            _this = url.directory
+            startIndex = None
+            tmp = (((_this.find("//") if ((startIndex is None)) else HxString.indexOfImpl(_this,"//",startIndex))) != -1)
+        else:
+            tmp = False
+        if tmp:
+            url.directory = r.replace(url.directory,"/")
+        tmp = None
+        if (url.path is not None):
+            _this = url.path
+            startIndex = None
+            tmp = (((_this.find("//") if ((startIndex is None)) else HxString.indexOfImpl(_this,"//",startIndex))) != -1)
+        else:
+            tmp = False
+        if tmp:
+            url.path = r.replace(url.path,"/")
+        tmp = None
+        if (url.file is not None):
+            _this = url.file
+            startIndex = None
+            tmp = (((_this.find("//") if ((startIndex is None)) else HxString.indexOfImpl(_this,"//",startIndex))) != -1)
+        else:
+            tmp = False
+        if tmp:
+            url.file = r.replace(url.file,"/")
+        url.URN = ((HxOverrides.stringOrNull(url.scheme) + "://") + HxOverrides.stringOrNull(url.host))
+        if (url.port is not None):
+            url.URN = (HxOverrides.stringOrNull(url.URN) + HxOverrides.stringOrNull(((":" + HxOverrides.stringOrNull(url.port)))))
+        url.URN = (HxOverrides.stringOrNull(url.URN) + HxOverrides.stringOrNull(url.directory))
+        if (url.file is not None):
+            _this = url.file
+            parts = _this.split(".")
+            if (len(parts) > 1):
+                url.fileExt = (None if ((len(parts) == 0)) else parts.pop())
+
+    @staticmethod
+    def toString(url):
+        result = ""
+        if (url.scheme is not None):
+            result = (("null" if result is None else result) + HxOverrides.stringOrNull(((HxOverrides.stringOrNull(url.scheme) + "://"))))
+        if (url.user is not None):
+            result = (("null" if result is None else result) + HxOverrides.stringOrNull(((HxOverrides.stringOrNull(url.user) + ":"))))
+        if (url.password is not None):
+            result = (("null" if result is None else result) + HxOverrides.stringOrNull(((HxOverrides.stringOrNull(url.password) + "@"))))
+        if (url.host is not None):
+            result = (("null" if result is None else result) + HxOverrides.stringOrNull(url.host))
+        if (url.port is not None):
+            result = (("null" if result is None else result) + HxOverrides.stringOrNull(((":" + HxOverrides.stringOrNull(url.port)))))
+        if (url.directory is not None):
+            result = (("null" if result is None else result) + HxOverrides.stringOrNull(url.directory))
+        if (url.file is not None):
+            result = (("null" if result is None else result) + HxOverrides.stringOrNull(url.file))
+        if (url.query is not None):
+            result = (("null" if result is None else result) + HxOverrides.stringOrNull((("?" + HxOverrides.stringOrNull(url.query)))))
+        if (url.fragment is not None):
+            result = (("null" if result is None else result) + HxOverrides.stringOrNull((("#" + HxOverrides.stringOrNull(url.fragment)))))
+        return result
+
+    @staticmethod
+    def appendURI(url,appendedURI):
+        if (xrfragment_URI.isRelative(url) == True):
+            return xrfragment_URI.appendToRelativeURI(url,appendedURI)
+        else:
+            return xrfragment_URI.appendToAbsoluteURI(url,appendedURI)
+
+    @staticmethod
+    def isRelative(url):
+        return (url.scheme is None)
+
+    @staticmethod
+    def appendToRelativeURI(url,appendedURI):
+        if ((url.directory is None) or ((url.host is None))):
+            return xrfragment_URI.cloneURI(appendedURI)
+        resultURI = xrfragment_URI()
+        resultURI.host = url.host
+        resultURI.directory = url.directory
+        if (appendedURI.host is not None):
+            resultURI.directory = (HxOverrides.stringOrNull(resultURI.directory) + HxOverrides.stringOrNull(appendedURI.host))
+        if (appendedURI.directory is not None):
+            directory = appendedURI.directory
+            if (appendedURI.host is None):
+                resultURI.directory = (HxOverrides.stringOrNull(resultURI.directory) + HxOverrides.stringOrNull(HxString.substr(directory,1,None)))
+            else:
+                resultURI.directory = (HxOverrides.stringOrNull(resultURI.directory) + ("null" if directory is None else directory))
+        if (appendedURI.file is not None):
+            resultURI.file = appendedURI.file
+        resultURI.path = (HxOverrides.stringOrNull(resultURI.directory) + HxOverrides.stringOrNull(resultURI.file))
+        if (appendedURI.query is not None):
+            resultURI.query = appendedURI.query
+        if (appendedURI.fragment is not None):
+            resultURI.fragment = appendedURI.fragment
+        return resultURI
+
+    @staticmethod
+    def appendToAbsoluteURI(url,appendedURI):
+        resultURI = xrfragment_URI()
+        if (url.scheme is not None):
+            resultURI.scheme = url.scheme
+        if (url.host is not None):
+            resultURI.host = url.host
+        directory = ""
+        if (url.directory is not None):
+            directory = url.directory
+        if (appendedURI.host is not None):
+            appendedURI.directory = (HxOverrides.stringOrNull(appendedURI.directory) + HxOverrides.stringOrNull(appendedURI.host))
+        if (appendedURI.directory is not None):
+            directory = (("null" if directory is None else directory) + HxOverrides.stringOrNull(appendedURI.directory))
+        resultURI.directory = directory
+        if (appendedURI.file is not None):
+            resultURI.file = appendedURI.file
+        resultURI.path = (HxOverrides.stringOrNull(resultURI.directory) + HxOverrides.stringOrNull(resultURI.file))
+        if (appendedURI.query is not None):
+            resultURI.query = appendedURI.query
+        if (appendedURI.fragment is not None):
+            resultURI.fragment = appendedURI.fragment
+        return resultURI
+
+    @staticmethod
+    def toAbsolute(url,newUrl):
+        newURI = xrfragment_URI.parse(newUrl,0)
+        resultURI = xrfragment_URI()
+        resultURI.port = url.port
+        resultURI.source = newUrl
+        if (newURI.scheme is not None):
+            resultURI.scheme = newURI.scheme
+        else:
+            resultURI.scheme = url.scheme
+        if ((newURI.host is not None) and ((len(newURI.host) > 0))):
+            resultURI.host = newURI.host
+            resultURI.port = None
+            resultURI.fragment = None
+            resultURI.hash = _hx_AnonObject({})
+            resultURI.XRF = _hx_AnonObject({})
+            if (newURI.port is not None):
+                resultURI.port = newURI.port
+        else:
+            resultURI.host = url.host
+        directory = ""
+        if (url.directory is not None):
+            directory = url.directory
+        if (newURI.directory is not None):
+            tmp = None
+            if ((("" if ((0 >= len(newUrl))) else newUrl[0])) != "/"):
+                startIndex = None
+                tmp = (((newUrl.find("://") if ((startIndex is None)) else HxString.indexOfImpl(newUrl,"://",startIndex))) == -1)
+            else:
+                tmp = False
+            if tmp:
+                directory = (("null" if directory is None else directory) + HxOverrides.stringOrNull(newURI.directory))
+            else:
+                directory = newURI.directory
+        resultURI.directory = directory
+        if (newURI.file is not None):
+            resultURI.file = newURI.file
+        resultURI.path = (HxOverrides.stringOrNull(resultURI.directory) + HxOverrides.stringOrNull(resultURI.file))
+        if (newURI.query is not None):
+            resultURI.query = newURI.query
+        if (newURI.fragment is not None):
+            resultURI.fragment = newURI.fragment
+        resultURI.hash = newURI.hash
+        resultURI.XRF = newURI.XRF
+        xrfragment_URI.computeVars(resultURI)
+        return resultURI
+
+    @staticmethod
+    def cloneURI(url):
+        clonedURI = xrfragment_URI()
+        clonedURI.url = url.url
+        clonedURI.source = url.source
+        clonedURI.scheme = url.scheme
+        clonedURI.authority = url.authority
+        clonedURI.userInfo = url.userInfo
+        clonedURI.password = url.password
+        clonedURI.host = url.host
+        clonedURI.port = url.port
+        clonedURI.relative = url.relative
+        clonedURI.path = url.path
+        clonedURI.directory = url.directory
+        clonedURI.file = url.file
+        clonedURI.query = url.query
+        clonedURI.fragment = url.fragment
+        return clonedURI
+
 xrfragment_URI._hx_class = xrfragment_URI
 
 
@@ -2496,6 +2742,7 @@ python_Boot.prefixLength = len("_hx_")
 xrfragment_Parser.error = ""
 xrfragment_Parser.debug = False
 xrfragment_URI.__meta__ = _hx_AnonObject({'statics': _hx_AnonObject({'template': _hx_AnonObject({'keep': None})})})
+xrfragment_URI._parts = ["source", "scheme", "authority", "userInfo", "user", "password", "host", "port", "relative", "path", "directory", "file", "query", "fragment"]
 xrfragment_XRF.__meta__ = _hx_AnonObject({'statics': _hx_AnonObject({'toDict': _hx_AnonObject({'keep': None})})})
 xrfragment_XRF.IMMUTABLE = 1
 xrfragment_XRF.PROP_BIND = 2

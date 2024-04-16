@@ -5,26 +5,31 @@
 
 <img src="https://xrfragment.org/example/assets/logo.png" width="200"/>
 
-# Documentation / Website
+A tiny specification for viewing 3D models as linkable AR/VR websites.<br>
+Address and Control anything inside a 3D model with [W3C Media Fragments](https://www.w3.org/TR/media-frags/) and [URI Templates](https://www.rfc-editor.org/rfc/rfc6570).<br>
+<br>
+
+![](https://coderofsalvation.github.io/xrfragment.media/images/metadata.jpg)
+
+<br>
+Simply SURF a 3D file-verse and design for a Spatial Open Internet with the highest degree of interoperability ❤
+
+# Documentation / Website 
 
 https://xrfragment.org 
 
+![](https://coderofsalvation.github.io/xrfragment.media/images/nocode.jpg)
+
 # Getting started
 
-Here are various ways to enhance your 3D assets/scenes with XR Fragments:
+![](https://coderofsalvation.github.io/xrfragment.media/gettingstarted2024.mp4)
 
-| |  difficulty | how | notes |
-|-|-|-|-|
-| 1 | easiest | the xrfragment.org <a href="https://xrfragment.org/example/aframe/sandbox" target="_blank">Sandbox</a> | open 3D file (fbx/gltf) in <a href="https://blender.org" target="_blank">Blender</a>, add <a href="https://docs.blender.org/manual/en/2.79/data_system/custom_properties.html" target="_blank">custom properties</a>, and load exported files into <a href="/example/aframe/sandbox" target="_blank">the sandbox</a> |
-| 2 | easy | hosted sandbox by <a href="https://github.com/coderofsalvation/xrfragment-helloworld" target="_blank">forking xrfragment-helloworld</a> | Basically #1 but it will be hosted for free at your own github URL |
-| 3 | developer | fork <a href="https://github.com/coderofsalvation/xrfragment-aframe-helloworld">xfragment-aframe-helloworld</a> | requires javascript- and <a href="https://aframe.io" target="_blank">aframe.io</a> developer-knowledge |
-| 4 | developer | fork <a href="https://github.com/coderofsalvation/xrfragment-three-helloworld">xfragment-three-helloworld</a> | requires javascript- and <a href="https://threejs.org" target="_blank">threejs</a> developer-knowledge |
-| 5 | developer++ | use a parser-library below | lowlevel approach, more suitable for other scenarios |
-
+https://xrfragmenorg 
 
 # available parser-implementations
 
 * [javascript](dist/xrfragment.js) [(+example)](test/test.js)
+* [javascript module](dist/xrfragment.module.js) 
 * [python](dist/xrfragment.py) [(+example)](test/test.py)
 * [lua](dist/xrfragment.lua) [(+example)](test/test.lua)
 * [haXe](src/xrfragment) (allows exporting to various programming languages)

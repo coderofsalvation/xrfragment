@@ -2899,10 +2899,19 @@ __xrfragment_Parser.getMetaData = function()
   do return meta end;
 end
 
-__xrfragment_URI.new = {}
+__xrfragment_URI.new = function() 
+  local self = _hx_new(__xrfragment_URI.prototype)
+  __xrfragment_URI.super(self)
+  return self
+end
+__xrfragment_URI.super = function(self) 
+  self.XRF = _hx_e();
+  self.hash = _hx_e();
+  self.fragment = "";
+end
 _hx_exports["xrfragment"]["URI"] = __xrfragment_URI
 __xrfragment_URI.__name__ = true
-__xrfragment_URI.parse = function(url,filter) 
+__xrfragment_URI.parseFragment = function(url,filter) 
   local store = _hx_e();
   local tmp;
   if (url ~= nil) then 
@@ -3063,6 +3072,374 @@ __xrfragment_URI.template = function(uri,vars)
   parts[1] = frag;
   do return parts:join("#") end;
 end
+__xrfragment_URI.parse = function(stringUrl,flags) 
+  local r = EReg.new("^(?:(?![^:@]+:[^:@/]*@)([^:/?#.]+):)?(?://)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:/?#]*)(?::(\\d*))?)(((/(?:[^?#](?![^?#/]*\\.[^?#/.]+(?:[?#]|$)))*/?)?([^?#/]*))(?:\\?([^#]*))?(?:#(.*))?)", "");
+  local startIndex = nil;
+  if (startIndex == nil) then 
+    startIndex = 1;
+  else
+    startIndex = startIndex + 1;
+  end;
+  local r1 = __lua_lib_luautf8_Utf8.find(stringUrl, "://", startIndex, true);
+  if (((function() 
+    local _hx_1
+    if ((r1 ~= nil) and (r1 > 0)) then 
+    _hx_1 = r1 - 1; else 
+    _hx_1 = -1; end
+    return _hx_1
+  end )() == -1) and (__lua_lib_luautf8_Utf8.sub(stringUrl, 1, 1) ~= "/")) then 
+    stringUrl = Std.string("/") .. Std.string(stringUrl);
+  end;
+  r:match(stringUrl);
+  local url = __xrfragment_URI.new();
+  local _g = 0;
+  local _g1 = __xrfragment_URI._parts.length;
+  while (_g < _g1) do 
+    _g = _g + 1;
+    local i = _g - 1;
+    url[__xrfragment_URI._parts[i]] = r:matched(i);
+  end;
+  if (__xrfragment_URI.isRelative(url) == true) then 
+    if ((url.directory == nil) and (url.host ~= nil)) then 
+      url.file = url.host;
+    end;
+  end;
+  url.hash = _hx_e();
+  if ((url.fragment ~= nil) and (__lua_lib_luautf8_Utf8.len(url.fragment) > 0)) then 
+    url.XRF = __xrfragment_URI.parseFragment(Std.string("#") .. Std.string(url.fragment), flags);
+    local key;
+    local _g = 0;
+    local _g1 = Reflect.fields(url.XRF);
+    while (_g < _g1.length) do 
+      local key = _g1[_g];
+      _g = _g + 1;
+      local v = Reflect.field(url.XRF, key);
+      local this1 = url.hash;
+      local value = Reflect.field(v, "string");
+      this1[key] = value;
+    end;
+  end;
+  __xrfragment_URI.computeVars(url);
+  do return url end;
+end
+__xrfragment_URI.computeVars = function(url) 
+  local r = EReg.new("//", "g");
+  local tmp;
+  if (url.directory ~= nil) then 
+    local _this = url.directory;
+    local startIndex = nil;
+    if (startIndex == nil) then 
+      startIndex = 1;
+    else
+      startIndex = startIndex + 1;
+    end;
+    local r = __lua_lib_luautf8_Utf8.find(_this, "//", startIndex, true);
+    tmp = (function() 
+      local _hx_1
+      if ((r ~= nil) and (r > 0)) then 
+      _hx_1 = r - 1; else 
+      _hx_1 = -1; end
+      return _hx_1
+    end )() ~= -1;
+  else
+    tmp = false;
+  end;
+  if (tmp) then 
+    url.directory = r:replace(url.directory, "/");
+  end;
+  local tmp;
+  if (url.path ~= nil) then 
+    local _this = url.path;
+    local startIndex = nil;
+    if (startIndex == nil) then 
+      startIndex = 1;
+    else
+      startIndex = startIndex + 1;
+    end;
+    local r = __lua_lib_luautf8_Utf8.find(_this, "//", startIndex, true);
+    tmp = (function() 
+      local _hx_2
+      if ((r ~= nil) and (r > 0)) then 
+      _hx_2 = r - 1; else 
+      _hx_2 = -1; end
+      return _hx_2
+    end )() ~= -1;
+  else
+    tmp = false;
+  end;
+  if (tmp) then 
+    url.path = r:replace(url.path, "/");
+  end;
+  local tmp;
+  if (url.file ~= nil) then 
+    local _this = url.file;
+    local startIndex = nil;
+    if (startIndex == nil) then 
+      startIndex = 1;
+    else
+      startIndex = startIndex + 1;
+    end;
+    local r = __lua_lib_luautf8_Utf8.find(_this, "//", startIndex, true);
+    tmp = (function() 
+      local _hx_3
+      if ((r ~= nil) and (r > 0)) then 
+      _hx_3 = r - 1; else 
+      _hx_3 = -1; end
+      return _hx_3
+    end )() ~= -1;
+  else
+    tmp = false;
+  end;
+  if (tmp) then 
+    url.file = r:replace(url.file, "/");
+  end;
+  url.URN = Std.string(Std.string(url.scheme) .. Std.string("://")) .. Std.string(url.host);
+  if (url.port ~= nil) then 
+    local url1 = url;
+    url1.URN = Std.string(url1.URN) .. Std.string((Std.string(":") .. Std.string(url.port)));
+  end;
+  local url1 = url;
+  url1.URN = Std.string(url1.URN) .. Std.string(url.directory);
+  if (url.file ~= nil) then 
+    local _this = url.file;
+    local idx = 1;
+    local ret = _hx_tab_array({}, 0);
+    while (idx ~= nil) do 
+      local newidx = 0;
+      if (__lua_lib_luautf8_Utf8.len(".") > 0) then 
+        newidx = __lua_lib_luautf8_Utf8.find(_this, ".", idx, true);
+      else
+        if (idx >= __lua_lib_luautf8_Utf8.len(_this)) then 
+          newidx = nil;
+        else
+          newidx = idx + 1;
+        end;
+      end;
+      if (newidx ~= nil) then 
+        local match = __lua_lib_luautf8_Utf8.sub(_this, idx, newidx - 1);
+        ret:push(match);
+        idx = newidx + __lua_lib_luautf8_Utf8.len(".");
+      else
+        ret:push(__lua_lib_luautf8_Utf8.sub(_this, idx, __lua_lib_luautf8_Utf8.len(_this)));
+        idx = nil;
+      end;
+    end;
+    local parts = ret;
+    if (parts.length > 1) then 
+      url.fileExt = parts:pop();
+    end;
+  end;
+end
+__xrfragment_URI.toString = function(url) 
+  local result = "";
+  if (url.scheme ~= nil) then 
+    result = Std.string(result) .. Std.string((Std.string(url.scheme) .. Std.string("://")));
+  end;
+  if (url.user ~= nil) then 
+    result = Std.string(result) .. Std.string((Std.string(url.user) .. Std.string(":")));
+  end;
+  if (url.password ~= nil) then 
+    result = Std.string(result) .. Std.string((Std.string(url.password) .. Std.string("@")));
+  end;
+  if (url.host ~= nil) then 
+    result = Std.string(result) .. Std.string(url.host);
+  end;
+  if (url.port ~= nil) then 
+    result = Std.string(result) .. Std.string((Std.string(":") .. Std.string(url.port)));
+  end;
+  if (url.directory ~= nil) then 
+    result = Std.string(result) .. Std.string(url.directory);
+  end;
+  if (url.file ~= nil) then 
+    result = Std.string(result) .. Std.string(url.file);
+  end;
+  if (url.query ~= nil) then 
+    result = Std.string(result) .. Std.string((Std.string("?") .. Std.string(url.query)));
+  end;
+  if (url.fragment ~= nil) then 
+    result = Std.string(result) .. Std.string((Std.string("#") .. Std.string(url.fragment)));
+  end;
+  do return result end;
+end
+__xrfragment_URI.appendURI = function(url,appendedURI) 
+  if (__xrfragment_URI.isRelative(url) == true) then 
+    do return __xrfragment_URI.appendToRelativeURI(url, appendedURI) end;
+  else
+    do return __xrfragment_URI.appendToAbsoluteURI(url, appendedURI) end;
+  end;
+end
+__xrfragment_URI.isRelative = function(url) 
+  do return url.scheme == nil end;
+end
+__xrfragment_URI.appendToRelativeURI = function(url,appendedURI) 
+  if ((url.directory == nil) or (url.host == nil)) then 
+    do return __xrfragment_URI.cloneURI(appendedURI) end;
+  end;
+  local resultURI = __xrfragment_URI.new();
+  resultURI.host = url.host;
+  resultURI.directory = url.directory;
+  if (appendedURI.host ~= nil) then 
+    local resultURI = resultURI;
+    resultURI.directory = Std.string(resultURI.directory) .. Std.string(appendedURI.host);
+  end;
+  if (appendedURI.directory ~= nil) then 
+    local directory = appendedURI.directory;
+    if (appendedURI.host == nil) then 
+      local resultURI = resultURI;
+      local pos = 1;
+      local len = nil;
+      if ((len == nil) or (len > (pos + __lua_lib_luautf8_Utf8.len(directory)))) then 
+        len = __lua_lib_luautf8_Utf8.len(directory);
+      else
+        if (len < 0) then 
+          len = __lua_lib_luautf8_Utf8.len(directory) + len;
+        end;
+      end;
+      if (pos < 0) then 
+        pos = __lua_lib_luautf8_Utf8.len(directory) + pos;
+      end;
+      if (pos < 0) then 
+        pos = 0;
+      end;
+      resultURI.directory = Std.string(resultURI.directory) .. Std.string(__lua_lib_luautf8_Utf8.sub(directory, pos + 1, pos + len));
+    else
+      local resultURI = resultURI;
+      resultURI.directory = Std.string(resultURI.directory) .. Std.string(directory);
+    end;
+  end;
+  if (appendedURI.file ~= nil) then 
+    resultURI.file = appendedURI.file;
+  end;
+  resultURI.path = Std.string(resultURI.directory) .. Std.string(resultURI.file);
+  if (appendedURI.query ~= nil) then 
+    resultURI.query = appendedURI.query;
+  end;
+  if (appendedURI.fragment ~= nil) then 
+    resultURI.fragment = appendedURI.fragment;
+  end;
+  do return resultURI end;
+end
+__xrfragment_URI.appendToAbsoluteURI = function(url,appendedURI) 
+  local resultURI = __xrfragment_URI.new();
+  if (url.scheme ~= nil) then 
+    resultURI.scheme = url.scheme;
+  end;
+  if (url.host ~= nil) then 
+    resultURI.host = url.host;
+  end;
+  local directory = "";
+  if (url.directory ~= nil) then 
+    directory = url.directory;
+  end;
+  if (appendedURI.host ~= nil) then 
+    local appendedURI1 = appendedURI;
+    appendedURI1.directory = Std.string(appendedURI1.directory) .. Std.string(appendedURI.host);
+  end;
+  if (appendedURI.directory ~= nil) then 
+    directory = Std.string(directory) .. Std.string(appendedURI.directory);
+  end;
+  resultURI.directory = directory;
+  if (appendedURI.file ~= nil) then 
+    resultURI.file = appendedURI.file;
+  end;
+  resultURI.path = Std.string(resultURI.directory) .. Std.string(resultURI.file);
+  if (appendedURI.query ~= nil) then 
+    resultURI.query = appendedURI.query;
+  end;
+  if (appendedURI.fragment ~= nil) then 
+    resultURI.fragment = appendedURI.fragment;
+  end;
+  do return resultURI end;
+end
+__xrfragment_URI.toAbsolute = function(url,newUrl) 
+  local newURI = __xrfragment_URI.parse(newUrl, 0);
+  local resultURI = __xrfragment_URI.new();
+  resultURI.port = url.port;
+  resultURI.source = newUrl;
+  if (newURI.scheme ~= nil) then 
+    resultURI.scheme = newURI.scheme;
+  else
+    resultURI.scheme = url.scheme;
+  end;
+  if ((newURI.host ~= nil) and (__lua_lib_luautf8_Utf8.len(newURI.host) > 0)) then 
+    resultURI.host = newURI.host;
+    resultURI.port = nil;
+    resultURI.fragment = nil;
+    resultURI.hash = _hx_e();
+    resultURI.XRF = _hx_e();
+    if (newURI.port ~= nil) then 
+      resultURI.port = newURI.port;
+    end;
+  else
+    resultURI.host = url.host;
+  end;
+  local directory = "";
+  if (url.directory ~= nil) then 
+    directory = url.directory;
+  end;
+  if (newURI.directory ~= nil) then 
+    local tmp;
+    if (__lua_lib_luautf8_Utf8.sub(newUrl, 1, 1) ~= "/") then 
+      local startIndex = nil;
+      if (startIndex == nil) then 
+        startIndex = 1;
+      else
+        startIndex = startIndex + 1;
+      end;
+      local r = __lua_lib_luautf8_Utf8.find(newUrl, "://", startIndex, true);
+      tmp = (function() 
+        local _hx_1
+        if ((r ~= nil) and (r > 0)) then 
+        _hx_1 = r - 1; else 
+        _hx_1 = -1; end
+        return _hx_1
+      end )() == -1;
+    else
+      tmp = false;
+    end;
+    if (tmp) then 
+      directory = Std.string(directory) .. Std.string(newURI.directory);
+    else
+      directory = newURI.directory;
+    end;
+  end;
+  resultURI.directory = directory;
+  if (newURI.file ~= nil) then 
+    resultURI.file = newURI.file;
+  end;
+  resultURI.path = Std.string(resultURI.directory) .. Std.string(resultURI.file);
+  if (newURI.query ~= nil) then 
+    resultURI.query = newURI.query;
+  end;
+  if (newURI.fragment ~= nil) then 
+    resultURI.fragment = newURI.fragment;
+  end;
+  resultURI.hash = newURI.hash;
+  resultURI.XRF = newURI.XRF;
+  __xrfragment_URI.computeVars(resultURI);
+  do return resultURI end;
+end
+__xrfragment_URI.cloneURI = function(url) 
+  local clonedURI = __xrfragment_URI.new();
+  clonedURI.url = url.url;
+  clonedURI.source = url.source;
+  clonedURI.scheme = url.scheme;
+  clonedURI.authority = url.authority;
+  clonedURI.userInfo = url.userInfo;
+  clonedURI.password = url.password;
+  clonedURI.host = url.host;
+  clonedURI.port = url.port;
+  clonedURI.relative = url.relative;
+  clonedURI.path = url.path;
+  clonedURI.directory = url.directory;
+  clonedURI.file = url.file;
+  clonedURI.query = url.query;
+  clonedURI.fragment = url.fragment;
+  do return clonedURI end;
+end
+__xrfragment_URI.prototype = _hx_e();
+
+__xrfragment_URI.prototype.__class__ =  __xrfragment_URI
 
 __xrfragment_XRF.new = function(_fragment,_flags,_index) 
   local self = _hx_new(__xrfragment_XRF.prototype)
@@ -3280,6 +3657,8 @@ local _hx_static_init = function()
   __xrfragment_Parser.debug = false;
   
   __xrfragment_URI.__meta__ = _hx_o({__fields__={statics=true},statics=_hx_o({__fields__={template=true},template=_hx_o({__fields__={keep=true},keep=nil})})});
+  
+  __xrfragment_URI._parts = _hx_tab_array({[0]="source", "scheme", "authority", "userInfo", "user", "password", "host", "port", "relative", "path", "directory", "file", "query", "fragment"}, 14);
   
   __xrfragment_XRF.IMMUTABLE = 1;
   

@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Tue Mar 19 10:04:25 AM UTC 2024
+ * v0.5.1 generated at Tue Apr 16 12:47:01 PM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -1138,9 +1138,13 @@ xrfragment_Parser.getMetaData = function() {
 	var meta = { title : ["title","og:title","dc.title"], description : ["aria-description","og:description","dc.description"], author : ["author","dc.creator"], publisher : ["publisher","dc.publisher"], website : ["og:site_name","og:url","dc.publisher"], license : ["SPDX","dc.rights"]};
 	return meta;
 };
-var xrfragment_URI = $hx_exports["xrfragment"]["URI"] = function() { };
+var xrfragment_URI = $hx_exports["xrfragment"]["URI"] = function() {
+	this.XRF = { };
+	this.hash = { };
+	this.fragment = "";
+};
 xrfragment_URI.__name__ = true;
-xrfragment_URI.parse = function(url,filter) {
+xrfragment_URI.parseFragment = function(url,filter) {
 	var store = { };
 	if(url == null || url.indexOf("#") == -1) {
 		return store;
@@ -1191,6 +1195,232 @@ xrfragment_URI.template = function(uri,vars) {
 	frag = StringTools.replace(frag,"null","");
 	parts[1] = frag;
 	return parts.join("#");
+};
+xrfragment_URI.parse = function(stringUrl,flags) {
+	var r = new EReg("^(?:(?![^:@]+:[^:@/]*@)([^:/?#.]+):)?(?://)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:/?#]*)(?::(\\d*))?)(((/(?:[^?#](?![^?#/]*\\.[^?#/.]+(?:[?#]|$)))*/?)?([^?#/]*))(?:\\?([^#]*))?(?:#(.*))?)","");
+	if(stringUrl.indexOf("://") == -1 && stringUrl.charAt(0) != "/") {
+		stringUrl = "/" + stringUrl;
+	}
+	r.match(stringUrl);
+	var url = new xrfragment_URI();
+	var _g = 0;
+	var _g1 = xrfragment_URI._parts.length;
+	while(_g < _g1) {
+		var i = _g++;
+		url[xrfragment_URI._parts[i]] = r.matched(i);
+	}
+	if(xrfragment_URI.isRelative(url) == true) {
+		if(url.directory == null && url.host != null) {
+			url.file = url.host;
+		}
+	}
+	url.hash = { };
+	if(url.fragment != null && url.fragment.length > 0) {
+		url.XRF = xrfragment_URI.parseFragment("#" + url.fragment,flags);
+		var key;
+		var _g = 0;
+		var _g1 = Reflect.fields(url.XRF);
+		while(_g < _g1.length) {
+			var key = _g1[_g];
+			++_g;
+			var v = url.XRF[key];
+			url.hash[key] = v["string"];
+		}
+	}
+	xrfragment_URI.computeVars(url);
+	return url;
+};
+xrfragment_URI.computeVars = function(url) {
+	var r_r = new RegExp("//","g".split("u").join(""));
+	if(url.directory != null && url.directory.indexOf("//") != -1) {
+		url.directory = url.directory.replace(r_r,"/");
+	}
+	if(url.path != null && url.path.indexOf("//") != -1) {
+		url.path = url.path.replace(r_r,"/");
+	}
+	if(url.file != null && url.file.indexOf("//") != -1) {
+		url.file = url.file.replace(r_r,"/");
+	}
+	url.URN = url.scheme + "://" + url.host;
+	if(url.port != null) {
+		url.URN += ":" + url.port;
+	}
+	url.URN += url.directory;
+	if(url.file != null) {
+		var parts = url.file.split(".");
+		if(parts.length > 1) {
+			url.fileExt = parts.pop();
+		}
+	}
+};
+xrfragment_URI.toString = function(url) {
+	var result = "";
+	if(url.scheme != null) {
+		result += url.scheme + "://";
+	}
+	if(url.user != null) {
+		result += url.user + ":";
+	}
+	if(url.password != null) {
+		result += url.password + "@";
+	}
+	if(url.host != null) {
+		result += url.host;
+	}
+	if(url.port != null) {
+		result += ":" + url.port;
+	}
+	if(url.directory != null) {
+		result += url.directory;
+	}
+	if(url.file != null) {
+		result += url.file;
+	}
+	if(url.query != null) {
+		result += "?" + url.query;
+	}
+	if(url.fragment != null) {
+		result += "#" + url.fragment;
+	}
+	return result;
+};
+xrfragment_URI.appendURI = function(url,appendedURI) {
+	if(xrfragment_URI.isRelative(url) == true) {
+		return xrfragment_URI.appendToRelativeURI(url,appendedURI);
+	} else {
+		return xrfragment_URI.appendToAbsoluteURI(url,appendedURI);
+	}
+};
+xrfragment_URI.isRelative = function(url) {
+	return url.scheme == null;
+};
+xrfragment_URI.appendToRelativeURI = function(url,appendedURI) {
+	if(url.directory == null || url.host == null) {
+		return xrfragment_URI.cloneURI(appendedURI);
+	}
+	var resultURI = new xrfragment_URI();
+	resultURI.host = url.host;
+	resultURI.directory = url.directory;
+	if(appendedURI.host != null) {
+		resultURI.directory += appendedURI.host;
+	}
+	if(appendedURI.directory != null) {
+		var directory = appendedURI.directory;
+		if(appendedURI.host == null) {
+			resultURI.directory += HxOverrides.substr(directory,1,null);
+		} else {
+			resultURI.directory += directory;
+		}
+	}
+	if(appendedURI.file != null) {
+		resultURI.file = appendedURI.file;
+	}
+	resultURI.path = resultURI.directory + resultURI.file;
+	if(appendedURI.query != null) {
+		resultURI.query = appendedURI.query;
+	}
+	if(appendedURI.fragment != null) {
+		resultURI.fragment = appendedURI.fragment;
+	}
+	return resultURI;
+};
+xrfragment_URI.appendToAbsoluteURI = function(url,appendedURI) {
+	var resultURI = new xrfragment_URI();
+	if(url.scheme != null) {
+		resultURI.scheme = url.scheme;
+	}
+	if(url.host != null) {
+		resultURI.host = url.host;
+	}
+	var directory = "";
+	if(url.directory != null) {
+		directory = url.directory;
+	}
+	if(appendedURI.host != null) {
+		appendedURI.directory += appendedURI.host;
+	}
+	if(appendedURI.directory != null) {
+		directory += appendedURI.directory;
+	}
+	resultURI.directory = directory;
+	if(appendedURI.file != null) {
+		resultURI.file = appendedURI.file;
+	}
+	resultURI.path = resultURI.directory + resultURI.file;
+	if(appendedURI.query != null) {
+		resultURI.query = appendedURI.query;
+	}
+	if(appendedURI.fragment != null) {
+		resultURI.fragment = appendedURI.fragment;
+	}
+	return resultURI;
+};
+xrfragment_URI.toAbsolute = function(url,newUrl) {
+	var newURI = xrfragment_URI.parse(newUrl,0);
+	var resultURI = new xrfragment_URI();
+	resultURI.port = url.port;
+	resultURI.source = newUrl;
+	if(newURI.scheme != null) {
+		resultURI.scheme = newURI.scheme;
+	} else {
+		resultURI.scheme = url.scheme;
+	}
+	if(newURI.host != null && newURI.host.length > 0) {
+		resultURI.host = newURI.host;
+		resultURI.port = null;
+		resultURI.fragment = null;
+		resultURI.hash = { };
+		resultURI.XRF = { };
+		if(newURI.port != null) {
+			resultURI.port = newURI.port;
+		}
+	} else {
+		resultURI.host = url.host;
+	}
+	var directory = "";
+	if(url.directory != null) {
+		directory = url.directory;
+	}
+	if(newURI.directory != null) {
+		if(newUrl.charAt(0) != "/" && newUrl.indexOf("://") == -1) {
+			directory += newURI.directory;
+		} else {
+			directory = newURI.directory;
+		}
+	}
+	resultURI.directory = directory;
+	if(newURI.file != null) {
+		resultURI.file = newURI.file;
+	}
+	resultURI.path = resultURI.directory + resultURI.file;
+	if(newURI.query != null) {
+		resultURI.query = newURI.query;
+	}
+	if(newURI.fragment != null) {
+		resultURI.fragment = newURI.fragment;
+	}
+	resultURI.hash = newURI.hash;
+	resultURI.XRF = newURI.XRF;
+	xrfragment_URI.computeVars(resultURI);
+	return resultURI;
+};
+xrfragment_URI.cloneURI = function(url) {
+	var clonedURI = new xrfragment_URI();
+	clonedURI.url = url.url;
+	clonedURI.source = url.source;
+	clonedURI.scheme = url.scheme;
+	clonedURI.authority = url.authority;
+	clonedURI.userInfo = url.userInfo;
+	clonedURI.password = url.password;
+	clonedURI.host = url.host;
+	clonedURI.port = url.port;
+	clonedURI.relative = url.relative;
+	clonedURI.path = url.path;
+	clonedURI.directory = url.directory;
+	clonedURI.file = url.file;
+	clonedURI.query = url.query;
+	clonedURI.fragment = url.fragment;
+	return clonedURI;
 };
 var xrfragment_XRF = $hx_exports["xrfragment"]["XRF"] = function(_fragment,_flags,_index) {
 	this.floats = [];
@@ -1302,6 +1532,7 @@ haxe_Template.hxKeepArrayIterator = new haxe_iterators_ArrayIterator([]);
 xrfragment_Parser.error = "";
 xrfragment_Parser.debug = false;
 xrfragment_URI.__meta__ = { statics : { template : { keep : null}}};
+xrfragment_URI._parts = ["source","scheme","authority","userInfo","user","password","host","port","relative","path","directory","file","query","fragment"];
 xrfragment_XRF.IMMUTABLE = 1;
 xrfragment_XRF.PROP_BIND = 2;
 xrfragment_XRF.QUERY_OPERATOR = 4;
@@ -1589,7 +1820,7 @@ let pub = function( url, node_or_model, flags ){  // evaluate fragments in url
   if( !url ) return 
   if( !url.match(/#/) ) url = `#${url}`
   let { THREE, camera } = xrf
-  let frag     = xrf.URI.parse( url, flags )
+  let frag     = xrf.URI.parse( url, flags ).XRF
   let fromNode = node_or_model != xrf.model
   let isNode   = node_or_model && node_or_model.children
 
@@ -1756,24 +1987,6 @@ xrf.reset = () => {
   xrf.layers = 0
 }
 
-xrf.parseUrl = (url) => {
-  let urlExHash = url.replace(/#.*/,'')
-  let urlObj,file
-  let   store = {}
-  try{
-    urlObj = new URL( urlExHash.match(/:\/\//) ? urlExHash : String(`https://fake.com/${url}`).replace(/\/\//,'/') )
-    file = urlObj.pathname.substring(urlObj.pathname.lastIndexOf('/') + 1);
-    let   search = urlObj.search.substr(1).split("&")
-    for( let i in search )  store[  (search[i].split("=")[0])  ]  = search[i].split("=")[1] || ''
-  }catch(e){ }
-  let   hashmap = url.match("#") ? url.replace(/.*#/,'').split("&") : []
-  for( let i in hashmap ) store[  (hashmap[i].split("=")[0]) ]  = hashmap[i].split("=")[1] || ''
-  let   dir  = url.substring(0, url.lastIndexOf('/') + 1)
-  const hash = url.match(/#/) ? url.replace(/.*#/,'') : ''
-  const ext  = file.split('.').pop()
-  return {urlObj,dir,file,hash,ext,store}
-}
-
 xrf.add = (object) => {
   object.isXRF = true // mark for easy deletion when replacing scene
   xrf.scene.add(object)
@@ -1784,42 +1997,52 @@ xrf.hasNoMaterial = (mesh) => {
   const hasMaterialName   = mesh.material && mesh.material.name.length > 0 
   return mesh.geometry && !hasMaterialName && !hasTexture
 }
-xrf.navigator = {}
+xrf.navigator = {URI:{}}
 
 xrf.navigator.to = (url,flags,loader,data) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
-  let {urlObj,dir,file,hash,ext} = xrf.navigator.origin = xrf.parseUrl(url)
-  let hashChange = (!file && hash) || !data && xrf.model.file == file
-  let hasPos     = String(hash).match(/pos=/)
 
+  let URI = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
+  URI.hash          = xrf.navigator.reactifyHash(URI.hash)
+  let fileChange    = URI.URN + URI.file != xrf.navigator.URI.URN + xrf.navigator.URI.file 
+  let external      = URI.URN != document.location.origin + document.location.pathname 
+  let hasPos        = URI.hash.pos 
+  let hashChange    = String(xrf.navigator.URI.fragment||"") != String(URI.fragment||"")
+  let hashbus       = xrf.hashbus
+  xrf.navigator.URI = URI
+  let {directory,file,fragment,fileExt} = URI;
 
-  let hashbus = xrf.hashbus
+  const evalFragment  = () => {
+    if( URI.fragment ){
+      hashbus.pub( URI.fragment, xrf.model, flags )     // eval local URI XR fragments 
+      xrf.navigator.updateHash(fragment)                // which don't require 
+    }
+  }
 
   return new Promise( (resolve,reject) => {
     xrf
     .emit('navigate', {url,loader,data})
     .then( () => {
 
-      if( ext && !loader ){  
-        const Loader = xrf.loaders[ext]
+      const Loader = xrf.loaders[fileExt]
+
+      if( fileExt && !loader ){  
         if( !Loader ) return resolve()
-        loader = loader || new Loader().setPath( dir )
+        loader = loader || new Loader().setPath( URI.URN )
       }
 
-      if( !hash && !file && !ext ) return resolve(xrf.model) // nothing we can do here
+      if( !URI.fragment && !URI.file && !URI.fileExt ) return resolve(xrf.model) // nothing we can do here
 
-      if( hashChange && !hasPos ){
-        hashbus.pub( url, xrf.model, flags )     // eval local URI XR fragments 
-        xrf.navigator.updateHash(hash)           // which don't require 
-        return resolve(xrf.model)                // positional navigation
+      if( xrf.model && !fileChange && hashChange && !hasPos  ){
+        evalFragment()
+        return resolve(xrf.model)                         // positional navigation
       }
 
       xrf
       .emit('navigateLoading', {url,loader,data})
       .then( () => {
-        if( hashChange && hasPos ){                 // we're already loaded
-          hashbus.pub( url, xrf.model, flags )     // and eval local URI XR fragments 
-          xrf.navigator.updateHash(hash)
+        if( (!fileChange || !file) && hashChange && hasPos ){                 // we're already loaded
+          evalFragment()
           xrf.emit('navigateLoaded',{url})
           return resolve(xrf.model) 
         }
@@ -1829,17 +2052,20 @@ xrf.navigator.to = (url,flags,loader,data) => {
         xrf.reset() 
 
         // force relative path for files which dont include protocol or relative path
-        if( dir ) dir = dir[0] == '.' || dir.match("://") ? dir : `.${dir}`
-        url = url.replace(dir,"")
-        loader = loader || new Loader().setPath( dir )
+        if( directory ) directory = directory[0] == '.' || directory.match("://") ? directory : `.${directory}`
+
+        loader = loader || new Loader().setPath( URI.URN )
         const onLoad = (model) => {
 
-          model.file = file
+          model.file = URI.file
           // only change url when loading *another* file
-          if( xrf.model ) xrf.navigator.pushState( `${dir}${file}`, hash )
+          if( xrf.model ){
+            xrf.navigator.pushState( external ? URI.URN + URI.file : URI.file, fragment )
+          }
+          //if( xrf.model ) xrf.navigator.pushState( `${ document.location.pathname != URI.directory ? URI.directory: ''}${URI.file}`, fragment )
           xrf.model = model 
 
-          if( !model.isXRF ) xrf.parseModel(model,url) // this marks the model as an XRF model
+          if( !model.isXRF ) xrf.parseModel(model,url.replace(directory,"")) // this marks the model as an XRF model
 
           if(xrf.debug ) model.animations.map( (a) => console.log("anim: "+a.name) )
 
@@ -1847,17 +2073,16 @@ xrf.navigator.to = (url,flags,loader,data) => {
           xrf.XRWG.generate({model,scene:model.scene})
 
           // spec: 2. init metadata inside model for non-SRC data
-          if( !model.isSRC ){ 
+          if( !model.isSRC ){
             model.scene.traverse( (mesh) => xrf.parseModel.metadataInMesh(mesh,model) )
           }
-
           // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
           xrf.frag.defaultPredefinedViews({model,scene:model.scene})
-          // spec: predefined view(s) & objects-of-interest-in-XRWG from URL (https://xrfragment.org/#predefined_view)
+          // spec: predefined view(s) & objects-of-interest-in-XRWG from URI (https://xrfragment.org/#predefined_view)
           let frag = xrf.hashbus.pub( url, model) // and eval URI XR fragments 
 
           xrf.add( model.scene )
-          if( hash ) xrf.navigator.updateHash(hash)
+          if( fragment ) xrf.navigator.updateHash(fragment)
           xrf.emit('navigateLoaded',{url,model})
           resolve(model)
         }
@@ -1866,7 +2091,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
           loader.parse(data, "", onLoad )
         }else{
           try{
-            loader.load(url, onLoad )
+            loader.load(file, onLoad )
           }catch(e){ 
             console.error(e)
             xrf.emit('navigateError',{url})
@@ -1880,9 +2105,12 @@ xrf.navigator.to = (url,flags,loader,data) => {
 xrf.navigator.init = () => {
   if( xrf.navigator.init.inited ) return
 
+  xrf.navigator.URI = xrfragment.URI.parse(document.location.href)
+
   window.addEventListener('popstate', function (event){
     if( !xrf.navigator.updateHash.active ){ // ignore programmatic hash updates (causes infinite recursion)
-      xrf.navigator.to( document.location.search.substr(1) + document.location.hash )
+      //xrf.navigator.to( document.location.search.substr(1) + document.location.hash )
+      xrf.navigator.to( document.location.href.replace(/\?/,'') )
     }
   })
   
@@ -1908,10 +2136,10 @@ xrf.navigator.setupNavigateFallbacks = () => {
 
   xrf.addEventListener('navigate', (opts) => {
     let {url} = opts
-    let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
+    let {fileExt} = xrfragment.URI.parse(url)
 
     // handle http links
-    if( url.match(/^http/) && !xrf.loaders[ext] ){
+    if( url.match(/^http/) && !xrf.loaders[fileExt] ){
       let inIframe
       try { inIframe = window.self !== window.top; } catch (e) { inIframe = true; }
       return inIframe ? window.parent.postMessage({ url }, '*') : window.open( url, '_blank')
@@ -1931,7 +2159,7 @@ xrf.navigator.setupNavigateFallbacks = () => {
 
 xrf.navigator.updateHash = (hash,opts) => {
   if( hash.replace(/^#/,'') == document.location.hash.substr(1) || hash.match(/\|/) ) return  // skip unnecesary pushState triggers
-  console.log(`URL: ${document.location.search.substr(1)}#${hash}`)
+  console.log(`URI: ${document.location.search.substr(1)}#${hash}`)
   xrf.navigator.updateHash.active = true  // important to prevent recursion
   document.location.hash = hash
   xrf.navigator.updateHash.active = false
@@ -1941,6 +2169,23 @@ xrf.navigator.pushState = (file,hash) => {
   if( file == document.location.search.substr(1) ) return // page is in its default state
   window.history.pushState({},`${file}#${hash}`, document.location.pathname + `?${file}#${hash}` )
   xrf.emit('pushState', {file, hash} )
+}
+
+xrf.navigator.reactifyHash = ( obj ) => {
+  return new Proxy(obj,{
+    get(me,k)  { return me[k] },
+    set(me,k,v){ 
+      me[k] = v 
+      xrf.navigator.to( "#" + this.toString(me) )
+    },
+    toString(me){
+      let parts = []
+      Object.keys(me).map( (k) => {
+        parts.push( me[k] ? `${k}=${encodeURIComponent(me[k])}` : k ) 
+      })
+      return parts.join('&')
+    }
+  })
 }
 /**
  * 
@@ -1993,7 +2238,6 @@ xrf.frag.href = function(v, opts){
     .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
     .then( () => {
 
-      let {urlObj,dir,file,hash,ext} = xrf.parseUrl(v.string)
       const isLocal = v.string[0] == '#'
       const hasPos  = isLocal && v.string.match(/pos=/)
       const flags   = isLocal ? xrf.XRF.PV_OVERRIDE : undefined
@@ -2153,6 +2397,32 @@ xrf.frag.pos = function(v, opts){
   camera.updateMatrixWorld()
 }
 
+xrf.frag.pos.get = function(precision,randomize){
+    if( !precision ) precision = 2;
+    if( typeof THREE == 'undefined' ) THREE = xrf.THREE
+    let radToDeg  = THREE.MathUtils.radToDeg
+    let toDeg     = (x) => x / (Math.PI / 180)
+    let camera    = xrf.camera 
+    if( randomize ){
+      camera.position.x += Math.random()/10
+      camera.position.z += Math.random()/10
+    }
+
+    // *TODO* add camera direction
+    let direction = new xrf.THREE.Vector3()
+    camera.getWorldDirection(direction)
+    const pitch   = Math.asin(direction.y);
+    const yaw     = Math.atan2(direction.x, direction.z);
+    const pitchInDegrees = pitch * 180 / Math.PI;
+    const yawInDegrees = yaw * 180 / Math.PI;
+
+    return {
+      x: String(camera.position.x.toFixed(2)),
+      y: String(camera.position.y.toFixed(2)),
+      z: String(camera.position.z.toFixed(2)),
+    }
+}
+
 xrf.addEventListener('reset', (opts) => {
   // set the player to position 0,0,0
   xrf.camera.position.set(0,0,0)
@@ -2207,7 +2477,7 @@ xrf.frag.src = function(v, opts){
   if( mesh.isSRC ) return // only embed src once 
 
   let url       = xrf.frag.src.expandURI( mesh, v.string )
-  let srcFrag   = opts.srcFrag = xrfragment.URI.parse(url)
+  let srcFrag   = opts.srcFrag = xrfragment.URI.parse(url).XRF
   opts.isLocal  = v.string[0] == '#'
   opts.isPortal = xrf.frag.src.renderAsPortal(mesh)
   opts.isSRC    = mesh.isSRC = true 
@@ -2294,7 +2564,7 @@ xrf.frag.src.externalSRC = (url,frag,opts) => {
   fetch(url, { method: 'HEAD' })
   .then( (res) => {
     let mimetype = res.headers.get('Content-type')
-    if(xrf.debug != undefined ) console.log("HEAD "+url+" => "+mimetype)
+    if(xrf.debug > 0 ) console.log("HEAD "+url+" => "+mimetype)
     if( url.replace(/#.*/,'').match(/\.(gltf|glb)$/)     ) mimetype = 'gltf'
     if( url.replace(/#.*/,'').match(/\.(frag|fs|glsl)$/) ) mimetype = 'x-shader/x-fragment'
     if( url.replace(/#.*/,'').match(/\.(vert|vs)$/)      ) mimetype = 'x-shader/x-fragment'
@@ -3195,8 +3465,8 @@ xrf.addEventListener('render', (opts) => {
 
 let loadAudio = (mimetype) => function(url,opts){
   let {mesh,src,camera,THREE} = opts
-  let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
-  let frag = xrf.URI.parse( url )
+  let URL  = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
+  let frag = URL.XRF 
 
   xrf.init.audio()
   let isPositionalAudio = !(mesh.position.x == 0 && mesh.position.y == 0 && mesh.position.z == 0)
@@ -3207,8 +3477,8 @@ let loadAudio = (mimetype) => function(url,opts){
   mesh.media = mesh.media || {}
   mesh.media.audio = { set: (mediafragment,v) => mesh.media.audio[mediafragment] = v }
 
-  let finalUrl = url.replace(/#.*/,'')
-  if( xrf.debug != undefined ) console.log("GET "+finalUrl)
+  let finalUrl = URL.URN + URL.file 
+  if( xrf.debug > 0 ) console.log("GET "+finalUrl)
   audioLoader.load( finalUrl, function( buffer ) {
 
     sound.setBuffer( buffer );
@@ -3318,7 +3588,8 @@ audioMimeTypes.map( (mimetype) =>  xrf.frag.src.type[ mimetype ] = loadAudio(mim
 xrf.frag.src.type['fbx'] = function( url, opts ){
   return new Promise( async (resolve,reject) => {
     let {mesh,src} = opts
-    let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
+    let URL  = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
+    let frag = URL.XRF 
     let loader
 
     let {THREE}        = await import('https://unpkg.com/three@0.161.0/build/three.module.js')
@@ -3346,14 +3617,17 @@ xrf.frag.src.type['fbx'] = function( url, opts ){
 xrf.frag.src.type['x-shader/x-fragment'] = function(url,opts){
   let {mesh,THREE} = opts
 
+  let URL  = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
+  let frag = URL.XRF 
+
   let isFragmentShader = /\.(fs|frag|glsl)$/
   let isVertexShader   = /\.(vs|vert)$/
 
   let shaderReqs = []
   let shaderCode = {}
   let shader   = {
-    fragment: { code: '', url: url.match( isFragmentShader ) ? url : '' },
-    vertex:   { code: '', url: url.match( isVertexShader   ) ? url : '' }
+    fragment: { code: '', url: url.match( isFragmentShader ) ? URL.URN + URL.file : '' },
+    vertex:   { code: '', url: url.match( isVertexShader   ) ? URL.URN + URL.file : '' }
   }
   
   var onShaderLoaded = ((args) => (type, status, code) => {
@@ -3412,19 +3686,15 @@ xrf.frag.src.type['x-shader/x-vertex']   = xrf.frag.src.type['x-shader/x-fragmen
 xrf.frag.src.type['gltf'] = function( url, opts ){
   return new Promise( (resolve,reject) => {
     let {mesh,src} = opts
-    let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
+    let URL = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
+    let {directory,file,fileExt,URN} = URL;
     let loader
 
-    const Loader = xrf.loaders[ext]
+    const Loader = xrf.loaders[fileExt]
     if( !Loader ) throw 'xrfragment: no loader passed to xrfragment for extension .'+ext 
-    if( !dir.match("://") ){ // force relative path 
-      dir = dir.substr(0,2) == './' ? dir : `./${dir}`
-      loader = new Loader().setPath( dir )
-    }else{
-      loader = new Loader() 
-    }
+    loader = new Loader().setPath( URN )
 
-    loader.load(url, (model) => {
+    loader.load(file, (model) => {
       model.isSRC = true
       resolve(model)
     })
@@ -3435,7 +3705,7 @@ xrf.frag.src.type['gltf'] = function( url, opts ){
 let loadHTML = (mimetype) => function(url,opts){
   let {mesh,src,camera} = opts
   let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
-  let frag = xrf.URI.parse( url )
+  let frag = xrf.URI.parse( url ).XRF
   console.warn("todo: html viewer for src not implemented")
 }
 
@@ -3452,6 +3722,8 @@ htmlMimeTypes.map( (mimetype) =>  xrf.frag.src.type[ mimetype ] = loadHTML(mimet
 xrf.frag.src.type['image/png'] = function(url,opts){
   let {mesh,THREE} = opts
   let restrictTo3DBoundingBox = mesh.geometry
+  let URL  = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
+  let frag = URL.XRF 
 
   mesh.material = new xrf.THREE.MeshBasicMaterial({ 
     map: null, 
@@ -3495,7 +3767,7 @@ xrf.frag.src.type['image/png'] = function(url,opts){
     renderImage(texture)
   }
 
-  new THREE.TextureLoader().load( url, onLoad, null, console.error );
+  new THREE.TextureLoader().load( URL.URN + URL.file, onLoad, null, console.error );
 
 }
 
@@ -3701,9 +3973,9 @@ xrf.portalNonEuclidian.stencilRef = 1
 
 let loadVideo = (mimetype) => function(url,opts){
   let {mesh,src,camera} = opts
-  let {urlObj,dir,file,hash,ext} = xrf.parseUrl(url)
   const THREE = xrf.THREE
-  let frag = xrf.URI.parse( url )
+  let URL  = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
+  let frag = URL.XRF 
 
   mesh.media = mesh.media || {}
 
@@ -3725,7 +3997,7 @@ let loadVideo = (mimetype) => function(url,opts){
     },false)
   })
 
-  video.src = url
+  video.src = URL.URN + URL.file 
   video.speed = 1.0
   video.looping = false
   video.set = (mediafragment,v) => {
@@ -4161,6 +4433,17 @@ AFRAME.registerComponent('movement-controls', {
 
   }())
 });
+AFRAME.components['hand-tracking-controls'].Component.prototype.onModelLoaded = function(onModelLoaded){
+  return function(e){
+    onModelLoaded.apply(this);
+    // re-attach children 
+    ([...this.el.children]).map( (c) => {
+      if( c.object3D ){
+        this.el.object3D.getObjectByName("wrist").add(c.object3D)
+      }
+    })
+  }
+}(AFRAME.components['hand-tracking-controls'].Component.prototype.onModelLoaded)
 // look-controls turns off autoUpdateMatrix (of player) which 
 // will break teleporting and other stuff
 // overriding this is easier then adding updateMatrixWorld() everywhere else
@@ -4280,7 +4563,7 @@ AFRAME.registerComponent('pressable', {
                 this.el.emit('click');
                 this.pressed = setTimeout( () => {
                   this.el.emit('pressedended');
-                  this.pressed = null 
+                  this.pressed = false 
                 },300)
               }
             }
@@ -4438,8 +4721,10 @@ window.AFRAME.registerComponent('xrf-button', {
         this.el.addEventListener('mouseenter', (e) => this.onMouseEnter(e) );
         this.el.addEventListener('mouseleave', (e) => this.onMouseLeave(e) );
 
+        let cb = new Function(this.data.action)
+
         if( this.data.action ){ 
-          this.el.addEventListener('click', new Function(this.data.action) )
+          this.el.addEventListener('click', AFRAME.utils.throttle(cb, 500 ) )
         }
     },
     bindMethods: function() {
@@ -4611,6 +4896,8 @@ window.AFRAME.registerComponent('xrf-get', {
     var el = this.el;
     var meshname = this.data.name || this.data;
 
+    if( !meshname || typeof meshname != 'string' ) return
+
     this.el.addEventListener('update', (evt) => {
 
       setTimeout( () => {
@@ -4647,7 +4934,8 @@ window.AFRAME.registerComponent('xrf-get', {
           this.el.object3D.child = mesh    // keep reference (because .children will be empty)
 
           if( !this.el.id ) this.el.setAttribute("id",`xrf-${mesh.name}`)
-        }else console.warn("xrf-get ignore: "+JSON.stringify(this.data))
+        }
+
       }, evt && evt.timeout ? evt.timeout: 500)
 
     })

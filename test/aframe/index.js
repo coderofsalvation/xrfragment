@@ -15,9 +15,9 @@ console.assert = ((assert) => (a,b) => {
 /* 
  * parser checks
  */
-let frags = xrf.URI.parse('://foo.com/1.gltf#pos=1.0,2.0,3.0&t=0,100')
+let frags = xrf.URI.parse('://foo.com/1.gltf#pos=1.0,2.0,3.0&t=0,100').XRF
 console.assert( frags.t, {frags, reason:'URI.parse(): t needs to be set'})
 
-let frag = xrf.URI.parse("#foo=1")
+let frag = xrf.URI.parse("#foo=1").XRF
 console.assert( frag, {reason: 'xrf.URI.parse() should be available'})
 
