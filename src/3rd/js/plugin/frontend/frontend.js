@@ -301,10 +301,10 @@ window.frontend = (opts) => new Proxy({
 
   share(opts){
     opts = opts || {notify:true,qr:true,share:true,linkonly:false}
-    if( network.meetingLink && !document.location.hash.match(/meet=/) ){
-      document.location.hash += `&meet=${network.meetingLink}`
+    if( network.meetingLink && !xrf.navigator.URI.hash.meet ){
+      xrf.navigator.URI.hash.meet = network.meetingLink
     }
-    if( !document.location.hash.match(/pos=/) && (network.posName || network.pos) ){
+    if( !xrf.navigator.URI.hash.pos && (network.posName || network.pos) ){
       xrf.navigator.URI.hash.pos = network.posName || network.pos
     }else frontend.updateHashPosition()
 

@@ -147,6 +147,7 @@ class URI {
             {
                 url.file = url.host;
             }
+            url.host = "";
         }
 
         url.hash = {};
@@ -442,6 +443,8 @@ class URI {
         if (newURI.file != null)
         {
             resultURI.file = newURI.file;
+        }else{
+            resultURI.file = url.file;
         }
         
         resultURI.path = resultURI.directory + resultURI.file;

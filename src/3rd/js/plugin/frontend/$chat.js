@@ -105,7 +105,7 @@ chatComponent = {
         br.classList.add.apply(br.classList, opts.class)
         div.classList.add.apply(div.classList, opts.class.concat(["envelope"]))
       }
-      if( !msg.className.match(/(info|guide|ui)/) ){
+      if( msg.className.match(/(info|guide|ui)/) || !opts.from ){
         let frag = xrf.URI.parse(document.location.hash).XRF
         opts.from = 'you'
         if( frag.pos ) opts.pos = frag.pos.string
@@ -187,7 +187,7 @@ chatComponent.css = `
        bottom: 0;
        right: 0;
        margin: 15px;
-       z-index:1500;
+       z-index:1000;
      }
      #videos > video{
        border-radius:7px;

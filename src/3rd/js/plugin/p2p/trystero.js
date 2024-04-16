@@ -51,14 +51,10 @@ window.trystero = (opts) => new Proxy({
     $connections.webcam      = $connections.webcam.concat([this])
     $connections.chatnetwork = $connections.chatnetwork.concat([this])
     $connections.scene       = $connections.scene.concat([this])
-    if( localStorage.getItem("selfId") ){
-      this.selfId = localStorage.getItem("selfId")
-    }else{
-      this.selfId = String(Math.random()).substr(2)
-      localStorage.setItem("selfId",this.selfId)
-    }
+    this.selfId = selfId // selfId is a trystero global (unique per session)
     this.reactToConnectionHrefs()
     this.nickname         = localStorage.getItem("nickname") || `human${String(Math.random()).substr(5,4)}`
+    this.names[ this.selfId ] = this.nickname
     document.addEventListener('network.connect', (e) => this.connect(e.detail) )
     document.addEventListener('network.init', () => {
       let meeting = network.getMeetingFromUrl(document.location.href)
@@ -72,7 +68,6 @@ window.trystero = (opts) => new Proxy({
     if( !this.connected ){
       this.connected = true
       frontend.emit('network.connected',{plugin:this,username: this.nickname}) 
-      this.names[ this.selfId ] = this.nickname
     }
   },
 
@@ -208,12 +203,11 @@ window.trystero = (opts) => new Proxy({
   send(opts){ $chat.send({...opts, source: 'trystero'}) },
 
   createLink(opts){
-    let hash = document.location.hash 
     if( !this.link ){
       const meeting = network.getMeetingFromUrl(document.location.href)
       this.link = network.meetingLink = meeting.match("trystero://") ? meeting : `trystero://r/${network.randomRoom()}:bittorrent`
     }
-    if( !hash.match('meet=') ) document.location.hash += `${hash.length > 1 ? '&' : '#'}meet=${this.link}`
+    if( !xrf.navigator.URI.hash.meet ) xrf.navigator.URI.hash.meet = this.link 
   },
 
   config(opts){

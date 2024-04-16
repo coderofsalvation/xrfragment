@@ -269,7 +269,7 @@ connectionsComponent = {
 }
 
 // reactify component!
-document.addEventListener('$menu:ready', (opts) => {
+document.addEventListener('$chat:ready', (opts) => {
   opts = opts.detail
   document.head.innerHTML += connectionsComponent.css 
   window.$connections = document.createElement('div')

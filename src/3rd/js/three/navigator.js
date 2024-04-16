@@ -1,4 +1,12 @@
-xrf.navigator = {URI:{}}
+xrf.navigator = {
+  URI:{
+    scheme:    document.location.protocol.replace(/:$/,''),
+    directory: document.location.pathname,
+    host:      document.location.hostname,
+    port:      document.location.port,
+    file:      'index.glb'
+  }
+}
 
 xrf.navigator.to = (url,flags,loader,data) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
@@ -181,7 +189,7 @@ xrf.navigator.reactifyHash = ( obj ) => {
     toString(me){
       let parts = []
       Object.keys(me).map( (k) => {
-        parts.push( me[k] ? `${k}=${encodeURIComponent(me[k])}` : k ) 
+        parts.push( me[k] ? `${k}=${me[k]}` : k ) 
       })
       return parts.join('&')
     }

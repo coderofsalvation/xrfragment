@@ -293,12 +293,11 @@ window.matrix = (opts) => new Proxy({
   },
 
   createLink(opts){
-    let hash = document.location.hash 
     if( !this.link ){
       const meeting = network.getMeetingFromUrl(document.location.href)
       this.link = network.meetingLink = meeting.match("matrix://") ? meeting  : ''
     }
-    if( !hash.match('meet=') ) document.location.hash += `${hash.length > 1 ? '&' : '#'}meet=${this.link}`
+    if( !xrf.navigator.URI.hash.meet ) xrf.navigator.URI.hash.meet = this.link 
   },
 
   reactToConnectionHrefs(){
