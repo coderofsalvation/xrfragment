@@ -105,7 +105,7 @@ chatComponent = {
         br.classList.add.apply(br.classList, opts.class)
         div.classList.add.apply(div.classList, opts.class.concat(["envelope"]))
       }
-      if( msg.className.match(/(info|guide|ui)/) || !opts.from ){
+      if( !msg.className.match(/(info|guide|ui)/) && !opts.from ){
         let frag = xrf.URI.parse(document.location.hash).XRF
         opts.from = 'you'
         if( frag.pos ) opts.pos = frag.pos.string
@@ -284,7 +284,8 @@ chatComponent.css = `
        cursor:grabbing;
        border: 1px solid #0002;
      }
-     #messages .msg *{
+     #messages .msg *,
+     #messages .user *{
        pointer-events:all;
        -webkit-user-select:text;
        -moz-user-select:-moz-text;

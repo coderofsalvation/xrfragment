@@ -95,7 +95,8 @@ window.frontend = (opts) => new Proxy({
                            :  "use WASD-keys and mouse-drag to move around"
         window.notify(instructions,{timeout:false})
         xrf.addEventListener('navigate', (opts) => {
-          window.notify('<b class="badge">teleporting</b> to <b>'+opts.url+"</b><br><br>use back/forward browserbutton to undo")
+          let pos = opts.url.replace( document.location.href.replace(/#.*/,''), '')
+          window.notify('<b class="badge">teleporting</b> to <b>'+pos+"</b><br><br>use back/forward browserbutton to undo")
         }) // close dialogs when url changes
       },2000 )
 

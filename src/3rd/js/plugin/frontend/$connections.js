@@ -249,7 +249,9 @@ connectionsComponent = {
     set(data,k,v){ 
       data[k] = v 
       switch( k ){
-        case "visible":             el.style.display = v ? '' : 'none'; break;
+        case "visible":             el.style.display = v ? '' : 'none'; 
+                                    if( !v && el.parentNode && el.parentNode.parentNode ) el.parentNode.parentNode.remove() 
+                                    break;
         case "webcam":              $webcam.innerHTML       = `<option>${data[k].map((p)=>p.profile.name).join('</option><option>')}</option>`; break;
         case "chatnetwork":         $chatnetwork.innerHTML  = `<option>${data[k].map((p)=>p.profile.name).join('</option><option>')}</option>`; break;
         case "scene":               $scene.innerHTML        = `<option>${data[k].map((p)=>p.profile.name).join('</option><option>')}</option>`; break;

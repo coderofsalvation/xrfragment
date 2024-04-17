@@ -41,6 +41,7 @@ xrf.parseModel = function(model,url){
   let file               = xrf.getFile(url)
   model.file             = file
   model.isXRF            = true
+  model.scene.isXRFRoot  = true
   model.scene.traverse( (n) => n.isXRF = true ) // mark for deletion during reset()
 
   xrf.emit('parseModel',{model,url,file})

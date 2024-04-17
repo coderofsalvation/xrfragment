@@ -13,10 +13,12 @@ xrf.navigator.to = (url,flags,loader,data) => {
 
   let URI = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
   URI.hash          = xrf.navigator.reactifyHash(URI.hash)
-  let fileChange    = URI.URN + URI.file != xrf.navigator.URI.URN + xrf.navigator.URI.file 
-  let external      = URI.URN != document.location.origin + document.location.pathname 
-  let hasPos        = URI.hash.pos 
-  let hashChange    = String(xrf.navigator.URI.fragment||"") != String(URI.fragment||"")
+  // decorate with extra state
+  URI.fileChange    = URI.file && URI.URN + URI.file != xrf.navigator.URI.URN + xrf.navigator.URI.file 
+  URI.external      = URI.file && URI.URN != document.location.origin + document.location.pathname 
+  URI.hasPos        = URI.hash.pos ? true : false
+  URI.duplicatePos  = URI.source == xrf.navigator.URI.source && URI.hasPos
+  URI.hashChange    = String(xrf.navigator.URI.fragment||"") != String(URI.fragment||"")
   let hashbus       = xrf.hashbus
   xrf.navigator.URI = URI
   let {directory,file,fragment,fileExt} = URI;
@@ -40,22 +42,25 @@ xrf.navigator.to = (url,flags,loader,data) => {
         loader = loader || new Loader().setPath( URI.URN )
       }
 
-      if( !URI.fragment && !URI.file && !URI.fileExt ) return resolve(xrf.model) // nothing we can do here
 
-      if( xrf.model && !fileChange && hashChange && !hasPos  ){
+      if( URI.duplicatePos || (!URI.fragment && !URI.file && !URI.fileExt) ){ 
+        return resolve(xrf.model) // nothing we can do here
+      }
+
+      if( xrf.model && !URI.fileChange && URI.hashChange && !URI.hasPos  ){
         evalFragment()
-        return resolve(xrf.model)                         // positional navigation
+        return resolve(xrf.model)                         // eval non-positional fragments (no loader needed)
       }
 
       xrf
       .emit('navigateLoading', {url,loader,data})
       .then( () => {
-        if( (!fileChange || !file) && hashChange && hasPos ){                 // we're already loaded
+        if( (!URI.fileChange || !file) && URI.hashChange && URI.hasPos ){                 // we're already loaded
           evalFragment()
           xrf.emit('navigateLoaded',{url})
           return resolve(xrf.model) 
         }
-          
+
         // clear xrf objects from scene
         if( xrf.model && xrf.model.scene ) xrf.model.scene.visible = false
         xrf.reset() 
@@ -67,11 +72,6 @@ xrf.navigator.to = (url,flags,loader,data) => {
         const onLoad = (model) => {
 
           model.file = URI.file
-          // only change url when loading *another* file
-          if( xrf.model ){
-            xrf.navigator.pushState( external ? URI.URN + URI.file : URI.file, fragment )
-          }
-          //if( xrf.model ) xrf.navigator.pushState( `${ document.location.pathname != URI.directory ? URI.directory: ''}${URI.file}`, fragment )
           xrf.model = model 
 
           if( !model.isXRF ) xrf.parseModel(model,url.replace(directory,"")) // this marks the model as an XRF model
@@ -86,12 +86,17 @@ xrf.navigator.to = (url,flags,loader,data) => {
             model.scene.traverse( (mesh) => xrf.parseModel.metadataInMesh(mesh,model) )
           }
           // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
-          xrf.frag.defaultPredefinedViews({model,scene:model.scene})
+          const defaultFragment = xrf.frag.defaultPredefinedViews({model,scene:model.scene})
           // spec: predefined view(s) & objects-of-interest-in-XRWG from URI (https://xrfragment.org/#predefined_view)
           let frag = xrf.hashbus.pub( url, model) // and eval URI XR fragments 
-
+          
           xrf.add( model.scene )
-          if( fragment ) xrf.navigator.updateHash(fragment)
+
+          // only change url when loading *another* file
+          fragment = fragment || defaultFragment || ''
+          xrf.navigator.pushState( URI.external ? URI.URN + URI.file : URI.file, fragment.replace(/^#/,'') )
+          //if( fragment )  xrf.navigator.updateHash(fragment)
+
           xrf.emit('navigateLoaded',{url,model})
           resolve(model)
         }
