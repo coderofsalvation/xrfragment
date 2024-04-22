@@ -123,7 +123,7 @@ xrf.navigator.init = () => {
 
   window.addEventListener('popstate', function (event){
     if( !xrf.navigator.updateHash.active ){ // ignore programmatic hash updates (causes infinite recursion)
-      xrf.navigator.to( document.location.href.replace(/\?/,'') )
+      xrf.navigator.to( document.location.href.replace(/.*\?/,'') )
     }
   })
   
