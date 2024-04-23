@@ -289,7 +289,7 @@ document.head.innerHTML += `
     }
 
     .badge,
-    #messages .msg.ui div.badge{
+    #messages .msg .badge{
       box-sizing:border-box;
       display:inline-block;
       color: var(--xrf-white);
@@ -303,6 +303,11 @@ document.head.innerHTML += `
     }
     #messages .msg.ui div.badge a{
       color:#FFF;
+    }
+    #messages .msg .badge{
+      display:inline;
+      background: var(--xrf-primary-fg);
+      color: var(--xrf-dark-gray);
     }
 
     .ruler{

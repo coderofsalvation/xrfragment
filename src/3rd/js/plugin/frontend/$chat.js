@@ -3,12 +3,14 @@ chatComponent = {
   html: `
     <div id="chat">
      <div id="videos" style="pointer-events:none"></div>
-     <div id="messages" aria-live="assertive" aria-relevant></div>
+     <div id="messages" aria-live="assertive" role="log" aria-relevant="additions"></div>
      <div id="chatfooter">
        <div id="chatbar">
            <input id="chatline" type="text" placeholder="chat here"></input>
        </div>
-       <button id="showchat" class="btn">show chat</button>
+       <button id="chatsend" class="btn" aria-label="send message">
+          <i class="gg-chevron-right-o"></i>
+       </button>
      </div>
     </div>
   `,
@@ -45,10 +47,10 @@ chatComponent = {
 
       $chatline.addEventListener('keydown', (e) => {
         if (e.key == 'Enter' ){
-          if( $chatline.value[0] != '/' ){
-            document.dispatchEvent( new CustomEvent("network.send", {detail: {message:$chatline.value}} ) )
-          }
-          this.send({message: $chatline.value })
+          let event   = $chatline.value.match(/^[!\/]/) ? "chat.command" : "network.send"
+          let message = $chatline.value.replace(/^[!\/]/,'')
+          document.dispatchEvent( new CustomEvent( event, {detail: {message}} ) )
+          if( event == "network.send" ) this.send({message: $chatline.value })
           $chatline.value = ''
           if( window.innerHeight < 600 ) $chatline.blur()
         }
@@ -61,6 +63,17 @@ chatComponent = {
 
       document.addEventListener('network.connected', (e) => {
         if( e.detail.username ) this.username = e.detail.username
+      })
+
+      document.addEventListener('chat.command', (e) => {
+        if( String(e.detail.message).trim() == 'help' ){
+          let detail = {message:`The following commands are available
+          <br><br>
+          <b class="badge">/help</b> shows this help screen
+          `}
+          document.dispatchEvent( new CustomEvent( 'chat.command.help', {detail}))
+          this.send({message: detail.message})
+        }
       })
 
     },
@@ -206,7 +219,7 @@ chatComponent.css = `
      }
 
      #chatbar,
-     button#showchat{
+     button#chatsend{
        z-index: 1500;
        position: fixed;
        bottom: 24px;
@@ -220,14 +233,19 @@ chatComponent.css = `
        box-sizing: border-box;
        box-shadow: 0px 0px 5px 5px #0002;
      }
-     button#showchat{
-       z-index:1550;
-       color:white;
-       border:0;
-       display:none;
-       height: 44px;
-       background:#07F;
-       font-weight:bold;
+     button#chatsend{
+      line-height:0px;
+      display:none;
+      z-index: 1550;
+      color: white;
+      border: 0;
+      height: 35px;
+      background: var(--xrf-dark-gray);
+      font-weight: bold;
+      width: 20px;
+      max-width: 20px;
+      border-radius: 20px 0px 0px 20px;
+      overflow: hidden;
      }
      #chatbar input{
        border:none;
@@ -295,7 +313,7 @@ chatComponent.css = `
 
      #messages .msg.self{
        border-radius: 20px;
-       background:var(--xrf-box-shadow);
+       background:var(--xrf-dark-gray);
      }
      #messages .msg.self,
      #messages .msg.self div{
@@ -305,7 +323,7 @@ chatComponent.css = `
        background: #473f7f;
        border-radius: 20px;
        color: #FFF;
-       text-align: right;
+       text-align: left;
        line-height: 19px;
      }
      #messages .msg.info,
@@ -314,7 +332,7 @@ chatComponent.css = `
      }
      #messages .msg a {
        text-decoration:underline;
-       color: var(--xrf-primary);
+       color: var(--xrf-light-xrf-secondary);
        font-weight:bold;
        transition:0.3s;
      }
@@ -413,5 +431,31 @@ chatComponent.css = `
     }
     .user, .user *{ 
       font-size: var(--xrf-font-size-0);
+    }
+    .gg-chevron-right-o {
+      color:#FFF;
+      box-sizing: border-box;
+      position: relative;
+      display: block;
+      transform: scale(var(--ggs,1));
+      width: 22px;
+      height: 22px;
+      border: 2px solid;
+      border-radius: 100px
+    }
+
+    .gg-chevron-right-o::after {
+      color:#FFF;
+      content: "";
+      display: block;
+      box-sizing: border-box;
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-bottom: 2px solid;
+      border-right: 2px solid;
+      transform: rotate(-45deg);
+      left: 5px;
+      top: 6px
     }
    </style>`

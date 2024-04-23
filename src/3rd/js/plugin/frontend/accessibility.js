@@ -98,6 +98,17 @@ window.accessibility = (opts) => new Proxy({
       }
     })
 
+    setTimeout( () => this.initCommands(), 200 )
+    // auto-enable if previously enabled
+    if( window.localStorage.getItem("accessibility") ){
+      setTimeout( () => this.enabled = true, 100 )
+    }
+  },
+
+  initCommands(){
+    document.addEventListener('chat.command.help', (e) => {
+      e.detail.message += `<br><b class="badge">/fontsize <number></b> set fontsize (default=14) `
+    })
   },
 
   posToMessage(opts){
@@ -139,7 +150,9 @@ window.accessibility = (opts) => new Proxy({
                         data.enabled = true
                         data.speak(message)
                         data.enabled = v
+                        window.localStorage.setItem("accessibility", v)
                         $chat.$messages.classList[ v ? 'add' : 'remove' ]('guide')
+                        document.body.classList.toggle(['accessibility'])
                         if( !data.readTranscript && (data.readTranscript = true) ){
                           data.speak( data.sanitizeTranscript() )
                         }
@@ -149,7 +162,6 @@ window.accessibility = (opts) => new Proxy({
 })
 
 document.addEventListener('$menu:ready', (e) => {
-  return
   try{
     accessibility = accessibility(e.detail) 
     accessibility.init()
@@ -157,3 +169,31 @@ document.addEventListener('$menu:ready', (e) => {
     $menu.buttons = $menu.buttons.concat([`<a class="btn" style="background:var(--xrf-dark-gray);filter: brightness(0.5);" aria-label="button" aria-description="enable all accessibility features" id="accessibility" onclick="accessibility.settings()"><i class="gg-yinyang"></i>accessibility</a><br>`])
   }catch(e){console.error(e)}
 })
+
+document.querySelector('head').innerHTML += `
+  <style type="text/css"> 
+    .accessibility #messages * {
+      font-size:24px !important;
+      line-height:40px;
+    }
+    .accessibility #messages .msg.info,
+    .accessibility #messages .msg.self {
+      line-height:unset;
+      padding-top:15px;
+      padding-bottom:15px;
+    }
+    .accessibility .transcript {
+      max-height:unset;
+    }
+    .accessibility #chatbar{
+      display: block !important;
+    }
+    .accessibility #chatsend{
+      display: block !important;
+    }
+    .accessibility #chatline {
+      text-indent:25px;
+    }
+  </style>
+`
+
