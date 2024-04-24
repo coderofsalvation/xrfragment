@@ -101,14 +101,50 @@ window.accessibility = (opts) => new Proxy({
     setTimeout( () => this.initCommands(), 200 )
     // auto-enable if previously enabled
     if( window.localStorage.getItem("accessibility") ){
-      setTimeout( () => this.enabled = true, 100 )
+      setTimeout( () => {
+        this.enabled = true
+        this.setFontSize()
+      }, 100 )
     }
   },
 
   initCommands(){
+
     document.addEventListener('chat.command.help', (e) => {
       e.detail.message += `<br><b class="badge">/fontsize <number></b> set fontsize (default=14) `
     })
+
+    document.addEventListener('chat.command', (e) => {
+      if( e.detail.message.match(/^fontsize/) ){
+        try{
+          let fontsize = parseInt( e.detail.message.replace(/^fontsize /,'').trim() )
+          if( fontsize == NaN ) throw 'not a number'
+          this.setFontSize(fontsize)
+          $chat.send({message:'fontsize set to '+fontsize})
+        }catch(e){
+          console.error(e)
+          $chat.send({message:'example usage: /fontsize 20'})
+        }
+      }
+    })
+
+  },
+
+  setFontSize(size){
+    if( size ){
+      window.localStorage.setItem("fontsize",size)
+    }else size = window.localStorage.getItem("fontsize")
+    if( !size ) return 
+    document.head.innerHTML += `
+      <style type="text/css">
+        .accessibility #messages * {
+          font-size: ${size}px !important;
+          line-height: ${size*2}px !important;
+        }
+      </style>
+    `
+    $messages = document.querySelector('#messages')
+    setTimeout( () => $messages.scrollTop = $messages.scrollHeight, 1000 )
   },
 
   posToMessage(opts){
@@ -181,9 +217,6 @@ document.querySelector('head').innerHTML += `
       line-height:unset;
       padding-top:15px;
       padding-bottom:15px;
-    }
-    .accessibility .transcript {
-      max-height:unset;
     }
     .accessibility #chatbar{
       display: block !important;

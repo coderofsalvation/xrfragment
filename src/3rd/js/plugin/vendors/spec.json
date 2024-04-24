@@ -1,0 +1,6 @@
+{
+  "-{vendor}-fog": {
+    "near": "x",
+    "far":  "y"
+  }
+}

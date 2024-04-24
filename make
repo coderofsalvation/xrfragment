@@ -116,7 +116,7 @@ build(){
     for file in dist/xrfragment.{aframe,module,three,three.module,aframe.all}.js; do
       awk 'BEGIN{ 
         print "/*"
-        print " * '"$(git tag)"' generated at '"$(date)"'"
+        print " * '"$(git tag | head -n1)"' generated at '"$(date)"'"
         print " * https://xrfragment.org"
         print " * SPDX-License-Identifier: MPL-2.0"
         print " */"

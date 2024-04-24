@@ -409,9 +409,13 @@ chatComponent.css = `
       margin:0;
     }
 
+    .envelope{
+      margin-right:15px;
+      max-width:80%;
+    }
+
     .envelope,
     .envelope * {
-      overflow:hidden;
       transition:1s;
       pointer-events:none;
     }

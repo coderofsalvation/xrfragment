@@ -370,7 +370,7 @@ document.head.innerHTML += `
 
   .transcript{
     max-height:105px;
-    max-width:405px;
+    width:100%;
     overflow-y:auto;
     border: 1px solid var(--xrf-gray);
     border-radius: 5px;
