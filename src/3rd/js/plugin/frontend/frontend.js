@@ -94,9 +94,9 @@ window.frontend = (opts) => new Proxy({
                            ? "hold 2-3 fingers to move forward/backward" 
                            :  "use WASD-keys and mouse-drag to move around"
         window.notify(instructions,{timeout:false})
-        xrf.addEventListener('navigate', (opts) => {
-          let pos = opts.url.replace( document.location.href.replace(/#.*/,''), '')
-          window.notify('<b class="badge">teleporting</b> to <b>'+pos+"</b><br><br>use back/forward browserbutton to undo")
+        xrf.addEventListener('pos', (opts) => {
+          let pos = opts.frag.pos.string 
+          window.notify('<b class="badge">teleporting</b> to <b>'+pos+"</b><br>use back/forward (browserbutton) to undo")
         }) // close dialogs when url changes
       },2000 )
 
@@ -119,13 +119,8 @@ window.frontend = (opts) => new Proxy({
             }
           }
         }
-        let transcript = ''
         let root = data.mesh.portal ? data.mesh.portal.stencilObject : data.mesh
-        root.traverse( (n) => {
-          if( n.userData['aria-description'] && n.uuid != data.mesh.uuid ){
-            transcript += `<b>#${n.name}</b> ${n.userData['aria-description']}. `
-          }
-        })
+        let transcript = xrf.sceneToTranscript(root,data.mesh)
         if( transcript.length ) html += `<br><b>transcript:</b><br><div class="transcript">${transcript}</div>`
 
         if (hasMeta && !data.mesh.portal ) html += `<br><br><a class="btn" style="float:right" onclick="xrf.navigator.to('${data.mesh.userData.href}')">Visit embedded scene</a>`

@@ -19,7 +19,7 @@ xrf.frag.pos = function(v, opts){
 
   if( xrf.debug ) console.log(`#pos.js: setting camera to position ${pos.x},${pos.y},${pos.z}`)
 
-  xrf.frag.pos.last = pos // remember
+  xrf.frag.pos.last = v.string // remember
 
   camera.updateMatrixWorld()
 }

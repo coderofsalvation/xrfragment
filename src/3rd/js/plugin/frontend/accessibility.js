@@ -4,14 +4,15 @@ window.accessibility = (opts) => new Proxy({
   enabled: false,
 
   // features
-  speak_movements: true,
-  speak_keyboard: true,
+  speak_teleports: true,
+  speak_keyboard: false,
 
   // audio settings
   speak_rate: 1,
   speak_pitch: 1,
   speak_volume: 1,
   speak_voice: -1,
+  speak_voices: 0,
 
   toggle(){ this.enabled = !this.enabled },
 
@@ -33,8 +34,10 @@ window.accessibility = (opts) => new Proxy({
     }
     let speech = window.speechSynthesis
     let utterance = new SpeechSynthesisUtterance( str )
-    if( this.speak_voice != -1) utterance.voice  = speech.getVoices()[ this.speak_voice ];
-    else{
+    this.speak_voices = speech.getVoices().length
+    if( this.speak_voice != -1 && this.speak_voice < this.speak_voices ){
+      utterance.voice  = speech.getVoices()[ this.speak_voice ];
+    }else{
       let voices = speech.getVoices()
       for(let i = 0; i < voices.length; i++ ){
         if( voices[i].lang == navigator.lang ) this.speak_voice = i;
@@ -78,6 +81,9 @@ window.accessibility = (opts) => new Proxy({
           this.speak( lines.join("."), {override:true,speaksigns:false} )
         }
       })
+      document.addEventListener('$chat.send', (opts) => {
+        if( opts.detail.message ) this.speak( opts.detail.message)
+      })
     })
 
     document.addEventListener('network.send', (e) => {
@@ -87,8 +93,7 @@ window.accessibility = (opts) => new Proxy({
     })
 
     opts.xrf.addEventListener('pos', (opts) => {
-      if( this.enabled ){
-        $chat.send({message: this.posToMessage(opts) })
+      if( this.enabled && this.speak_teleports ){
         network.send({message: this.posToMessage(opts), class:["info","guide"]})
       }
       if( opts.frag.pos.string.match(/,/) ){
@@ -100,7 +105,7 @@ window.accessibility = (opts) => new Proxy({
 
     setTimeout( () => this.initCommands(), 200 )
     // auto-enable if previously enabled
-    if( window.localStorage.getItem("accessibility") ){
+    if( window.localStorage.getItem("accessibility") === 'true' ){
       setTimeout( () => {
         this.enabled = true
         this.setFontSize()
@@ -111,7 +116,7 @@ window.accessibility = (opts) => new Proxy({
   initCommands(){
 
     document.addEventListener('chat.command.help', (e) => {
-      e.detail.message += `<br><b class="badge">/fontsize <number></b> set fontsize (default=14) `
+      e.detail.message += `<br><b class="badge">/fontsize &lt;number&gt;</b> set fontsize (default=14) `
     })
 
     document.addEventListener('chat.command', (e) => {
@@ -179,10 +184,11 @@ window.accessibility = (opts) => new Proxy({
     data[k] = v 
     switch( k ){
       case "enabled": {
-                        let message = "accessibility has been"+(v?"boosted":"lowered")
+                        let message = "accessibility mode has been "+(v?"activated":"disabled")+".<br>Type /help for help."
+                        if( v ) message = "<img src='https://i.imgur.com/wedtUSs.png' style='width:100%;border-radius:6px'/><br>" + message
                         $('#accessibility.btn').style.filter= v ? 'brightness(1.0)' : 'brightness(0.5)'
                         if( v ) $chat.visible = true
-                        $chat.send({message,class:['info','guide']})
+                        $chat.send({message,class:['info']})
                         data.enabled = true
                         data.speak(message)
                         data.enabled = v
@@ -211,6 +217,10 @@ document.querySelector('head').innerHTML += `
     .accessibility #messages * {
       font-size:24px !important;
       line-height:40px;
+    }
+    .accessibility #messages .msg.self {
+      background:var(--xrf-gray);
+      color:#FFF;
     }
     .accessibility #messages .msg.info,
     .accessibility #messages .msg.self {

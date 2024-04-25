@@ -28,6 +28,7 @@ chatComponent = {
     $messages:       el.querySelector("#messages"),
     $chatline:       el.querySelector("#chatline"),
     $chatbar:        el.querySelector("#chatbar"),
+    $chatsend:       el.querySelector("#chatsend"),
     
     install(opts){
       this.opts  = opts
@@ -40,6 +41,19 @@ chatComponent = {
       this.send({message:`Welcome to <b>${document.location.search.substr(1)}</b>, a 3D scene(file) which simply links to other ones.<br>You can start a solo offline exploration in XR right away.<br>Type /help below, or use the arrow- or WASD-keys on your keyboard, and mouse-drag to rotate.<br>`, class: ["info","guide","multiline"] })
     },
 
+    sendInput(value){
+      if( value[0] == '#' ) return xrf.navigator.to(value)
+      let event   = value.match(/^[!\/]/) ? "chat.command" : "network.send"
+      let message = value.replace(/^[!\/]/,'')
+      let raw     = {detail:{message:value, halt:false}}
+      document.dispatchEvent( new CustomEvent( event, {detail: {message}} ) )
+      document.dispatchEvent( new CustomEvent( "chat.input", raw ) )
+      if( event == "network.send" && !raw.detail.halt ) this.send({message: value })
+      this.$chatline.lastValue = value
+      this.$chatline.value = ''
+      if( window.innerHeight < 600 ) this.$chatline.blur()
+    },
+
     initListeners(){
       let {$chatline} = this
 
@@ -47,12 +61,10 @@ chatComponent = {
 
       $chatline.addEventListener('keydown', (e) => {
         if (e.key == 'Enter' ){
-          let event   = $chatline.value.match(/^[!\/]/) ? "chat.command" : "network.send"
-          let message = $chatline.value.replace(/^[!\/]/,'')
-          document.dispatchEvent( new CustomEvent( event, {detail: {message}} ) )
-          if( event == "network.send" ) this.send({message: $chatline.value })
-          $chatline.value = ''
-          if( window.innerHeight < 600 ) $chatline.blur()
+          this.sendInput($chatline.value)
+        }
+        if (e.key == 'ArrowUp' ){
+          $chatline.value = $chatline.lastValue || ''
         }
       })
 
@@ -76,11 +88,15 @@ chatComponent = {
         }
       })
 
+      this.$chatsend.addEventListener('click', (e) => {
+        this.sendInput($chatline.value)
+      })
+
     },
 
     inform(){
       if( !this.inform.informed && (this.inform.informed = true) ){
-        window.notify("Connected via P2P. You can now type message which will be visible to others.")
+        window.notify("You can now type messages in the textfield below.")
       }
     },
 
@@ -263,6 +279,7 @@ chatComponent.css = `
        max-width: 500px;
        */
        width:100%;
+       box-sizing:border-box;
        align-items: flex-start;
        position: absolute;
        transition:1s;
@@ -271,7 +288,7 @@ chatComponent.css = `
        bottom: 49px;
        padding: 20px;
        overflow:hidden;
-       overflow-y: scroll;
+       overflow-y: auto;
        pointer-events:none;
        transition:1s;
        z-index: 100;
@@ -283,11 +300,14 @@ chatComponent.css = `
        pointer-events:all;
      }
      #messages *{
+       box-sizing:border-box;
+/*
        pointer-events:none;
        -webkit-user-select:none;
        -moz-user-select:-moz-none;
        -ms-user-select:none;
        user-select:none;
+*/
      }
      #messages .msg{
        transition:all 1s ease;
@@ -320,9 +340,9 @@ chatComponent.css = `
        color:#FFF;
      }
      #messages .msg.info{
-       background: #473f7f;
+       background: var(--xrf-white);
        border-radius: 20px;
-       color: #FFF;
+       color: var(--xrf-dark-gray);
        text-align: left;
        line-height: 19px;
      }
@@ -411,7 +431,8 @@ chatComponent.css = `
 
     .envelope{
       margin-right:15px;
-      max-width:80%;
+      width:50%;
+      max-width:700px;
     }
 
     .envelope,

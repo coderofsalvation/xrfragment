@@ -306,8 +306,8 @@ document.head.innerHTML += `
     }
     #messages .msg .badge{
       display:inline;
-      background: var(--xrf-primary-fg);
-      color: var(--xrf-dark-gray);
+      color: var(--xrf-primary-fg);
+      background: var(--xrf-dark-gray);
     }
 
     .ruler{
@@ -369,7 +369,7 @@ document.head.innerHTML += `
   }
 
   .transcript{
-    max-height:105px;
+    max-height:132px;
     width:100%;
     overflow-y:auto;
     border: 1px solid var(--xrf-gray);
