@@ -10,11 +10,13 @@
 <workgroup>Jens &amp; Leon Internet Engineering Task Force</workgroup>
 
 <abstract>
-<t>This draft is a specification for 4D URI's &amp; <eref target="https://github.com/coderofsalvation/hypermediatic">hypermediatic</eref> navigation, which links together space, time &amp; text together, for hypermedia browsers with- or without a network-connection.<br />
+<t>This draft is a specification for 4D URI's &amp; <eref target="https://github.com/coderofsalvation/hypermediatic">hypermediatic</eref> navigation, to enable a spatial web for hypermedia browsers with- or without a network-connection.<br />
 
 The specification uses <eref target="https://www.w3.org/TR/media-frags/">W3C Media Fragments</eref> and <eref target="https://www.rfc-editor.org/rfc/rfc6570">URI Templates (RFC6570)</eref> to promote spatial addressibility, sharing, navigation, filtering and databinding objects for (XR) Browsers.<br />
 
-XR Fragments allows us to better use existing metadata inside 3D scene(files), by connecting it to proven technologies like <eref target="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</eref>.</t>
+XR Fragments allows us to better use existing metadata inside 3D scene(files), by connecting it to proven technologies like <eref target="https://en.wikipedia.org/wiki/URI_fragment">URI Fragments</eref>.<br />
+
+XR Fragments views spatial webs thru the lens of 3D scene URI's, rather than thru code(frameworks) or protocol-specific browsers (webbrowser e.g.).</t>
 <t>Almost every idea in this document is demonstrated at <eref target="https://xrfragment.org">https://xrfragment.org</eref></t>
 </abstract>
 
@@ -23,9 +25,9 @@ XR Fragments allows us to better use existing metadata inside 3D scene(files), b
 <middle>
 
 <section anchor="introduction"><name>Introduction</name>
-<t>How can we add more control to existing text &amp; 3D scenes, without introducing new dataformats?<br />
+<t>How can we add more control to existing text and 3D scenes, without introducing new dataformats?<br />
 
-Historically, there's many attempts to create the ultimate markuplanguage or 3D fileformat.<br />
+Historically, there's many attempts to create the ultimate 3D fileformat.<br />
 
 The lowest common denominator is: designers describing/tagging/naming things using <strong>plain text</strong>.<br />
 
@@ -105,7 +107,7 @@ But approaches things from a higherlevel feedbackloop/hypermedia browser-perspec
 </section>
 
 <section anchor="hypermediatic-feedbackloop-for-xr-browsers"><name>Hypermediatic FeedbackLoop for XR browsers</name>
-<t><tt>href</tt> metadata traditionally implies <strong>click</strong> AND <strong>navigate</strong>, however XR Fragments adds <strong>click</strong> (<tt>xrf://#....</tt>) or <strong>navigate</strong> (<tt>xrf://#pos=...</tt>)<br />
+<t><tt>href</tt> metadata traditionally implies <strong>click</strong> AND <strong>navigate</strong>, however XR Fragments adds stateless <strong>click</strong> (<tt>xrf://#....</tt>) or <strong>navigate</strong> (<tt>xrf://#pos=...</tt>)
  as well (which allows many extra interactions which otherwise need a scripting language). This is known as <strong>hashbus</strong>-only events (see image above).</t>
 <blockquote><t>Being able to use the same URI Fragment DSL for navigation (<tt>href: #foo</tt>) as well as interactions (<tt>href: xrf://#bar</tt>) greatly simplifies implementation, increases HFL, and reduces need for scripting languages.</t>
 </blockquote><t>This opens up the following benefits for traditional &amp; future webbrowsers:</t>
@@ -229,6 +231,39 @@ In other words, the URL updates to: <tt>https://me.com?https://me.com/other.glb<
 That way, if the link gets shared, the XR Fragments implementation at <tt>https://me.com</tt> can load the latter (and still indicates which XR Fragments entrypoint-experience/client was used).</t>
 </section>
 </section>
+
+<section anchor="spatial-referencing-3d"><name>Spatial Referencing 3D</name>
+<t>XR Fragments assume the following objectname-to-URIFragment mapping:</t>
+
+<artwork><![CDATA[
+  my.io/scene.fbx
+  +─────────────────────────────+
+  │ sky                         │  src: http://my.io/scene.fbx#sky          (includes building,mainobject,floor)
+  │ +─────────────────────────+ │ 
+  │ │ building                │ │  src: http://my.io/scene.fbx#building     (includes mainobject,floor)
+  │ │ +─────────────────────+ │ │
+  │ │ │ mainobject          │ │ │  src: http://my.io/scene.fbx#mainobject   (includes floor)
+  │ │ │ +─────────────────+ │ │ │
+  │ │ │ │ floor           │ │ │ │  src: http://my.io/scene.fbx#floor        (just floor object)
+  │ │ │ │                 │ │ │ │
+  │ │ │ +─────────────────+ │ │ │
+  │ │ +─────────────────────+ │ │
+  │ +─────────────────────────+ │
+  +─────────────────────────────+
+
+]]>
+</artwork>
+<blockquote><t>Every 3D fileformat supports named 3D object, and this name allows URLs (fragments) to reference them (and their children objects).</t>
+</blockquote><t>Clever nested design of 3D scenes allow great ways for re-using content, and/or previewing scenes.<br />
+
+For example, to render a portal with a preview-version of the scene, create an 3D object with:</t>
+
+<ul spacing="compact">
+<li>href: <tt>https://scene.fbx</tt></li>
+<li>src: <tt>https://otherworld.gltf#mainobject</tt></li>
+</ul>
+<blockquote><t>It also allows <strong>sourceportation</strong>, which basically means the enduser can teleport to the original XR Document of an <tt>src</tt> embedded object, and see a visible connection to the particular embedded object. Basically an embedded link becoming an outbound link by activating it.</t>
+</blockquote></section>
 
 <section anchor="list-of-uri-fragments"><name>List of URI Fragments</name>
 <table>
@@ -495,9 +530,15 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
 <td>+0.5,+0.5</td>
 <td>scroll instantly by adding 0.5 to the current uv coordinates</td>
 </tr>
+
+<tr>
+<td>media parameter (shader uniform)</td>
+<td>u:&lt;uniform&gt;=&lt;string</td>
+<td>float</td>
+<td>vec2</td>
+</tr>
 </tbody>
-</table><t>| media parameter (shader uniform) | u:&lt;uniform&gt;=&lt;string|float|vec2|vec3|vec4&gt; | u:color=1,0,0   | set shader uniform value |</t>
-<blockquote><t>* = this is extending the <eref target="https://www.w3.org/TR/media-frags/#mf-advanced">W3C media fragments</eref> with (missing) playback/viewport-control. Normally <tt>#t=0,2</tt> implies setting start/stop-values AND starting playback, whereas <tt>#s=0&amp;loop</tt> allows pausing a video, speeding up/slowing down media, as well as enabling/disabling looping.</t>
+</table><blockquote><t>* = this is extending the <eref target="https://www.w3.org/TR/media-frags/#mf-advanced">W3C media fragments</eref> with (missing) playback/viewport-control. Normally <tt>#t=0,2</tt> implies setting start/stop-values AND starting playback, whereas <tt>#s=0&amp;loop</tt> allows pausing a video, speeding up/slowing down media, as well as enabling/disabling looping.</t>
 <t>The rationale for <tt>uv</tt> is that the <tt>xywh</tt> Media Fragment deals with rectangular media, which does not translate well to 3D models (which use triangular polygons, not rectangular) positioned by uv-coordinates. This also explains the absense of a <tt>scale</tt> or <tt>rotate</tt> primitive, which is challenged by this, as well as multiple origins (mesh- or texture).</t>
 </blockquote><t>Example URI's:</t>
 
@@ -538,39 +579,6 @@ That way, if the link gets shared, the XR Fragments implementation at <tt>https:
 </section>
 </section>
 
-<section anchor="spatial-referencing-3d"><name>Spatial Referencing 3D</name>
-<t>XR Fragments assume the following objectname-to-URIFragment mapping:</t>
-
-<artwork><![CDATA[
-  my.io/scene.fbx
-  +─────────────────────────────+
-  │ sky                         │  src: http://my.io/scene.fbx#sky          (includes building,mainobject,floor)
-  │ +─────────────────────────+ │ 
-  │ │ building                │ │  src: http://my.io/scene.fbx#building     (includes mainobject,floor)
-  │ │ +─────────────────────+ │ │
-  │ │ │ mainobject          │ │ │  src: http://my.io/scene.fbx#mainobject   (includes floor)
-  │ │ │ +─────────────────+ │ │ │
-  │ │ │ │ floor           │ │ │ │  src: http://my.io/scene.fbx#floor        (just floor object)
-  │ │ │ │                 │ │ │ │
-  │ │ │ +─────────────────+ │ │ │
-  │ │ +─────────────────────+ │ │
-  │ +─────────────────────────+ │
-  +─────────────────────────────+
-
-]]>
-</artwork>
-<blockquote><t>Every 3D fileformat supports named 3D object, and this name allows URLs (fragments) to reference them (and their children objects).</t>
-</blockquote><t>Clever nested design of 3D scenes allow great ways for re-using content, and/or previewing scenes.<br />
-
-For example, to render a portal with a preview-version of the scene, create an 3D object with:</t>
-
-<ul spacing="compact">
-<li>href: <tt>https://scene.fbx</tt></li>
-<li>src: <tt>https://otherworld.gltf#mainobject</tt></li>
-</ul>
-<blockquote><t>It also allows <strong>sourceportation</strong>, which basically means the enduser can teleport to the original XR Document of an <tt>src</tt> embedded object, and see a visible connection to the particular embedded object. Basically an embedded link becoming an outbound link by activating it.</t>
-</blockquote></section>
-
 <section anchor="navigating-3d"><name>Navigating 3D</name>
 <table>
 <thead>
@@ -603,7 +611,7 @@ For example, to render a portal with a preview-version of the scene, create an 3
 <li>the Y-coordinate of <tt>pos</tt> identifies the floorposition. This means that desktop-projections usually need to add 1.5m (average person height) on top (which is done automatically by VR/AR headsets).</li>
 <li>set the position of the camera accordingly to the vector3 values of <tt>#pos</tt></li>
 <li><tt>rot</tt> sets the rotation of the camera (only for non-VR/AR headsets)</li>
-<li><tt>t</tt> in the top-URL sets the playbackspeed and animation-range of the global scene animation</li>
+<li>mediafragment <tt>t</tt> in the top-URL sets the playbackspeed and animation-range of the global scene animation</li>
 <li>after scene load: in case an <tt>href</tt> does not mention any <tt>pos</tt>-coordinate, <tt>pos=0,0,0</tt> will be assumed</li>
 </ol>
 <t>Here's an ascii representation of a 3D scene-graph which contains 3D objects <tt>◻</tt> and their metadata:</t>
@@ -755,19 +763,19 @@ Resizing will be happen accordingly to its placeholder object <tt>aquariumcube</
 </li>
 <li><t>relocation/reorientation should happen locally for local URI's (<tt>#pos=....</tt>)</t>
 </li>
-<li><t>navigation should not happen ''immediately'' when user is more than 2 meter away from the portal/object containing the href (to prevent accidental navigation e.g.)</t>
+<li><t>navigation should not happen ''immediately'' when user is more than 5 meter away from the portal/object containing the href (to prevent accidental navigation e.g.)</t>
 </li>
-<li><t>URL navigation should always be reflected in the client (in case of javascript: see [<eref target="https://github.com/coderofsalvation/xrfragment/blob/dev/src/3rd/js/three/navigator.js">here</eref> for an example navigator).</t>
+<li><t>URL navigation should always be reflected in the client URL-bar (in case of javascript: see [<eref target="https://github.com/coderofsalvation/xrfragment/blob/dev/src/3rd/js/three/navigator.js">here</eref> for an example navigator), and only update the URL-bar after the scene (default fragment <tt>#</tt>) has been loaded.</t>
 </li>
-<li><t>In XR mode, the navigator back/forward-buttons should be always visible (using a wearable e.g., see [<eref target="https://github.com/coderofsalvation/xrfragment/blob/dev/example/aframe/sandbox/index.html#L26-L29">here</eref> for an example wearable)</t>
+<li><t>In immersive XR mode, the navigator back/forward-buttons should be always visible (using a wearable e.g., see [<eref target="https://github.com/coderofsalvation/xrfragment/blob/dev/example/aframe/sandbox/index.html#L26-L29">here</eref> for an example wearable)</t>
 </li>
-<li><t>in case of navigating to a new [[pos)ition, ''first'' navigate to the ''current position'' so that the ''back-button'' of the ''browser-history'' always refers to the previous position (see [<eref target="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/href.js#L97">here</eref>)</t>
+<li><t>make sure that the ''back-button'' of the ''browser-history'' always refers to the previous position (see [<eref target="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/href.js#L97">here</eref>)</t>
 </li>
-<li><t>ignore previous rule in special cases, like clicking an <tt>href</tt> using camera-portal collision (the back-button would cause a teleport-loop)</t>
+<li><t>ignore previous rule in special cases, like clicking an <tt>href</tt> using camera-portal collision (the back-button could cause a teleport-loop if the previous position is too close)</t>
 </li>
-<li><t>href-events should bubble upward the node-tree</t>
+<li><t>href-events should bubble upward the node-tree (from children to ancestors, so that ancestors can also contain an href), however only 1 href can be executed at the same time.</t>
 </li>
-<li><t>the end-user navigator back/forward buttons should repeat a back/forward action until a <tt>pos=...</tt> primitive is found (the inbetween interaction URI's are only for UX research purposes)</t>
+<li><t>the end-user navigator back/forward buttons should repeat a back/forward action until a <tt>pos=...</tt> primitive is found (the stateless xrf:// href-values should not be pushed to the url-history)</t>
 </li>
 </ol>
 <t><eref target="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/href.js">» example implementation</eref><br />
@@ -984,27 +992,20 @@ Each matched object (not their children) will be toggled (in)visible when select
 <blockquote><t>The XR Fragments does this by collapsing space into a <strong>Word Graph</strong> (the <strong>XRWG</strong> <eref target="https://github.com/coderofsalvation/xrfragment/blob/feat/macros/src/3rd/js/XRWG.js">example</eref>), augmented by Bib(s)Tex.</t>
 </blockquote><t>Instead of just throwing together all kinds media types into one experience (games), what about their tagged/semantical relationships?<br />
 
-Perhaps the following question is related: why is HTML adopted less in games outside the browser?
-Through the lens of constructive lazy game-developers, ideally metadata must come <strong>with</strong> text, but not <strong>obfuscate</strong> the text, or <strong>spawning another request</strong> to fetch it.<br />
-
-XR Fragments does this by detecting Bib(s)Tex, without introducing a new language or fileformat<br />
-</t>
-<blockquote><t>Why Bib(s)Tex? Because its seems to be the lowest common denominator for an human-curated XRWG (extendable by speech/scanner/writing/typing e.g, see <eref target="https://github.com/coderofsalvation/hashtagbibs#bibs--bibtex-combo-lowest-common-denominator-for-linking-data">further motivation here</eref>)</t>
-</blockquote><t>Hence:</t>
+Perhaps the following question is related: why is HTML adopted less in games outside the browser?</t>
+<t>Hence:</t>
 
 <ol spacing="compact">
-<li>XR Fragments promotes (de)serializing a scene to the XRWG (<eref target="https://github.com/coderofsalvation/xrfragment/blob/feat/macros/src/3rd/js/XRWG.js">example</eref>)</li>
+<li>XR Fragments promotes (de)serializing a scene to a (lowercase) XRWG (<eref target="https://github.com/coderofsalvation/xrfragment/blob/feat/macros/src/3rd/js/XRWG.js">example</eref>)</li>
 <li>XR Fragments primes the XRWG, by collecting words from the <tt>tag</tt> and name-property of 3D objects.</li>
 <li>XR Fragments primes the XRWG, by collecting words from <strong>optional</strong> metadata <strong>at the end of content</strong> of text (see default mimetype &amp; Data URI)</li>
-<li><eref target="https://github.com/coderofsalvation/hashtagbibs">Bib's</eref> and BibTex are first tag citizens for priming the XRWG with words (from XR text)</li>
-<li>Like Bibs, XR Fragments generalizes the BibTex author/title-semantics (<tt>author{title}</tt>) into <strong>this</strong> points to <strong>that</strong> (<tt>this{that}</tt>)</li>
 <li>The XRWG should be recalculated when textvalues (in <tt>src</tt>) change</li>
-<li>HTML/RDF/JSON is still great, but is beyond the XRWG-scope (they fit better in the application-layer)</li>
+<li>HTML/RDF/JSON is still great, but is beyond the XRWG-scope (they fit better in the application-layer, or as embedded src content)</li>
 <li>Applications don't have to be able to access the XRWG programmatically, as they can easily generate one themselves by traversing the scene-nodes.</li>
 <li>The XR Fragment focuses on fast and easy-to-generate end-user controllable word graphs (instead of complex implementations that try to defeat word ambiguity)</li>
 <li>Tags are the scope for now (supporting <eref target="https://github.com/WICG/scroll-to-text-fragment">https://github.com/WICG/scroll-to-text-fragment</eref> will be considered)</li>
 </ol>
-<t>Example:</t>
+<t>Example of generating BiBTex out of the XRWG and textdata with hashtags:</t>
 
 <artwork><![CDATA[  http://y.io/z.fbx                                                           | Derived XRWG (expressed as BibTex)
   ----------------------------------------------------------------------------+--------------------------------------
@@ -1014,7 +1015,7 @@ XR Fragments does this by detecting Bib(s)Tex, without introducing a new languag
   |                                        |   |   /   \   |                  | @baroque{castle,
   | John built houses in baroque style.    |   |  /     \  |                  |   url = {https://y.io/z.fbx#castle}
   |                                        |   |  |_____|  |                  | }
-  | #john@baroque                          |   +-----│-----+                  | @baroque{john}
+  |                                        |   +-----│-----+                  | @baroque{john}
   |                                        |         │                        |
   |                                        |         ├─ name: castle          | 
   |                                        |         └─ tag: house baroque    | 
@@ -1027,7 +1028,7 @@ XR Fragments does this by detecting Bib(s)Tex, without introducing a new languag
 ]]>
 </artwork>
 <blockquote><t>the <tt>#john@baroque</tt>-bib associates both text <tt>John</tt> and objectname <tt>john</tt>, with tag <tt>baroque</tt></t>
-</blockquote><t>Another example:</t>
+</blockquote><t>Another example of deriving a graphdata from the XRWG:</t>
 
 <artwork><![CDATA[  http://y.io/z.fbx                                                           | Derived XRWG (expressed as BibTex)
   ----------------------------------------------------------------------------+--------------------------------------
