@@ -255,14 +255,15 @@ window.accessibility = (opts) => new Proxy({
   enabled: false,
 
   // features
-  speak_movements: true,
-  speak_keyboard: true,
+  speak_teleports: true,
+  speak_keyboard: false,
 
   // audio settings
   speak_rate: 1,
   speak_pitch: 1,
   speak_volume: 1,
   speak_voice: -1,
+  speak_voices: 0,
 
   toggle(){ this.enabled = !this.enabled },
 
@@ -284,8 +285,10 @@ window.accessibility = (opts) => new Proxy({
     }
     let speech = window.speechSynthesis
     let utterance = new SpeechSynthesisUtterance( str )
-    if( this.speak_voice != -1) utterance.voice  = speech.getVoices()[ this.speak_voice ];
-    else{
+    this.speak_voices = speech.getVoices().length
+    if( this.speak_voice != -1 && this.speak_voice < this.speak_voices ){
+      utterance.voice  = speech.getVoices()[ this.speak_voice ];
+    }else{
       let voices = speech.getVoices()
       for(let i = 0; i < voices.length; i++ ){
         if( voices[i].lang == navigator.lang ) this.speak_voice = i;
@@ -329,6 +332,9 @@ window.accessibility = (opts) => new Proxy({
           this.speak( lines.join("."), {override:true,speaksigns:false} )
         }
       })
+      document.addEventListener('$chat.send', (opts) => {
+        if( opts.detail.message ) this.speak( opts.detail.message)
+      })
     })
 
     document.addEventListener('network.send', (e) => {
@@ -338,8 +344,7 @@ window.accessibility = (opts) => new Proxy({
     })
 
     opts.xrf.addEventListener('pos', (opts) => {
-      if( this.enabled ){
-        $chat.send({message: this.posToMessage(opts) })
+      if( this.enabled && this.speak_teleports ){
         network.send({message: this.posToMessage(opts), class:["info","guide"]})
       }
       if( opts.frag.pos.string.match(/,/) ){
@@ -349,6 +354,53 @@ window.accessibility = (opts) => new Proxy({
       }
     })
 
+    setTimeout( () => this.initCommands(), 200 )
+    // auto-enable if previously enabled
+    if( window.localStorage.getItem("accessibility") === 'true' ){
+      setTimeout( () => {
+        this.enabled = true
+        this.setFontSize()
+      }, 100 )
+    }
+  },
+
+  initCommands(){
+
+    document.addEventListener('chat.command.help', (e) => {
+      e.detail.message += `<br><b class="badge">/fontsize &lt;number&gt;</b> set fontsize (default=14) `
+    })
+
+    document.addEventListener('chat.command', (e) => {
+      if( e.detail.message.match(/^fontsize/) ){
+        try{
+          let fontsize = parseInt( e.detail.message.replace(/^fontsize /,'').trim() )
+          if( fontsize == NaN ) throw 'not a number'
+          this.setFontSize(fontsize)
+          $chat.send({message:'fontsize set to '+fontsize})
+        }catch(e){
+          console.error(e)
+          $chat.send({message:'example usage: /fontsize 20'})
+        }
+      }
+    })
+
+  },
+
+  setFontSize(size){
+    if( size ){
+      window.localStorage.setItem("fontsize",size)
+    }else size = window.localStorage.getItem("fontsize")
+    if( !size ) return 
+    document.head.innerHTML += `
+      <style type="text/css">
+        .accessibility #messages * {
+          font-size: ${size}px !important;
+          line-height: ${size*2}px !important;
+        }
+      </style>
+    `
+    $messages = document.querySelector('#messages')
+    setTimeout( () => $messages.scrollTop = $messages.scrollHeight, 1000 )
   },
 
   posToMessage(opts){
@@ -383,14 +435,17 @@ window.accessibility = (opts) => new Proxy({
     data[k] = v 
     switch( k ){
       case "enabled": {
-                        let message = "accessibility has been"+(v?"boosted":"lowered")
+                        let message = "accessibility mode has been "+(v?"activated":"disabled")+".<br>Type /help for help."
+                        if( v ) message = "<img src='https://i.imgur.com/wedtUSs.png' style='width:100%;border-radius:6px'/><br>" + message
                         $('#accessibility.btn').style.filter= v ? 'brightness(1.0)' : 'brightness(0.5)'
                         if( v ) $chat.visible = true
-                        $chat.send({message,class:['info','guide']})
+                        $chat.send({message,class:['info']})
                         data.enabled = true
                         data.speak(message)
                         data.enabled = v
+                        window.localStorage.setItem("accessibility", v)
                         $chat.$messages.classList[ v ? 'add' : 'remove' ]('guide')
+                        document.body.classList.toggle(['accessibility'])
                         if( !data.readTranscript && (data.readTranscript = true) ){
                           data.speak( data.sanitizeTranscript() )
                         }
@@ -400,7 +455,6 @@ window.accessibility = (opts) => new Proxy({
 })
 
 document.addEventListener('$menu:ready', (e) => {
-  return
   try{
     accessibility = accessibility(e.detail) 
     accessibility.init()
@@ -408,6 +462,35 @@ document.addEventListener('$menu:ready', (e) => {
     $menu.buttons = $menu.buttons.concat([`<a class="btn" style="background:var(--xrf-dark-gray);filter: brightness(0.5);" aria-label="button" aria-description="enable all accessibility features" id="accessibility" onclick="accessibility.settings()"><i class="gg-yinyang"></i>accessibility</a><br>`])
   }catch(e){console.error(e)}
 })
+
+document.querySelector('head').innerHTML += `
+  <style type="text/css"> 
+    .accessibility #messages * {
+      font-size:24px !important;
+      line-height:40px;
+    }
+    .accessibility #messages .msg.self {
+      background:var(--xrf-gray);
+      color:#FFF;
+    }
+    .accessibility #messages .msg.info,
+    .accessibility #messages .msg.self {
+      line-height:unset;
+      padding-top:15px;
+      padding-bottom:15px;
+    }
+    .accessibility #chatbar{
+      display: block !important;
+    }
+    .accessibility #chatsend{
+      display: block !important;
+    }
+    .accessibility #chatline {
+      text-indent:25px;
+    }
+  </style>
+`
+
 // reactive component for displaying the menu 
 menuComponent = (el) => new Proxy({
 
@@ -570,8 +653,9 @@ window.frontend = (opts) => new Proxy({
                            ? "hold 2-3 fingers to move forward/backward" 
                            :  "use WASD-keys and mouse-drag to move around"
         window.notify(instructions,{timeout:false})
-        xrf.addEventListener('navigate', (opts) => {
-          window.notify('<b class="badge">teleporting</b> to <b>'+opts.url+"</b><br><br>use back/forward browserbutton to undo")
+        xrf.addEventListener('pos', (opts) => {
+          let pos = opts.frag.pos.string 
+          window.notify('<b class="badge">teleporting</b> to <b>'+pos+"</b><br>use back/forward (browserbutton) to undo")
         }) // close dialogs when url changes
       },2000 )
 
@@ -594,13 +678,8 @@ window.frontend = (opts) => new Proxy({
             }
           }
         }
-        let transcript = ''
         let root = data.mesh.portal ? data.mesh.portal.stencilObject : data.mesh
-        root.traverse( (n) => {
-          if( n.userData['aria-description'] && n.uuid != data.mesh.uuid ){
-            transcript += `<b>#${n.name}</b> ${n.userData['aria-description']}. `
-          }
-        })
+        let transcript = xrf.sceneToTranscript(root,data.mesh)
         if( transcript.length ) html += `<br><b>transcript:</b><br><div class="transcript">${transcript}</div>`
 
         if (hasMeta && !data.mesh.portal ) html += `<br><br><a class="btn" style="float:right" onclick="xrf.navigator.to('${data.mesh.userData.href}')">Visit embedded scene</a>`
@@ -834,4 +913,194 @@ window.frontend = (opts) => new Proxy({
 })
 
 frontend = frontend({xrf,document}).init()
+// this allows surfing to a href by typing its node-name 
+
+// help screen
+document.addEventListener('chat.command.help', (e) => {
+  e.detail.message += `
+    <br><b class="badge">&lt;destinationname&gt;</b> surf to a destination
+  ` 
+})
+        
+document.addEventListener('chat.input', (e) => {
+
+  let name = e.detail.message.trim()
+  xrf.scene.traverse( (n) => {
+    if( n.userData && n.userData.href && n.userData.href.match(/pos=/) && n.name == name ){
+      $chat.send({message:'<b class="badge">activating</b> '+n.name, class:['self','info']})
+      xrf.navigator.to( n.userData.href )
+    }
+  })
+
+})
+// this allows a more-or-less MUD type interface
+//
+//
+
+
+// help screen
+document.addEventListener('chat.command.help', (e) => {
+  e.detail.message += `
+    <br><b class="badge">?</b> help screen
+    <br><b class="badge">look</b> view scene and destinations 
+    <br><b class="badge">go [left|right|forward|destination]</b> surf [to destination]
+    <br><b class="badge">do [action]</b> list [or perform] action(s)
+    <br><b class="badge">rotate &lt;left|right|up|down&gt;</b> rotate camera
+    <br><b class="badge">back</b> go to previous portal/link 
+    <br><b class="badge">forward</b> go to previous portal/link 
+    <br><b class="badge">#....</b> execute XR Fragments 
+    <hr/>
+  ` 
+})
+
+const listExits = (scene) => {
+  let message = ''
+  let destinations = {}
+  scene.traverse( (n) => {
+    if( n.userData && n.userData.href && n.userData.href.match(/pos=/) ){
+      destinations[n.name] = n.userData['aria-label'] || n.userData.href
+    } 
+  })
+  for( let destination in destinations ){
+    message += `<br><b class="badge">${destination}</b> ${destinations[destination]}`
+  }
+  if( !message ) message += '<br>type <b class="badge">back</b> to go back'
+  return message
+}
+
+const listActions = (scene) => {
+  let message = ''
+  let destinations = {}
+  scene.traverse( (n) => {
+    if( n.userData && n.userData.href && !n.userData.href.match(/pos=/) ){
+      destinations[n.name] = n.userData['aria-description'] || n.userData['aria-label'] || n.userData.href
+    } 
+  })
+  for( let destination in destinations ){
+    message += `<br><b class="badge">${destination}</b> ${destinations[destination]}`
+  }
+  if( !message ) message += '<br>no actions found'
+  return message
+}
+
+document.addEventListener('chat.input', (e) => {
+
+  if( e.detail.message.trim() == '?' ){
+    document.dispatchEvent( new CustomEvent( 'chat.command', {detail:{message:"help"}} ) )
+    e.detail.halt = true // don't send to other peers 
+  }
+
+  if( e.detail.message.trim() == 'look' ){
+    let scene   = xrf.frag.pos.last ? xrf.scene.getObjectByName(xrf.frag.pos.last)  : xrf.scene
+    let message = `<div class="transcript">${xrf.sceneToTranscript(scene)}</div><br>possible destinations in this area:${listExits(scene)}`
+    e.detail.halt = true // dont print command to screen
+    $chat.send({message})
+  }
+
+  if( e.detail.message.match(/^go($| )/) ){
+    if( e.detail.message.trim() == 'go' ){
+      $chat.send({message: `all possible destinations:${listExits(xrf.scene)}`})
+    }else{
+      let destination = e.detail.message.replace(/^go /,'').trim()
+      if( destination.match(/(left|right|forward|backward)/) ){
+        let key = ''
+        switch( destination){
+          case "left":     key = 'ArrowLeft';    break;
+          case "right":    key = 'ArrowRight';   break;
+          case "forward":  key = 'ArrowUp';      break;
+          case "backward": key = 'ArrowDown';    break;
+        }
+        if( key ){
+          let lookcontrols = document.querySelector('[look-controls]')
+          if( lookcontrols ) lookcontrols.removeAttribute('look-controls') // workaround to unlock camera
+
+          var wasd = document.querySelector('[wasd-controls]').components['wasd-controls']
+          wasd.keys[ key ] = true
+          wasd.velocity = new THREE.Vector3()
+          setTimeout( () => delete wasd.keys[ key ], 100 )
+          wasd.el.object3D.matrixAutoUpdate = true;
+          wasd.el.object3D.updateMatrix()
+          xrf.camera.getCam().updateMatrix() 
+        }
+        
+      }else{
+        let node
+        xrf.scene.traverse( (n) => {
+          if( n.userData && n.userData.href && n.name == destination ) node = n
+        })
+        if( node ) xrf.navigator.to( node.userData.href )
+        else $chat.send({message:"type 'look' for possible destinations"})
+      }
+    }
+    e.detail.halt = true // dont write input to chat
+  }
+
+  if( e.detail.message.match(/^do($| )/) ){
+    if( e.detail.message.trim() == 'do' ){
+      $chat.send({message: `all possible actions:${listActions(xrf.scene)}`})
+    }else{
+      let action = e.detail.message.replace(/^do /,'').trim()
+      xrf.scene.traverse( (n) => {
+        if( n.userData && n.userData.href && n.name == action ){
+          $chat.send({message:'<b class="badge">activating</b> '+n.name, class:['self','info']})
+          xrf.navigator.to( n.userData.href )
+        }
+      })
+    }
+    e.detail.halt = true // dont write input to chat
+  }
+
+  if( e.detail.message.match(/^rotate /) ){
+    let dir = e.detail.message.replace(/^rotate /,'').trim()
+    let y = 0;
+    let x = 0;
+    switch(dir){
+      case "left":  y =  0.3; break;
+      case "right": y = -0.3; break;
+      case "up":    x =  0.3; break;
+      case "down":  x = -0.3; break;
+    }
+    let lookcontrols = document.querySelector('[look-controls]')
+    if( lookcontrols ) lookcontrols.removeAttribute('look-controls') // workaround to unlock camera
+    xrf.camera.rotation.y += y
+    xrf.camera.rotation.x += x
+    xrf.camera.matrixAutoUpdate = true
+    e.detail.halt = true // dont write input to chat
+  }
+
+  if( e.detail.message.trim() == 'back' ){
+    window.history.back()
+  }
+
+  if( e.detail.message.trim() == 'forward' ){
+    window.history.forward()
+  }
+
+})
+// this allows surfing to a href by typing its node-name 
+
+// help screen
+document.addEventListener('chat.command.help', (e) => {
+  e.detail.message += `
+    <br><b class="badge">/speak_keyboard &lt;true|false&gt;</b> turn on/off keyboard input TTS
+    <br><b class="badge">/speak_teleports &lt;true|false&gt;</b> turn on/off TTS for teleports
+    <br><b class="badge">/speak_rate &lt;1&gt;</b> adjust TTS speed
+    <br><b class="badge">/speak_pitch &lt;1&gt;</b> adjust TTS pitch
+    <br><b class="badge">/speak_volume &lt;1&gt;</b> adjust TTS volume
+    <br><b class="badge">/speak_voice &lt;0&gt;</b> select voice (max: ${window.accessibility.speak_voices})
+  ` 
+})
+        
+document.addEventListener('chat.command', (e) => {
+  if( !e.detail.message.trim().match(/ /) ) return 
+  let action = e.detail.message.trim().split(" ")[0]
+  let value  = e.detail.message.trim().split(" ")[1]
+
+  if( window.accessibility[action] == undefined ) return
+
+  window.accessibility[action] = value
+  window.localStorage.setItem(action, value )
+  $chat.send({message: `${action} set to ${value}`, class:['info']})
+
+})
 }).apply({})

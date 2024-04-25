@@ -329,7 +329,9 @@ connectionsComponent = {
     set(data,k,v){ 
       data[k] = v 
       switch( k ){
-        case "visible":             el.style.display = v ? '' : 'none'; break;
+        case "visible":             el.style.display = v ? '' : 'none'; 
+                                    if( !v && el.parentNode && el.parentNode.parentNode ) el.parentNode.parentNode.remove() 
+                                    break;
         case "webcam":              $webcam.innerHTML       = `<option>${data[k].map((p)=>p.profile.name).join('</option><option>')}</option>`; break;
         case "chatnetwork":         $chatnetwork.innerHTML  = `<option>${data[k].map((p)=>p.profile.name).join('</option><option>')}</option>`; break;
         case "scene":               $scene.innerHTML        = `<option>${data[k].map((p)=>p.profile.name).join('</option><option>')}</option>`; break;
@@ -386,12 +388,14 @@ chatComponent = {
   html: `
     <div id="chat">
      <div id="videos" style="pointer-events:none"></div>
-     <div id="messages" aria-live="assertive" aria-relevant></div>
+     <div id="messages" aria-live="assertive" role="log" aria-relevant="additions"></div>
      <div id="chatfooter">
        <div id="chatbar">
            <input id="chatline" type="text" placeholder="chat here"></input>
        </div>
-       <button id="showchat" class="btn">show chat</button>
+       <button id="chatsend" class="btn" aria-label="send message">
+          <i class="gg-chevron-right-o"></i>
+       </button>
      </div>
     </div>
   `,
@@ -409,6 +413,7 @@ chatComponent = {
     $messages:       el.querySelector("#messages"),
     $chatline:       el.querySelector("#chatline"),
     $chatbar:        el.querySelector("#chatbar"),
+    $chatsend:       el.querySelector("#chatsend"),
     
     install(opts){
       this.opts  = opts
@@ -421,6 +426,19 @@ chatComponent = {
       this.send({message:`Welcome to <b>${document.location.search.substr(1)}</b>, a 3D scene(file) which simply links to other ones.<br>You can start a solo offline exploration in XR right away.<br>Type /help below, or use the arrow- or WASD-keys on your keyboard, and mouse-drag to rotate.<br>`, class: ["info","guide","multiline"] })
     },
 
+    sendInput(value){
+      if( value[0] == '#' ) return xrf.navigator.to(value)
+      let event   = value.match(/^[!\/]/) ? "chat.command" : "network.send"
+      let message = value.replace(/^[!\/]/,'')
+      let raw     = {detail:{message:value, halt:false}}
+      document.dispatchEvent( new CustomEvent( event, {detail: {message}} ) )
+      document.dispatchEvent( new CustomEvent( "chat.input", raw ) )
+      if( event == "network.send" && !raw.detail.halt ) this.send({message: value })
+      this.$chatline.lastValue = value
+      this.$chatline.value = ''
+      if( window.innerHeight < 600 ) this.$chatline.blur()
+    },
+
     initListeners(){
       let {$chatline} = this
 
@@ -428,12 +446,10 @@ chatComponent = {
 
       $chatline.addEventListener('keydown', (e) => {
         if (e.key == 'Enter' ){
-          if( $chatline.value[0] != '/' ){
-            document.dispatchEvent( new CustomEvent("network.send", {detail: {message:$chatline.value}} ) )
-          }
-          this.send({message: $chatline.value })
-          $chatline.value = ''
-          if( window.innerHeight < 600 ) $chatline.blur()
+          this.sendInput($chatline.value)
+        }
+        if (e.key == 'ArrowUp' ){
+          $chatline.value = $chatline.lastValue || ''
         }
       })
 
@@ -446,11 +462,26 @@ chatComponent = {
         if( e.detail.username ) this.username = e.detail.username
       })
 
+      document.addEventListener('chat.command', (e) => {
+        if( String(e.detail.message).trim() == 'help' ){
+          let detail = {message:`The following commands are available
+          <br><br>
+          <b class="badge">/help</b> shows this help screen
+          `}
+          document.dispatchEvent( new CustomEvent( 'chat.command.help', {detail}))
+          this.send({message: detail.message})
+        }
+      })
+
+      this.$chatsend.addEventListener('click', (e) => {
+        this.sendInput($chatline.value)
+      })
+
     },
 
     inform(){
       if( !this.inform.informed && (this.inform.informed = true) ){
-        window.notify("Connected via P2P. You can now type message which will be visible to others.")
+        window.notify("You can now type messages in the textfield below.")
       }
     },
 
@@ -488,7 +519,7 @@ chatComponent = {
         br.classList.add.apply(br.classList, opts.class)
         div.classList.add.apply(div.classList, opts.class.concat(["envelope"]))
       }
-      if( msg.className.match(/(info|guide|ui)/) || !opts.from ){
+      if( !msg.className.match(/(info|guide|ui)/) && !opts.from ){
         let frag = xrf.URI.parse(document.location.hash).XRF
         opts.from = 'you'
         if( frag.pos ) opts.pos = frag.pos.string
@@ -589,7 +620,7 @@ chatComponent.css = `
      }
 
      #chatbar,
-     button#showchat{
+     button#chatsend{
        z-index: 1500;
        position: fixed;
        bottom: 24px;
@@ -603,14 +634,19 @@ chatComponent.css = `
        box-sizing: border-box;
        box-shadow: 0px 0px 5px 5px #0002;
      }
-     button#showchat{
-       z-index:1550;
-       color:white;
-       border:0;
-       display:none;
-       height: 44px;
-       background:#07F;
-       font-weight:bold;
+     button#chatsend{
+      line-height:0px;
+      display:none;
+      z-index: 1550;
+      color: white;
+      border: 0;
+      height: 35px;
+      background: var(--xrf-dark-gray);
+      font-weight: bold;
+      width: 20px;
+      max-width: 20px;
+      border-radius: 20px 0px 0px 20px;
+      overflow: hidden;
      }
      #chatbar input{
        border:none;
@@ -628,6 +664,7 @@ chatComponent.css = `
        max-width: 500px;
        */
        width:100%;
+       box-sizing:border-box;
        align-items: flex-start;
        position: absolute;
        transition:1s;
@@ -636,7 +673,7 @@ chatComponent.css = `
        bottom: 49px;
        padding: 20px;
        overflow:hidden;
-       overflow-y: scroll;
+       overflow-y: auto;
        pointer-events:none;
        transition:1s;
        z-index: 100;
@@ -648,11 +685,14 @@ chatComponent.css = `
        pointer-events:all;
      }
      #messages *{
+       box-sizing:border-box;
+/*
        pointer-events:none;
        -webkit-user-select:none;
        -moz-user-select:-moz-none;
        -ms-user-select:none;
        user-select:none;
+*/
      }
      #messages .msg{
        transition:all 1s ease;
@@ -667,7 +707,8 @@ chatComponent.css = `
        cursor:grabbing;
        border: 1px solid #0002;
      }
-     #messages .msg *{
+     #messages .msg *,
+     #messages .user *{
        pointer-events:all;
        -webkit-user-select:text;
        -moz-user-select:-moz-text;
@@ -677,17 +718,17 @@ chatComponent.css = `
 
      #messages .msg.self{
        border-radius: 20px;
-       background:var(--xrf-box-shadow);
+       background:var(--xrf-dark-gray);
      }
      #messages .msg.self,
      #messages .msg.self div{
        color:#FFF;
      }
      #messages .msg.info{
-       background: #473f7f;
+       background: var(--xrf-white);
        border-radius: 20px;
-       color: #FFF;
-       text-align: right;
+       color: var(--xrf-dark-gray);
+       text-align: left;
        line-height: 19px;
      }
      #messages .msg.info,
@@ -696,7 +737,7 @@ chatComponent.css = `
      }
      #messages .msg a {
        text-decoration:underline;
-       color: var(--xrf-primary);
+       color: var(--xrf-light-xrf-secondary);
        font-weight:bold;
        transition:0.3s;
      }
@@ -773,9 +814,14 @@ chatComponent.css = `
       margin:0;
     }
 
+    .envelope{
+      margin-right:15px;
+      width:50%;
+      max-width:700px;
+    }
+
     .envelope,
     .envelope * {
-      overflow:hidden;
       transition:1s;
       pointer-events:none;
     }
@@ -795,6 +841,32 @@ chatComponent.css = `
     }
     .user, .user *{ 
       font-size: var(--xrf-font-size-0);
+    }
+    .gg-chevron-right-o {
+      color:#FFF;
+      box-sizing: border-box;
+      position: relative;
+      display: block;
+      transform: scale(var(--ggs,1));
+      width: 22px;
+      height: 22px;
+      border: 2px solid;
+      border-radius: 100px
+    }
+
+    .gg-chevron-right-o::after {
+      color:#FFF;
+      content: "";
+      display: block;
+      box-sizing: border-box;
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-bottom: 2px solid;
+      border-right: 2px solid;
+      transform: rotate(-45deg);
+      left: 5px;
+      top: 6px
     }
    </style>`
 }).apply({})

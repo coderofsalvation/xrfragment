@@ -289,7 +289,7 @@ document.head.innerHTML += `
     }
 
     .badge,
-    #messages .msg.ui div.badge{
+    #messages .msg .badge{
       box-sizing:border-box;
       display:inline-block;
       color: var(--xrf-white);
@@ -303,6 +303,11 @@ document.head.innerHTML += `
     }
     #messages .msg.ui div.badge a{
       color:#FFF;
+    }
+    #messages .msg .badge{
+      display:inline;
+      color: var(--xrf-primary-fg);
+      background: var(--xrf-dark-gray);
     }
 
     .ruler{
@@ -364,8 +369,8 @@ document.head.innerHTML += `
   }
 
   .transcript{
-    max-height:105px;
-    max-width:405px;
+    max-height:132px;
+    width:100%;
     overflow-y:auto;
     border: 1px solid var(--xrf-gray);
     border-radius: 5px;

@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Tue Apr 16 04:44:21 PM UTC 2024
+ * v0.5.1 generated at Thu Apr 25 03:56:52 PM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -1945,6 +1945,7 @@ xrf.parseModel = function(model,url){
   let file               = xrf.getFile(url)
   model.file             = file
   model.isXRF            = true
+  model.scene.isXRFRoot  = true
   model.scene.traverse( (n) => n.isXRF = true ) // mark for deletion during reset()
 
   xrf.emit('parseModel',{model,url,file})
@@ -2017,10 +2018,12 @@ xrf.navigator.to = (url,flags,loader,data) => {
 
   let URI = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
   URI.hash          = xrf.navigator.reactifyHash(URI.hash)
-  let fileChange    = URI.URN + URI.file != xrf.navigator.URI.URN + xrf.navigator.URI.file 
-  let external      = URI.URN != document.location.origin + document.location.pathname 
-  let hasPos        = URI.hash.pos 
-  let hashChange    = String(xrf.navigator.URI.fragment||"") != String(URI.fragment||"")
+  // decorate with extra state
+  URI.fileChange    = URI.file && URI.URN + URI.file != xrf.navigator.URI.URN + xrf.navigator.URI.file 
+  URI.external      = URI.file && URI.URN != document.location.origin + document.location.pathname 
+  URI.hasPos        = URI.hash.pos ? true : false
+  URI.duplicatePos  = URI.source == xrf.navigator.URI.source && URI.hasPos
+  URI.hashChange    = String(xrf.navigator.URI.fragment||"") != String(URI.fragment||"")
   let hashbus       = xrf.hashbus
   xrf.navigator.URI = URI
   let {directory,file,fragment,fileExt} = URI;
@@ -2044,22 +2047,25 @@ xrf.navigator.to = (url,flags,loader,data) => {
         loader = loader || new Loader().setPath( URI.URN )
       }
 
-      if( !URI.fragment && !URI.file && !URI.fileExt ) return resolve(xrf.model) // nothing we can do here
 
-      if( xrf.model && !fileChange && hashChange && !hasPos  ){
+      if( URI.duplicatePos || (!URI.fragment && !URI.file && !URI.fileExt) ){ 
+        return resolve(xrf.model) // nothing we can do here
+      }
+
+      if( xrf.model && !URI.fileChange && URI.hashChange && !URI.hasPos  ){
         evalFragment()
-        return resolve(xrf.model)                         // positional navigation
+        return resolve(xrf.model)                         // eval non-positional fragments (no loader needed)
       }
 
       xrf
       .emit('navigateLoading', {url,loader,data})
       .then( () => {
-        if( (!fileChange || !file) && hashChange && hasPos ){                 // we're already loaded
+        if( (!URI.fileChange || !file) && URI.hashChange && URI.hasPos ){                 // we're already loaded
           evalFragment()
           xrf.emit('navigateLoaded',{url})
           return resolve(xrf.model) 
         }
-          
+
         // clear xrf objects from scene
         if( xrf.model && xrf.model.scene ) xrf.model.scene.visible = false
         xrf.reset() 
@@ -2071,11 +2077,6 @@ xrf.navigator.to = (url,flags,loader,data) => {
         const onLoad = (model) => {
 
           model.file = URI.file
-          // only change url when loading *another* file
-          if( xrf.model ){
-            xrf.navigator.pushState( external ? URI.URN + URI.file : URI.file, fragment )
-          }
-          //if( xrf.model ) xrf.navigator.pushState( `${ document.location.pathname != URI.directory ? URI.directory: ''}${URI.file}`, fragment )
           xrf.model = model 
 
           if( !model.isXRF ) xrf.parseModel(model,url.replace(directory,"")) // this marks the model as an XRF model
@@ -2090,12 +2091,17 @@ xrf.navigator.to = (url,flags,loader,data) => {
             model.scene.traverse( (mesh) => xrf.parseModel.metadataInMesh(mesh,model) )
           }
           // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
-          xrf.frag.defaultPredefinedViews({model,scene:model.scene})
+          const defaultFragment = xrf.frag.defaultPredefinedViews({model,scene:model.scene})
           // spec: predefined view(s) & objects-of-interest-in-XRWG from URI (https://xrfragment.org/#predefined_view)
           let frag = xrf.hashbus.pub( url, model) // and eval URI XR fragments 
-
+          
           xrf.add( model.scene )
-          if( fragment ) xrf.navigator.updateHash(fragment)
+
+          // only change url when loading *another* file
+          fragment = fragment || defaultFragment || ''
+          xrf.navigator.pushState( URI.external ? URI.URN + URI.file : URI.file, fragment.replace(/^#/,'') )
+          //if( fragment )  xrf.navigator.updateHash(fragment)
+
           xrf.emit('navigateLoaded',{url,model})
           resolve(model)
         }
@@ -2122,7 +2128,7 @@ xrf.navigator.init = () => {
 
   window.addEventListener('popstate', function (event){
     if( !xrf.navigator.updateHash.active ){ // ignore programmatic hash updates (causes infinite recursion)
-      xrf.navigator.to( document.location.href.replace(/\?/,'') )
+      xrf.navigator.to( document.location.href.replace(/.*\?/,'') )
     }
   })
   
@@ -2358,13 +2364,16 @@ xrf.addEventListener('audioInited', function(opts){
 
 xrf.frag.defaultPredefinedViews = (opts) => {
   let {scene,model} = opts;
+  let defaultFragment;
   scene.traverse( (n) => {
     if( n.userData && n.userData['#'] ){
-      if( !n.parent && !document.location.hash ){
-        xrf.navigator.to( n.userData['#'] )
-      }else xrf.hashbus.pub( n.userData['#'], n )   // evaluate default XR fragments without affecting URL
+      if( n.isXRFRoot ){ 
+        defaultFragment = n.userData['#']
+      }
+      xrf.hashbus.pub( n.userData['#'], n )   // evaluate default XR fragments without affecting URL
     }
   })
+  return defaultFragment
 }
 xrf.frag.loop = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
@@ -2404,7 +2413,7 @@ xrf.frag.pos = function(v, opts){
 
   if( xrf.debug ) console.log(`#pos.js: setting camera to position ${pos.x},${pos.y},${pos.z}`)
 
-  xrf.frag.pos.last = pos // remember
+  xrf.frag.pos.last = v.string // remember
 
   camera.updateMatrixWorld()
 }
@@ -3148,6 +3157,17 @@ xrf.optimize.removeDuplicateLights = () => {
 xrf.addEventListener('parseModel', (opts) => {
   xrf.optimize(opts)
 })
+xrf.sceneToTranscript = (scene, ignoreMesh ) => {
+  let transcript = ''
+  scene.traverse( (n) => {
+    let isSRC = false
+    n.traverseAncestors( (m) => m.userData.src ? isSRC = true : false )
+    if( !isSRC && n.userData['aria-description'] && (!ignoreMesh || n.uuid != ignoreMesh.uuid) ){
+      transcript += `<b>#${n.name}</b> ${n.userData['aria-description']}. `
+    }
+  })
+  return transcript
+}
 // switch camera when multiple cameras for url #mycameraname
 
 xrf.addEventListener('dynamicKey', (opts) => {
@@ -4098,10 +4118,16 @@ window.AFRAME.registerComponent('xrf', {
         VRbutton = document.querySelector('.a-enter-vr-button')
         if( ARbutton ) ARbutton.addEventListener('click', () => AFRAME.XRF.hashbus.pub( '#-VR' ) )
         if( VRbutton ) VRbutton.addEventListener('click', () => AFRAME.XRF.hashbus.pub( '#VR' ) )
-        //if( AFRAME.utils.device.checkARSupport() && VRbutton ){
-        //  VRbutton.style.display = 'none'
-        //  ARbutton.parentNode.style.right = '20px'
-        //}
+      })
+
+      // (de)active look-controls because of 'rot=' XR Fragment
+      aScene.addEventListener('loaded', () => {
+        // this is just for convenience (not part of spec): enforce AR + hide/show stuff based on VR tags in 3D model 
+        aScene.canvas.addEventListener('mousedown', () => xrf.camera.el.setAttribute("look-controls","") )
+      })
+      XRF.addEventListener('rot',(e) => {
+       let lookcontrols = document.querySelector('[look-controls]')
+       if( lookcontrols ) lookcontrols.removeAttribute("look-controls")
       })
 
       let repositionUser = (scale) => () => {
