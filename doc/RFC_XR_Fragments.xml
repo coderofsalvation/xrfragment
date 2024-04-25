@@ -1369,7 +1369,7 @@ The following demonstrates a simple video player:</t>
 </section>
 
 <section anchor="additional-scene-metadata"><name>Additional scene metadata</name>
-<t>XR Fragments does not aim to redefine the metadata-space by introducing its own cataloging-metadata fields.
+<t>XR Fragments does not aim to redefine the metadata-space or accessibility-space by introducing its own cataloging-metadata fields.
 Instead, it encourages browsers to scan nodes for the following custom properties:</t>
 
 <ul spacing="compact">
@@ -1440,6 +1440,32 @@ Instead, it encourages browsers to scan nodes for the following custom propertie
 </blockquote><t>There's no silver bullet when it comes to metadata, so one should support where the metadata is/goes.</t>
 <blockquote><t>These attributes can be scanned and presented during an <tt>href</tt> or <tt>src</tt> eye/mouse-over.</t>
 </blockquote></section>
+
+<section anchor="accessibility-interface"><name>Accessibility interface</name>
+<t>The addressibility of XR Fragments allows for unique 3D-to-text transcripts, as well as an textual interface to navigate 3D content.<br />
+
+Spec:<br />
+&lt;Br&gt;</t>
+
+<ol spacing="compact">
+<li>The enduser must be able to enable an accessibility-mode (which persists across application/webpage restarts)</li>
+<li>Accessibility-mode must contain a text-input for the user to enter text</li>
+<li>Accessibility-mode must contain a flexible textlog for the user to read (via screenreader, screen, or TTS e.g.)</li>
+<li>The <tt>back</tt> command should navigate back to the previous URL (alias for browser-backbutton)</li>
+<li>The <tt>forward</tt> command should navigate back to the next URL (alias for browser-nextbutton)</li>
+<li>A destination is a 3D node containing an <tt>href</tt> with a <tt>pos=</tt> XR fragment</li>
+<li>The <tt>go</tt> command should list all possible destinations</li>
+<li>The <tt>go left</tt> command should move the camera around 0.3 meters to the left</li>
+<li>The <tt>go right</tt> command should move the camera around 0.3 meters to the right</li>
+<li>The <tt>go forward</tt> command should move the camera 0.3 meters forward (direction of current rotation).</li>
+<li>The <tt>rotate left</tt> command should rotate the camera 0.3 to the left</li>
+<li>The <tt>rotate left</tt> command should rotate the camera 0.3 to the right</li>
+<li>The (dynamic) <tt>go abc</tt> command should navigate to <tt>#pos=scene2</tt> in case there's a 3D node with name <tt>abc</tt> and <tt>href</tt> value <tt>#pos=scene2</tt></li>
+<li>The <tt>look</tt> command should give an (contextual) 3D-to-text transcript, by scanning the <tt>aria-description</tt> values of the current <tt>pos=</tt> value (including its children)</li>
+<li>The <tt>do</tt> command should list all possible <tt>href</tt> values which don't contain an <tt>pos=</tt> XR Fragment</li>
+<li>The (dynamic) <tt>do abc</tt> command should navigate/execute <tt>https://.../...</tt> in case a 3D node exist with name <tt>abc</tt> and <tt>href</tt> value <tt>https://.../...</tt></li>
+</ol>
+</section>
 
 <section anchor="security-considerations"><name>Security Considerations</name>
 <t>The only dynamic parts are <eref target="https://www.w3.org/TR/media-frags/">W3C Media Fragments</eref> and <eref target="https://www.rfc-editor.org/rfc/rfc6570">URI Templates (RFC6570)</eref>.<br />

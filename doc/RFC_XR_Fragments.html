@@ -1538,7 +1538,7 @@ The following demonstrates a simple video player:</p>
 
 <h1 id="additional-scene-metadata">Additional scene metadata</h1>
 
-<p>XR Fragments does not aim to redefine the metadata-space by introducing its own cataloging-metadata fields.
+<p>XR Fragments does not aim to redefine the metadata-space or accessibility-space by introducing its own cataloging-metadata fields.
 Instead, it encourages browsers to scan nodes for the following custom properties:</p>
 
 <ul>
@@ -1622,6 +1622,30 @@ Instead, it encourages browsers to scan nodes for the following custom propertie
 <blockquote>
 <p>These attributes can be scanned and presented during an <code>href</code> or <code>src</code> eye/mouse-over.</p>
 </blockquote>
+
+<h1 id="accessibility-interface">Accessibility interface</h1>
+
+<p>The addressibility of XR Fragments allows for unique 3D-to-text transcripts, as well as an textual interface to navigate 3D content.<br>
+Spec:<br><Br></p>
+
+<ol>
+<li>The enduser must be able to enable an accessibility-mode (which persists across application/webpage restarts)</li>
+<li>Accessibility-mode must contain a text-input for the user to enter text</li>
+<li>Accessibility-mode must contain a flexible textlog for the user to read (via screenreader, screen, or TTS e.g.)</li>
+<li>The <code>back</code> command should navigate back to the previous URL (alias for browser-backbutton)</li>
+<li>The <code>forward</code> command should navigate back to the next URL (alias for browser-nextbutton)</li>
+<li>A destination is a 3D node containing an <code>href</code> with a <code>pos=</code> XR fragment</li>
+<li>The <code>go</code> command should list all possible destinations</li>
+<li>The <code>go left</code> command should move the camera around 0.3 meters to the left</li>
+<li>The <code>go right</code> command should move the camera around 0.3 meters to the right</li>
+<li>The <code>go forward</code> command should move the camera 0.3 meters forward (direction of current rotation).</li>
+<li>The <code>rotate left</code> command should rotate the camera 0.3 to the left</li>
+<li>The <code>rotate left</code> command should rotate the camera 0.3 to the right</li>
+<li>The (dynamic) <code>go abc</code> command should navigate to <code>#pos=scene2</code> in case there&rsquo;s a 3D node with name <code>abc</code> and <code>href</code> value <code>#pos=scene2</code></li>
+<li>The <code>look</code> command should give an (contextual) 3D-to-text transcript, by scanning the <code>aria-description</code> values of the current <code>pos=</code> value (including its children)</li>
+<li>The <code>do</code> command should list all possible <code>href</code> values which don&rsquo;t contain an <code>pos=</code> XR Fragment</li>
+<li>The (dynamic) <code>do abc</code> command should navigate/execute <code>https://.../...</code> in case a 3D node exist with name <code>abc</code> and <code>href</code> value <code>https://.../...</code></li>
+</ol>
 
 <h1 id="security-considerations">Security Considerations</h1>
 

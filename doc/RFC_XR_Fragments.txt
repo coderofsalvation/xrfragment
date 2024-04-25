@@ -115,12 +115,13 @@ Internet-Draft                XR Fragments                    April 2024
 
 
    21. Additional scene metadata . . . . . . . . . . . . . . . . . .  35
-   22. Security Considerations . . . . . . . . . . . . . . . . . . .  37
-   23. FAQ . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  37
-   24. authors . . . . . . . . . . . . . . . . . . . . . . . . . . .  37
-   25. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  38
-   26. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  38
-   27. Appendix: Definitions . . . . . . . . . . . . . . . . . . . .  38
+   22. Accessibility interface . . . . . . . . . . . . . . . . . . .  37
+   23. Security Considerations . . . . . . . . . . . . . . . . . . .  37
+   24. FAQ . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  38
+   25. authors . . . . . . . . . . . . . . . . . . . . . . . . . . .  38
+   26. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  38
+   27. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  38
+   28. Appendix: Definitions . . . . . . . . . . . . . . . . . . . .  39
 
 1.  Introduction
 
@@ -158,7 +159,6 @@ Internet-Draft                XR Fragments                    April 2024
 
    *XR Fragments allows controlling 3D models using URLs, based on
    (non)existing metadata via URI's*
-
 
 
 
@@ -1942,10 +1942,10 @@ Internet-Draft                XR Fragments                    April 2024
 
 21.  Additional scene metadata
 
-   XR Fragments does not aim to redefine the metadata-space by
-   introducing its own cataloging-metadata fields.  Instead, it
-   encourages browsers to scan nodes for the following custom
-   properties:
+   XR Fragments does not aim to redefine the metadata-space or
+   accessibility-space by introducing its own cataloging-metadata
+   fields.  Instead, it encourages browsers to scan nodes for the
+   following custom properties:
 
    *  SPDX (https://spdx.dev/) license information
    *  ARIA (https://www.w3.org/WAI/standards-guidelines/aria/)
@@ -2018,7 +2018,47 @@ van Kammen               Expires 27 October 2024               [Page 36]
 Internet-Draft                XR Fragments                    April 2024
 
 
-22.  Security Considerations
+22.  Accessibility interface
+
+   The addressibility of XR Fragments allows for unique 3D-to-text
+   transcripts, as well as an textual interface to navigate 3D content.
+   Spec:
+   <Br>
+
+   1.   The enduser must be able to enable an accessibility-mode (which
+        persists across application/webpage restarts)
+   2.   Accessibility-mode must contain a text-input for the user to
+        enter text
+   3.   Accessibility-mode must contain a flexible textlog for the user
+        to read (via screenreader, screen, or TTS e.g.)
+   4.   The back command should navigate back to the previous URL (alias
+        for browser-backbutton)
+   5.   The forward command should navigate back to the next URL (alias
+        for browser-nextbutton)
+   6.   A destination is a 3D node containing an href with a pos= XR
+        fragment
+   7.   The go command should list all possible destinations
+   8.   The go left command should move the camera around 0.3 meters to
+        the left
+   9.   The go right command should move the camera around 0.3 meters to
+        the right
+   10.  The go forward command should move the camera 0.3 meters forward
+        (direction of current rotation).
+   11.  The rotate left command should rotate the camera 0.3 to the left
+   12.  The rotate left command should rotate the camera 0.3 to the
+        right
+   13.  The (dynamic) go abc command should navigate to #pos=scene2 in
+        case there's a 3D node with name abc and href value #pos=scene2
+   14.  The look command should give an (contextual) 3D-to-text
+        transcript, by scanning the aria-description values of the
+        current pos= value (including its children)
+   15.  The do command should list all possible href values which don't
+        contain an pos= XR Fragment
+   16.  The (dynamic) do abc command should navigate/execute
+        https://.../... in case a 3D node exist with name abc and href
+        value https://.../...
+
+23.  Security Considerations
 
    The only dynamic parts are W3C Media Fragments
    (https://www.w3.org/TR/media-frags/) and URI Templates (RFC6570)
@@ -2026,9 +2066,17 @@ Internet-Draft                XR Fragments                    April 2024
    The use of URI Templates is limited to pre-defined variables and
    Level0 fragments-expansion only, which makes it quite safe.
    In fact, it is much safer than relying on a scripting language
+
+
+
+van Kammen               Expires 27 October 2024               [Page 37]
+
+Internet-Draft                XR Fragments                    April 2024
+
+
    (javascript) which can change URN too.
 
-23.  FAQ
+24.  FAQ
 
    *Q:* Why is everything HTTP GET-based, what about POST/PUT/DELETE
    HATEOS
@@ -2061,27 +2109,27 @@ Internet-Draft                XR Fragments                    April 2024
    place, to 'extend' experiences, in contrast to code/javascript inside
    hypermedia documents (this turned out as a hypermedia antipattern).
 
-24.  authors
+25.  authors
 
    *  Leon van Kammen (@lvk@mastodon.online)
    *  Jens Finkhäuser (@jens@social.finkhaeuser.de)
 
+26.  IANA Considerations
+
+   This document has no IANA actions.
+
+27.  Acknowledgments
+
+   *  NLNET (https://nlnet.nl)
+   *  Future of Text (https://futureoftext.org)
 
 
 
-van Kammen               Expires 27 October 2024               [Page 37]
+van Kammen               Expires 27 October 2024               [Page 38]
 
 Internet-Draft                XR Fragments                    April 2024
 
 
-25.  IANA Considerations
-
-   This document has no IANA actions.
-
-26.  Acknowledgments
-
-   *  NLNET (https://nlnet.nl)
-   *  Future of Text (https://futureoftext.org)
    *  visual-meta.info (https://visual-meta.info)
    *  Michiel Leenaars
    *  Gerben van der Broeke
@@ -2093,7 +2141,7 @@ Internet-Draft                XR Fragments                    April 2024
    *  Brandel Zackernuk
    *  Mark Anderson
 
-27.  Appendix: Definitions
+28.  Appendix: Definitions
 
      +=================+=============================================+
      | definition      | explanation                                 |
@@ -2122,14 +2170,6 @@ Internet-Draft                XR Fragments                    April 2024
      |                 | Object(nodes), relevant to machines and a   |
      |                 | human minority (academics/developers)       |
      +-----------------+---------------------------------------------+
-
-
-
-van Kammen               Expires 27 October 2024               [Page 38]
-
-Internet-Draft                XR Fragments                    April 2024
-
-
      | XR fragment     | URI Fragment with spatial hints like        |
      |                 | #pos=0,0,0&t=1,100 e.g.                     |
      +-----------------+---------------------------------------------+
@@ -2138,6 +2178,14 @@ Internet-Draft                XR Fragments                    April 2024
      | the hashbus     | hashtags map to camera/scene-projections    |
      +-----------------+---------------------------------------------+
      | spacetime       | positions camera, triggers scene-preset/    |
+
+
+
+van Kammen               Expires 27 October 2024               [Page 39]
+
+Internet-Draft                XR Fragments                    April 2024
+
+
      | hashtags        | time                                        |
      +-----------------+---------------------------------------------+
      | teleportation   | repositioning the enduser to a different    |
@@ -2178,14 +2226,6 @@ Internet-Draft                XR Fragments                    April 2024
      | extrospective   | outward sensemaking ("I'm fairly sure John  |
      |                 | is a person who lives in oklahoma")         |
      +-----------------+---------------------------------------------+
-
-
-
-van Kammen               Expires 27 October 2024               [Page 39]
-
-Internet-Draft                XR Fragments                    April 2024
-
-
      | ◻               | ascii representation of an 3D object/mesh   |
      +-----------------+---------------------------------------------+
      | (un)obtrusive   | obtrusive: wrapping human text/thought in   |
@@ -2194,6 +2234,14 @@ Internet-Draft                XR Fragments                    April 2024
      +-----------------+---------------------------------------------+
      | flat 3D object  | a 3D object of which all verticies share a  |
      |                 | plane                                       |
+
+
+
+van Kammen               Expires 27 October 2024               [Page 40]
+
+Internet-Draft                XR Fragments                    April 2024
+
+
      +-----------------+---------------------------------------------+
      | BibTeX          | simple tagging/citing/referencing standard  |
      |                 | for plaintext                               |
@@ -2237,4 +2285,12 @@ Internet-Draft                XR Fragments                    April 2024
 
 
 
-van Kammen               Expires 27 October 2024               [Page 40]
+
+
+
+
+
+
+
+
+van Kammen               Expires 27 October 2024               [Page 41]
