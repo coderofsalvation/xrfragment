@@ -1036,7 +1036,7 @@ The following demonstrates a simple video player:
 
 # Additional scene metadata 
 
-XR Fragments does not aim to redefine the metadata-space by introducing its own cataloging-metadata fields.
+XR Fragments does not aim to redefine the metadata-space or accessibility-space by introducing its own cataloging-metadata fields.
 Instead, it encourages browsers to scan nodes for the following custom properties:
 
 * [SPDX](https://spdx.dev/) license information
@@ -1068,6 +1068,29 @@ Individual nodes can be enriched with such metadata, but most importantly the sc
 There's no silver bullet when it comes to metadata, so one should support where the metadata is/goes.
 
 > These attributes can be scanned and presented during an `href` or `src` eye/mouse-over.
+
+# Accessibility interface
+
+The addressibility of XR Fragments allows for unique 3D-to-text transcripts, as well as an textual interface to navigate 3D content.<br>
+Spec:<br><Br>
+
+1. The enduser must be able to enable an accessibility-mode (which persists across application/webpage restarts)
+2. Accessibility-mode must contain a text-input for the user to enter text 
+3. Accessibility-mode must contain a flexible textlog for the user to read (via screenreader, screen, or TTS e.g.)
+4. The `back` command should navigate back to the previous URL (alias for browser-backbutton)
+5. The `forward` command should navigate back to the next URL (alias for browser-nextbutton)
+6. A destination is a 3D node containing an `href` with a `pos=` XR fragment 
+7. The `go` command should list all possible destinations
+8. The `go left` command should move the camera around 0.3 meters to the left
+9. The `go right` command should move the camera around 0.3 meters to the right
+10. The `go forward` command should move the camera 0.3 meters forward (direction of current rotation).
+11. The `rotate left` command should rotate the camera 0.3 to the left
+12. The `rotate left` command should rotate the camera 0.3 to the right
+13. The (dynamic) `go abc` command should navigate to `#pos=scene2` in case there's a 3D node with name `abc` and `href` value `#pos=scene2`
+14. The `look` command should give an (contextual) 3D-to-text transcript, by scanning the `aria-description` values of the current `pos=` value (including its children)
+15. The `do` command should list all possible `href` values which don't contain an `pos=` XR Fragment
+16. The (dynamic) `do abc` command should navigate/execute `https://.../...` in case a 3D node exist with name `abc` and `href` value `https://.../...`
+
 
 # Security Considerations
 
