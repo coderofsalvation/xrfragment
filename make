@@ -29,8 +29,8 @@ install(){
   godot(){
     # GoDot support
     haxelib git gdscript https://github.com/SomeRanDev/reflaxe.GDScript nightly
-    haxelib git godot-api-generator https://github.com/SomeRanDev/Haxe-GodotBindingsGenerator
-    haxelib run godot-api-generator
+    #haxelib git godot-api-generator https://github.com/SomeRanDev/Haxe-GodotBindingsGenerator
+    #haxelib run godot-api-generator
   }
 
   test -z $1 && general
