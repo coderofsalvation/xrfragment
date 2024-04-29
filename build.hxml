@@ -49,6 +49,14 @@ Test
 -m Test
 -python test/generated/test.py
 
+--next
+-dce full
+-cp src
+xrfragment
+-lib gdscript
+-D gdscript-output=dist/godot 
+-D generate_godot_plugin
+
 #--next
 #
 #-dce full

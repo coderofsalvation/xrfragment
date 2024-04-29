@@ -4,24 +4,37 @@ try(){ set +e; "$@" 2>/dev/null; set -e; }
 trace(){ set -x; "$@"; set +x; }
 
 install(){
-  which haxe || { 
-    echo -e "installing haxe..if this fails:\n\n"
-    echo " 1. install haxe from haxe.org"
-    echo "[2.] download neko for cpp output"
-    echo "[3.] install mono openjdk14 for csharp + java output"
-    which apt-get && {
-      sudo apt-get update -y
-      sudo apt-get install neko haxe -y
+
+  general(){
+    which haxe || { 
+      echo -e "installing haxe..if this fails:\n\n"
+      echo " 1. install haxe from haxe.org"
+      echo "[2.] download neko for cpp output"
+      echo "[3.] install mono openjdk14 for csharp + java output"
+      which apt-get && {
+        sudo apt-get update -y
+        sudo apt-get install neko haxe -y
+      }
     }
+    mkdir ~/.haxe
+    haxelib setup ~/.haxe
+    haxelib install hxcpp
+    haxelib install hxjava
+    haxelib install hxcs
+    haxelib install hscript
+    which javac && haxelib install hxjava 4.2.0 || "[!] skipping java (no javac found)"
+    which mono  && haxelib install hxcs 4.2.0   || "[!] skipping C# (no mono found)"
   }
-  mkdir ~/.haxe
-  haxelib setup ~/.haxe
-  haxelib install hxcpp
-  haxelib install hxjava
-  haxelib install hxcs
-  haxelib install hscript
-  which javac && haxelib install hxjava 4.2.0
-  which mono  && haxelib install hxcs 4.2.0
+
+  godot(){
+    # GoDot support
+    haxelib git gdscript https://github.com/SomeRanDev/reflaxe.GDScript nightly
+    haxelib git godot-api-generator https://github.com/SomeRanDev/Haxe-GodotBindingsGenerator
+    haxelib run godot-api-generator
+  }
+
+  test -z $1 && general
+  test -z $1 || "$@"
 }
 
 tests(){
