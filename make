@@ -27,10 +27,14 @@ install(){
   }
 
   godot(){
-    # GoDot support
-    haxelib git gdscript https://github.com/SomeRanDev/reflaxe.GDScript nightly
-    #haxelib git godot-api-generator https://github.com/SomeRanDev/Haxe-GodotBindingsGenerator
-    #haxelib run godot-api-generator
+    test -d src/xrfragment/godot/addons || mkdir src/xrfragment/godot/addons
+    test -d src/xrfragment/godot/addons/godot-xr-tools || {
+      cd src/xrfragment/godot
+      wget "https://github.com/GodotVR/godot-xr-tools/releases/download/4.3.1/godot-xr-tools.zip"
+      unzip godot-xr-tools.zip
+      mv godot-xr-tools/addons/godot-xr-tools addons/.
+      rm -rf godot-xr-tools*
+    }
   }
 
   test -z $1 && general

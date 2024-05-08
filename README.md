@@ -50,6 +50,14 @@ $ ./make build && ./make tests
 > NOTE #1: to rebundle the THREE/AFRAME javascripts during dev run `./make build js`
 > NOTE #2: to regenerate the parser in various languages (via haxe), run `./make build parser`
 
+# Godot (>=v4.3.1)
+
+```
+$ ./make install godot       # this installs the godot-xr-tools addon
+```
+
+> NOTE: the godot project is in [src/xrfragment/godot](./src/xrfragment/godot) (open the folder in godot)
+
 # Credits
 
 <br>
