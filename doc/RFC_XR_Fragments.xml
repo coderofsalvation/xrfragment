@@ -612,7 +612,11 @@ For example, to render a portal with a preview-version of the scene, create an 3
 <li>set the position of the camera accordingly to the vector3 values of <tt>#pos</tt></li>
 <li><tt>rot</tt> sets the rotation of the camera (only for non-VR/AR headsets)</li>
 <li>mediafragment <tt>t</tt> in the top-URL sets the playbackspeed and animation-range of the global scene animation</li>
-<li>after scene load: in case an <tt>href</tt> does not mention any <tt>pos</tt>-coordinate, <tt>pos=0,0,0</tt> will be assumed</li>
+<li>before scene load: the scene is cleared</li>
+<li>after scene load: in case the scene (rootnode) contains an <tt>#</tt> default view with a fragment value: execute non-positional fragments via the hashbus (no top-level URL change)</li>
+<li>after scene load: in case the scene (rootnode) contains an <tt>#</tt> default view with a fragment value: execute positional fragment via the hashbus + update top-level URL</li>
+<li>in case of no default <tt>#</tt> view on the scene (rootnode), default player(rig) position <tt>0,0,0</tt> is assumed.</li>
+<li>in case a <tt>href</tt> does not mention any <tt>pos</tt>-coordinate, the current position will be assumed</li>
 </ol>
 <t>Here's an ascii representation of a 3D scene-graph which contains 3D objects <tt>◻</tt> and their metadata:</t>
 
@@ -651,7 +655,7 @@ In case of <tt>buttonA</tt> the end-user will be teleported to another location 
 <section anchor="embedding-xr-content-using-src"><name>Embedding XR content using src</name>
 <t><tt>src</tt> is the 3D version of the &lt;a target=&quot;_blank&quot; href=&quot;https://www.w3.org/html/wiki/Elements/iframe&quot;&gt;iframe&lt;/a&gt;.<br />
 
-It instances content (in objects) in the current scene/asset.</t>
+It instances content (in objects) in the current scene/asset, and follows similar logic like the previous chapter, except that it does not modify the camera.</t>
 <table>
 <thead>
 <tr>

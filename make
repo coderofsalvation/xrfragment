@@ -27,9 +27,10 @@ install(){
   }
 
   godot(){
-    test -d src/xrfragment/godot/addons || mkdir src/xrfragment/godot/addons
-    test -d src/xrfragment/godot/addons/godot-xr-tools || {
-      cd src/xrfragment/godot
+    DIR_GODOT=example/godot
+    test -d $DIR_GODOT/addons || mkdir -p $DIR_GODOT/addons
+    test -d $DIR_GODOT/addons/godot-xr-tools || {
+      cd $DIR_GODOT 
       wget "https://github.com/GodotVR/godot-xr-tools/releases/download/4.3.1/godot-xr-tools.zip"
       unzip godot-xr-tools.zip
       mv godot-xr-tools/addons/godot-xr-tools addons/.

@@ -383,10 +383,14 @@ Example URI's:
 [» discussion](https://github.com/coderofsalvation/xrfragment/issues/5)<br>
 
 1. the Y-coordinate of `pos` identifies the floorposition. This means that desktop-projections usually need to add 1.5m (average person height) on top (which is done automatically by VR/AR headsets).
-1. set the position of the camera accordingly to the vector3 values of `#pos`
-1. `rot` sets the rotation of the camera (only for non-VR/AR headsets)
-1. mediafragment `t` in the top-URL sets the playbackspeed and animation-range of the global scene animation
-1. after scene load: in case an `href` does not mention any `pos`-coordinate, `pos=0,0,0` will be assumed 
+2. set the position of the camera accordingly to the vector3 values of `#pos`
+3. `rot` sets the rotation of the camera (only for non-VR/AR headsets)
+4. mediafragment `t` in the top-URL sets the playbackspeed and animation-range of the global scene animation
+5. before scene load: the scene is cleared
+6. after scene load: in case the scene (rootnode) contains an `#` default view with a fragment value: execute non-positional fragments via the hashbus (no top-level URL change)
+7. after scene load: in case the scene (rootnode) contains an `#` default view with a fragment value: execute positional fragment via the hashbus + update top-level URL
+8. in case of no default `#` view on the scene (rootnode), default player(rig) position `0,0,0` is assumed.
+9. in case a `href` does not mention any `pos`-coordinate, the current position will be assumed 
 
 Here's an ascii representation of a 3D scene-graph which contains 3D objects `◻` and their metadata:
 
@@ -424,7 +428,7 @@ The URL-processing-flow for hypermedia browsers goes like this:
 # Embedding XR content using src
 
 `src` is the 3D version of the <a target="_blank" href="https://www.w3.org/html/wiki/Elements/iframe">iframe</a>.<br>
-It instances content (in objects) in the current scene/asset.
+It instances content (in objects) in the current scene/asset, and follows similar logic like the previous chapter, except that it does not modify the camera.
 
 | fragment | type | example value |
 |----------|------|---------------|
