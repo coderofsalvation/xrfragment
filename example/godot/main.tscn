@@ -43,5 +43,6 @@ input_action = "thumbstick"
 input_action = "thumbstick"
 
 [node name="PlayerBody" parent="XROrigin3D" instance=ExtResource("6_kfmth")]
+visible = false
 
 [node name="StartXR" parent="." instance=ExtResource("8_htpay")]

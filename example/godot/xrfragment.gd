@@ -5,7 +5,8 @@ extends Node
 
 class_name XRF
 
-var scene
+var scene: Node3D
+var URI: Dictionary
 var isModelLoading = false
 var metadata
 var callback: Callable;
@@ -30,7 +31,7 @@ func _process(delta):
 ####################################################################################################
 
 func parseURL(url: String) -> Dictionary:
-	var URI = {}
+	var URI = {"string":url}
 	
 	# Split URL by '://' to get protocol and the rest of the URL
 	var parts = url.split("://")
@@ -70,7 +71,7 @@ func parseURL(url: String) -> Dictionary:
 		URI["fragment"] = parseArgs(parts[1])
 	else:
 		URI["fragment"] = {}
-	
+	URI['isLocal'] = url[0] == '#'
 	return URI
 
 func parseArgs(fragment: String) -> Dictionary:
@@ -118,15 +119,24 @@ func guess_type(str: String) -> Dictionary:
 	
 # Download model by HTTP and run `downloadModelSuccess` if OK
 func to(url, f:Callable ):
-	print("loading "+url)
+	print("navigating to "+url)
+	var URI = self.parseURL(url)
 	callback = f
-	var http_request = HTTPRequest.new()
-	add_child(http_request)
-	http_request.request_completed.connect(downloadModelSuccess)
 	
-	var error = http_request.request(url)
-	if error != OK:
-		push_error("An error occurred in the HTTP request.")
+	if !URI.isLocal:
+		var http_request = HTTPRequest.new()
+		add_child(http_request)
+		http_request.request_completed.connect(downloadModelSuccess)
+		
+		var error = http_request.request(url)
+		if error != OK:
+			push_error("An error occurred in the HTTP request.")
+			
+	self.URI = URI
+	if URI.isLocal && URI.fragment.has('pos'):
+		print(URI.fragment.pos)
+		callback.call("teleport", self.posToTransform3D( URI.fragment.pos ) )
+			
 
 func downloadModelSuccess(result, response_code, headers, body):
 	# TODO: here different parsing functions should be called
@@ -135,8 +145,9 @@ func downloadModelSuccess(result, response_code, headers, body):
 	_parseXRFMetadata(scene)
 	traverse( scene, _parseXRFMetadata )
 	# setup actions & embeds
-	traverse( scene, init_href )
-	traverse( scene, init_src )
+	traverse( scene, href_init )
+	traverse( scene, src_init )
+	setPredefinedSceneView()
 	callback.call("scene_loaded", scene)
 
 func loadModelFromBufferByGLTFDocument(body):
@@ -146,7 +157,8 @@ func loadModelFromBufferByGLTFDocument(body):
 	#state.set_handle_binary_image(GLTFState.HANDLE_BINARY_EMBED_AS_BASISU) # Fixed in new Godot version (4.3 as I see) https://github.com/godotengine/godot/blob/17e7f85c06366b427e5068c5b3e2940e27ff5f1d/scene/resources/portable_compressed_texture.cpp#L116
 	var error = doc.append_from_buffer(body, "", state)
 	if error == OK:
-		scene = doc.generate_scene(state)		
+		scene = doc.generate_scene(state)
+		scene.name = "XRFscene"		
 		metadata = _parseMetadata(state,scene)
 		add_child(scene)
 		print("model added")
@@ -205,18 +217,18 @@ func _parseMetadata(state: GLTFState, scene: Node) -> Error:
 	return OK
 	
 func posToTransform3D(v:Dictionary):
-	var pos = Vector3()
+	var transform : Transform3D
 	if !v.x:
 		var node:Node3D = scene.find_child(v.string)
-		pos.x = node.position.x
-		pos.y = node.position.y
-		pos.z = node.position.z
+		if node:
+			transform = node.global_transform
 	else:
+		var pos = Vector3()
 		pos.x = v.x
 		pos.y = v.y
 		pos.z = v.z
-	var transform = Transform3D()
-	transform.origin = pos
+		transform = Transform3D()
+		transform.origin = pos
 	return transform
 	
 
@@ -225,9 +237,42 @@ func posToTransform3D(v:Dictionary):
 # spec: https://xrfragment.org/doc/RFC_XR_Fragments.html
 ####################################################################################################
 
-func init_href(node:Node):
-	null
+# info: https://xrfragment.org/#predefined_view
+# spec: 6-8 @ https://xrfragment.org/doc/RFC_XR_Fragments.html#navigating-3d
+func setPredefinedSceneView():
+	var XRF = scene.get_meta("XRF")
+	if XRF && XRF.has("#") && XRF["#"]["fragment"]["pos"]:
+		callback.call("teleport", posToTransform3D(XRF["#"]["fragment"]["pos"]) )		
 
-func init_src(node:Node):
-	null
+func href_init(node:Node):
+	if node.has_meta("XRF"):
+		var XRF = node.get_meta("XRF")
+		if XRF.has('href'):
+			var parent = node.get_parent()
+			var area3D = Area3D.new()
+			var col3D  = CollisionShape3D.new()
+			var group  = MeshInstance3D.new()
+			parent.remove_child(node)
+			area3D.add_child(node)
+			area3D.add_child(col3D)
+			col3D.make_convex_from_siblings() # generate collision from MeshInstance3D siblings	
+			parent.add_child(area3D)
+
+func href_click(node:Node):
+	if node.has_meta("XRF"):
+		var XRF = node.get_meta("XRF")
+		if XRF.has('href'):
+			to(XRF.href.string,callback)
+			callback.call("href", node)
+				
+func src_init(node:Node):
+	if node.has_meta("XRF"):
+		var XRF = node.get_meta("XRF")
+		if (XRF.has('src') || (XRF.has('href') && XRF.has('src'))) && node is MeshInstance3D:
+			var mesh = node as MeshInstance3D
+			var mat = mesh.get_active_material(0) as BaseMaterial3D
+			mat = mat.duplicate()
+			mat.transparency = mat.TRANSPARENCY_ALPHA
+			mat.albedo = Color(1.0,1.0,1.0, 0.3) # 0.5 sets 50% opacity
+			mesh.set_surface_override_material(0,mat)
 		
