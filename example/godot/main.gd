@@ -8,7 +8,8 @@ var player:CharacterBody3D
 func _ready():
 	xrf = preload("res://xrfragment.gd").new()
 	add_child(xrf)
-	xrf.to("https://xrfragment.org/other.glb", _onXRF )
+	#xrf.to("https://xrfragment.org/other.glb", _onXRF )
+	xrf.to("http://localhost:8080/example/assets/other.glb", _onXRF )
 	player = find_child("PlayerBody")
 	player.enabled = false # optional: turn off gravity
 

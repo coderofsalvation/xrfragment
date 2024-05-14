@@ -127,7 +127,6 @@ func to(url, f:Callable ):
 		var http_request = HTTPRequest.new()
 		add_child(http_request)
 		http_request.request_completed.connect(downloadModelSuccess)
-		
 		var error = http_request.request(url)
 		if error != OK:
 			push_error("An error occurred in the HTTP request.")
@@ -142,6 +141,9 @@ func downloadModelSuccess(result, response_code, headers, body):
 	# TODO: here different parsing functions should be called
 	#       based on the filetype (glb,gltf,ade,obj e.g.)
 	loadModelFromBufferByGLTFDocument(body)
+	if scene == null:
+		print('could not load GLTF from HTTP response')
+		return
 	_parseXRFMetadata(scene)
 	traverse( scene, _parseXRFMetadata )
 	# setup actions & embeds
@@ -158,7 +160,8 @@ func loadModelFromBufferByGLTFDocument(body):
 	var error = doc.append_from_buffer(body, "", state)
 	if error == OK:
 		scene = doc.generate_scene(state)
-		scene.name = "XRFscene"		
+		scene.name = "XRFscene"
+		_addAnimations(state, scene)
 		metadata = _parseMetadata(state,scene)
 		add_child(scene)
 		print("model added")
@@ -173,6 +176,10 @@ func _parseXRFMetadata(node:Node):
 			if typeof(extras[i]) == TYPE_STRING:
 				XRF[ i ] = parseURL( extras[i] )
 		node.set_meta("XRF", XRF)
+
+func _addAnimations( state:GLTFState, scene):
+	for i in state.get_animation_players_count(0):
+		print(i) #add_child( state.get_animation_player(i) )
 		
 func traverse(node, f:Callable ):
 	for N in node.get_children():
