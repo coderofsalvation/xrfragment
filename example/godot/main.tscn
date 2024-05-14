@@ -20,6 +20,13 @@ shadow_enabled = true
 [node name="XRCamera3D" type="XRCamera3D" parent="XROrigin3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
 
+[node name="URLbar" type="RichTextLabel" parent="XROrigin3D/XRCamera3D"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 1171.0
+offset_bottom = 136.0
+scale = Vector2(1.2, 1.2)
+
 [node name="LeftHand" type="XRController3D" parent="XROrigin3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0, 0)
 tracker = &"left_hand"

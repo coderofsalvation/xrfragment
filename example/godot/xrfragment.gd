@@ -6,7 +6,9 @@ extends Node
 class_name XRF
 
 var scene: Node3D
-var URI: Dictionary
+var URI: Dictionary = {}
+var history: Array
+var animplayer: AnimationPlayer
 var isModelLoading = false
 var metadata
 var callback: Callable;
@@ -31,7 +33,7 @@ func _process(delta):
 ####################################################################################################
 
 func parseURL(url: String) -> Dictionary:
-	var URI = {"string":url}
+	var URI = {"string":url, "next": null}
 	
 	# Split URL by '://' to get protocol and the rest of the URL
 	var parts = url.split("://")
@@ -45,14 +47,18 @@ func parseURL(url: String) -> Dictionary:
 	parts = url.split("/")
 	URI["domain"] = parts[0]
 	if parts.size() > 1:
-		var path_and_file = parts[1]
+		parts.remove_at(0)
+		var path_and_file = "/".join(parts)
+		path_and_file = path_and_file.split("?")[0]
+		path_and_file = path_and_file.split("#")[0]
 		var path_and_file_parts = path_and_file.split("/")
 		if path_and_file_parts.size() > 1:
-			URI["path"] = path_and_file_parts
-			var file = path_and_file_parts.pop_back()
-			URI["path"] = path_and_file_parts.join("/")
+			URI["path"] = "/".join(path_and_file_parts)
 		else:
 			URI["path"] = path_and_file
+	else:
+		URI["path"]   = self.URI.path # copy from current URI
+		URI["domain"] = self.URI.domain
 	
 	# Check if there's a query string
 	if url.find("?") != -1:
@@ -117,12 +123,25 @@ func guess_type(str: String) -> Dictionary:
 # Model Related functions
 ####################################################################################################
 	
+func back():
+	var prev  = self.history.pop_back()
+	if prev != null:
+		prev.next = self.URI 
+		self.to( prev.string, callback )
+
+func forward():
+	if self.URI.next != null:
+		self.to( self.URI.next.string, callback )
+	
 # Download model by HTTP and run `downloadModelSuccess` if OK
 func to(url, f:Callable ):
 	print("navigating to "+url)
 	var URI = self.parseURL(url)
 	callback = f
 	
+	if self.URI.has('domain') && URI.domain == self.URI.domain && URI.path == self.URI.path:
+		URI.isLocal = true 
+			
 	if !URI.isLocal:
 		var http_request = HTTPRequest.new()
 		add_child(http_request)
@@ -130,10 +149,11 @@ func to(url, f:Callable ):
 		var error = http_request.request(url)
 		if error != OK:
 			push_error("An error occurred in the HTTP request.")
-			
+	if self.URI:
+		self.URI.next = null
+		self.history.push_back(self.URI )		
 	self.URI = URI
 	if URI.isLocal && URI.fragment.has('pos'):
-		print(URI.fragment.pos)
 		callback.call("teleport", self.posToTransform3D( URI.fragment.pos ) )
 			
 
@@ -153,18 +173,17 @@ func downloadModelSuccess(result, response_code, headers, body):
 	callback.call("scene_loaded", scene)
 
 func loadModelFromBufferByGLTFDocument(body):
-	print("loadModelFromBuffer")
 	var doc = GLTFDocument.new()
 	var state = GLTFState.new()
 	#state.set_handle_binary_image(GLTFState.HANDLE_BINARY_EMBED_AS_BASISU) # Fixed in new Godot version (4.3 as I see) https://github.com/godotengine/godot/blob/17e7f85c06366b427e5068c5b3e2940e27ff5f1d/scene/resources/portable_compressed_texture.cpp#L116
-	var error = doc.append_from_buffer(body, "", state)
+	var error = doc.append_from_buffer(body, "", state, 8) # 8 = force ENABLE_TANGENTS since it is required for mesh compression since 4.2
 	if error == OK:
 		scene = doc.generate_scene(state)
 		scene.name = "XRFscene"
-		_addAnimations(state, scene)
 		metadata = _parseMetadata(state,scene)
 		add_child(scene)
 		print("model added")
+		_addAnimations(state, scene)
 	else:
 		print("Couldn't load glTF scene (error code: %s). Are you connected to internet?" % error_string(error))	
 
@@ -177,10 +196,19 @@ func _parseXRFMetadata(node:Node):
 				XRF[ i ] = parseURL( extras[i] )
 		node.set_meta("XRF", XRF)
 
-func _addAnimations( state:GLTFState, scene):
-	for i in state.get_animation_players_count(0):
-		print(i) #add_child( state.get_animation_player(i) )
-		
+func _addAnimations( state:GLTFState, scene:Node):
+	self.animplayer == null
+	for i in scene.get_child_count():
+		var animplayer : AnimationPlayer = scene.get_child(i) as AnimationPlayer;
+		if animplayer == null:
+			continue;
+		self.animplayer = animplayer
+		print("playing animations")
+		print(animplayer.get_animation_library_list())
+		var anims = animplayer.get_animation_library_list()
+		for j in anims:
+			animplayer.play( j )
+	
 func traverse(node, f:Callable ):
 	for N in node.get_children():
 		if N.get_child_count() > 0:
@@ -249,6 +277,9 @@ func posToTransform3D(v:Dictionary):
 func setPredefinedSceneView():
 	var XRF = scene.get_meta("XRF")
 	if XRF && XRF.has("#") && XRF["#"]["fragment"]["pos"]:
+		self.URI.fragment = XRF["#"]["fragment"]
+		if !self.URI.string.match("#"):
+			self.URI.string  += XRF["#"]["string"]
 		callback.call("teleport", posToTransform3D(XRF["#"]["fragment"]["pos"]) )		
 
 func href_init(node:Node):
@@ -275,11 +306,13 @@ func href_click(node:Node):
 func src_init(node:Node):
 	if node.has_meta("XRF"):
 		var XRF = node.get_meta("XRF")
-		if (XRF.has('src') || (XRF.has('href') && XRF.has('src'))) && node is MeshInstance3D:
+		if XRF.has('src'):
 			var mesh = node as MeshInstance3D
-			var mat = mesh.get_active_material(0) as BaseMaterial3D
-			mat = mat.duplicate()
-			mat.transparency = mat.TRANSPARENCY_ALPHA
-			mat.albedo = Color(1.0,1.0,1.0, 0.3) # 0.5 sets 50% opacity
-			mesh.set_surface_override_material(0,mat)
+			if mesh != null:
+				var mat = mesh.get_active_material(0) as BaseMaterial3D
+				mat = mat.duplicate()
+				mat.transparency = mat.TRANSPARENCY_ALPHA
+				mat.albedo = Color(1.0,1.0,1.0, 0.3) # 0.5 sets 50% opacity
+				mesh.set_surface_override_material(0,mat)
+			callback.call("src", {"node":node,"XRF":XRF} )
 		
