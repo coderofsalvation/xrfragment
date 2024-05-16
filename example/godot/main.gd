@@ -7,18 +7,24 @@ var player:CharacterBody3D
 
 func _ready():
 	xrf = preload("res://xrfragment.gd").new()
+	print( xrf.parseURL2("https://foo.com/abc.gltf#foo=2") )
+	return
+	
+	xrf.src.addExtension.call("wav", xrf.src.audio ) # extensible support for 
+	xrf.src.addExtension.call("ogg", xrf.src.audio ) # src-metadata (a la carte)
 	add_child(xrf)
 	#xrf.to("https://xrfragment.org/other.glb", _onXRF )
 	xrf.to("http://localhost:8080/example/assets/other.glb", _onXRF )
-	player = find_child("PlayerBody")
-	player.enabled = false # optional: turn off gravity
+	player = find_child("PlayerBody")  # optional: use PlayerBody from godot-xr-tools
+	player.enabled = false             # optional: turn off gravity
+
 
 func _onXRF(event:String,data ):
 	if event == "scene_loaded":
 		scene = data
-	if event == 'href':      # optional: hook into href events
+	if event == 'href':
 		print(data)
-	if event == 'src':       # optional: hook into src metadata
+	if event == 'src':
 		print(data)	
 	if event == 'teleport':
 		print("teleport!")
@@ -56,6 +62,6 @@ func _input(event):
 			var intersectMesh   = space_state.intersect_ray(mesh_query)
 			var intersectHandle = space_state.intersect_ray(handle_query)
 			if intersectMesh.has('collider'):
-				xrf.traverse( intersectMesh.collider, xrf.href_click )	
+				xrf.traverse( intersectMesh.collider, xrf.href.click )	
 
 		

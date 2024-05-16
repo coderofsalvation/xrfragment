@@ -11,6 +11,8 @@ var history: Array
 var animplayer: AnimationPlayer
 var isModelLoading = false
 var metadata
+var _orphans = []
+var _regex:RegEx = RegEx.new()				
 var callback: Callable;
 var Type = {
 	"isColor":  "^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$",
@@ -32,6 +34,35 @@ func _process(delta):
 # URI Related functions
 ####################################################################################################
 
+func parseURL2(url: String) -> Dictionary:
+	var regex:RegEx = RegEx.new()
+	regex.compile("\\S+") # Negated whitespace character class.
+	var results = []
+	for result in regex.search_all(url.replace("/"," ")):
+		results.push_back(result.get_string())
+	print(results)
+	
+	return {}  # Return empty dictionary if URL doesn't match
+
+	var groups = regex.get_group_list(url)
+	var parsed_url = {
+		"source": url,
+		"scheme": groups[1] ||"",  # Use nullish coalescing for optional scheme
+		"authority": groups[2] ||"",
+		"userInfo": (groups[4]||"") + ":" + (groups[5]||""),  # Combine user and password
+		"user": groups[4] ||"",
+		"password": groups[5] ||"",
+		"host": groups[6] ||"",
+		"port": groups[7] || "",  # Convert port to int or default to 0
+		"relative": groups[8] ||"",
+		"path": groups[9] ||"",
+		"directory": (groups[9]||"").split("/")[0] || "",  # Extract directory path
+		"file": groups[9].split("/")[-1] ||"",  # Extract filename
+		"query": groups[10] ||"",
+		"fragment": groups[11] ||"",
+	}
+	return parsed_url
+
 func parseURL(url: String) -> Dictionary:
 	var URI = {"string":url, "next": null}
 	
@@ -46,8 +77,9 @@ func parseURL(url: String) -> Dictionary:
 	# Split URL by '/' to separate domain, path, and file
 	parts = url.split("/")
 	URI["domain"] = parts[0]
-	if parts.size() > 1:
-		parts.remove_at(0)
+	parts.remove_at(0)
+		
+	if parts.size() > 0:
 		var path_and_file = "/".join(parts)
 		path_and_file = path_and_file.split("?")[0]
 		path_and_file = path_and_file.split("#")[0]
@@ -56,8 +88,10 @@ func parseURL(url: String) -> Dictionary:
 			URI["path"] = "/".join(path_and_file_parts)
 		else:
 			URI["path"] = path_and_file
-	else:
+	
+	if !URI.has("path"):
 		URI["path"]   = self.URI.path # copy from current URI
+	if !URI.has("domain"):
 		URI["domain"] = self.URI.domain
 	
 	# Check if there's a query string
@@ -120,7 +154,7 @@ func guess_type(str: String) -> Dictionary:
 	return v
 	
 ####################################################################################################
-# Model Related functions
+# Navigation Related functions
 ####################################################################################################
 	
 func back():
@@ -143,19 +177,31 @@ func to(url, f:Callable ):
 		URI.isLocal = true 
 			
 	if !URI.isLocal:
-		var http_request = HTTPRequest.new()
-		add_child(http_request)
-		http_request.request_completed.connect(downloadModelSuccess)
-		var error = http_request.request(url)
-		if error != OK:
-			push_error("An error occurred in the HTTP request.")
+		fetchURL(url, downloadModelSuccess )
 	if self.URI:
 		self.URI.next = null
 		self.history.push_back(self.URI )		
 	self.URI = URI
 	if URI.isLocal && URI.fragment.has('pos'):
 		callback.call("teleport", self.posToTransform3D( URI.fragment.pos ) )
-			
+
+####################################################################################################
+# Model Related functions
+####################################################################################################			
+
+func fetchURL(url:String, f:Callable) -> HTTPRequest:
+	var http_request = HTTPRequest.new()
+	_orphans.push_back(http_request)
+	add_child(http_request)
+	http_request.request_completed.connect(downloadModelSuccess)
+	var error = http_request.request(url)
+	if error != OK:
+		push_error("An error occurred in the HTTP request.")
+	return http_request
+	
+func cleanup():
+	for orphan in _orphans:
+		remove_child(orphan)
 
 func downloadModelSuccess(result, response_code, headers, body):
 	# TODO: here different parsing functions should be called
@@ -167,9 +213,10 @@ func downloadModelSuccess(result, response_code, headers, body):
 	_parseXRFMetadata(scene)
 	traverse( scene, _parseXRFMetadata )
 	# setup actions & embeds
-	traverse( scene, href_init )
-	traverse( scene, src_init )
+	traverse( scene, href.init )
+	traverse( scene, src.init )
 	setPredefinedSceneView()
+	cleanup()
 	callback.call("scene_loaded", scene)
 
 func loadModelFromBufferByGLTFDocument(body):
@@ -296,23 +343,61 @@ func href_init(node:Node):
 			col3D.make_convex_from_siblings() # generate collision from MeshInstance3D siblings	
 			parent.add_child(area3D)
 
-func href_click(node:Node):
-	if node.has_meta("XRF"):
-		var XRF = node.get_meta("XRF")
-		if XRF.has('href'):
-			to(XRF.href.string,callback)
-			callback.call("href", node)
+var href = {	
+	"click": func init(node:Node):
+		if node.has_meta("XRF"):
+			var XRF = node.get_meta("XRF")
+			if XRF.has('href'):
+				print("TELEPORT")
+				to(XRF.href.string,callback)
+				callback.call("href", node),
+								
+	"init": func href_init(node:Node):
+		if node.has_meta("XRF"):
+			var XRF = node.get_meta("XRF")
+			if XRF.has('href'):
+				var parent = node.get_parent()
+				var area3D = Area3D.new()
+				var col3D  = CollisionShape3D.new()
+				var group  = MeshInstance3D.new()
+				parent.remove_child(node)
+				area3D.add_child(node)
+				area3D.add_child(col3D)
+				col3D.make_convex_from_siblings() # generate collision from MeshInstance3D siblings	
+				parent.add_child(area3D)				
+}
+
 				
-func src_init(node:Node):
-	if node.has_meta("XRF"):
-		var XRF = node.get_meta("XRF")
-		if XRF.has('src'):
-			var mesh = node as MeshInstance3D
-			if mesh != null:
-				var mat = mesh.get_active_material(0) as BaseMaterial3D
-				mat = mat.duplicate()
-				mat.transparency = mat.TRANSPARENCY_ALPHA
-				mat.albedo = Color(1.0,1.0,1.0, 0.3) # 0.5 sets 50% opacity
-				mesh.set_surface_override_material(0,mat)
-			callback.call("src", {"node":node,"XRF":XRF} )
+var src = {
+	"extension":{},
+	
+	"addExtension": func addExtension( extension:String, f:Callable): # flexible way for adding extension handlers
+		src.extension[ extension ] = f,
+	
+	"init": func init(node:Node):
+		if node.has_meta("XRF"):
+			var XRF = node.get_meta("XRF")
+			if XRF.has('src'):
+				var mesh = node as MeshInstance3D
+				if mesh != null:
+					var mat = mesh.get_active_material(0) as BaseMaterial3D
+					mat = mat.duplicate()
+					mat.transparency = mat.TRANSPARENCY_ALPHA
+					mat.albedo = Color(1.0,1.0,1.0, 0.3) # 0.5 sets 50% opacity
+					mesh.set_surface_override_material(0,mat)
+				for ext in src.extension:
+					_regex.compile("^.*."+ext+"$")
+					if _regex.search(XRF.src.path):
+						var url:String = XRF.src.protocol+"://"+XRF.src.domain+"/"+XRF.src.path						
+						print("src: fetching "+url)
+						print(XRF.src)						
+						fetchURL(url, src.extension[ext] )
+				callback.call("src", {"node":node,"XRF":XRF} ),
+
+	# some builtin handlers
+	"audio": func audio(node:Node, extension:String):
+		return func onFile(result, response_code, headers, body):
+			var src = node.XRF.src
+			print(src.string+" audioooo "+extension+" "+response_code)
 		
+}
