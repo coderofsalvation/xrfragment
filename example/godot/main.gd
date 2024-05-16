@@ -7,11 +7,11 @@ var player:CharacterBody3D
 
 func _ready():
 	xrf = preload("res://xrfragment.gd").new()
-	print( xrf.parseURL2("https://foo.com/abc.gltf#foo=2") )
-	return
 	
 	xrf.src.addExtension.call("wav", xrf.src.audio ) # extensible support for 
 	xrf.src.addExtension.call("ogg", xrf.src.audio ) # src-metadata (a la carte)
+	xrf.src.addExtension.call("mp3", xrf.src.audio ) # 
+	
 	add_child(xrf)
 	#xrf.to("https://xrfragment.org/other.glb", _onXRF )
 	xrf.to("http://localhost:8080/example/assets/other.glb", _onXRF )

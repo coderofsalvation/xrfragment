@@ -1,5 +1,7 @@
 # https://xrfragment.org"
 # SPDX-License-Identifier: MPL-2.0"
+# author: Leon van Kammen
+# date: 16-05-2024
 
 extends Node
 
@@ -32,102 +34,47 @@ func _process(delta):
 
 ####################################################################################################
 # URI Related functions
+# based on https://gist.github.com/coderofsalvation/b2b111a2631fbdc8e76d6cab3bea8f17
 ####################################################################################################
-
-func parseURL2(url: String) -> Dictionary:
-	var regex:RegEx = RegEx.new()
-	regex.compile("\\S+") # Negated whitespace character class.
-	var results = []
-	for result in regex.search_all(url.replace("/"," ")):
-		results.push_back(result.get_string())
-	print(results)
-	
-	return {}  # Return empty dictionary if URL doesn't match
-
-	var groups = regex.get_group_list(url)
-	var parsed_url = {
-		"source": url,
-		"scheme": groups[1] ||"",  # Use nullish coalescing for optional scheme
-		"authority": groups[2] ||"",
-		"userInfo": (groups[4]||"") + ":" + (groups[5]||""),  # Combine user and password
-		"user": groups[4] ||"",
-		"password": groups[5] ||"",
-		"host": groups[6] ||"",
-		"port": groups[7] || "",  # Convert port to int or default to 0
-		"relative": groups[8] ||"",
-		"path": groups[9] ||"",
-		"directory": (groups[9]||"").split("/")[0] || "",  # Extract directory path
-		"file": groups[9].split("/")[-1] ||"",  # Extract filename
-		"query": groups[10] ||"",
-		"fragment": groups[11] ||"",
-	}
-	return parsed_url
-
 func parseURL(url: String) -> Dictionary:
-	var URI = {"string":url, "next": null}
-	
-	# Split URL by '://' to get protocol and the rest of the URL
-	var parts = url.split("://")
-	if parts.size() > 1:
-		URI["protocol"] = parts[0]
-		url = parts[1]
-	else:
-		URI["protocol"] = "http" # Default to http if protocol is missing
-	
-	# Split URL by '/' to separate domain, path, and file
-	parts = url.split("/")
-	URI["domain"] = parts[0]
-	parts.remove_at(0)
-		
-	if parts.size() > 0:
-		var path_and_file = "/".join(parts)
-		path_and_file = path_and_file.split("?")[0]
-		path_and_file = path_and_file.split("#")[0]
-		var path_and_file_parts = path_and_file.split("/")
-		if path_and_file_parts.size() > 1:
-			URI["path"] = "/".join(path_and_file_parts)
-		else:
-			URI["path"] = path_and_file
-	
-	if !URI.has("path"):
-		URI["path"]   = self.URI.path # copy from current URI
-	if !URI.has("domain"):
-		URI["domain"] = self.URI.domain
-	
-	# Check if there's a query string
-	if url.find("?") != -1:
-		parts = url.split("?")
-		URI["path"] = parts[0]
-		var args = parts[1]
-		if args.find("#"):
-			args = args.split("#")[0]
-		URI["query"] = parseArgs(args)
-	else:
-		URI["query"] = {}
-	
-	# Check if there's a fragment
-	if url.find("#") != -1:
-		parts = url.split("#")
-		URI["fragment"] = parseArgs(parts[1])
-	else:
-		URI["fragment"] = {}
-	URI['isLocal'] = url[0] == '#'
+	var URI   = {"domain":"","fragment":"","file":"","URN":""}
+	var parts = ["string","protocol","path","query","hash"]
+	var urlregex = RegEx.new()
+	urlregex.compile("(\\w+:\\/\\/)?([^#\\?]+)?(\\?[^#]+)?(#.*)?")
+	var match = urlregex.search(url)
+	for i in range(0,parts.size()):
+		URI[ parts[i] ] = match.strings[i] if match.strings[i] else ""
+	if URI["path"]:
+		var pathParts:Array = URI["path"].split("/")
+		if pathParts.size() > 1 and (pathParts[0].find(".") != -1 || pathParts[0].find(":") != -1):
+			URI["domain"] = pathParts.pop_front()
+		URI["path"]   = "/".join(pathParts)
+		pathParts = URI["path"].split("/")
+		if pathParts[-1].find(".") != -1:
+			URI["file"] = pathParts[-1]
+		URI["path"]   = "/".join(pathParts)
+	URI["protocol"] = URI["protocol"].replace("://","") if URI["protocol"] else ""
+	URI["fragment"]	= parseArgs( URI["hash"].substr(1) ) if URI["hash"] else {}
+	URI["query"]	= parseArgs( URI["query"].substr(1) ) if URI["query"] else {}
+	URI["URN"]      = URI["string"].replace("\\?.*","") if URI["domain"] else ""
+	URI["isLocal"]  = true if !URI["domain"] else false
+	# make relative URL's absolute
+	if URI["isLocal"]:
+		URI["domain"]   = self.URI["domain"]
+		URI["protocol"] = self.URI["protocol"]
+		if URI["path"].match("\\/"):
+			URI["path"] = self.URI["path"] + URI["path"]
 	return URI
 
 func parseArgs(fragment: String) -> Dictionary:
 	var ARG = {}
-	
-	# Split fragment by '&' to separate items
 	var items = fragment.split("&")
-	
 	for item in items:
-		# Split item by '=' to separate key and value
 		var key_value = item.split("=")
 		if key_value.size() > 1:
 			ARG[key_value[0]] = guess_type(key_value[1])
 		else:
 			ARG[key_value[0]] = ""
-	
 	return ARG
 
 func guess_type(str: String) -> Dictionary:
@@ -170,6 +117,7 @@ func forward():
 # Download model by HTTP and run `downloadModelSuccess` if OK
 func to(url, f:Callable ):
 	print("navigating to "+url)
+	cleanup()
 	var URI = self.parseURL(url)
 	callback = f
 	
@@ -193,9 +141,10 @@ func fetchURL(url:String, f:Callable) -> HTTPRequest:
 	var http_request = HTTPRequest.new()
 	_orphans.push_back(http_request)
 	add_child(http_request)
-	http_request.request_completed.connect(downloadModelSuccess)
+	http_request.request_completed.connect(f)
 	var error = http_request.request(url)
 	if error != OK:
+		print("could not request "+url)
 		push_error("An error occurred in the HTTP request.")
 	return http_request
 	
@@ -216,7 +165,6 @@ func downloadModelSuccess(result, response_code, headers, body):
 	traverse( scene, href.init )
 	traverse( scene, src.init )
 	setPredefinedSceneView()
-	cleanup()
 	callback.call("scene_loaded", scene)
 
 func loadModelFromBufferByGLTFDocument(body):
@@ -388,16 +336,22 @@ var src = {
 				for ext in src.extension:
 					_regex.compile("^.*."+ext+"$")
 					if _regex.search(XRF.src.path):
-						var url:String = XRF.src.protocol+"://"+XRF.src.domain+"/"+XRF.src.path						
+						var url:String = XRF.src.protocol+"://"+XRF.src.domain+XRF.src.path						
 						print("src: fetching "+url)
-						print(XRF.src)						
-						fetchURL(url, src.extension[ext] )
+						var handler:Callable = src.extension[ext].call(node,ext)
+						fetchURL(url, handler )
 				callback.call("src", {"node":node,"XRF":XRF} ),
 
 	# some builtin handlers
-	"audio": func audio(node:Node, extension:String):
+	"audio": func audio(node:Node, extension:String) -> Callable:
 		return func onFile(result, response_code, headers, body):
-			var src = node.XRF.src
-			print(src.string+" audioooo "+extension+" "+response_code)
-		
+			var src = node.get_meta("XRF").src
+			var music = AudioStreamPlayer.new()
+			add_child(music)
+			var audio_loader = AudioLoader.new()
+			music.set_stream( audio_loader.loadfile( src.file, body ) )
+			music.volume_db = 1
+			music.pitch_scale = 1
+			music.play()
+			add_child(music)
 }
