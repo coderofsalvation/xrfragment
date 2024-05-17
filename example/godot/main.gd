@@ -7,10 +7,15 @@ var player:CharacterBody3D
 
 func _ready():
 	xrf = preload("res://xrfragment.gd").new()
-	
-	xrf.src.addExtension.call("wav", xrf.src.audio ) # extensible support for 
-	xrf.src.addExtension.call("ogg", xrf.src.audio ) # src-metadata (a la carte)
-	xrf.src.addExtension.call("mp3", xrf.src.audio ) # 
+
+	# browser extensions       src regex   handler func
+	#                          ----------  -------------
+	xrf.src.addExtension.call("^#",        xrf.src.model ) # enable internal embeds
+	xrf.src.addExtension.call(".*\\.glb",  xrf.src.model ) # enable external embeds
+	xrf.src.addExtension.call(".*\\.gltf", xrf.src.model ) # 
+	xrf.src.addExtension.call(".*\\.wav$", xrf.src.audio ) # 
+	xrf.src.addExtension.call(".*\\.ogg$", xrf.src.audio ) # 
+	xrf.src.addExtension.call(".*\\.mp3$", xrf.src.audio ) # 
 	
 	add_child(xrf)
 	#xrf.to("https://xrfragment.org/other.glb", _onXRF )

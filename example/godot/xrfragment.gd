@@ -1,4 +1,5 @@
-# https://xrfragment.org"
+# XR Fragment class
+# more info: https://xrfragment.org 
 # SPDX-License-Identifier: MPL-2.0"
 # author: Leon van Kammen
 # date: 16-05-2024
@@ -7,7 +8,7 @@ extends Node
 
 class_name XRF
 
-var scene: Node3D
+var scene: Node
 var URI: Dictionary = {}
 var history: Array
 var animplayer: AnimationPlayer
@@ -69,12 +70,16 @@ func parseURL(url: String) -> Dictionary:
 func parseArgs(fragment: String) -> Dictionary:
 	var ARG = {}
 	var items = fragment.split("&")
+	var i = 0
 	for item in items:
 		var key_value = item.split("=")
-		if key_value.size() > 1:
-			ARG[key_value[0]] = guess_type(key_value[1])
-		else:
-			ARG[key_value[0]] = ""
+		var exclude    = item.begins_with("-")
+		if exclude:
+			key_value[0] = key_value[0].substr(1)
+		ARG[key_value[0]] = guess_type(key_value[1] if key_value.size() > 1 else "")
+		ARG[key_value[0]].exclude = exclude
+		ARG[key_value[0]].weight = i
+		i=i+1
 	return ARG
 
 func guess_type(str: String) -> Dictionary:
@@ -277,6 +282,23 @@ func setPredefinedSceneView():
 			self.URI.string  += XRF["#"]["string"]
 		callback.call("teleport", posToTransform3D(XRF["#"]["fragment"]["pos"]) )		
 
+# info: https://xrfragment.org/doc/RFC_XR_Fragments.html#embedding-xr-content-using-src
+func filterModel(XRF,node):
+	# spec 3 @ https://xrfragment.org/doc/RFC_XR_Fragments.html#embedding-xr-content-using-src
+	for filter in XRF:
+		var frag = XRF[filter]
+		# spec 4 @ https://xrfragment.org/doc/RFC_XR_Fragments.html#embedding-xr-content-using-src		
+		if frag.exclude:
+			var hideNode:Node = node.get_node(filter)
+			if hideNode:
+				hideNode.get_parent().remove_child(hideNode)		
+		# spec 3 @ https://xrfragment.org/doc/RFC_XR_Fragments.html#embedding-xr-content-using-src		
+		if frag.weight == 0 and !frag.exclude && frag.string == '':
+			var newParent:Node = node.get_node(filter)
+			if newParent:
+				node = newParent 
+	return node
+		
 func href_init(node:Node):
 	if node.has_meta("XRF"):
 		var XRF = node.get_meta("XRF")
@@ -334,18 +356,33 @@ var src = {
 					mat.albedo = Color(1.0,1.0,1.0, 0.3) # 0.5 sets 50% opacity
 					mesh.set_surface_override_material(0,mat)
 				for ext in src.extension:
-					_regex.compile("^.*."+ext+"$")
-					if _regex.search(XRF.src.path):
+					_regex.compile(ext)
+					if _regex.search(XRF.src.path) or _regex.search(XRF.src.string):
 						var url:String = XRF.src.protocol+"://"+XRF.src.domain+XRF.src.path						
 						print("src: fetching "+url)
 						var handler:Callable = src.extension[ext].call(node,ext)
-						fetchURL(url, handler )
+						if handler != null:
+							fetchURL(url, handler )
 				callback.call("src", {"node":node,"XRF":XRF} ),
 
-	# some builtin handlers
-	"audio": func audio(node:Node, extension:String) -> Callable:
+
+	# some builtin content handlers
+	
+	"model": func audio(node:Node, extension:String) -> Callable:
+		var node3D:Node3D = node as Node3D
+		var src = node.get_meta("XRF").src
+		if src.string.begins_with("#"): # local resource
+			var clone:Node3D   = scene.duplicate() as Node3D
+			clone.global_scale( node3D.scale )
+			if src.fragment:
+				clone = filterModel( src.fragment, clone)
+			node.add_child(clone as Node)
 		return func onFile(result, response_code, headers, body):
-			var src = node.get_meta("XRF").src
+			print("JAAAAAA"),
+
+	"audio": func audio(node:Node, extension:String) -> Callable:
+		var src = node.get_meta("XRF").src
+		return func onFile(result, response_code, headers, body):
 			var music = AudioStreamPlayer.new()
 			add_child(music)
 			var audio_loader = AudioLoader.new()

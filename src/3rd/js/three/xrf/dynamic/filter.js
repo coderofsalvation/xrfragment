@@ -68,7 +68,7 @@ xrf.filter.process = function(frag,scene,opts){
     if( processed ) processed[n.uuid] == true 
   }
 
-  // spec 2: https://xrfragment.org/doc/RFC_XR_Macros.html#embedding-xr-content-using-src
+  // spec 3 @ https://xrfragment.org/doc/RFC_XR_Macros.html#embedding-xr-content-using-src
   // reparent scene based on objectname in case it matches a (non-negating) selector 
   if( opts.reparent && firstFilter && !firstFilter.value && firstFilter.show === true ){
     let obj 
