@@ -38,8 +38,8 @@ jobs:
       #    path: feat/multiparty 
       - name: Setup Pages
         uses: actions/configure-pages@v3
-      - name: create index.gltf 
-        run: cp example/assets/*.{gltf,glb} .
+      - name: create index.glb
+        run: cp example/assets/*.{glb} .
       #  working-directory: ./
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
