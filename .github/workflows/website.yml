@@ -41,9 +41,9 @@ jobs:
       - name: create index.glb
         run: cp example/assets/*.glb .
       - name: cleanup 1
-        run: test -f example/three/sandbox/other.gltf && rm example/three/sandbox/other.gltf 
+        run: test -f example/three/sandbox/other.gltf && rm example/three/sandbox/other.gltf || true
       - name: cleanup 2
-        run: test -f example/three/sandbox/assets/2wa.gitlab.io && rm -rf example/three/sandbox/assets/2wa.gitlab.io 
+        run: test -f example/three/sandbox/assets/2wa.gitlab.io && rm -rf example/three/sandbox/assets/2wa.gitlab.io || true
       #  working-directory: ./
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
