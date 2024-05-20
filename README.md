@@ -33,6 +33,7 @@ https://xrfragmenorg
 * [python](dist/xrfragment.py) [(+example)](test/test.py)
 * [lua](dist/xrfragment.lua) [(+example)](test/test.lua)
 * [haXe](src/xrfragment) (allows exporting to various programming languages)
+* [Godot](https://codeberg.org/coderofsalvation/xrfragment-godot) exports to all platforms
 
 See documentation for more info
 
