@@ -1,0 +1,3 @@
+[submodule "example/godot"]
+	path = example/godot
+	url = https://codeberg.org/coderofsalvation/xrfragment-godot.git
