@@ -119,7 +119,7 @@ build(){
         example/assets/js/qr.js  > dist/xrfragment.aframe.js
 
     # plugins  
-    jscat src/3rd/js/plugin/frontend/{network,\$connections,\$chat}.js           > dist/xrfragment.plugin.network.js
+    jscat src/3rd/js/plugin/frontend/{network,\$connections,\$chat,debug}.js     > dist/xrfragment.plugin.network.js
     cp    src/3rd/js/plugin/frontend/\$editor.js                                   dist/xrfragment.plugin.editor.js 
 
     cp    src/3rd/js/plugin/frontend/css.js                                        dist/xrfragment.plugin.frontend.css.js 

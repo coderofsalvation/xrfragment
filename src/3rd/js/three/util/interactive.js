@@ -110,7 +110,6 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
 
         if ( intersects.length > 0 ) {
 
-          console.log(object.name)
 
           const intersection = intersects[ 0 ];
 
@@ -118,6 +117,7 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
           const uv = intersection.uv;
 
           _event.type = eventsMapper[ event.type ];
+          console.log( (new Date()).getTime()+" "+event.type+":"+_event.type+" "+object.name)
           if( uv ) _event.data.set( uv.x, 1 - uv.y );
 
           object.dispatchEvent( _event );
@@ -150,6 +150,11 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
     add(obj, unparent){
       if( unparent ) Group.prototype.add.call( this, obj )
       this.objects.push(obj)
+    }
+
+    clear(){
+      while( this.children[0] != undefined ) this.children[0].remove()
+      this.objects = [] 
     }
 
   }

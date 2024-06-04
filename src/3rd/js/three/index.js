@@ -3,14 +3,17 @@ xrf.model  = {}
 xrf.mixers = []
 
 xrf.init = ((init) => function(opts){
+  // operate in own subscene
   let scene = new opts.THREE.Group()
   opts.scene.add(scene)
-  opts.scene = scene
+  opts.sceneRoot = opts.scene
+  opts.scene = scene 
   init(opts)
   //if( opts.loaders ) Object.values(opts.loaders).map( xrf.patchLoader )
 
   xrf.patchRenderer(opts)
   xrf.navigator.init()
+  xrf.interactive = xrf.interactiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
   // return xrfragment lib as 'xrf' query functor (like jquery)
   for ( let i in xrf ) xrf.query[i] = xrf[i] 
 
@@ -81,11 +84,11 @@ xrf.reset = () => {
     obj.removeFromParent() 
     return true
   };
+  // also remove XRF objects from global scene
   let nodes = []
   xrf.scene.traverse( (child) => child.isXRF && (nodes.push(child)) )
-  nodes.map( disposeObject ) // leave non-XRF objects intact
-  xrf.interactive = xrf.interactiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
-  xrf.add( xrf.interactive )
+  nodes.map( disposeObject )
+  xrf.interactive.clear()
   xrf.layers = 0
 }
 

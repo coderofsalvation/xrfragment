@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Thu Apr 25 03:56:52 PM UTC 2024
+ * v0.5.1 generated at Tue Jun  4 04:54:19 PM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -1591,15 +1591,17 @@ var xrf = {}
 xrf.init = function(opts){
   opts      = opts || {}
 
-  xrf.debug = document.location.hostname.match(/^(localhost|[0-9])/) ? 0 : false
-  if( !xrf.debug ){
+  xrf.debug = document.location.hostname.match(/^(localhost|[0-9]\.[0-9])/) || document.location.port == '8080' ? 0 : false
+  if( xrf.debug === false ){
     console.log("add #debug=[0-9] to URL to see XR Fragment debuglog")
     xrf.debug = parseInt( ( document.location.hash.match(/debug=([0-9])/) || [0,'0'] )[1] )
+  }else{
+    xrf.stats()
   }
 
   xrf.Parser.debug = xrf.debug 
   xrf.detectCameraRig(opts)
-  for ( let i in opts    ) xrf[i] = opts[i]
+  for ( let i in opts ) xrf[i] = opts[i]
   xrf.emit('init',opts)
   return xrf
 }
@@ -1626,10 +1628,9 @@ xrf.detectCameraRig = function(opts){
 xrf.stats = () => {
   // bookmarklet from https://github.com/zlgenuine/threejs_stats
   (function(){
-    for( let i = 0; i < 4; i++ ){
-      var script=document.createElement('script');script.onload=function(){var stats=new Stats();stats.showPanel( i ); 
-        stats.dom.style.marginTop = `${i*48}px`;  document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';document.head.appendChild(script);
-    }
+    let i = 0;
+    var script=document.createElement('script');script.onload=function(){var stats=new Stats();stats.showPanel( i ); 
+      stats.dom.style.marginTop = `${i*48}px`;  document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';document.head.appendChild(script);
   })()
 }
 
@@ -1905,14 +1906,17 @@ xrf.model  = {}
 xrf.mixers = []
 
 xrf.init = ((init) => function(opts){
+  // operate in own subscene
   let scene = new opts.THREE.Group()
   opts.scene.add(scene)
-  opts.scene = scene
+  opts.sceneRoot = opts.scene
+  opts.scene = scene 
   init(opts)
   //if( opts.loaders ) Object.values(opts.loaders).map( xrf.patchLoader )
 
   xrf.patchRenderer(opts)
   xrf.navigator.init()
+  xrf.interactive = xrf.interactiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
   // return xrfragment lib as 'xrf' query functor (like jquery)
   for ( let i in xrf ) xrf.query[i] = xrf[i] 
 
@@ -1983,11 +1987,11 @@ xrf.reset = () => {
     obj.removeFromParent() 
     return true
   };
+  // also remove XRF objects from global scene
   let nodes = []
   xrf.scene.traverse( (child) => child.isXRF && (nodes.push(child)) )
-  nodes.map( disposeObject ) // leave non-XRF objects intact
-  xrf.interactive = xrf.interactiveGroup( xrf.THREE, xrf.renderer, xrf.camera)
-  xrf.add( xrf.interactive )
+  nodes.map( disposeObject )
+  xrf.interactive.clear()
   xrf.layers = 0
 }
 
@@ -3024,7 +3028,6 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
 
         if ( intersects.length > 0 ) {
 
-          console.log(object.name)
 
           const intersection = intersects[ 0 ];
 
@@ -3032,6 +3035,7 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
           const uv = intersection.uv;
 
           _event.type = eventsMapper[ event.type ];
+          console.log( (new Date()).getTime()+" "+event.type+":"+_event.type+" "+object.name)
           if( uv ) _event.data.set( uv.x, 1 - uv.y );
 
           object.dispatchEvent( _event );
@@ -3064,6 +3068,11 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
     add(obj, unparent){
       if( unparent ) Group.prototype.add.call( this, obj )
       this.objects.push(obj)
+    }
+
+    clear(){
+      while( this.children[0] != undefined ) this.children[0].remove()
+      this.objects = [] 
     }
 
   }
@@ -3250,7 +3259,7 @@ xrf.filter.process = function(frag,scene,opts){
     if( processed ) processed[n.uuid] == true 
   }
 
-  // spec 2: https://xrfragment.org/doc/RFC_XR_Macros.html#embedding-xr-content-using-src
+  // spec 3 @ https://xrfragment.org/doc/RFC_XR_Macros.html#embedding-xr-content-using-src
   // reparent scene based on objectname in case it matches a (non-negating) selector 
   if( opts.reparent && firstFilter && !firstFilter.value && firstFilter.show === true ){
     let obj 

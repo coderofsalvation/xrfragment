@@ -183,6 +183,7 @@ document.head.innerHTML += `
         box-shadow: 0 0 4px 0 var(--xrf-box-shadow);
         right: 20px;
         position: fixed;
+        max-width:500px;
         top: 18px;
     }
 

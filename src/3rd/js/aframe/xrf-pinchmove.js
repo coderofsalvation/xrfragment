@@ -13,12 +13,13 @@ window.AFRAME.registerComponent('xrf-pinchmove', {
       // multiply the direction by a "speed" factor
       direction.multiplyScalar(0.4)
       // get the current position
-      var pos = player.getAttribute("position")
+      var pos = xrf.camera.position  
+      //player.getAttribute("position")
       // add the direction vector
       pos.x += direction.x 
       pos.z += direction.z
       // set the new position
-      this.data.rig.setAttribute("position", pos);
+      //this.data.rig.setAttribute("position", pos);
       // !!! NOTE - it would be more efficient to do the
       // position change on the players THREE.Object:
       // `player.object3D.position.add(direction)`

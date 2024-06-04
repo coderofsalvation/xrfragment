@@ -70,8 +70,8 @@ window.AFRAME.registerComponent('xrf', {
         let pos = xrf.frag.pos.last
         if( pos ){ AFRAME.XRF.camera.position.set(pos.x, pos.y*scale, pos.z) }
       }
-      aScene.addEventListener('enter-vr', repositionUser(1) )
-      aScene.addEventListener('enter-ar', repositionUser(2) )
+      aScene.addEventListener('enter-vr', () => setTimeout( () => repositionUser(1),100 ) )
+      aScene.addEventListener('enter-ar', () => setTimeout( () => repositionUser(2),100 ) )
 
       xrf.addEventListener('navigateLoaded', (opts) => {
         setTimeout( () => AFRAME.fade.out(),500) 
@@ -157,12 +157,6 @@ window.AFRAME.registerComponent('xrf', {
         createEl(mesh)
       }
       xrf.addEventListener('interactionReady', AFRAME.XRF.clickableMeshToEntity )
-
-      // cleanup xrf-get objects when resetting scene
-      xrf.addEventListener('reset', (opts) => {
-        let els = [...document.querySelectorAll('[xrf-get]')]
-        els.map( (el) => document.querySelector('a-scene').removeChild(el) )
-      })
 
       if( typeof this.data === 'string' || this.data.http || this.data.https ){
         let url

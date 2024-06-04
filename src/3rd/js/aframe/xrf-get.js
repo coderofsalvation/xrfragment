@@ -17,7 +17,7 @@ window.AFRAME.registerComponent('xrf-get', {
       setTimeout( () => {
 
         if( !this.mesh ){
-          let scene = AFRAME.XRF.scene 
+          let scene = xrf.scene 
           let mesh = this.mesh = scene.getObjectByName(meshname);
           if( !this.el.className.match(/ray/) ) this.el.className += " ray"
           if (!mesh){
@@ -55,17 +55,6 @@ window.AFRAME.registerComponent('xrf-get', {
     })
 
     this.el.emit("update",{timeout:0})
-
-    AFRAME.XRF.addEventListener('reset', () => {
-      try{
-        if( this.el ){
-          while ( this.el.object3D.children.length ){
-            this.el.object3D.children[0].remove()
-          }
-          this.el.remove()
-        }
-      }catch(e){}
-    })
 
   }
 
