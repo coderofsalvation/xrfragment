@@ -1,9 +1,22 @@
-
 let loadVideo = (mimetype) => function(url,opts){
   let {mesh,src,camera} = opts
   const THREE = xrf.THREE
   let URL  = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
   let frag = URL.XRF 
+
+  // patch VideoTexture so it doesn't upload videoframes when paused
+  // https://github.com/mrdoob/three.js/pull/28575 
+  THREE.VideoTexture.prototype.update = function(){
+    const video = this.image;
+    const hasVideoFrameCallback = 'requestVideoFrameCallback' in video;
+
+    if ( hasVideoFrameCallback === false && video.readyState >= video.HAVE_CURRENT_DATA && (!video.paused || !this.firstFrame) ){
+      console.log("updating..")
+      this.needsUpdate = true;
+      this.firstFrame  = true
+    }
+  }
+
 
   mesh.media = mesh.media || {}
 
