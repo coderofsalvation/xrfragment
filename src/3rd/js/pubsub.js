@@ -39,7 +39,7 @@ xrf.emit = function(eventName, data){
     console.groupCollapsed(label)
     console.info(data)
     console.groupEnd(label)
-    if( xrf.debug > 1 ) debugger
+    if( xrf.debug > 2 ) debugger
   }
   return xrf.emit.promise(eventName,data)
 }

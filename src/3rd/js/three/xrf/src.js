@@ -34,9 +34,9 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
   if( mesh.material && mesh.userData.src ) mesh.material.visible = false  // hide placeholder object
 
   if( opts.isPortal ){
-    // only add remote objects, because 
-    // local scene-objects are already added to scene
     xrf.portalNonEuclidian({...opts,model,scene:model.scene})
+    // only add external objects, because 
+    // local scene-objects are already added to scene
     if( !opts.isLocal ) xrf.scene.add(scene) 
   }else{
     xrf.frag.src.scale( scene, opts, url )           // scale scene
@@ -45,7 +45,7 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
   xrf.frag.src.enableSourcePortation({scene,mesh,url,model})
   // flag everything isSRC & isXRF
   mesh.traverse( (n) => { n.isSRC = n.isXRF = n[ opts.isLocal ? 'isSRCLocal' : 'isSRCExternal' ] = true })
-  
+ 
   xrf.emit('parseModel', {...opts, isSRC:true, mesh, model}) // this will execute all embedded metadata/fragments e.g.
 }
 
@@ -94,7 +94,7 @@ xrf.frag.src.externalSRC = (url,frag,opts) => {
   fetch(url, { method: 'HEAD' })
   .then( (res) => {
     let mimetype = res.headers.get('Content-type')
-    if(xrf.debug > 0 ) console.log("HEAD "+url+" => "+mimetype)
+    if(xrf.debug != undefined ) console.log("HEAD "+url+" => "+mimetype)
     if( url.replace(/#.*/,'').match(/\.(gltf|glb)$/)     ) mimetype = 'gltf'
     if( url.replace(/#.*/,'').match(/\.(frag|fs|glsl)$/) ) mimetype = 'x-shader/x-fragment'
     if( url.replace(/#.*/,'').match(/\.(vert|vs)$/)      ) mimetype = 'x-shader/x-fragment'

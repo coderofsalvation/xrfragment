@@ -43,11 +43,13 @@ window.AFRAME.registerComponent('xrf-get', {
             // as this would break animations
             this.el.object3D.add = (a) => a 
           }
+          this.el.object3D.parent = mesh.parent
 
           this.el.setObject3D('mesh',mesh) // (doing this.el.object3D = mesh causes AFRAME to crash when resetting scene)
           this.el.object3D.child = mesh    // keep reference (because .children will be empty)
 
           if( !this.el.id ) this.el.setAttribute("id",`xrf-${mesh.name}`)
+          this.el.emit('xrf-get',{})
         }
 
       }, evt && evt.timeout ? evt.timeout: 500)

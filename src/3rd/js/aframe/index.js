@@ -39,8 +39,6 @@ window.AFRAME.registerComponent('xrf', {
           col:  THREE.ColladaLoader
         }
       })
-      aScene.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      aScene.renderer.toneMappingExposure = 1.25;
       if( !XRF.camera ) throw 'xrfragment: no camera detected, please declare <a-entity camera..> ABOVE entities with xrf-attributes'
         
       if( AFRAME.utils.device.isMobile() ){
@@ -60,18 +58,22 @@ window.AFRAME.registerComponent('xrf', {
         // this is just for convenience (not part of spec): enforce AR + hide/show stuff based on VR tags in 3D model 
         aScene.canvas.addEventListener('mousedown', () => xrf.camera.el.setAttribute("look-controls","") )
       })
+
       XRF.addEventListener('rot',(e) => {
        let lookcontrols = document.querySelector('[look-controls]')
        if( lookcontrols ) lookcontrols.removeAttribute("look-controls")
       })
 
       let repositionUser = (scale) => () => {
-        // sometimes AFRAME resets the user position to 0,0,0 when entering VR (not sure why)
-        let pos = xrf.frag.pos.last
-        if( pos ){ AFRAME.XRF.camera.position.set(pos.x, pos.y*scale, pos.z) }
+          // sometimes AFRAME resets the user position to 0,0,0 when entering VR (not sure why)
+          setTimeout( () => {
+            let pos = xrf.frag.pos.lastVector3
+            if( pos ){ xrf.camera.position.set(pos.x, pos.y*scale, pos.z) }
+          },500)
       }
-      aScene.addEventListener('enter-vr', () => setTimeout( () => repositionUser(1),100 ) )
-      aScene.addEventListener('enter-ar', () => setTimeout( () => repositionUser(2),100 ) )
+
+      aScene.addEventListener('enter-vr', repositionUser(1) )
+      aScene.addEventListener('enter-ar', repositionUser(2) )
 
       xrf.addEventListener('navigateLoaded', (opts) => {
         setTimeout( () => AFRAME.fade.out(),500) 
@@ -145,9 +147,11 @@ window.AFRAME.registerComponent('xrf', {
         let {mesh,clickHandler} = opts;
         let createEl            = function(c){
           let el = document.createElement("a-entity")
-          el.setAttribute("xrf-get",c.name )     // turn into AFRAME entity
+          // raycaster
           el.setAttribute("pressable", '' )      // detect click via hand-detection
+          el.setAttribute("xrf-get",c.name )     // turn into AFRAME entity
           el.setAttribute("class","ray")         // expose to raycaster 
+
           // respond to cursor via laser-controls (https://aframe.io/docs/1.4.0/components/laser-controls.html)
           el.addEventListener("click",          clickHandler )
           el.addEventListener("mouseenter",     mesh.userData.XRF.href.selected(true) )
@@ -174,6 +178,8 @@ window.AFRAME.registerComponent('xrf', {
       
       // enable gaze-click on Mobile VR
       aScene.setAttribute('xrf-gaze','')
+
+      if( xrf.debug !== undefined && parseInt(xrf.debug) > 1) aScene.setAttribute('stats','')
 
     }
   },

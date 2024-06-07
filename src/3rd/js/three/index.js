@@ -5,6 +5,7 @@ xrf.mixers = []
 xrf.init = ((init) => function(opts){
   // operate in own subscene
   let scene = new opts.THREE.Group()
+  xrf.clock  = new opts.THREE.Clock()
   opts.scene.add(scene)
   opts.sceneRoot = opts.scene
   opts.scene = scene 
@@ -17,8 +18,6 @@ xrf.init = ((init) => function(opts){
   // return xrfragment lib as 'xrf' query functor (like jquery)
   for ( let i in xrf ) xrf.query[i] = xrf[i] 
 
-  if( xrf.debug ) xrf.stats()
-
   return xrf.query
 })(xrf.init)
 
@@ -26,7 +25,6 @@ xrf.patchRenderer = function(opts){
   let {renderer,camera} = opts
   renderer.xr.addEventListener( 'sessionstart', () => xrf.baseReferenceSpace = renderer.xr.getReferenceSpace() );
   renderer.xr.enabled = true;
-  xrf.clock = new xrf.THREE.Clock()
   renderer.render = ((render) => function(scene,camera){
     // update clock
     let time = xrf.clock.delta = xrf.clock.getDelta()
@@ -64,7 +62,6 @@ xrf.parseModel.metadataInMesh =  (mesh,model) => {
     }
   }
 }
-
 
 xrf.getLastModel = ()           => xrf.model.last 
 

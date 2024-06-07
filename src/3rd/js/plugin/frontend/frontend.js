@@ -281,7 +281,9 @@ window.frontend = (opts) => new Proxy({
 
   updateHashPosition(randomize){
     const pos = xrf.frag.pos.get()
+    xrf.navigator.reactifyHash.enabled = false // prevent teleport
     xrf.navigator.URI.hash.pos = `${pos.x},${pos.y},${pos.z}`
+    xrf.navigator.reactifyHash.enabled = true
     this.copyToClipboard( window.location.href );
   },
 

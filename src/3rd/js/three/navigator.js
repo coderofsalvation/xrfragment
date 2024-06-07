@@ -12,7 +12,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
 
   let URI = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
-  URI.hash          = xrf.navigator.reactifyHash(URI.hash)
+  URI.hash          = xrf.navigator.reactifyHash(URI.hash) // automatically reflect hash-changes to navigator.to(...)
   // decorate with extra state
   URI.fileChange    = URI.file && URI.URN + URI.file != xrf.navigator.URI.URN + xrf.navigator.URI.file 
   URI.external      = URI.file && URI.URN != document.location.origin + document.location.pathname 
@@ -152,7 +152,7 @@ xrf.navigator.setupNavigateFallbacks = () => {
     let {fileExt} = xrfragment.URI.parse(url)
 
     // handle http links
-    if( url.match(/^http/) && !xrf.loaders[fileExt] ){
+    if( url.match(/^http/) && url != xrf.navigator.URI.URN && !xrf.loaders[fileExt] ){
       let inIframe
       try { inIframe = window.self !== window.top; } catch (e) { inIframe = true; }
       return inIframe ? window.parent.postMessage({ url }, '*') : window.open( url, '_blank')
@@ -189,7 +189,9 @@ xrf.navigator.reactifyHash = ( obj ) => {
     get(me,k)  { return me[k] },
     set(me,k,v){ 
       me[k] = v 
-      xrf.navigator.to( "#" + this.toString(me) )
+      if( xrf.navigator.reactifyHash.enabled ){
+        xrf.navigator.to( "#" + this.toString(me) )
+      }
     },
     toString(me){
       let parts = []
@@ -200,3 +202,4 @@ xrf.navigator.reactifyHash = ( obj ) => {
     }
   })
 }
+xrf.navigator.reactifyHash.enabled = true

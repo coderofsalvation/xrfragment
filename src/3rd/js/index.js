@@ -7,12 +7,10 @@ xrf.init = function(opts){
   opts      = opts || {}
 
   xrf.debug = document.location.hostname.match(/^(localhost|[0-9]\.[0-9])/) || document.location.port == '8080' ? 0 : false
-  if( xrf.debug === false ){
-    console.log("add #debug=[0-9] to URL to see XR Fragment debuglog")
+  if( document.location.hash.match(/debug=([0-9])/) ){
     xrf.debug = parseInt( ( document.location.hash.match(/debug=([0-9])/) || [0,'0'] )[1] )
-  }else{
-    xrf.stats()
   }
+  if( xrf.debug === false ) console.log("add #debug=[0-9] to URL to see XR Fragment debuglog")
 
   xrf.Parser.debug = xrf.debug 
   xrf.detectCameraRig(opts)
@@ -38,15 +36,6 @@ xrf.detectCameraRig = function(opts){
     }
     opts.camera.offsetY = offsetY
   }
-}
-
-xrf.stats = () => {
-  // bookmarklet from https://github.com/zlgenuine/threejs_stats
-  (function(){
-    let i = 0;
-    var script=document.createElement('script');script.onload=function(){var stats=new Stats();stats.showPanel( i ); 
-      stats.dom.style.marginTop = `${i*48}px`;  document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';document.head.appendChild(script);
-  })()
 }
 
 xrf.hasTag = (tag,tags) => String(tags).match( new RegExp(`(^| )${tag}( |$)`,`g`) )

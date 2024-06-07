@@ -1,74 +1,55 @@
-// this makes WebXR hand controls able to click things (by touching it)
+//// this makes WebXR hand controls able to click things (by touching it)
 
 AFRAME.registerComponent('pressable', {
-    schema: {
-        pressDistance: {
-            default: 0.01
-        }
-    },
-    init: function() {
-        this.worldPosition = new THREE.Vector3();
-        this.fingerWorldPosition = new THREE.Vector3();
-        this.raycaster = new THREE.Raycaster()
-        this.handEls = document.querySelectorAll('[hand-tracking-controls]');
-        this.pressed = false;
-        this.distance = -1
-        // we throttle by distance, to support scenes with loads of clickable objects (far away)
-        this.tick = this.throttleByDistance( () => this.detectPress() )
-    },
-    throttleByDistance: function(f){
-        return function(){
-           if( this.distance < 0 ) return f() // first call
-           if( !f.tid ){
-             let x = this.distance
-             let y = x*(x*0.05)*1000 // parabolic curve
-             f.tid = setTimeout( function(){
-               f.tid = null
-               f()
-             }, y )
-           }
-        }
-    },
-    detectPress: function(){
-        if( !AFRAME.scenes[0].renderer.xr.isPresenting ) return
 
-        var handEls = this.handEls;
-        var handEl;
-        let minDistance = 5
+  init: function(){
+    let handEls = [...document.querySelectorAll('[hand-tracking-controls]')]
 
-        // compensate for xrf-get AFRAME component (which references non-reparented buffergeometries from the 3D model)
-        let object3D = this.el.object3D.child || this.el.object3D
+    for( let i in handEls ){
+      let handEl = handEls[i]
+      handEl.addEventListener('model-loaded', () => {
+        if( handEl.pressable ) return
 
-        for (var i = 0; i < handEls.length; i++) {
-            handEl = handEls[i];
-            let indexTipPosition  = handEl.components['hand-tracking-controls'].indexTipPosition
-            // Apply the relative position to the parent's world position 
-            handEl.object3D.updateMatrixWorld();
-            handEl.object3D.getWorldPosition( this.fingerWorldPosition )
-            this.fingerWorldPosition.add( indexTipPosition )
-
-            this.raycaster.far = this.data.pressDistance
-            // Create a direction vector (doesnt matter because it is supershort for 'touch' purposes)
-            const direction = new THREE.Vector3(1.0,0,0);
-            this.raycaster.set(this.fingerWorldPosition, direction)
-            intersects = this.raycaster.intersectObjects([object3D],true)
-
-            object3D.getWorldPosition(this.worldPosition)
-      
-            distance    = this.fingerWorldPosition.distanceTo(this.worldPosition)
-            minDistance = distance < minDistance ? distance : minDistance 
-
-            if (intersects.length ){
-              if( !this.pressed ){
-                this.el.emit('pressedstarted');
-                this.el.emit('click');
-                this.pressed = setTimeout( () => {
-                  this.el.emit('pressedended');
-                  this.pressed = false 
-                },300)
-              }
+        // wait for bones get initialized
+        setTimeout( () => {
+          let bones = handEl.components['hand-tracking-controls'].bones
+          let indexFinger
+          for( let i = 0; i < bones.length; i++){
+            if( bones[i].name == "index-finger-tip" ){
+              indexFinger = i
+              break
             }
-        }
-        this.distance = minDistance
+          }
+          // add obb-collider to index finger-tip
+          let aentity = document.createElement('a-entity')
+          trackedObject3DVariable = `parentNode.components.hand-tracking-controls.bones.${indexFinger}`;
+          console.log(trackedObject3DVariable)
+          handEl.appendChild(aentity)
+          aentity.setAttribute('obb-collider', {trackedObject3D: trackedObject3DVariable, size: 0.015});
+        },500)
+      })
     }
-});
+
+  },
+
+
+  events:{
+    obbcollisionstarted: function(e){
+      if( !e.detail.trackedObject3D ) return
+      if( e.currentTarget && e.currentTarget.emit ){
+        //e.currentTarget.emit('click',
+      }
+      console.dir(e)
+    },
+    "xrf-get": function(){
+      //this.el.setAttribute('obb-collider',{trackedObject3D: 'el.object3D.child' }) // set collider on xrf-get object
+      let aentity = document.createElement('a-entity')
+      trackedObject3DVariable = this.el.object3D.child ? `parentNode.object3D.child` : `parentNode.object3D`
+      console.log(trackedObject3DVariable)
+      this.el.appendChild(aentity)
+      aentity.setAttribute('obb-collider', {trackedObject3D: trackedObject3DVariable});
+    }
+
+  }
+
+})
