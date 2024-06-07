@@ -145,6 +145,23 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
 
     }
 
+    intersectBox( obj ){
+      const mesh2Box = (mesh) => {
+        let b = new THREE.Box3()
+        b.expandByObject(mesh)
+        return b
+      }
+
+      const objBox   = mesh2Box(obj) 
+      let objects    = scope.raycastAll ? getAllMeshes(xrf.scene) : scope.objects 
+      let intersects = []
+      objects.map( (objB) => {
+        if( !objB.box ) objB.box = mesh2Box(objB)
+        if( objB.box.intersectsBox(objBox) ) intersects.push(obj.box)
+      })
+      return
+    }
+
     // we create our own add to avoid unnecessary unparenting of buffergeometries from 
     // their 3D model (which breaks animations)
     add(obj, unparent){

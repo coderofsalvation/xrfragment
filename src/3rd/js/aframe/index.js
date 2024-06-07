@@ -148,7 +148,7 @@ window.AFRAME.registerComponent('xrf', {
         let createEl            = function(c){
           let el = document.createElement("a-entity")
           // raycaster
-          el.setAttribute("pressable", '' )      // detect click via hand-detection
+          el.setAttribute("xrf-pressable", '' )  // detect click via hand-detection
           el.setAttribute("xrf-get",c.name )     // turn into AFRAME entity
           el.setAttribute("class","ray")         // expose to raycaster 
 

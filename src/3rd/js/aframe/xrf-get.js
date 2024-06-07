@@ -49,7 +49,7 @@ window.AFRAME.registerComponent('xrf-get', {
           this.el.object3D.child = mesh    // keep reference (because .children will be empty)
 
           if( !this.el.id ) this.el.setAttribute("id",`xrf-${mesh.name}`)
-          this.el.emit('xrf-get',{})
+          this.el.emit('model-loaded',{})
         }
 
       }, evt && evt.timeout ? evt.timeout: 500)
