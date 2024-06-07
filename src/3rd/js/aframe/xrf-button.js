@@ -40,7 +40,7 @@ window.AFRAME.registerComponent('xrf-button', {
             transparent:true,
             opacity:0.3
         });
-        el.setAttribute('pressable', '');
+        el.setAttribute('xrf-pressable', '');
         labelEl.setAttribute('position', '0 0 0.01');
         labelEl.setAttribute('text', {
             value: this.data.label,

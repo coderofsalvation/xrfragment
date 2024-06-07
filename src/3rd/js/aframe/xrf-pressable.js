@@ -14,6 +14,11 @@ AFRAME.registerComponent('xrf-pressable', {
       if( !e.detail.trackedObject3D ) return
       console.dir(e)
     },
+    indexFingerReady: function(){
+      if( this.system.indexFinger.length == 2){
+        console.dir(this.system.indexFinger)
+      }
+    }
   }
 
 })
@@ -28,34 +33,40 @@ AFRAME.registerSystem('xrf-pressable',{
     let handEls      = [...document.querySelectorAll('[hand-tracking-controls]')]
     this.indexFinger = []
 
+    const me = this
+
+    const addColliderToFingerTip = function(handEl,indexFinger){
+      // add obb-collider to index finger-tip
+      let aentity = document.createElement('a-entity')
+      trackedObject3DVariable = `parentNode.components.hand-tracking-controls.bones.${indexFinger}`;
+      handEl.appendChild(aentity)
+      aentity.setAttribute('obb-collider', {trackedObject3D: trackedObject3DVariable, size: 0.015});
+      return this
+    }
+
     for( let i in handEls ){
       let handEl = handEls[i]
-      handEl.addEventListener('model-loaded', () => {
-
+      handEl.addEventListener('model-loaded', function(e){
+        const handEl = this
         // wait for bones get initialized
         setTimeout( () => {
           let bones = handEl.components['hand-tracking-controls'].bones
           let indexFinger
-          for( let j = 0; j < bones.length; i++){
+          for( let j = 0; j < bones.length; j++){
             if( bones[j].name == "index-finger-tip" ){
               indexFinger = j
-              console.log("ja")
-              this.indexFinger.push(bones[j])
-              console.dir(this.indexFinger)
+              me.indexFinger.push(bones[j])
+              addColliderToFingerTip(handEl,indexFinger)
+              const els = [...document.querySelectorAll('[xrf-pressable]')]
+              els.map( (el) => el.emit('indexFingerReady',{}) )
               break
             }
           }
-          // add obb-collider to index finger-tip
-          let aentity = document.createElement('a-entity')
-          trackedObject3DVariable = `parentNode.components.hand-tracking-controls.bones.${indexFinger}`;
-          handEl.appendChild(aentity)
-          aentity.setAttribute('obb-collider', {trackedObject3D: trackedObject3DVariable, size: 0.015});
-          console.dir(this.indexFinger)
         },500)
       })
     }
 
-  },
+  }
 
 
 })
