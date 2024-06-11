@@ -21,6 +21,7 @@ let loadVideo = (mimetype) => function(url,opts){
   mesh.media = mesh.media || {}
 
   let video = mesh.media.video = document.createElement('video')
+  video.style.display = 'none'
   video.setAttribute("crossOrigin","anonymous")
   video.setAttribute("playsinline",'')
   video.addEventListener('loadedmetadata', function(){

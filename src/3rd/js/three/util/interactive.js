@@ -29,7 +29,7 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
       scope.raycastAll = false
 
 
-      const raycaster = new Raycaster();
+      const raycaster = this.raycaster = new Raycaster();
       const tempMatrix = new Matrix4();
 
       // Pointer Events
@@ -104,6 +104,7 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
 
         raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
         raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
+        raycaster.far = Infinity
 
         let objects = scope.raycastAll ? getAllMeshes(xrf.scene) : scope.objects 
         const intersects = raycaster.intersectObjects( objects, false )
@@ -145,21 +146,25 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
 
     }
 
-    intersectBox( obj ){
-      const mesh2Box = (mesh) => {
-        let b = new THREE.Box3()
-        b.expandByObject(mesh)
-        return b
-      }
+    intersect( obj, far ){
+      //const mesh2Box = (mesh) => {
+      //  let b = new THREE.Box3()
+      //  b.expandByObject(mesh)
+      //  return b
+      //}
 
-      const objBox   = mesh2Box(obj) 
-      let objects    = scope.raycastAll ? getAllMeshes(xrf.scene) : scope.objects 
-      let intersects = []
-      objects.map( (objB) => {
-        if( !objB.box ) objB.box = mesh2Box(objB)
-        if( objB.box.intersectsBox(objBox) ) intersects.push(obj.box)
-      })
-      return
+      //const objBox   = obj.box || (obj.box = mesh2Box(obj))
+      //let objects    = this.raycastAll ? getAllMeshes(xrf.scene) : this.objects 
+      //let intersects = [] 
+      //objects.map( (objB) => {
+      //  if( !objB.box ) objB.box = mesh2Box(objB)
+      //  if( objB.box.intersectsBox(objBox) ) intersects.push(obj.box)
+      //})
+      //return intersects
+      this.raycaster.ray.origin.setFromMatrixPosition( obj.matrixWorld );
+      this.raycaster.ray.direction.set( 0, 0, -1 )
+      this.raycaster.far = far || Infinity
+      return this.raycaster.intersectObjects( this.objects, true )
     }
 
     // we create our own add to avoid unnecessary unparenting of buffergeometries from 

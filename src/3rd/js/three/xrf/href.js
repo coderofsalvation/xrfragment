@@ -44,16 +44,17 @@ xrf.frag.href = function(v, opts){
     // bubble up!
     mesh.traverseAncestors( (n) => n.userData && n.userData.href && n.dispatchEvent({type:e.type,data:{}}) )
 
+    let fragValue = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
+
     let lastPos   = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
     xrf
-    .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
+    .emit('href',{click:true,mesh,xrf:v,value: fragValue}) // let all listeners agree
     .then( () => {
 
       const isLocal = v.string[0] == '#'
       const hasPos  = isLocal && v.string.match(/pos=/)
       const flags   = isLocal ? xrf.XRF.PV_OVERRIDE : undefined
 
-      //let toFrag = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
       if( v.xrfScheme ){
         xrf.hashbus.pub(v.string)
       } else xrf.navigator.to(v.string)    // let's surf
@@ -104,9 +105,9 @@ xrf.frag.href = function(v, opts){
 xrf.addEventListener('audioInited', function(opts){
   let {THREE,listener} = opts
   opts.audio = opts.audio || {}
-  opts.audio.click    = opts.audio.click || '/example/assets/audio/click.wav'
-  opts.audio.hover    = opts.audio.hover || '/example/assets/audio/hover.wav'
-  opts.audio.teleport = opts.audio.teleport || '/example/assets/audio/teleport.wav'
+  opts.audio.click    = opts.audio.click    || '/dist/audio/click.wav'
+  opts.audio.hover    = opts.audio.hover    || '/dist/audio/hover.wav'
+  opts.audio.teleport = opts.audio.teleport || '/dist/audio/teleport.wav'
 
   let audio = xrf.frag.href.audio = {}
 

@@ -743,9 +743,9 @@ window.frontend = (opts) => new Proxy({
       //console.dir({class: e.target.className, id: e.target.id, isChatMsg,isChatLine,isChatEmptySpace,isUI, tagName: e.target.tagName})
       if( isUI ) return 
       if( show ){
-        $chat.visible = true
+        if( typeof $chat != 'undefined' ) $chat.visible = true
       }else{
-        $chat.visible = false
+        if( typeof $chat != 'undefined' ) $chat.visible = false
         $menu.toggle(false)
       }
       return true
@@ -768,7 +768,10 @@ window.frontend = (opts) => new Proxy({
           let file = files.slice ? files[0] : files
           for( var i in contentLoaders ){
             let r = new RegExp('\\'+i+'$')
-            if( file.name.match(r) ) return contentLoaders[i](file)
+            if( file.name.match(r) ){
+              xrf.navigator.URI.file = '' // bypass cached file (easy refresh same file for testing)
+              return contentLoaders[i](file)
+            }
           }
           alert(file.name+" is not supported")
       };
@@ -841,7 +844,9 @@ window.frontend = (opts) => new Proxy({
 
   updateHashPosition(randomize){
     const pos = xrf.frag.pos.get()
+    xrf.navigator.reactifyHash.enabled = false // prevent teleport
     xrf.navigator.URI.hash.pos = `${pos.x},${pos.y},${pos.z}`
+    xrf.navigator.reactifyHash.enabled = true
     this.copyToClipboard( window.location.href );
   },
 

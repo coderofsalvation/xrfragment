@@ -148,8 +148,7 @@ window.AFRAME.registerComponent('xrf', {
         let createEl            = function(c){
           let el = document.createElement("a-entity")
           // raycaster
-          el.setAttribute("xrf-pressable", '' )  // detect click via hand-detection
-          el.setAttribute("xrf-get",c.name )     // turn into AFRAME entity
+          el.setAttribute("xrf-get",{name:c.name})     // turn into AFRAME entity
           el.setAttribute("class","ray")         // expose to raycaster 
 
           // respond to cursor via laser-controls (https://aframe.io/docs/1.4.0/components/laser-controls.html)
@@ -178,6 +177,9 @@ window.AFRAME.registerComponent('xrf', {
       
       // enable gaze-click on Mobile VR
       aScene.setAttribute('xrf-gaze','')
+
+      // detect href click via hand-detection
+      aScene.setAttribute("xrf-hands", '' )  
 
       if( xrf.debug !== undefined && parseInt(xrf.debug) > 1) aScene.setAttribute('stats','')
 

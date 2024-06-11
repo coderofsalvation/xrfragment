@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Tue Jun  4 04:54:19 PM UTC 2024
+ * v0.5.1 generated at Tue Jun 11 05:22:22 PM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -1592,12 +1592,10 @@ xrf.init = function(opts){
   opts      = opts || {}
 
   xrf.debug = document.location.hostname.match(/^(localhost|[0-9]\.[0-9])/) || document.location.port == '8080' ? 0 : false
-  if( xrf.debug === false ){
-    console.log("add #debug=[0-9] to URL to see XR Fragment debuglog")
+  if( document.location.hash.match(/debug=([0-9])/) ){
     xrf.debug = parseInt( ( document.location.hash.match(/debug=([0-9])/) || [0,'0'] )[1] )
-  }else{
-    xrf.stats()
   }
+  if( xrf.debug === false ) console.log("add #debug=[0-9] to URL to see XR Fragment debuglog")
 
   xrf.Parser.debug = xrf.debug 
   xrf.detectCameraRig(opts)
@@ -1623,15 +1621,6 @@ xrf.detectCameraRig = function(opts){
     }
     opts.camera.offsetY = offsetY
   }
-}
-
-xrf.stats = () => {
-  // bookmarklet from https://github.com/zlgenuine/threejs_stats
-  (function(){
-    let i = 0;
-    var script=document.createElement('script');script.onload=function(){var stats=new Stats();stats.showPanel( i ); 
-      stats.dom.style.marginTop = `${i*48}px`;  document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';document.head.appendChild(script);
-  })()
 }
 
 xrf.hasTag = (tag,tags) => String(tags).match( new RegExp(`(^| )${tag}( |$)`,`g`) )
@@ -1679,7 +1668,7 @@ xrf.emit = function(eventName, data){
     console.groupCollapsed(label)
     console.info(data)
     console.groupEnd(label)
-    if( xrf.debug > 1 ) debugger
+    if( xrf.debug > 2 ) debugger
   }
   return xrf.emit.promise(eventName,data)
 }
@@ -1908,6 +1897,7 @@ xrf.mixers = []
 xrf.init = ((init) => function(opts){
   // operate in own subscene
   let scene = new opts.THREE.Group()
+  xrf.clock  = new opts.THREE.Clock()
   opts.scene.add(scene)
   opts.sceneRoot = opts.scene
   opts.scene = scene 
@@ -1920,8 +1910,6 @@ xrf.init = ((init) => function(opts){
   // return xrfragment lib as 'xrf' query functor (like jquery)
   for ( let i in xrf ) xrf.query[i] = xrf[i] 
 
-  if( xrf.debug ) xrf.stats()
-
   return xrf.query
 })(xrf.init)
 
@@ -1929,7 +1917,6 @@ xrf.patchRenderer = function(opts){
   let {renderer,camera} = opts
   renderer.xr.addEventListener( 'sessionstart', () => xrf.baseReferenceSpace = renderer.xr.getReferenceSpace() );
   renderer.xr.enabled = true;
-  xrf.clock = new xrf.THREE.Clock()
   renderer.render = ((render) => function(scene,camera){
     // update clock
     let time = xrf.clock.delta = xrf.clock.getDelta()
@@ -1967,7 +1954,6 @@ xrf.parseModel.metadataInMesh =  (mesh,model) => {
     }
   }
 }
-
 
 xrf.getLastModel = ()           => xrf.model.last 
 
@@ -2019,7 +2005,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
   if( !url ) throw 'xrf.navigator.to(..) no url given'
 
   let URI = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
-  URI.hash          = xrf.navigator.reactifyHash(URI.hash)
+  URI.hash          = xrf.navigator.reactifyHash(URI.hash) // automatically reflect hash-changes to navigator.to(...)
   // decorate with extra state
   URI.fileChange    = URI.file && URI.URN + URI.file != xrf.navigator.URI.URN + xrf.navigator.URI.file 
   URI.external      = URI.file && URI.URN != document.location.origin + document.location.pathname 
@@ -2159,7 +2145,7 @@ xrf.navigator.setupNavigateFallbacks = () => {
     let {fileExt} = xrfragment.URI.parse(url)
 
     // handle http links
-    if( url.match(/^http/) && !xrf.loaders[fileExt] ){
+    if( url.match(/^http/) && url != xrf.navigator.URI.URN && !xrf.loaders[fileExt] ){
       let inIframe
       try { inIframe = window.self !== window.top; } catch (e) { inIframe = true; }
       return inIframe ? window.parent.postMessage({ url }, '*') : window.open( url, '_blank')
@@ -2196,7 +2182,9 @@ xrf.navigator.reactifyHash = ( obj ) => {
     get(me,k)  { return me[k] },
     set(me,k,v){ 
       me[k] = v 
-      xrf.navigator.to( "#" + this.toString(me) )
+      if( xrf.navigator.reactifyHash.enabled ){
+        xrf.navigator.to( "#" + this.toString(me) )
+      }
     },
     toString(me){
       let parts = []
@@ -2207,6 +2195,7 @@ xrf.navigator.reactifyHash = ( obj ) => {
     }
   })
 }
+xrf.navigator.reactifyHash.enabled = true
 /**
  * 
  * navigation, portals & mutations
@@ -2253,16 +2242,17 @@ xrf.frag.href = function(v, opts){
     // bubble up!
     mesh.traverseAncestors( (n) => n.userData && n.userData.href && n.dispatchEvent({type:e.type,data:{}}) )
 
+    let fragValue = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
+
     let lastPos   = `pos=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`
     xrf
-    .emit('href',{click:true,mesh,xrf:v}) // let all listeners agree
+    .emit('href',{click:true,mesh,xrf:v,value: fragValue}) // let all listeners agree
     .then( () => {
 
       const isLocal = v.string[0] == '#'
       const hasPos  = isLocal && v.string.match(/pos=/)
       const flags   = isLocal ? xrf.XRF.PV_OVERRIDE : undefined
 
-      //let toFrag = xrf.URI.parse( v.string, xrf.XRF.NAVIGATOR | xrf.XRF.PV_OVERRIDE | xrf.XRF.METADATA )
       if( v.xrfScheme ){
         xrf.hashbus.pub(v.string)
       } else xrf.navigator.to(v.string)    // let's surf
@@ -2313,9 +2303,9 @@ xrf.frag.href = function(v, opts){
 xrf.addEventListener('audioInited', function(opts){
   let {THREE,listener} = opts
   opts.audio = opts.audio || {}
-  opts.audio.click    = opts.audio.click || '/example/assets/audio/click.wav'
-  opts.audio.hover    = opts.audio.hover || '/example/assets/audio/hover.wav'
-  opts.audio.teleport = opts.audio.teleport || '/example/assets/audio/teleport.wav'
+  opts.audio.click    = opts.audio.click    || '/dist/audio/click.wav'
+  opts.audio.hover    = opts.audio.hover    || '/dist/audio/hover.wav'
+  opts.audio.teleport = opts.audio.teleport || '/dist/audio/teleport.wav'
 
   let audio = xrf.frag.href.audio = {}
 
@@ -2416,6 +2406,7 @@ xrf.frag.pos = function(v, opts){
   if( xrf.debug ) console.log(`#pos.js: setting camera to position ${pos.x},${pos.y},${pos.z}`)
 
   xrf.frag.pos.last = v.string // remember
+  xrf.frag.pos.lastVector3 = camera.position.clone()
 
   camera.updateMatrixWorld()
 }
@@ -2527,9 +2518,9 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
   if( mesh.material && mesh.userData.src ) mesh.material.visible = false  // hide placeholder object
 
   if( opts.isPortal ){
-    // only add remote objects, because 
-    // local scene-objects are already added to scene
     xrf.portalNonEuclidian({...opts,model,scene:model.scene})
+    // only add external objects, because 
+    // local scene-objects are already added to scene
     if( !opts.isLocal ) xrf.scene.add(scene) 
   }else{
     xrf.frag.src.scale( scene, opts, url )           // scale scene
@@ -2538,7 +2529,7 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
   xrf.frag.src.enableSourcePortation({scene,mesh,url,model})
   // flag everything isSRC & isXRF
   mesh.traverse( (n) => { n.isSRC = n.isXRF = n[ opts.isLocal ? 'isSRCLocal' : 'isSRCExternal' ] = true })
-  
+ 
   xrf.emit('parseModel', {...opts, isSRC:true, mesh, model}) // this will execute all embedded metadata/fragments e.g.
 }
 
@@ -2587,7 +2578,7 @@ xrf.frag.src.externalSRC = (url,frag,opts) => {
   fetch(url, { method: 'HEAD' })
   .then( (res) => {
     let mimetype = res.headers.get('Content-type')
-    if(xrf.debug > 0 ) console.log("HEAD "+url+" => "+mimetype)
+    if(xrf.debug != undefined ) console.log("HEAD "+url+" => "+mimetype)
     if( url.replace(/#.*/,'').match(/\.(gltf|glb)$/)     ) mimetype = 'gltf'
     if( url.replace(/#.*/,'').match(/\.(frag|fs|glsl)$/) ) mimetype = 'x-shader/x-fragment'
     if( url.replace(/#.*/,'').match(/\.(vert|vs)$/)      ) mimetype = 'x-shader/x-fragment'
@@ -2947,7 +2938,7 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
       scope.raycastAll = false
 
 
-      const raycaster = new Raycaster();
+      const raycaster = this.raycaster = new Raycaster();
       const tempMatrix = new Matrix4();
 
       // Pointer Events
@@ -3022,6 +3013,7 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
 
         raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
         raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( tempMatrix );
+        raycaster.far = Infinity
 
         let objects = scope.raycastAll ? getAllMeshes(xrf.scene) : scope.objects 
         const intersects = raycaster.intersectObjects( objects, false )
@@ -3061,6 +3053,27 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
       controller2.addEventListener( 'selectstart', onXRControllerEvent );
       controller2.addEventListener( 'selectend', onXRControllerEvent );
 
+    }
+
+    intersect( obj, far ){
+      //const mesh2Box = (mesh) => {
+      //  let b = new THREE.Box3()
+      //  b.expandByObject(mesh)
+      //  return b
+      //}
+
+      //const objBox   = obj.box || (obj.box = mesh2Box(obj))
+      //let objects    = this.raycastAll ? getAllMeshes(xrf.scene) : this.objects 
+      //let intersects = [] 
+      //objects.map( (objB) => {
+      //  if( !objB.box ) objB.box = mesh2Box(objB)
+      //  if( objB.box.intersectsBox(objBox) ) intersects.push(obj.box)
+      //})
+      //return intersects
+      this.raycaster.ray.origin.setFromMatrixPosition( obj.matrixWorld );
+      this.raycaster.ray.direction.set( 0, 0, -1 )
+      this.raycaster.far = far || Infinity
+      return this.raycaster.intersectObjects( this.objects, true )
     }
 
     // we create our own add to avoid unnecessary unparenting of buffergeometries from 
@@ -4009,16 +4022,30 @@ xrf.addEventListener('href', (opts) => opts.click && updatePortals(opts) )
 xrf.addEventListener('navigate', updatePortals )
 
 xrf.portalNonEuclidian.stencilRef = 1
-
 let loadVideo = (mimetype) => function(url,opts){
   let {mesh,src,camera} = opts
   const THREE = xrf.THREE
   let URL  = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
   let frag = URL.XRF 
 
+  // patch VideoTexture so it doesn't upload videoframes when paused
+  // https://github.com/mrdoob/three.js/pull/28575 
+  THREE.VideoTexture.prototype.update = function(){
+    const video = this.image;
+    const hasVideoFrameCallback = 'requestVideoFrameCallback' in video;
+
+    if ( hasVideoFrameCallback === false && video.readyState >= video.HAVE_CURRENT_DATA && (!video.paused || !this.firstFrame) ){
+      console.log("updating..")
+      this.needsUpdate = true;
+      this.firstFrame  = true
+    }
+  }
+
+
   mesh.media = mesh.media || {}
 
   let video = mesh.media.video = document.createElement('video')
+  video.style.display = 'none'
   video.setAttribute("crossOrigin","anonymous")
   video.setAttribute("playsinline",'')
   video.addEventListener('loadedmetadata', function(){
@@ -4111,8 +4138,6 @@ window.AFRAME.registerComponent('xrf', {
           col:  THREE.ColladaLoader
         }
       })
-      aScene.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      aScene.renderer.toneMappingExposure = 1.25;
       if( !XRF.camera ) throw 'xrfragment: no camera detected, please declare <a-entity camera..> ABOVE entities with xrf-attributes'
         
       if( AFRAME.utils.device.isMobile() ){
@@ -4132,18 +4157,22 @@ window.AFRAME.registerComponent('xrf', {
         // this is just for convenience (not part of spec): enforce AR + hide/show stuff based on VR tags in 3D model 
         aScene.canvas.addEventListener('mousedown', () => xrf.camera.el.setAttribute("look-controls","") )
       })
+
       XRF.addEventListener('rot',(e) => {
        let lookcontrols = document.querySelector('[look-controls]')
        if( lookcontrols ) lookcontrols.removeAttribute("look-controls")
       })
 
       let repositionUser = (scale) => () => {
-        // sometimes AFRAME resets the user position to 0,0,0 when entering VR (not sure why)
-        let pos = xrf.frag.pos.last
-        if( pos ){ AFRAME.XRF.camera.position.set(pos.x, pos.y*scale, pos.z) }
+          // sometimes AFRAME resets the user position to 0,0,0 when entering VR (not sure why)
+          setTimeout( () => {
+            let pos = xrf.frag.pos.lastVector3
+            if( pos ){ xrf.camera.position.set(pos.x, pos.y*scale, pos.z) }
+          },500)
       }
-      aScene.addEventListener('enter-vr', () => setTimeout( () => repositionUser(1),100 ) )
-      aScene.addEventListener('enter-ar', () => setTimeout( () => repositionUser(2),100 ) )
+
+      aScene.addEventListener('enter-vr', repositionUser(1) )
+      aScene.addEventListener('enter-ar', repositionUser(2) )
 
       xrf.addEventListener('navigateLoaded', (opts) => {
         setTimeout( () => AFRAME.fade.out(),500) 
@@ -4217,9 +4246,10 @@ window.AFRAME.registerComponent('xrf', {
         let {mesh,clickHandler} = opts;
         let createEl            = function(c){
           let el = document.createElement("a-entity")
-          el.setAttribute("xrf-get",c.name )     // turn into AFRAME entity
-          el.setAttribute("pressable", '' )      // detect click via hand-detection
+          // raycaster
+          el.setAttribute("xrf-get",{name:c.name})     // turn into AFRAME entity
           el.setAttribute("class","ray")         // expose to raycaster 
+
           // respond to cursor via laser-controls (https://aframe.io/docs/1.4.0/components/laser-controls.html)
           el.addEventListener("click",          clickHandler )
           el.addEventListener("mouseenter",     mesh.userData.XRF.href.selected(true) )
@@ -4246,6 +4276,11 @@ window.AFRAME.registerComponent('xrf', {
       
       // enable gaze-click on Mobile VR
       aScene.setAttribute('xrf-gaze','')
+
+      // detect href click via hand-detection
+      aScene.setAttribute("xrf-hands", '' )  
+
+      if( xrf.debug !== undefined && parseInt(xrf.debug) > 1) aScene.setAttribute('stats','')
 
     }
   },
@@ -4536,80 +4571,6 @@ AFRAME.components['look-controls'].Component.prototype.updateOrientation = funct
   object3D.rotation.z = this.magicWindowDeltaEuler.z;
   object3D.matrixAutoUpdate = true
 }
-// this makes WebXR hand controls able to click things (by touching it)
-
-AFRAME.registerComponent('pressable', {
-    schema: {
-        pressDistance: {
-            default: 0.01
-        }
-    },
-    init: function() {
-        this.worldPosition = new THREE.Vector3();
-        this.fingerWorldPosition = new THREE.Vector3();
-        this.raycaster = new THREE.Raycaster()
-        this.handEls = document.querySelectorAll('[hand-tracking-controls]');
-        this.pressed = false;
-        this.distance = -1
-        // we throttle by distance, to support scenes with loads of clickable objects (far away)
-        this.tick = this.throttleByDistance( () => this.detectPress() )
-    },
-    throttleByDistance: function(f){
-        return function(){
-           if( this.distance < 0 ) return f() // first call
-           if( !f.tid ){
-             let x = this.distance
-             let y = x*(x*0.05)*1000 // parabolic curve
-             f.tid = setTimeout( function(){
-               f.tid = null
-               f()
-             }, y )
-           }
-        }
-    },
-    detectPress: function(){
-        if( !AFRAME.scenes[0].renderer.xr.isPresenting ) return
-
-        var handEls = this.handEls;
-        var handEl;
-        let minDistance = 5
-
-        // compensate for xrf-get AFRAME component (which references non-reparented buffergeometries from the 3D model)
-        let object3D = this.el.object3D.child || this.el.object3D
-
-        for (var i = 0; i < handEls.length; i++) {
-            handEl = handEls[i];
-            let indexTipPosition  = handEl.components['hand-tracking-controls'].indexTipPosition
-            // Apply the relative position to the parent's world position 
-            handEl.object3D.updateMatrixWorld();
-            handEl.object3D.getWorldPosition( this.fingerWorldPosition )
-            this.fingerWorldPosition.add( indexTipPosition )
-
-            this.raycaster.far = this.data.pressDistance
-            // Create a direction vector (doesnt matter because it is supershort for 'touch' purposes)
-            const direction = new THREE.Vector3(1.0,0,0);
-            this.raycaster.set(this.fingerWorldPosition, direction)
-            intersects = this.raycaster.intersectObjects([object3D],true)
-
-            object3D.getWorldPosition(this.worldPosition)
-      
-            distance    = this.fingerWorldPosition.distanceTo(this.worldPosition)
-            minDistance = distance < minDistance ? distance : minDistance 
-
-            if (intersects.length ){
-              if( !this.pressed ){
-                this.el.emit('pressedstarted');
-                this.el.emit('click');
-                this.pressed = setTimeout( () => {
-                  this.el.emit('pressedended');
-                  this.pressed = false 
-                },300)
-              }
-            }
-        }
-        this.distance = minDistance
-    }
-});
 /**
  * Touch-to-move-forward controls for mobile.
  */
@@ -4743,7 +4704,7 @@ window.AFRAME.registerComponent('xrf-button', {
             transparent:true,
             opacity:0.3
         });
-        el.setAttribute('pressable', '');
+        el.setAttribute('xrf-pressable', '');
         labelEl.setAttribute('position', '0 0 0.01');
         labelEl.setAttribute('text', {
             value: this.data.label,
@@ -4968,11 +4929,13 @@ window.AFRAME.registerComponent('xrf-get', {
             // as this would break animations
             this.el.object3D.add = (a) => a 
           }
+          this.el.object3D.parent = mesh.parent
 
           this.el.setObject3D('mesh',mesh) // (doing this.el.object3D = mesh causes AFRAME to crash when resetting scene)
           this.el.object3D.child = mesh    // keep reference (because .children will be empty)
 
           if( !this.el.id ) this.el.setAttribute("id",`xrf-${mesh.name}`)
+          this.el.emit('model-loaded',{})
         }
 
       }, evt && evt.timeout ? evt.timeout: 500)
@@ -4984,6 +4947,64 @@ window.AFRAME.registerComponent('xrf-get', {
   }
 
 });
+
+//// this makes WebXR hand controls able to click things (by touching it)
+
+AFRAME.registerSystem('xrf-hands',{
+
+  init: function(){
+    this.sceneEl.addEventListener('loaded', () => this.getFingers() )
+  },
+
+  tick: function(){
+    if( !this.el.sceneEl.renderer.xr.isPresenting || !this.indexFinger.length ) return 
+    for( let i = 0; i < this.indexFinger.length; i++ ){
+      let indexFinger = this.indexFinger[i]
+      let intersects = xrf.interactive.intersect( indexFinger, 0.01 )
+      if( intersects.length ){
+        let obj = intersects[0].object
+        if( obj.clicked ) return
+        obj.clicked = true
+        obj.dispatchEvent({type:"click", message: indexFinger })
+        setTimeout( () => obj.clicked = false, 250 ) // prevent double clicks
+      } 
+    }
+  },
+
+
+  getFingers: function(){
+    let handEls      = [...document.querySelectorAll('[hand-tracking-controls]')]
+    if( !handEls.length ) return
+    this.indexFinger = []
+
+    const me = this
+
+    for( let i in handEls ){
+      let handEl = handEls[i]
+      handEl.addEventListener('model-loaded', function(e){
+        const handEl = this
+        // wait for bones get initialized
+        setTimeout( () => {
+          let bones = handEl.components['hand-tracking-controls'].bones
+          let indexFinger
+          for( let j = 0; j < bones.length; j++){
+            if( bones[j].name == "index-finger-tip" ){
+              indexFinger = j
+              me.indexFinger.push(bones[j])
+ //             addColliderToFingerTip(handEl,indexFinger)
+              const els = [...document.querySelectorAll('[xrf-pressable]')]
+              els.map( (el) => el.emit('indexFingerReady', {index: j} ) )
+              break
+            }
+          }
+        },500)
+      })
+    }
+
+  }
+
+
+})
 
 // poor man's way to move forward using hand gesture pinch
 
