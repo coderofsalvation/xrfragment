@@ -18,8 +18,7 @@
     <model-viewer
       src="https://xrfragment.org/index.glb"
       environment-image="https://cdn.glitch.global/8e507517-31ff-4aa5-80c1-10ea6de9483d/white_furnace.hdr"
-      disable-zoom
-      touch-action="non"
+      camera-controls interaction-prompt="none"
       style="width:100%; height:99vh"
     >
       <b class="btn" id="back">&lt;</b>
@@ -66,11 +65,13 @@
           camera:   mv[getSymbol("scene")].getCamera()
         }
 
-        opts.scene.add( opts.camera ) // not sure why is camera not in the scene?
-        setInterval( () => {
-          opts.camera.position.set( 0,0,0 )
-          opts.camera.updateMatrix()
-        },1000)
+        opts.controls._options.minimumRadius = 1
+        opts.controls._options.maximumRadius = 100000
+
+        let spherical = opts.controls.goalSpherical
+        spherical.setFromCartesianCoords(0,0,0)
+        opts.controls.moveCamera()
+        opts.control.update = (e) => e
 
         $url.value     = mv.src
         window.opts = opts 
