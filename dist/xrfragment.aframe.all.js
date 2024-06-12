@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Tue Jun 11 05:22:22 PM UTC 2024
+ * v0.5.1 generated at Wed Jun 12 08:50:44 AM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -2311,7 +2311,7 @@ xrf.addEventListener('audioInited', function(opts){
 
   let audio = xrf.frag.href.audio = {}
 
-  actions = ['click','hover','teleport']
+  const actions = ['click','hover','teleport']
   actions.map( (action) => {
     const audioLoader = new THREE.AudioLoader();
     audio[action] = new THREE.Audio( xrf.camera.listener )
@@ -2528,7 +2528,7 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
     xrf.frag.src.scale( scene, opts, url )           // scale scene
     mesh.add(scene)
   }
-  xrf.frag.src.enableSourcePortation({scene,mesh,url,model})
+  xrf.frag.src.enableSourcePortation({...opts, scene,mesh,url,model})
   // flag everything isSRC & isXRF
   mesh.traverse( (n) => { n.isSRC = n.isXRF = n[ opts.isLocal ? 'isSRCLocal' : 'isSRCExternal' ] = true })
  
@@ -2542,7 +2542,7 @@ xrf.frag.src.renderAsPortal = (mesh) => {
 }
 
 xrf.frag.src.enableSourcePortation = (opts) => {
-  let {scene,mesh,url,model} = opts
+  let {scene,mesh,url,model,THREE} = opts
   if( url[0] == '#' ) return
 
   url = url.replace(/(&)?[-][\w-+\.]+(&)?/g,'&') // remove negative selectors to refer to original scene
@@ -3376,8 +3376,9 @@ xrf.addEventListener('parseModel', (opts) => {
 
   xrf.URI.vars = new Proxy({},{
     set(me,k,v){ 
-      if( k.match(/^(name)$/) ) return
+      if( k.match(/^(name)$/) ) return true
       me[k] = v 
+      return true
     },
     get(me,k  ){ 
       if( k == '__object' ){
@@ -3605,7 +3606,7 @@ xrf.init.audio = (opts) => {
   let camera = xrf.camera
   /* WebAudio: setup context via THREEjs */
   if( !camera.listener ){
-    camera.listener = new THREE.AudioListener();
+    camera.listener = new xrf.THREE.AudioListener();
     // *FIXME* camera vs camerarig conflict
     (camera.getCam ? camera.getCam() : camera).add( camera.listener );
     xrf.emit('audioInited',{listener:camera.listener, ...opts})
@@ -4993,7 +4994,6 @@ AFRAME.registerSystem('xrf-hands',{
             if( bones[j].name == "index-finger-tip" ){
               indexFinger = j
               me.indexFinger.push(bones[j])
- //             addColliderToFingerTip(handEl,indexFinger)
               const els = [...document.querySelectorAll('[xrf-pressable]')]
               els.map( (el) => el.emit('indexFingerReady', {index: j} ) )
               break

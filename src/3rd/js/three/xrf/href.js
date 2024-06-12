@@ -111,7 +111,7 @@ xrf.addEventListener('audioInited', function(opts){
 
   let audio = xrf.frag.href.audio = {}
 
-  actions = ['click','hover','teleport']
+  const actions = ['click','hover','teleport']
   actions.map( (action) => {
     const audioLoader = new THREE.AudioLoader();
     audio[action] = new THREE.Audio( xrf.camera.listener )

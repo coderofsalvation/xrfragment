@@ -94,7 +94,7 @@ xrf.init.audio = (opts) => {
   let camera = xrf.camera
   /* WebAudio: setup context via THREEjs */
   if( !camera.listener ){
-    camera.listener = new THREE.AudioListener();
+    camera.listener = new xrf.THREE.AudioListener();
     // *FIXME* camera vs camerarig conflict
     (camera.getCam ? camera.getCam() : camera).add( camera.listener );
     xrf.emit('audioInited',{listener:camera.listener, ...opts})

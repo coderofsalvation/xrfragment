@@ -42,7 +42,7 @@ xrf.frag.src.addModel = (model,url,frag,opts) => {
     xrf.frag.src.scale( scene, opts, url )           // scale scene
     mesh.add(scene)
   }
-  xrf.frag.src.enableSourcePortation({scene,mesh,url,model})
+  xrf.frag.src.enableSourcePortation({...opts, scene,mesh,url,model})
   // flag everything isSRC & isXRF
   mesh.traverse( (n) => { n.isSRC = n.isXRF = n[ opts.isLocal ? 'isSRCLocal' : 'isSRCExternal' ] = true })
  
@@ -56,7 +56,7 @@ xrf.frag.src.renderAsPortal = (mesh) => {
 }
 
 xrf.frag.src.enableSourcePortation = (opts) => {
-  let {scene,mesh,url,model} = opts
+  let {scene,mesh,url,model,THREE} = opts
   if( url[0] == '#' ) return
 
   url = url.replace(/(&)?[-][\w-+\.]+(&)?/g,'&') // remove negative selectors to refer to original scene

@@ -7,8 +7,9 @@ xrf.addEventListener('parseModel', (opts) => {
 
   xrf.URI.vars = new Proxy({},{
     set(me,k,v){ 
-      if( k.match(/^(name)$/) ) return
+      if( k.match(/^(name)$/) ) return true
       me[k] = v 
+      return true
     },
     get(me,k  ){ 
       if( k == '__object' ){
