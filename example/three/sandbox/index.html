@@ -42,7 +42,6 @@
 			import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
       import { OculusHandModel } from 'three/addons/webxr/OculusHandModel.js';
 			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-			import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 			import Stats from 'three/addons/libs/stats.module.js';
 
       window.$ = (s) => document.querySelector(s)
@@ -165,16 +164,19 @@
         const handModel1 = new OculusHandModel( hand1 );
         hand1.add( handModel1 );
         cameraRig.add( hand1 );
+        console.dir(hand1)
 
 				const controllerGrip2 = renderer.xr.getControllerGrip( 1 );
 				controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
 				cameraRig.add( controllerGrip2 );
+        console.dir(hand1)
 
         // hand2
         const hand2 = renderer.xr.getHand( 1 );
         const handModel2 = new OculusHandModel( hand2 );
         hand2.add( handModel2 );
         cameraRig.add( hand2 );
+        console.dir(hand2)
 
 				// Add stats.js
 				stats = new Stats();
@@ -190,9 +192,6 @@
 				statsMesh.scale.setScalar( 2.5 );
 
         vrbutton.addEventListener('click', () => {
-          // show gui inside VR scene
-          gui.domElement.style.visibility = 'hidden';
-          XRF.interactive.add( mesh );
           XRF.interactive.add( statsMesh );
         })
 
@@ -219,8 +218,8 @@
 
 
 				let fileLoaders = loadFile({
-          ".gltf": (file) => file.arrayBuffer().then( (data) => XRF.navigator.to(file.name,null,XRF.loaders.gltf,data) ),
-          ".glb": (file) => file.arrayBuffer().then( (data) => XRF.navigator.to(file.name,null, XRF.loaders.gltf,data) )
+          ".gltf": (file) => file.arrayBuffer().then( (data) => xrf.navigator.to(file.name,null, (new xrf.loaders.gltf()), data) ),
+          ".glb":  (file) => file.arrayBuffer().then( (data) => xrf.navigator.to(file.name,null, (new xrf.loaders.gltf()), data) )
 				})
 				$("input[type=submit]").addEventListener("click", fileLoaders )
 

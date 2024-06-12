@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>&lt;model-viewer&gt; template</title>
+    <meta charset="utf-8" />
+    <meta name="description" content="&lt;model-viewer&gt; template" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link type="text/css" href="./styles.css" rel="stylesheet" />
+  </head>
+  <style type="text/css">
+    #url,
+    .btn { display:inline-block;width:40px; height:40px; background:#EEE; font-weight:bold; border-radius:5px; margin-right:5px; text-align:center; line-height:41px; }
+    #url { width:100%; max-width: calc(100% - 140px); text-align:left; padding:0px 10px; font-weight:normal; }
+
+  </style>
+  <body style="overflow:hidden">
+    <!-- <model-viewer> HTML element -->
+    <model-viewer
+      src="https://xrfragment.org/index.glb"
+      environment-image="https://cdn.glitch.global/8e507517-31ff-4aa5-80c1-10ea6de9483d/white_furnace.hdr"
+      disable-zoom
+      touch-action="non"
+      style="width:100%; height:99vh"
+    >
+      <b class="btn" id="back">&lt;</b>
+      <b class="btn" id="forward">&gt;</b>
+      <input id="url" value=""></b>
+    </model-viewer>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "https://unpkg.com/three@0.165.0/build/three.module.js",
+					"three/addons/": "https://unpkg.com/three@0.165.0/examples/jsm/"
+				}
+			}
+		</script>
+    <script type="module">
+			import xrf from "./../../../dist/xrfragment.three.module.js";
+			import * as THREE from 'three'; // *TODO* get three handle from mv
+			import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+			import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+			import { USDZLoader } from 'three/addons/loaders/USDZLoader.js';
+			import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+
+      const mv = document.querySelector("model-viewer");
+      const $url = document.querySelector('#url')
+
+      function getSymbol(name) {
+        let obj = mv;
+        do {
+          const sym = Object.getOwnPropertySymbols(obj).find(
+            (x) => x.description === name
+          );
+          if (sym) {
+            return sym;
+          }
+        } while ((obj = Object.getPrototypeOf(obj)));
+      }
+
+      mv.addEventListener("load", () => {
+        const opts = {
+          THREE,
+          scene:    mv[getSymbol('scene')],
+          renderer: mv[getSymbol("renderer")].threeRenderer,
+          controls: mv[getSymbol("controls")],
+          camera:   mv[getSymbol("scene")].getCamera()
+        }
+
+        opts.scene.add( opts.camera ) // not sure why is camera not in the scene?
+        setInterval( () => {
+          opts.camera.position.set( 0,0,0 )
+          opts.camera.updateMatrix()
+        },1000)
+
+        $url.value     = mv.src
+        window.opts = opts 
+
+        // enable XR fragments
+        let XRF = xrf.init({...opts,         
+          loaders: { gltf: GLTFLoader, glb: GLTFLoader, fbx: FBXLoader, obj: OBJLoader, usdz: USDZLoader }
+        })
+        console.dir(XRF)
+      });
+    </script>
+    <!-- Loads <model-viewer> for browsers: -->
+    <script
+      type="module"
+      src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"
+    ></script>
+  </body>
+</html>

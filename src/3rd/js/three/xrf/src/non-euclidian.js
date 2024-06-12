@@ -120,7 +120,7 @@ xrf.portalNonEuclidian = function(opts){
         if( mesh.userData.XRF.href ){
           raycaster.far = 0.35
           raycaster.set(cameraPosition, cameraDirection )
-          intersects = raycaster.intersectObjects([mesh], false)
+          let intersects = raycaster.intersectObjects([mesh], false)
           if (intersects.length > 0 && !mesh.portal.teleporting ){
             mesh.portal.teleporting = true
             mesh.userData.XRF.href.exec({nocommit:true})
