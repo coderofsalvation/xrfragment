@@ -53,17 +53,6 @@ window.AFRAME.registerComponent('xrf', {
         if( VRbutton ) VRbutton.addEventListener('click', () => AFRAME.XRF.hashbus.pub( '#VR' ) )
       })
 
-      // (de)active look-controls because of 'rot=' XR Fragment
-      aScene.addEventListener('loaded', () => {
-        // this is just for convenience (not part of spec): enforce AR + hide/show stuff based on VR tags in 3D model 
-        aScene.canvas.addEventListener('mousedown', () => xrf.camera.el.setAttribute("look-controls","") )
-      })
-
-      XRF.addEventListener('rot',(e) => {
-       let lookcontrols = document.querySelector('[look-controls]')
-       if( lookcontrols ) lookcontrols.removeAttribute("look-controls")
-      })
-
       let repositionUser = (scale) => () => {
           // sometimes AFRAME resets the user position to 0,0,0 when entering VR (not sure why)
           setTimeout( () => {

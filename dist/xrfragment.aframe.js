@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Sat Jun 15 05:22:37 PM CEST 2024
+ * v0.5.1 generated at Sat Jun 15 05:46:02 PM CEST 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -4159,17 +4159,6 @@ window.AFRAME.registerComponent('xrf', {
         VRbutton = document.querySelector('.a-enter-vr-button')
         if( ARbutton ) ARbutton.addEventListener('click', () => AFRAME.XRF.hashbus.pub( '#-VR' ) )
         if( VRbutton ) VRbutton.addEventListener('click', () => AFRAME.XRF.hashbus.pub( '#VR' ) )
-      })
-
-      // (de)active look-controls because of 'rot=' XR Fragment
-      aScene.addEventListener('loaded', () => {
-        // this is just for convenience (not part of spec): enforce AR + hide/show stuff based on VR tags in 3D model 
-        aScene.canvas.addEventListener('mousedown', () => xrf.camera.el.setAttribute("look-controls","") )
-      })
-
-      XRF.addEventListener('rot',(e) => {
-       let lookcontrols = document.querySelector('[look-controls]')
-       if( lookcontrols ) lookcontrols.removeAttribute("look-controls")
       })
 
       let repositionUser = (scale) => () => {
