@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Wed Jun 12 08:50:44 AM UTC 2024
+ * v0.5.1 generated at Sat Jun 15 05:22:38 PM CEST 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -1942,6 +1942,39 @@ xrf.parseModel = function(model,url){
   xrf.emit('parseModel',{model,url,file})
 }
 
+xrf.loadModel = function(model,url,noadd){
+  let URI = xrfragment.URI.toAbsolute( xrf.navigator.URI, url )
+  let {directory,file,fragment,fileExt} = URI;
+  model.file = URI.file
+  xrf.model = model 
+
+  if( !model.isXRF ) xrf.parseModel(model,url.replace(directory,"")) // this marks the model as an XRF model
+
+  if(xrf.debug ) model.animations.map( (a) => console.log("anim: "+a.name) )
+
+  // spec: 1. generate the XRWG
+  xrf.XRWG.generate({model,scene:model.scene})
+
+  // spec: 2. init metadata inside model for non-SRC data
+  if( !model.isSRC ){
+    model.scene.traverse( (mesh) => xrf.parseModel.metadataInMesh(mesh,model) )
+  }
+  // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
+  const defaultFragment = xrf.frag.defaultPredefinedViews({model,scene:model.scene})
+  // spec: predefined view(s) & objects-of-interest-in-XRWG from URI (https://xrfragment.org/#predefined_view)
+  let frag = xrf.hashbus.pub( url, model) // and eval URI XR fragments 
+  
+  if( !noadd ) xrf.add( model.scene )
+
+  // only change url when loading *another* file
+  fragment = fragment || defaultFragment || ''
+  xrf.navigator.pushState( URI.external ? URI.URN + URI.file : URI.file, fragment.replace(/^#/,'') )
+  //if( fragment )  xrf.navigator.updateHash(fragment)
+
+  xrf.emit('navigateLoaded',{url,model})
+}
+
+
 xrf.parseModel.metadataInMesh =  (mesh,model) => { 
   if( mesh.userData ){
     let frag = {}
@@ -2065,34 +2098,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
 
         loader = loader || new Loader().setPath( URI.URN )
         const onLoad = (model) => {
-
-          model.file = URI.file
-          xrf.model = model 
-
-          if( !model.isXRF ) xrf.parseModel(model,url.replace(directory,"")) // this marks the model as an XRF model
-
-          if(xrf.debug ) model.animations.map( (a) => console.log("anim: "+a.name) )
-
-          // spec: 1. generate the XRWG
-          xrf.XRWG.generate({model,scene:model.scene})
-
-          // spec: 2. init metadata inside model for non-SRC data
-          if( !model.isSRC ){
-            model.scene.traverse( (mesh) => xrf.parseModel.metadataInMesh(mesh,model) )
-          }
-          // spec: 1. execute the default predefined view '#' (if exist) (https://xrfragment.org/#predefined_view)
-          const defaultFragment = xrf.frag.defaultPredefinedViews({model,scene:model.scene})
-          // spec: predefined view(s) & objects-of-interest-in-XRWG from URI (https://xrfragment.org/#predefined_view)
-          let frag = xrf.hashbus.pub( url, model) // and eval URI XR fragments 
-          
-          xrf.add( model.scene )
-
-          // only change url when loading *another* file
-          fragment = fragment || defaultFragment || ''
-          xrf.navigator.pushState( URI.external ? URI.URN + URI.file : URI.file, fragment.replace(/^#/,'') )
-          //if( fragment )  xrf.navigator.updateHash(fragment)
-
-          xrf.emit('navigateLoaded',{url,model})
+          xrf.loadModel(model,url)
           resolve(model)
         }
   
@@ -2996,6 +3002,7 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
       element.addEventListener( 'mousemove', onPointerEvent );
       element.addEventListener( 'click', onPointerEvent );
       element.addEventListener( 'mouseup', onPointerEvent );
+      element.addEventListener( 'touchstart', onPointerEvent );
 
       // WebXR Controller Events
       // TODO: Dispatch pointerevents too
@@ -3003,6 +3010,7 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
       const eventsMapper = {
         'move': 'mousemove',
         'select': 'click',
+        'touchstart': 'click',
         'selectstart': 'mousedown',
         'selectend': 'mouseup'
       };
@@ -3951,7 +3959,7 @@ xrf.portalNonEuclidian = function(opts){
         if( mesh.userData.XRF.href ){
           raycaster.far = 0.35
           raycaster.set(cameraPosition, cameraDirection )
-          intersects = raycaster.intersectObjects([mesh], false)
+          let intersects = raycaster.intersectObjects([mesh], false)
           if (intersects.length > 0 && !mesh.portal.teleporting ){
             mesh.portal.teleporting = true
             mesh.userData.XRF.href.exec({nocommit:true})
@@ -4847,7 +4855,7 @@ AFRAME.registerComponent('xrf-gaze',{
     }
   },
   setGazer: function(state, fuse){
-    if( !AFRAME.utils.device.isMobile() ) return
+    if( this.el.sceneEl.getAttribute("xrf-gaze-always") == undefined && !AFRAME.utils.device.isMobile() ) return
     let cam = document.querySelector("[camera]") 
     if( state ){
       if( cam.innerHTML.match(/cursor/) ) return; // avoid duplicate calls

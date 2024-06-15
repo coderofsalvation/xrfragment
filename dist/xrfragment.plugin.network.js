@@ -660,8 +660,8 @@ chatComponent.css = `
        /*
        display: flex;
        flex-direction: column;
-       width: 91%;
-       max-width: 500px;
+       width: 100%;
+       max-width: 40%;
        */
        width:100%;
        box-sizing:border-box;
@@ -816,8 +816,8 @@ chatComponent.css = `
 
     .envelope{
       margin-right:15px;
-      width:50%;
-      max-width:700px;
+      width:100%;
+      max-width:40%;
     }
 
     .envelope,

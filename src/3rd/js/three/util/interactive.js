@@ -85,6 +85,7 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
       element.addEventListener( 'mousemove', onPointerEvent );
       element.addEventListener( 'click', onPointerEvent );
       element.addEventListener( 'mouseup', onPointerEvent );
+      element.addEventListener( 'touchstart', onPointerEvent );
 
       // WebXR Controller Events
       // TODO: Dispatch pointerevents too
@@ -92,6 +93,7 @@ xrf.interactiveGroup = function(THREE,renderer,camera){
       const eventsMapper = {
         'move': 'mousemove',
         'select': 'click',
+        'touchstart': 'click',
         'selectstart': 'mousedown',
         'selectend': 'mouseup'
       };

@@ -122,8 +122,7 @@ window.frontend = (opts) => new Proxy({
         let root = data.mesh.portal ? data.mesh.portal.stencilObject : data.mesh
         let transcript = xrf.sceneToTranscript(root,data.mesh)
         if( transcript.length ) html += `<br><b>transcript:</b><br><div class="transcript">${transcript}</div>`
-
-        if (hasMeta && !data.mesh.portal ) html += `<br><br><a class="btn" style="float:right" onclick="xrf.navigator.to('${data.mesh.userData.href}')">Visit embedded scene</a>`
+        if (hasMeta && !data.mesh.portal && metadata.XRF.src ) html += `<br><br><a class="btn" style="float:right" onclick="xrf.navigator.to('${data.mesh.userData.href}')">Visit embedded scene</a>`
         window.notify(html,{timeout: 7000 * (hasMeta ? 1.5 : 1) })
       })
 
@@ -134,7 +133,6 @@ window.frontend = (opts) => new Proxy({
   setupNetworkListeners(){
 
     document.addEventListener('network.connect',    (e) => {
-      console.log("network.connect")
       window.notify("🪐 connecting to awesomeness..")
       $chat.send({message:`🪐 connecting to awesomeness..`,class:['info'], timeout:5000})
     })

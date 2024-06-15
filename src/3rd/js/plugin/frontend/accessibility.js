@@ -105,7 +105,7 @@ window.accessibility = (opts) => new Proxy({
 
     setTimeout( () => this.initCommands(), 200 )
     // auto-enable if previously enabled
-    if( window.localStorage.getItem("accessibility") === 'true' ){
+    if( window.localStorage.getItem("accessibility") === 'true' || xrf.navigator.URI.XRF.accessible ){
       setTimeout( () => {
         this.enabled = true
         this.setFontSize()
@@ -185,7 +185,6 @@ window.accessibility = (opts) => new Proxy({
     switch( k ){
       case "enabled": {
                         let message = "accessibility mode has been "+(v?"activated":"disabled")+".<br>Type /help for help."
-                        if( v ) message = "<img src='https://i.imgur.com/wedtUSs.png' style='width:100%;border-radius:6px'/><br>" + message
                         $('#accessibility.btn').style.filter= v ? 'brightness(1.0)' : 'brightness(0.5)'
                         if( v ) $chat.visible = true
                         $chat.send({message,class:['info']})
@@ -215,8 +214,8 @@ document.addEventListener('$menu:ready', (e) => {
 document.querySelector('head').innerHTML += `
   <style type="text/css"> 
     .accessibility #messages * {
-      font-size:24px !important;
-      line-height:40px;
+      font-size:20px !important;
+      line-height:35px;
     }
     .accessibility #messages .msg.self {
       background:var(--xrf-gray);

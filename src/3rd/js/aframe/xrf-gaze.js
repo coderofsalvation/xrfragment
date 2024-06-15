@@ -12,7 +12,7 @@ AFRAME.registerComponent('xrf-gaze',{
     }
   },
   setGazer: function(state, fuse){
-    if( !AFRAME.utils.device.isMobile() ) return
+    if( this.el.sceneEl.getAttribute("xrf-gaze-always") == undefined && !AFRAME.utils.device.isMobile() ) return
     let cam = document.querySelector("[camera]") 
     if( state ){
       if( cam.innerHTML.match(/cursor/) ) return; // avoid duplicate calls
