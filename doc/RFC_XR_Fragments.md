@@ -349,7 +349,7 @@ Example URI's:
   │  index.gltf#playall                                      │ 
   │    │                                                     │ 
   │    ├ #        : #t=0&shared=play                         │ apply default XR Fragment on load (`t` plays global 3D animation timeline)
-  │    ├ play     : #t=l:0,2                                 │ variable for [URI Templates (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570)
+  │    ├ play     : #t=0&loop                                │ variable for [URI Templates (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570)
   │    │                                                     │ 
   │    ├── ◻ plane (with material)                           │    
   │    │      └ #: #uv=0,0,0,+0.1                            │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
@@ -559,41 +559,25 @@ How does the scale of the object (with the embedded properties) impact the scale
 
 # XR Fragment: pos
 
+[[» example implementation|https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/pos.js]]<br>
+
 # XR Fragment: rot
+
+[[» example implementation|https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/pos.js]]<br>
 
 # XR Fragment: t 
 
-controls the animation(s) of the scene (or `src` resource which contains a timeline)
-
-| fragment | type | functionality |
-| <b>#t</b>=1,1,100 | [[vector3|vector]] (default:`#t=1,0,0`) | speed,framestart,framestop  |
-
-* playposition is reset to framestart, when framestart or framestop is greater than 0 |
-
-| Example Value     | Explanation |
-|-|-|
-| `1,1,100` |  play loop between frame 1 and 100 |
-| `1,1,0`   | play once from frame 1 (oneshot) |
-| `1,0,0`   | play (previously set looprange if any) |
-| `0,0,0`   | pause                            |
-| `1,1,1`   | play and auto-loop between begin and end of duration |
-| `-1,0,0`  | reverse playback speed           |
-| `2.3,0,0` | set (forward) playback speed to 2.3 (no restart) |
-| `-2.3,0,0` | set (reverse) playback speed to -2.3 ( no restart)|
-| `-2.3,100,0` | set (reverse) playback speed to -2.3 restarting from frame 100 |
-
 [[» example implementation|https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/t.js]]<br>
-[[» discussion|https://github.com/coderofsalvation/xrfragment/issues/10]]<br>
 
 # XR audio/video integration
 
 To play global audio/video items:
 
 1. add a `src: foo.mp3` or `src: bar.mp4` metadata to a 3D object (`cube` e.g.)
-1. to disable auto-play and global timeline ([[#t=|t]]) control: hardcode a [[#t=|t]] XR Fragment: (`src: bar.mp3#t=0,0,0` e.g.)
+1. to enable auto-play and global timeline ([[#t=|t]]) control: hardcode a [[#t=|t]] XR Fragment: (`src: bar.mp3#t=0&loop` e.g.)
 1. to play it, add `href: #cube` somewhere else 
-1. when the enduser clicks the `href`, `#t=1,0,0` (play) will be applied to the `src` value
-1. to play a single animation, add href: #animationname=1,0,0 somewhere else
+1. to enable enduser-triggered play, use a [[URI Template]] XR Fragment: (`src: bar.mp3#{player}` and `play: t=0&loop` and `href: xrf://#player=play` e.g.)
+1. when the enduser clicks the `href`, `#t=0&loop` (play) will be applied to the `src` value
 
 > NOTE: hardcoded framestart/framestop uses sampleRate/fps of embedded audio/video, otherwise the global fps applies. For more info see [[#t|t]].
 
@@ -1081,19 +1065,21 @@ Spec:<br><Br>
 1. The enduser must be able to enable an accessibility-mode (which persists across application/webpage restarts)
 2. Accessibility-mode must contain a text-input for the user to enter text 
 3. Accessibility-mode must contain a flexible textlog for the user to read (via screenreader, screen, or TTS e.g.)
-4. The `back` command should navigate back to the previous URL (alias for browser-backbutton)
-5. The `forward` command should navigate back to the next URL (alias for browser-nextbutton)
-6. A destination is a 3D node containing an `href` with a `pos=` XR fragment 
-7. The `go` command should list all possible destinations
-8. The `go left` command should move the camera around 0.3 meters to the left
-9. The `go right` command should move the camera around 0.3 meters to the right
-10. The `go forward` command should move the camera 0.3 meters forward (direction of current rotation).
-11. The `rotate left` command should rotate the camera 0.3 to the left
-12. The `rotate left` command should rotate the camera 0.3 to the right
-13. The (dynamic) `go abc` command should navigate to `#pos=scene2` in case there's a 3D node with name `abc` and `href` value `#pos=scene2`
-14. The `look` command should give an (contextual) 3D-to-text transcript, by scanning the `aria-description` values of the current `pos=` value (including its children)
-15. The `do` command should list all possible `href` values which don't contain an `pos=` XR Fragment
-16. The (dynamic) `do abc` command should navigate/execute `https://.../...` in case a 3D node exist with name `abc` and `href` value `https://.../...`
+4. the textlog contains `aria-descriptions`, and its narration (Screenreader e.g.) can be skipped (via cycling href's, see next rule)
+5. href's can be cycled via tab (keyboard) or 'skip' command
+6. The `back` command should navigate back to the previous URL (alias for browser-backbutton)
+7. The `forward` command should navigate back to the next URL (alias for browser-nextbutton)
+8. A destination is a 3D node containing an `href` with a `pos=` XR fragment 
+9. The `go` command should list all possible destinations
+10. The `go left` command should move the camera around 0.3 meters to the left 
+11. The `go right` command should move the camera around 0.3 meters to the right
+12. The `go forward` command should move the camera 0.3 meters forward (direction of current rotation).
+13. The `rotate left` command should rotate the camera 0.3 to the left
+14. The `rotate left` command should rotate the camera 0.3 to the right
+15. The (dynamic) `go abc` command should navigate to `#pos=scene2` in case there's a 3D node with name `abc` and `href` value `#pos=scene2`
+16. The `look` command should give an (contextual) 3D-to-text transcript, by scanning the `aria-description` values of the current `pos=` value (including its children)
+17. The `do` command should list all possible `href` values which don't contain an `pos=` XR Fragment
+18. The (dynamic) `do abc` command should navigate/execute `https://.../...` in case a 3D node exist with name `abc` and `href` value `https://.../...`
 
 
 # Security Considerations

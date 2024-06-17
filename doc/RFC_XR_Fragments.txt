@@ -3,7 +3,7 @@
 
 
 Jens & Leon Internet Engineering Task Force              L.R. van Kammen
-Internet-Draft                                                9 May 2024
+Internet-Draft                                              17 June 2024
 Intended status: Informational                                          
 
 
@@ -46,16 +46,16 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 10 November 2024.
+   This Internet-Draft will expire on 19 December 2024.
 
 
 
 
 
 
-van Kammen              Expires 10 November 2024                [Page 1]
+van Kammen              Expires 19 December 2024                [Page 1]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
 Copyright Notice
@@ -94,9 +94,9 @@ Table of Contents
    11. XR Fragment: pos  . . . . . . . . . . . . . . . . . . . . . .  22
    12. XR Fragment: rot  . . . . . . . . . . . . . . . . . . . . . .  22
    13. XR Fragment: t  . . . . . . . . . . . . . . . . . . . . . . .  22
-   14. XR audio/video integration  . . . . . . . . . . . . . . . . .  23
+   14. XR audio/video integration  . . . . . . . . . . . . . . . . .  22
    15. XR Fragment filters . . . . . . . . . . . . . . . . . . . . .  23
-     15.1.  including/excluding  . . . . . . . . . . . . . . . . . .  24
+     15.1.  including/excluding  . . . . . . . . . . . . . . . . . .  23
      15.2.  Filter Parser  . . . . . . . . . . . . . . . . . . . . .  24
    16. Visible links . . . . . . . . . . . . . . . . . . . . . . . .  25
    17. Text in XR (tagging,linking to spatial objects) . . . . . . .  25
@@ -109,18 +109,18 @@ Table of Contents
 
 
 
-van Kammen              Expires 10 November 2024                [Page 2]
+van Kammen              Expires 19 December 2024                [Page 2]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    21. Additional scene metadata . . . . . . . . . . . . . . . . . .  35
    22. Accessibility interface . . . . . . . . . . . . . . . . . . .  37
-   23. Security Considerations . . . . . . . . . . . . . . . . . . .  37
+   23. Security Considerations . . . . . . . . . . . . . . . . . . .  38
    24. FAQ . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  38
    25. authors . . . . . . . . . . . . . . . . . . . . . . . . . . .  38
-   26. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  38
-   27. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  38
+   26. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  39
+   27. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  39
    28. Appendix: Definitions . . . . . . . . . . . . . . . . . . . .  39
 
 1.  Introduction
@@ -165,9 +165,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024                [Page 3]
+van Kammen              Expires 19 December 2024                [Page 3]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    XR Fragments tries to seek to connect the world of text (semantical
@@ -221,9 +221,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024                [Page 4]
+van Kammen              Expires 19 December 2024                [Page 4]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
  +───────────────────────────────────────────────────────────────────────────────────────────────+
@@ -277,9 +277,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024                [Page 5]
+van Kammen              Expires 19 December 2024                [Page 5]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    *  allowing 3D assets/nodes to publish XR Fragments to themselves/
@@ -333,9 +333,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024                [Page 6]
+van Kammen              Expires 19 December 2024                [Page 6]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    +=========+======================+=====================================+
@@ -389,9 +389,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024                [Page 7]
+van Kammen              Expires 19 December 2024                [Page 7]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
 4.  Conventions and Definitions
@@ -445,9 +445,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024                [Page 8]
+van Kammen              Expires 19 December 2024                [Page 8]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
   my.io/scene.fbx
@@ -501,9 +501,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024                [Page 9]
+van Kammen              Expires 19 December 2024                [Page 9]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    |Media Fragments        |media fragment                        |#t=0,2&loop |play (and   |
@@ -557,9 +557,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 10]
+van Kammen              Expires 19 December 2024               [Page 10]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
 6.2.  Fragment-to-metadata mapping
@@ -613,9 +613,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 11]
+van Kammen              Expires 19 December 2024               [Page 11]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    |                |                                      |             |                     |metadata (bar:#t=0     |
@@ -669,9 +669,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 12]
+van Kammen              Expires 19 December 2024               [Page 12]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    | temporal  | s=x                  | 1             | set playback   |
@@ -725,9 +725,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 13]
+van Kammen              Expires 19 December 2024               [Page 13]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    |           |                      |               | uv             |
@@ -781,9 +781,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 14]
+van Kammen              Expires 19 December 2024               [Page 14]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
   +──────────────────────────────────────────────────────────+
@@ -791,7 +791,7 @@ Internet-Draft                XR Fragments                      May 2024
   │  index.gltf#playall                                      │
   │    │                                                     │
   │    ├ #        : #t=0&shared=play                         │ apply default XR Fragment on load (`t` plays global 3D animation timeline)
-  │    ├ play     : #t=l:0,2                                 │ variable for [URI Templates (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570)
+  │    ├ play     : #t=0&loop                                │ variable for [URI Templates (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570)
   │    │                                                     │
   │    ├── ◻ plane (with material)                           │
   │    │      └ #: #uv=0,0,0,+0.1                            │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
@@ -837,9 +837,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 15]
+van Kammen              Expires 19 December 2024               [Page 15]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    1.  the Y-coordinate of pos identifies the floorposition.  This means
@@ -893,9 +893,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 16]
+van Kammen              Expires 19 December 2024               [Page 16]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    1.  IF a #cube matches a custom property-key (of an object) in the 3D
@@ -949,9 +949,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 17]
+van Kammen              Expires 19 December 2024               [Page 17]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
   +────────────────────────────────────────────────────────+  +─────────────────────────+
@@ -1005,9 +1005,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 18]
+van Kammen              Expires 19 December 2024               [Page 18]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    6.   <b>external</b> src values should be served with appropriate
@@ -1061,9 +1061,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 19]
+van Kammen              Expires 19 December 2024               [Page 19]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
        +==========+==================+============================+
@@ -1117,9 +1117,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 20]
+van Kammen              Expires 19 December 2024               [Page 20]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    » example implementation
@@ -1173,9 +1173,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 21]
+van Kammen              Expires 19 December 2024               [Page 21]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    *  calculate the <b>bounding box</b> of the instanced scene, and
@@ -1193,46 +1193,24 @@ Internet-Draft                XR Fragments                      May 2024
 
 11.  XR Fragment: pos
 
+   [[» example implementation|https://github.com/coderofsalvation/xrfrag
+   ment/blob/main/src/3rd/js/three/xrf/pos.js]
+   (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
+   three/xrf/pos.js])]
+
 12.  XR Fragment: rot
 
+   [[» example implementation|https://github.com/coderofsalvation/xrfrag
+   ment/blob/main/src/3rd/js/three/xrf/pos.js]
+   (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
+   three/xrf/pos.js])]
+
 13.  XR Fragment: t
-
-   controls the animation(s) of the scene (or src resource which
-   contains a timeline)
-
-   | fragment | type | functionality | | <b>#t</b>=1,1,100 |
-   [vector3|vector] (default:`#t=1,0,0`) | speed,framestart,framestop |
-
-   *  playposition is reset to framestart, when framestart or framestop
-      is greater than 0 |
-
-   | Example Value | Explanation | |-|-| | 1,1,100 | play loop between
-   frame 1 and 100 | | 1,1,0 | play once from frame 1 (oneshot) | |
-   1,0,0 | play (previously set looprange if any) | | 0,0,0 | pause | |
-   1,1,1 | play and auto-loop between begin and end of duration | |
-   -1,0,0 | reverse playback speed | | 2.3,0,0 | set (forward) playback
-   speed to 2.3 (no restart) | | -2.3,0,0 | set (reverse) playback speed
-   to -2.3 ( no restart)| | -2.3,100,0 | set (reverse) playback speed to
-   -2.3 restarting from frame 100 |
 
    [[» example implementation|https://github.com/coderofsalvation/xrfrag
    ment/blob/main/src/3rd/js/three/xrf/t.js]
    (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
    three/xrf/t.js])]
-   [[» discussion|https://github.com/coderofsalvation/xrfragment/
-   issues/10] (https://github.com/coderofsalvation/xrfragment/
-   issues/10])]
-
-
-
-
-
-
-
-van Kammen              Expires 10 November 2024               [Page 22]
-
-Internet-Draft                XR Fragments                      May 2024
-
 
 14.  XR audio/video integration
 
@@ -1240,13 +1218,21 @@ Internet-Draft                XR Fragments                      May 2024
 
    1.  add a src: foo.mp3 or src: bar.mp4 metadata to a 3D object (cube
        e.g.)
-   2.  to disable auto-play and global timeline ([[#t=|t]]) control:
-       hardcode a [[#t=|t]] XR Fragment: (src: bar.mp3#t=0,0,0 e.g.)
+   2.  to enable auto-play and global timeline ([[#t=|t]]) control:
+       hardcode a [[#t=|t]] XR Fragment: (src: bar.mp3#t=0&loop e.g.)
    3.  to play it, add href: #cube somewhere else
-   4.  when the enduser clicks the href, #t=1,0,0 (play) will be applied
-       to the src value
-   5.  to play a single animation, add href: #animationname=1,0,0
-       somewhere else
+   4.  to enable enduser-triggered play, use a [[URI Template]] XR
+       Fragment: (src: bar.mp3#{player} and play: t=0&loop and href:
+       xrf://#player=play e.g.)
+   5.  when the enduser clicks the href, #t=0&loop (play) will be
+       applied to the src value
+
+
+
+van Kammen              Expires 19 December 2024               [Page 22]
+
+Internet-Draft                XR Fragments                     June 2024
+
 
    |  NOTE: hardcoded framestart/framestop uses sampleRate/fps of
    |  embedded audio/video, otherwise the global fps applies.  For more
@@ -1281,21 +1267,28 @@ Internet-Draft                XR Fragments                      May 2024
       which used a dedicated q= variable (now deprecated and usable
       directly)
 
-
-
-
-
-van Kammen              Expires 10 November 2024               [Page 23]
-
-Internet-Draft                XR Fragments                      May 2024
-
-
 15.1.  including/excluding
 
    By default, selectors work like photoshop-layers: they scan for
    matching layer(name/properties) within the scene-graph.  Each matched
    object (not their children) will be toggled (in)visible when
    selecting.
+
+
+
+
+
+
+
+
+
+
+
+
+van Kammen              Expires 19 December 2024               [Page 23]
+
+Internet-Draft                XR Fragments                     June 2024
+
 
         +==========+==============================================+
         | operator | info                                         |
@@ -1337,15 +1330,6 @@ Internet-Draft                XR Fragments                      May 2024
 
    1.   create an associative array/object to store filter-arguments as
         objects
-
-
-
-
-van Kammen              Expires 10 November 2024               [Page 24]
-
-Internet-Draft                XR Fragments                      May 2024
-
-
    2.   detect object id's & properties foo=1 and foo (reference regex=
         ~/^.*=[><=]?/ )
    3.   detect excluders like -foo,-foo=1,-.foo,-/foo (reference regex=
@@ -1354,6 +1338,14 @@ Internet-Draft                XR Fragments                      May 2024
    5.   detect number values like foo=1 (reference regex= /^[0-9\.]+$/ )
    6.   detect operators so you can easily strip keys (reference regex=
         /(^-|\*$)/ )
+
+
+
+van Kammen              Expires 19 December 2024               [Page 24]
+
+Internet-Draft                XR Fragments                     June 2024
+
+
    7.   detect exclude keys like -foo (reference regex= /^-/ )
    8.   for every filter token split string on =
    9.   and we set root to true or false (true=/ root selector is
@@ -1394,18 +1386,21 @@ Internet-Draft                XR Fragments                      May 2024
 
    How does XR Fragments interlink text with objects?
 
-
-
-
-van Kammen              Expires 10 November 2024               [Page 25]
-
-Internet-Draft                XR Fragments                      May 2024
-
-
    |  The XR Fragments does this by collapsing space into a *Word Graph*
    |  (the *XRWG* example
    |  (https://github.com/coderofsalvation/xrfragment/blob/feat/macros/
    |  src/3rd/js/XRWG.js)), augmented by Bib(s)Tex.
+
+
+
+
+
+
+
+van Kammen              Expires 19 December 2024               [Page 25]
+
+Internet-Draft                XR Fragments                     June 2024
+
 
    Instead of just throwing together all kinds media types into one
    experience (games), what about their tagged/semantical relationships?
@@ -1453,9 +1448,14 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 26]
+
+
+
+
+
+van Kammen              Expires 19 December 2024               [Page 26]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
   http://y.io/z.fbx                                                           | Derived XRWG (expressed as BibTex)
@@ -1509,9 +1509,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 27]
+van Kammen              Expires 19 December 2024               [Page 27]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    As seen above, the XRWG can expand bibs
@@ -1565,9 +1565,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 28]
+van Kammen              Expires 19 December 2024               [Page 28]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    12. Default font (unless specified otherwise) is a modern monospace
@@ -1621,9 +1621,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 29]
+van Kammen              Expires 19 December 2024               [Page 29]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    *  lines beginning with @ will not be rendered verbatim by default
@@ -1677,9 +1677,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 30]
+van Kammen              Expires 19 December 2024               [Page 30]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
   +--------------------------------------------------------------+  +------------------------+
@@ -1733,9 +1733,9 @@ xrtext = {
 
 
 
-van Kammen              Expires 10 November 2024               [Page 31]
+van Kammen              Expires 19 December 2024               [Page 31]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
     // bibtex:     ↓@   ↓<tag|tag{phrase,|{ruler}>  ↓property  ↓end
@@ -1789,9 +1789,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 32]
+van Kammen              Expires 19 December 2024               [Page 32]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
 str = `
@@ -1845,9 +1845,9 @@ console.log( xrtext.encode(text,tags) )       // multiplex text & bibtex back to
 
 
 
-van Kammen              Expires 10 November 2024               [Page 33]
+van Kammen              Expires 19 December 2024               [Page 33]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    2.  mirroring files on another protocol using (HTTP) errorcode tags
@@ -1901,9 +1901,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 34]
+van Kammen              Expires 19 December 2024               [Page 34]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    *  href: university.edu/projects.gltf#math&-theme math
@@ -1957,9 +1957,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 35]
+van Kammen              Expires 19 December 2024               [Page 35]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
    *  BibTex (https://bibtex.eu/fields) when known bibtex-keys exist
@@ -2013,9 +2013,9 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-van Kammen              Expires 10 November 2024               [Page 36]
+van Kammen              Expires 19 December 2024               [Page 36]
 
-Internet-Draft                XR Fragments                      May 2024
+Internet-Draft                XR Fragments                     June 2024
 
 
 22.  Accessibility interface
@@ -2031,32 +2031,48 @@ Internet-Draft                XR Fragments                      May 2024
         enter text
    3.   Accessibility-mode must contain a flexible textlog for the user
         to read (via screenreader, screen, or TTS e.g.)
-   4.   The back command should navigate back to the previous URL (alias
+   4.   the textlog contains aria-descriptions, and its narration
+        (Screenreader e.g.) can be skipped (via cycling href's, see next
+        rule)
+   5.   href's can be cycled via tab (keyboard) or 'skip' command
+   6.   The back command should navigate back to the previous URL (alias
         for browser-backbutton)
-   5.   The forward command should navigate back to the next URL (alias
+   7.   The forward command should navigate back to the next URL (alias
         for browser-nextbutton)
-   6.   A destination is a 3D node containing an href with a pos= XR
+   8.   A destination is a 3D node containing an href with a pos= XR
         fragment
-   7.   The go command should list all possible destinations
-   8.   The go left command should move the camera around 0.3 meters to
+   9.   The go command should list all possible destinations
+   10.  The go left command should move the camera around 0.3 meters to
         the left
-   9.   The go right command should move the camera around 0.3 meters to
+   11.  The go right command should move the camera around 0.3 meters to
         the right
-   10.  The go forward command should move the camera 0.3 meters forward
+   12.  The go forward command should move the camera 0.3 meters forward
         (direction of current rotation).
-   11.  The rotate left command should rotate the camera 0.3 to the left
-   12.  The rotate left command should rotate the camera 0.3 to the
+   13.  The rotate left command should rotate the camera 0.3 to the left
+   14.  The rotate left command should rotate the camera 0.3 to the
         right
-   13.  The (dynamic) go abc command should navigate to #pos=scene2 in
+   15.  The (dynamic) go abc command should navigate to #pos=scene2 in
         case there's a 3D node with name abc and href value #pos=scene2
-   14.  The look command should give an (contextual) 3D-to-text
+   16.  The look command should give an (contextual) 3D-to-text
         transcript, by scanning the aria-description values of the
         current pos= value (including its children)
-   15.  The do command should list all possible href values which don't
+   17.  The do command should list all possible href values which don't
         contain an pos= XR Fragment
-   16.  The (dynamic) do abc command should navigate/execute
+   18.  The (dynamic) do abc command should navigate/execute
         https://.../... in case a 3D node exist with name abc and href
         value https://.../...
+
+
+
+
+
+
+
+
+van Kammen              Expires 19 December 2024               [Page 37]
+
+Internet-Draft                XR Fragments                     June 2024
+
 
 23.  Security Considerations
 
@@ -2066,14 +2082,6 @@ Internet-Draft                XR Fragments                      May 2024
    The use of URI Templates is limited to pre-defined variables and
    Level0 fragments-expansion only, which makes it quite safe.
    In fact, it is much safer than relying on a scripting language
-
-
-
-van Kammen              Expires 10 November 2024               [Page 37]
-
-Internet-Draft                XR Fragments                      May 2024
-
-
    (javascript) which can change URN too.
 
 24.  FAQ
@@ -2114,6 +2122,14 @@ Internet-Draft                XR Fragments                      May 2024
    *  Leon van Kammen (@lvk@mastodon.online)
    *  Jens Finkhäuser (@jens@social.finkhaeuser.de)
 
+
+
+
+van Kammen              Expires 19 December 2024               [Page 38]
+
+Internet-Draft                XR Fragments                     June 2024
+
+
 26.  IANA Considerations
 
    This document has no IANA actions.
@@ -2122,14 +2138,6 @@ Internet-Draft                XR Fragments                      May 2024
 
    *  NLNET (https://nlnet.nl)
    *  Future of Text (https://futureoftext.org)
-
-
-
-van Kammen              Expires 10 November 2024               [Page 38]
-
-Internet-Draft                XR Fragments                      May 2024
-
-
    *  visual-meta.info (https://visual-meta.info)
    *  Michiel Leenaars
    *  Gerben van der Broeke
@@ -2170,6 +2178,14 @@ Internet-Draft                XR Fragments                      May 2024
      |                 | Object(nodes), relevant to machines and a   |
      |                 | human minority (academics/developers)       |
      +-----------------+---------------------------------------------+
+
+
+
+van Kammen              Expires 19 December 2024               [Page 39]
+
+Internet-Draft                XR Fragments                     June 2024
+
+
      | XR fragment     | URI Fragment with spatial hints like        |
      |                 | #pos=0,0,0&t=1,100 e.g.                     |
      +-----------------+---------------------------------------------+
@@ -2178,14 +2194,6 @@ Internet-Draft                XR Fragments                      May 2024
      | the hashbus     | hashtags map to camera/scene-projections    |
      +-----------------+---------------------------------------------+
      | spacetime       | positions camera, triggers scene-preset/    |
-
-
-
-van Kammen              Expires 10 November 2024               [Page 39]
-
-Internet-Draft                XR Fragments                      May 2024
-
-
      | hashtags        | time                                        |
      +-----------------+---------------------------------------------+
      | teleportation   | repositioning the enduser to a different    |
@@ -2226,6 +2234,14 @@ Internet-Draft                XR Fragments                      May 2024
      | extrospective   | outward sensemaking ("I'm fairly sure John  |
      |                 | is a person who lives in oklahoma")         |
      +-----------------+---------------------------------------------+
+
+
+
+van Kammen              Expires 19 December 2024               [Page 40]
+
+Internet-Draft                XR Fragments                     June 2024
+
+
      | ◻               | ascii representation of an 3D object/mesh   |
      +-----------------+---------------------------------------------+
      | (un)obtrusive   | obtrusive: wrapping human text/thought in   |
@@ -2234,14 +2250,6 @@ Internet-Draft                XR Fragments                      May 2024
      +-----------------+---------------------------------------------+
      | flat 3D object  | a 3D object of which all verticies share a  |
      |                 | plane                                       |
-
-
-
-van Kammen              Expires 10 November 2024               [Page 40]
-
-Internet-Draft                XR Fragments                      May 2024
-
-
      +-----------------+---------------------------------------------+
      | BibTeX          | simple tagging/citing/referencing standard  |
      |                 | for plaintext                               |
@@ -2285,12 +2293,4 @@ Internet-Draft                XR Fragments                      May 2024
 
 
 
-
-
-
-
-
-
-
-
-van Kammen              Expires 10 November 2024               [Page 41]
+van Kammen              Expires 19 December 2024               [Page 41]

@@ -553,7 +553,7 @@ For example, to render a portal with a preview-version of the scene, create an 3
   │  index.gltf#playall                                      │ 
   │    │                                                     │ 
   │    ├ #        : #t=0&shared=play                         │ apply default XR Fragment on load (`t` plays global 3D animation timeline)
-  │    ├ play     : #t=l:0,2                                 │ variable for [URI Templates (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570)
+  │    ├ play     : #t=0&loop                                │ variable for [URI Templates (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570)
   │    │                                                     │ 
   │    ├── ◻ plane (with material)                           │    
   │    │      └ #: #uv=0,0,0,+0.1                            │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
@@ -837,33 +837,17 @@ How does the scale of the object (with the embedded properties) impact the scale
 </section>
 
 <section anchor="xr-fragment-pos"><name>XR Fragment: pos</name>
+<t>[[» example implementation|<eref target="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/pos.js]">https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/pos.js]</eref>]<br />
+</t>
 </section>
 
 <section anchor="xr-fragment-rot"><name>XR Fragment: rot</name>
+<t>[[» example implementation|<eref target="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/pos.js]">https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/pos.js]</eref>]<br />
+</t>
 </section>
 
 <section anchor="xr-fragment-t"><name>XR Fragment: t</name>
-<t>controls the animation(s) of the scene (or <tt>src</tt> resource which contains a timeline)</t>
-<t>| fragment | type | functionality |
-| &lt;b&gt;#t&lt;/b&gt;=1,1,100 | <eref target="default:`#t=1,0,0`">[vector3|vector]</eref> | speed,framestart,framestop  |</t>
-
-<ul spacing="compact">
-<li>playposition is reset to framestart, when framestart or framestop is greater than 0 |</li>
-</ul>
-<t>| Example Value     | Explanation |
-|-|-|
-| <tt>1,1,100</tt> |  play loop between frame 1 and 100 |
-| <tt>1,1,0</tt>   | play once from frame 1 (oneshot) |
-| <tt>1,0,0</tt>   | play (previously set looprange if any) |
-| <tt>0,0,0</tt>   | pause                            |
-| <tt>1,1,1</tt>   | play and auto-loop between begin and end of duration |
-| <tt>-1,0,0</tt>  | reverse playback speed           |
-| <tt>2.3,0,0</tt> | set (forward) playback speed to 2.3 (no restart) |
-| <tt>-2.3,0,0</tt> | set (reverse) playback speed to -2.3 ( no restart)|
-| <tt>-2.3,100,0</tt> | set (reverse) playback speed to -2.3 restarting from frame 100 |</t>
 <t>[[» example implementation|<eref target="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/t.js]">https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/t.js]</eref>]<br />
-
-[[» discussion|<eref target="https://github.com/coderofsalvation/xrfragment/issues/10]">https://github.com/coderofsalvation/xrfragment/issues/10]</eref>]<br />
 </t>
 </section>
 
@@ -872,10 +856,10 @@ How does the scale of the object (with the embedded properties) impact the scale
 
 <ol spacing="compact">
 <li>add a <tt>src: foo.mp3</tt> or <tt>src: bar.mp4</tt> metadata to a 3D object (<tt>cube</tt> e.g.)</li>
-<li>to disable auto-play and global timeline ([[#t=|t]]) control: hardcode a [[#t=|t]] XR Fragment: (<tt>src: bar.mp3#t=0,0,0</tt> e.g.)</li>
+<li>to enable auto-play and global timeline ([[#t=|t]]) control: hardcode a [[#t=|t]] XR Fragment: (<tt>src: bar.mp3#t=0&amp;loop</tt> e.g.)</li>
 <li>to play it, add <tt>href: #cube</tt> somewhere else</li>
-<li>when the enduser clicks the <tt>href</tt>, <tt>#t=1,0,0</tt> (play) will be applied to the <tt>src</tt> value</li>
-<li>to play a single animation, add href: #animationname=1,0,0 somewhere else</li>
+<li>to enable enduser-triggered play, use a [[URI Template]] XR Fragment: (<tt>src: bar.mp3#{player}</tt> and <tt>play: t=0&amp;loop</tt> and <tt>href: xrf://#player=play</tt> e.g.)</li>
+<li>when the enduser clicks the <tt>href</tt>, <tt>#t=0&amp;loop</tt> (play) will be applied to the <tt>src</tt> value</li>
 </ol>
 <blockquote><t>NOTE: hardcoded framestart/framestop uses sampleRate/fps of embedded audio/video, otherwise the global fps applies. For more info see [[#t|t]].</t>
 </blockquote></section>
@@ -1455,6 +1439,8 @@ Spec:<br />
 <li>The enduser must be able to enable an accessibility-mode (which persists across application/webpage restarts)</li>
 <li>Accessibility-mode must contain a text-input for the user to enter text</li>
 <li>Accessibility-mode must contain a flexible textlog for the user to read (via screenreader, screen, or TTS e.g.)</li>
+<li>the textlog contains <tt>aria-descriptions</tt>, and its narration (Screenreader e.g.) can be skipped (via cycling href's, see next rule)</li>
+<li>href's can be cycled via tab (keyboard) or 'skip' command</li>
 <li>The <tt>back</tt> command should navigate back to the previous URL (alias for browser-backbutton)</li>
 <li>The <tt>forward</tt> command should navigate back to the next URL (alias for browser-nextbutton)</li>
 <li>A destination is a 3D node containing an <tt>href</tt> with a <tt>pos=</tt> XR fragment</li>

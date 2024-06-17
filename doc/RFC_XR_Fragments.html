@@ -664,7 +664,7 @@ For example, to render a portal with a preview-version of the scene, create an 3
   │  index.gltf#playall                                      │ 
   │    │                                                     │ 
   │    ├ #        : #t=0&amp;shared=play                         │ apply default XR Fragment on load (`t` plays global 3D animation timeline)
-  │    ├ play     : #t=l:0,2                                 │ variable for [URI Templates (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570)
+  │    ├ play     : #t=0&amp;loop                                │ variable for [URI Templates (RFC6570)](https://www.rfc-editor.org/rfc/rfc6570)
   │    │                                                     │ 
   │    ├── ◻ plane (with material)                           │    
   │    │      └ #: #uv=0,0,0,+0.1                            │ infinite texturescroll `v` of uv·coordinates with 0.1/fps
@@ -947,33 +947,15 @@ How does the scale of the object (with the embedded properties) impact the scale
 
 <h1 id="xr-fragment-pos">XR Fragment: pos</h1>
 
+<p>[[» example implementation|<a href="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/pos.js]">https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/pos.js]</a>]<br></p>
+
 <h1 id="xr-fragment-rot">XR Fragment: rot</h1>
+
+<p>[[» example implementation|<a href="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/pos.js]">https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/pos.js]</a>]<br></p>
 
 <h1 id="xr-fragment-t">XR Fragment: t</h1>
 
-<p>controls the animation(s) of the scene (or <code>src</code> resource which contains a timeline)</p>
-
-<p>| fragment | type | functionality |
-| <b>#t</b>=1,1,100 | <a href="default:`#t=1,0,0`">[vector3|vector]</a> | speed,framestart,framestop  |</p>
-
-<ul>
-<li>playposition is reset to framestart, when framestart or framestop is greater than 0 |</li>
-</ul>
-
-<p>| Example Value     | Explanation |
-|-|-|
-| <code>1,1,100</code> |  play loop between frame 1 and 100 |
-| <code>1,1,0</code>   | play once from frame 1 (oneshot) |
-| <code>1,0,0</code>   | play (previously set looprange if any) |
-| <code>0,0,0</code>   | pause                            |
-| <code>1,1,1</code>   | play and auto-loop between begin and end of duration |
-| <code>-1,0,0</code>  | reverse playback speed           |
-| <code>2.3,0,0</code> | set (forward) playback speed to 2.3 (no restart) |
-| <code>-2.3,0,0</code> | set (reverse) playback speed to -2.3 ( no restart)|
-| <code>-2.3,100,0</code> | set (reverse) playback speed to -2.3 restarting from frame 100 |</p>
-
-<p>[[» example implementation|<a href="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/t.js]">https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/t.js]</a>]<br>
-[[» discussion|<a href="https://github.com/coderofsalvation/xrfragment/issues/10]">https://github.com/coderofsalvation/xrfragment/issues/10]</a>]<br></p>
+<p>[[» example implementation|<a href="https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/t.js]">https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/three/xrf/t.js]</a>]<br></p>
 
 <h1 id="xr-audio-video-integration">XR audio/video integration</h1>
 
@@ -981,10 +963,10 @@ How does the scale of the object (with the embedded properties) impact the scale
 
 <ol>
 <li>add a <code>src: foo.mp3</code> or <code>src: bar.mp4</code> metadata to a 3D object (<code>cube</code> e.g.)</li>
-<li>to disable auto-play and global timeline ([[#t=|t]]) control: hardcode a [[#t=|t]] XR Fragment: (<code>src: bar.mp3#t=0,0,0</code> e.g.)</li>
+<li>to enable auto-play and global timeline ([[#t=|t]]) control: hardcode a [[#t=|t]] XR Fragment: (<code>src: bar.mp3#t=0&amp;loop</code> e.g.)</li>
 <li>to play it, add <code>href: #cube</code> somewhere else</li>
-<li>when the enduser clicks the <code>href</code>, <code>#t=1,0,0</code> (play) will be applied to the <code>src</code> value</li>
-<li>to play a single animation, add href: #animationname=1,0,0 somewhere else</li>
+<li>to enable enduser-triggered play, use a [[URI Template]] XR Fragment: (<code>src: bar.mp3#{player}</code> and <code>play: t=0&amp;loop</code> and <code>href: xrf://#player=play</code> e.g.)</li>
+<li>when the enduser clicks the <code>href</code>, <code>#t=0&amp;loop</code> (play) will be applied to the <code>src</code> value</li>
 </ol>
 
 <blockquote>
@@ -1636,6 +1618,8 @@ Spec:<br><Br></p>
 <li>The enduser must be able to enable an accessibility-mode (which persists across application/webpage restarts)</li>
 <li>Accessibility-mode must contain a text-input for the user to enter text</li>
 <li>Accessibility-mode must contain a flexible textlog for the user to read (via screenreader, screen, or TTS e.g.)</li>
+<li>the textlog contains <code>aria-descriptions</code>, and its narration (Screenreader e.g.) can be skipped (via cycling href&rsquo;s, see next rule)</li>
+<li>href&rsquo;s can be cycled via tab (keyboard) or &lsquo;skip&rsquo; command</li>
 <li>The <code>back</code> command should navigate back to the previous URL (alias for browser-backbutton)</li>
 <li>The <code>forward</code> command should navigate back to the next URL (alias for browser-nextbutton)</li>
 <li>A destination is a 3D node containing an <code>href</code> with a <code>pos=</code> XR fragment</li>
