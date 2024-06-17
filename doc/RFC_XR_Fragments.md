@@ -1065,22 +1065,30 @@ Spec:<br><Br>
 1. The enduser must be able to enable an accessibility-mode (which persists across application/webpage restarts)
 2. Accessibility-mode must contain a text-input for the user to enter text 
 3. Accessibility-mode must contain a flexible textlog for the user to read (via screenreader, screen, or TTS e.g.)
-4. the textlog contains `aria-descriptions`, and its narration (Screenreader e.g.) can be skipped (via cycling href's, see next rule)
-5. href's can be cycled via tab (keyboard) or 'skip' command
-6. The `back` command should navigate back to the previous URL (alias for browser-backbutton)
-7. The `forward` command should navigate back to the next URL (alias for browser-nextbutton)
-8. A destination is a 3D node containing an `href` with a `pos=` XR fragment 
-9. The `go` command should list all possible destinations
-10. The `go left` command should move the camera around 0.3 meters to the left 
-11. The `go right` command should move the camera around 0.3 meters to the right
-12. The `go forward` command should move the camera 0.3 meters forward (direction of current rotation).
-13. The `rotate left` command should rotate the camera 0.3 to the left
-14. The `rotate left` command should rotate the camera 0.3 to the right
-15. The (dynamic) `go abc` command should navigate to `#pos=scene2` in case there's a 3D node with name `abc` and `href` value `#pos=scene2`
-16. The `look` command should give an (contextual) 3D-to-text transcript, by scanning the `aria-description` values of the current `pos=` value (including its children)
-17. The `do` command should list all possible `href` values which don't contain an `pos=` XR Fragment
-18. The (dynamic) `do abc` command should navigate/execute `https://.../...` in case a 3D node exist with name `abc` and `href` value `https://.../...`
+4. the textlog contains `aria-descriptions`, and its narration (Screenreader e.g.) can be skipped (via 2-button navigation)
+5. The `back` command should navigate back to the previous URL (alias for browser-backbutton)
+6. The `forward` command should navigate back to the next URL (alias for browser-nextbutton)
+7. A destination is a 3D node containing an `href` with a `pos=` XR fragment 
+8. The `go` command should list all possible destinations
+9. The `go left` command should move the camera around 0.3 meters to the left 
+10. The `go right` command should move the camera around 0.3 meters to the right
+11. The `go forward` command should move the camera 0.3 meters forward (direction of current rotation).
+12. The `rotate left` command should rotate the camera 0.3 to the left
+13. The `rotate left` command should rotate the camera 0.3 to the right
+14. The (dynamic) `go abc` command should navigate to `#pos=scene2` in case there's a 3D node with name `abc` and `href` value `#pos=scene2`
+15. The `look` command should give an (contextual) 3D-to-text transcript, by scanning the `aria-description` values of the current `pos=` value (including its children)
+16. The `do` command should list all possible `href` values which don't contain an `pos=` XR Fragment
+17. The (dynamic) `do abc` command should navigate/execute `https://.../...` in case a 3D node exist with name `abc` and `href` value `https://.../...`
 
+
+## Two-button navigation
+
+For specific user-profiles, gyroscope/mouse/keyboard/audio/visuals will not be available.<br>
+Therefore a 2-button navigation-interface is the bare minimum interface:
+
+1. objects with href metadata can be cycled via a key (tab on a keyboard)
+2. objects with href metadata can be activated via a key (enter on a keyboard)
+3. the TTS reads the href-value (and/or aria-description if available)
 
 # Security Considerations
 

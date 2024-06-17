@@ -1618,8 +1618,7 @@ Spec:<br><Br></p>
 <li>The enduser must be able to enable an accessibility-mode (which persists across application/webpage restarts)</li>
 <li>Accessibility-mode must contain a text-input for the user to enter text</li>
 <li>Accessibility-mode must contain a flexible textlog for the user to read (via screenreader, screen, or TTS e.g.)</li>
-<li>the textlog contains <code>aria-descriptions</code>, and its narration (Screenreader e.g.) can be skipped (via cycling href&rsquo;s, see next rule)</li>
-<li>href&rsquo;s can be cycled via tab (keyboard) or &lsquo;skip&rsquo; command</li>
+<li>the textlog contains <code>aria-descriptions</code>, and its narration (Screenreader e.g.) can be skipped (via 2-button navigation)</li>
 <li>The <code>back</code> command should navigate back to the previous URL (alias for browser-backbutton)</li>
 <li>The <code>forward</code> command should navigate back to the next URL (alias for browser-nextbutton)</li>
 <li>A destination is a 3D node containing an <code>href</code> with a <code>pos=</code> XR fragment</li>
@@ -1633,6 +1632,17 @@ Spec:<br><Br></p>
 <li>The <code>look</code> command should give an (contextual) 3D-to-text transcript, by scanning the <code>aria-description</code> values of the current <code>pos=</code> value (including its children)</li>
 <li>The <code>do</code> command should list all possible <code>href</code> values which don&rsquo;t contain an <code>pos=</code> XR Fragment</li>
 <li>The (dynamic) <code>do abc</code> command should navigate/execute <code>https://.../...</code> in case a 3D node exist with name <code>abc</code> and <code>href</code> value <code>https://.../...</code></li>
+</ol>
+
+<h2 id="two-button-navigation">Two-button navigation</h2>
+
+<p>For specific user-profiles, gyroscope/mouse/keyboard/audio/visuals will not be available.<br>
+Therefore a 2-button navigation-interface is the bare minimum interface:</p>
+
+<ol>
+<li>objects with href metadata can be cycled via a key (tab on a keyboard)</li>
+<li>objects with href metadata can be activated via a key (enter on a keyboard)</li>
+<li>the TTS reads the href-value (and/or aria-description if available)</li>
 </ol>
 
 <h1 id="security-considerations">Security Considerations</h1>

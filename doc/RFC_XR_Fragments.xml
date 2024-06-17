@@ -1439,8 +1439,7 @@ Spec:<br />
 <li>The enduser must be able to enable an accessibility-mode (which persists across application/webpage restarts)</li>
 <li>Accessibility-mode must contain a text-input for the user to enter text</li>
 <li>Accessibility-mode must contain a flexible textlog for the user to read (via screenreader, screen, or TTS e.g.)</li>
-<li>the textlog contains <tt>aria-descriptions</tt>, and its narration (Screenreader e.g.) can be skipped (via cycling href's, see next rule)</li>
-<li>href's can be cycled via tab (keyboard) or 'skip' command</li>
+<li>the textlog contains <tt>aria-descriptions</tt>, and its narration (Screenreader e.g.) can be skipped (via 2-button navigation)</li>
 <li>The <tt>back</tt> command should navigate back to the previous URL (alias for browser-backbutton)</li>
 <li>The <tt>forward</tt> command should navigate back to the next URL (alias for browser-nextbutton)</li>
 <li>A destination is a 3D node containing an <tt>href</tt> with a <tt>pos=</tt> XR fragment</li>
@@ -1455,6 +1454,18 @@ Spec:<br />
 <li>The <tt>do</tt> command should list all possible <tt>href</tt> values which don't contain an <tt>pos=</tt> XR Fragment</li>
 <li>The (dynamic) <tt>do abc</tt> command should navigate/execute <tt>https://.../...</tt> in case a 3D node exist with name <tt>abc</tt> and <tt>href</tt> value <tt>https://.../...</tt></li>
 </ol>
+
+<section anchor="two-button-navigation"><name>Two-button navigation</name>
+<t>For specific user-profiles, gyroscope/mouse/keyboard/audio/visuals will not be available.<br />
+
+Therefore a 2-button navigation-interface is the bare minimum interface:</t>
+
+<ol spacing="compact">
+<li>objects with href metadata can be cycled via a key (tab on a keyboard)</li>
+<li>objects with href metadata can be activated via a key (enter on a keyboard)</li>
+<li>the TTS reads the href-value (and/or aria-description if available)</li>
+</ol>
+</section>
 </section>
 
 <section anchor="security-considerations"><name>Security Considerations</name>
