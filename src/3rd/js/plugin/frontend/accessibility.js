@@ -91,10 +91,11 @@ window.accessibility = (opts) => new Proxy({
   setupHrefCycling(){
     // speak arrow keys
     window.addEventListener('keydown', (e) => {
-      if( e.key != 'Tab') return
+      console.log(e.key)
+      if( e.key != "Tab" && e.key != "Enter" ) return
       let subScene = xrf.scene.getObjectByName( xrf.frag.pos.last )
       if( !subScene ) subScene = xrf.scene 
-      let cache = this.setupHrefCycling.cache  = this.setupHrefCycling.cache || {current: 0}
+      let cache = this.setupHrefCycling.cache  = this.setupHrefCycling.cache || {current: -1}
       let objects = []
       subScene.traverse( (n) => (n.userData.href || n.userData['aria-description']) && objects.push(n) )
       
@@ -116,13 +117,16 @@ window.accessibility = (opts) => new Proxy({
         notify(`${n.userData['aria-description']||''}` + (n.userData.href ? `<br><b>name:</b> ${n.name}<br><b>link:</b> ${n.userData['href']}` :'') )
       }
 
-      // ensure valid href
-      cache.current = cache.current % objects.length
-      highlight( objects[cache.current] )
-      console.log(objects[cache.current].userData.href)
+      if( e.key == 'Enter' && objects[cache.current].userData.href ){
+        xrf.navigator.to( objects[cache.current].userData.href )
+      }
 
       // increment to next
-      cache.current = cache.current + 1
+      cache.current = (cache.current + 1) % objects.length
+
+      if( e.key == 'Tab'){
+        highlight( objects[cache.current] )
+      }
 
       e.preventDefault()
       return false
