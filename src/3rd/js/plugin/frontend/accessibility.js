@@ -32,6 +32,8 @@ window.accessibility = (opts) => new Proxy({
                .replace(/&/,' and ')
                .replace(/=/,' is ')
     }
+    if( str == this.speak.lastStr ) return // no duplicates
+    this.speak.lastStr = str
     let speech = window.speechSynthesis
     let utterance = new SpeechSynthesisUtterance( str )
     this.speak_voices = speech.getVoices().length
@@ -52,6 +54,18 @@ window.accessibility = (opts) => new Proxy({
 
   init(){
 
+    this
+    .speakArrowKeys()
+    .setupListeners()
+    .setupPersistance()
+    .setupHrefCycling()
+    .setupSpeechKillOnEscape()
+
+    setTimeout( () => this.initCommands(), 200 )
+  },
+
+  speakArrowKeys(){
+    // speak arrow keys
     window.addEventListener('keydown', (e) => {
       if( !this.speak_keyboard ) return
       let k = e.key
@@ -63,6 +77,60 @@ window.accessibility = (opts) => new Proxy({
       } 
       this.speak(k,{override:true})
     })
+    return this
+  },
+
+  setupSpeechKillOnEscape(){
+    window.addEventListener('keydown', (e) => {
+      if( e.key == "Escape" ){ 
+        this.speak("stop",{override:true})
+      }
+    })
+  },
+
+  setupHrefCycling(){
+    // speak arrow keys
+    window.addEventListener('keydown', (e) => {
+      if( e.key != 'Tab') return
+      let subScene = xrf.scene.getObjectByName( xrf.frag.pos.last )
+      if( !subScene ) subScene = xrf.scene 
+      let cache = this.setupHrefCycling.cache  = this.setupHrefCycling.cache || {current: 0}
+      let objects = []
+      subScene.traverse( (n) => (n.userData.href || n.userData['aria-description']) && objects.push(n) )
+      
+      const highlight = (n) => {
+        if( this.helper){
+          if( this.helper.selected == n.uuid ) return // already selected
+          xrf.scene.remove(this.helper)
+        }
+        this.selected = n
+        this.helper = new THREE.BoxHelper( n, 0xFF00FF )
+        this.helper.computeLineDistances()
+        this.helper.material.linewidth = 8
+        this.helper.material.color     = xrf.focusLine.material.color
+        this.helper.material.dashSize  = xrf.focusLine.material.dashSize
+        this.helper.material.gapSize   = xrf.focusLine.material.gapSize  
+        this.helper.selected = n.uuid
+        xrf.scene.add(this.helper)
+
+        notify(`${n.userData['aria-description']||''}` + (n.userData.href ? `<br><b>name:</b> ${n.name}<br><b>link:</b> ${n.userData['href']}` :'') )
+      }
+
+      // ensure valid href
+      cache.current = cache.current % objects.length
+      highlight( objects[cache.current] )
+      console.log(objects[cache.current].userData.href)
+
+      // increment to next
+      cache.current = cache.current + 1
+
+      e.preventDefault()
+      return false
+    })
+    return this
+  },
+
+  setupListeners(){
 
     document.addEventListener('$menu:buttons:render', (e) => {
       let $    = e.detail
@@ -102,8 +170,10 @@ window.accessibility = (opts) => new Proxy({
         network.posName = opts.frag.pos.string
       }
     })
+    return this 
+  },
 
-    setTimeout( () => this.initCommands(), 200 )
+  setupPersistance(){
     // auto-enable if previously enabled
     if( window.localStorage.getItem("accessibility") === 'true' || xrf.navigator.URI.XRF.accessible ){
       setTimeout( () => {
@@ -111,11 +181,14 @@ window.accessibility = (opts) => new Proxy({
         this.setFontSize()
       }, 100 )
     }
+    return this
   },
 
   initCommands(){
 
     document.addEventListener('chat.command.help', (e) => {
+      e.detail.message += `<br><b class="badge">&lt;Escape&gt;</b> silence TTS `
+      e.detail.message += `<br><b class="badge">&lt;Tab&gt;</b> cycle [href] buttons / silence TTS `
       e.detail.message += `<br><b class="badge">/fontsize &lt;number&gt;</b> set fontsize (default=14) `
     })
 

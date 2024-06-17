@@ -39,8 +39,9 @@
     <script>
 
       document.addEventListener('$menu:ready', (e) => {
-        let {$menu} = e.detail
+        frontend.notify_links = true // shows href/src's as notifications when hovering buttons
         // add your menubuttons:
+        let {$menu} = e.detail
         $menu.buttons = $menu.buttons.concat([
           `<a class="btn" aria-label="button" aria-title="menu button" onclick="$menu.showAbout()"><i class="gg-info"></i>&nbsp;&nbsp;&nbsp;about</a><br>`
         ])
