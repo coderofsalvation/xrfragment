@@ -366,7 +366,7 @@ window.accessibility = (opts) => new Proxy({
         this.helper.selected = n.uuid
         xrf.scene.add(this.helper)
 
-        notify(`${n.userData['aria-description']||''}` + (n.userData.href ? `<br><b>name:</b> ${n.name}<br><b>link:</b> ${n.userData['href']}` :'') )
+        notify(`${n.userData['aria-description']||''}` + (n.userData.href ? `<br><b>name:</b> ${n.name}<br><b>href:</b> ${n.userData['href']}` :'') )
       }
 
       if( e.key == 'Enter' && objects[cache.current].userData.href ){
