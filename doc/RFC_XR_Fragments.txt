@@ -3,7 +3,7 @@
 
 
 Jens & Leon Internet Engineering Task Force              L.R. van Kammen
-Internet-Draft                                              17 June 2024
+Internet-Draft                                              19 June 2024
 Intended status: Informational                                          
 
 
@@ -46,14 +46,14 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 19 December 2024.
+   This Internet-Draft will expire on 21 December 2024.
 
 
 
 
 
 
-van Kammen              Expires 19 December 2024                [Page 1]
+van Kammen              Expires 21 December 2024                [Page 1]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-van Kammen              Expires 19 December 2024                [Page 2]
+van Kammen              Expires 21 December 2024                [Page 2]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -165,7 +165,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024                [Page 3]
+van Kammen              Expires 21 December 2024                [Page 3]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -221,7 +221,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024                [Page 4]
+van Kammen              Expires 21 December 2024                [Page 4]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -277,7 +277,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024                [Page 5]
+van Kammen              Expires 21 December 2024                [Page 5]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -333,7 +333,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024                [Page 6]
+van Kammen              Expires 21 December 2024                [Page 6]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -389,7 +389,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024                [Page 7]
+van Kammen              Expires 21 December 2024                [Page 7]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -445,7 +445,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024                [Page 8]
+van Kammen              Expires 21 December 2024                [Page 8]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -501,7 +501,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024                [Page 9]
+van Kammen              Expires 21 December 2024                [Page 9]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -557,7 +557,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 10]
+van Kammen              Expires 21 December 2024               [Page 10]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -613,7 +613,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 11]
+van Kammen              Expires 21 December 2024               [Page 11]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -669,7 +669,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 12]
+van Kammen              Expires 21 December 2024               [Page 12]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -725,7 +725,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 13]
+van Kammen              Expires 21 December 2024               [Page 13]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -781,7 +781,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 14]
+van Kammen              Expires 21 December 2024               [Page 14]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -827,17 +827,17 @@ Internet-Draft                XR Fragments                     June 2024
 
                                  Table 7
 
-   » example implementation
+   &#187; example implementation
    (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
    three/xrf/pos.js)
-   » discussion (https://github.com/coderofsalvation/xrfragment/
+   &#187; discussion (https://github.com/coderofsalvation/xrfragment/
    issues/5)
 
 
 
 
 
-van Kammen              Expires 19 December 2024               [Page 15]
+van Kammen              Expires 21 December 2024               [Page 15]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -863,7 +863,7 @@ Internet-Draft                XR Fragments                     June 2024
        position will be assumed
 
    Here's an ascii representation of a 3D scene-graph which contains 3D
-   objects ◻ and their metadata:
+   objects &#9723; and their metadata:
 
   +────────────────────────────────────────────────────────+
   │                                                        │
@@ -893,7 +893,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 16]
+van Kammen              Expires 21 December 2024               [Page 16]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -939,8 +939,9 @@ Internet-Draft                XR Fragments                     June 2024
 
                                   Table 8
 
-   Here's an ascii representation of a 3D scene-graph with 3D objects ◻
-   which embeds remote & local 3D objects ◻ with/out using filters:
+   Here's an ascii representation of a 3D scene-graph with 3D objects
+   &#9723; which embeds remote & local 3D objects &#9723; with/out using
+   filters:
 
 
 
@@ -948,8 +949,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-
-van Kammen              Expires 19 December 2024               [Page 17]
+van Kammen              Expires 21 December 2024               [Page 17]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -1005,7 +1005,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 18]
+van Kammen              Expires 21 December 2024               [Page 18]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -1041,13 +1041,13 @@ Internet-Draft                XR Fragments                     June 2024
    *  image/jpg
    *  text/plain;charset=utf-8
 
-   » example implementation
+   &#187; example implementation
    (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
    three/xrf/src.js)
-   » example 3D asset
+   &#187; example 3D asset
    (https://github.com/coderofsalvation/xrfragment/blob/main/example/
    assets/src.gltf#L192)
-   » discussion (https://github.com/coderofsalvation/xrfragment/
+   &#187; discussion (https://github.com/coderofsalvation/xrfragment/
    issues/4)
 
 10.  Navigating content href portals
@@ -1061,7 +1061,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 19]
+van Kammen              Expires 21 December 2024               [Page 19]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -1117,18 +1117,18 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 20]
+van Kammen              Expires 21 December 2024               [Page 20]
 
 Internet-Draft                XR Fragments                     June 2024
 
 
-   » example implementation
+   &#187; example implementation
    (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
    three/xrf/href.js)
-   » example 3D asset
+   &#187; example 3D asset
    (https://github.com/coderofsalvation/xrfragment/blob/main/example/
    assets/href.gltf#L192)
-   » discussion (https://github.com/coderofsalvation/xrfragment/
+   &#187; discussion (https://github.com/coderofsalvation/xrfragment/
    issues/1)
 
 10.1.  Walking surfaces
@@ -1173,7 +1173,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 21]
+van Kammen              Expires 21 December 2024               [Page 21]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -1229,7 +1229,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 22]
+van Kammen              Expires 21 December 2024               [Page 22]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -1252,6 +1252,9 @@ Internet-Draft                XR Fragments                     June 2024
     +--------------------+-------------------------------------------+
     | #-price&price=>10  | hide all objects with property price,     |
     |                    | then only show object with price above 10 |
+    +--------------------+-------------------------------------------+
+    | #-house*           | hide house object and everything inside   |
+    |                    | (=*)                                      |
     +--------------------+-------------------------------------------+
 
                                  Table 10
@@ -1282,10 +1285,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-
-
-
-van Kammen              Expires 19 December 2024               [Page 23]
+van Kammen              Expires 21 December 2024               [Page 23]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -1317,11 +1317,11 @@ Internet-Draft                XR Fragments                     June 2024
    |  colorbuffer (to allow children being still visible while their
    |  parents are invisible).
 
-   » example implementation
+   &#187; example implementation
    (https://github.com/coderofsalvation/xrfragment/blob/main/src/3rd/js/
-   three/xrf/q.js) » example 3D asset
+   three/xrf/q.js) &#187; example 3D asset
    (https://github.com/coderofsalvation/xrfragment/blob/main/example/
-   assets/filter.gltf#L192) » discussion
+   assets/filter.gltf#L192) &#187; discussion
    (https://github.com/coderofsalvation/xrfragment/issues/3)
 
 15.2.  Filter Parser
@@ -1341,7 +1341,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 24]
+van Kammen              Expires 21 December 2024               [Page 24]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -1397,7 +1397,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 25]
+van Kammen              Expires 21 December 2024               [Page 25]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -1453,7 +1453,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 26]
+van Kammen              Expires 21 December 2024               [Page 26]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -1509,7 +1509,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 27]
+van Kammen              Expires 21 December 2024               [Page 27]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -1565,7 +1565,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 28]
+van Kammen              Expires 21 December 2024               [Page 28]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -1621,7 +1621,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 29]
+van Kammen              Expires 21 December 2024               [Page 29]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -1677,7 +1677,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 30]
+van Kammen              Expires 21 December 2024               [Page 30]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -1733,7 +1733,7 @@ xrtext = {
 
 
 
-van Kammen              Expires 19 December 2024               [Page 31]
+van Kammen              Expires 21 December 2024               [Page 31]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -1789,7 +1789,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 32]
+van Kammen              Expires 21 December 2024               [Page 32]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -1845,7 +1845,7 @@ console.log( xrtext.encode(text,tags) )       // multiplex text & bibtex back to
 
 
 
-van Kammen              Expires 19 December 2024               [Page 33]
+van Kammen              Expires 21 December 2024               [Page 33]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -1901,7 +1901,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 34]
+van Kammen              Expires 21 December 2024               [Page 34]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -1957,7 +1957,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 35]
+van Kammen              Expires 21 December 2024               [Page 35]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -2013,7 +2013,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 36]
+van Kammen              Expires 21 December 2024               [Page 36]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -2069,7 +2069,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 37]
+van Kammen              Expires 21 December 2024               [Page 37]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -2125,7 +2125,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 38]
+van Kammen              Expires 21 December 2024               [Page 38]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -2157,7 +2157,7 @@ Internet-Draft                XR Fragments                     June 2024
 25.  authors
 
    *  Leon van Kammen (@lvk@mastodon.online)
-   *  Jens Finkhäuser (@jens@social.finkhaeuser.de)
+   *  Jens Finkh&#228;user (@jens@social.finkhaeuser.de)
 
 26.  IANA Considerations
 
@@ -2171,7 +2171,7 @@ Internet-Draft                XR Fragments                     June 2024
    *  Michiel Leenaars
    *  Gerben van der Broeke
    *  Mauve
-   *  Jens Finkhäuser
+   *  Jens Finkh&#228;user
    *  Marc Belmont
    *  Tim Gerritsen
    *  Frode Hegland
@@ -2181,7 +2181,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 39]
+van Kammen              Expires 21 December 2024               [Page 39]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -2237,7 +2237,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 40]
+van Kammen              Expires 21 December 2024               [Page 40]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -2271,7 +2271,7 @@ Internet-Draft                XR Fragments                     June 2024
      | extrospective   | outward sensemaking ("I'm fairly sure John  |
      |                 | is a person who lives in oklahoma")         |
      +-----------------+---------------------------------------------+
-     | ◻               | ascii representation of an 3D object/mesh   |
+     | &#9723;         | ascii representation of an 3D object/mesh   |
      +-----------------+---------------------------------------------+
      | (un)obtrusive   | obtrusive: wrapping human text/thought in   |
      |                 | XML/HTML/JSON obfuscates human text into a  |
@@ -2293,7 +2293,7 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 41]
+van Kammen              Expires 21 December 2024               [Page 41]
 
 Internet-Draft                XR Fragments                     June 2024
 
@@ -2349,4 +2349,4 @@ Internet-Draft                XR Fragments                     June 2024
 
 
 
-van Kammen              Expires 19 December 2024               [Page 42]
+van Kammen              Expires 21 December 2024               [Page 42]

@@ -588,8 +588,9 @@ Include, exclude, hide/shows objects using space-separated strings:
 | example                          | outcome                                                                            |
 |----------------------------------|------------------------------------------------------------------------------------|
 |  `#-sky`                         | show everything except object named `sky`                                          |
-|  `#-language&english`            | hide everything with tag `language`, but show all tag `english` objects        |
+|  `#-language&english`            | hide everything with tag `language`, but show all tag `english` objects            |
 |  `#-price&price=>10`             | hide all objects with property `price`, then only show object with price above 10  |
+|  `#-house*`                      | hide `house` object and everything inside (=`*`)                                   |
 
 It's simple but powerful syntax which allows filtering the scene using searchengine prompt-style feeling:
 
