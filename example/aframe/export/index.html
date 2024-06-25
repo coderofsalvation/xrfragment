@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>XR Fragments aframe exporter</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+    <!-- AFRAME v1.5.0 + extra THREE.js extra loaders --> 
+    <script src="./../../../dist/aframe.min.js"></script> 
+    <script src="./../../../dist/xrfragment.aframe.js"></script>
+
+    <!-- environment component -->
+    <script src="https://unpkg.com/aframe-environment-component@1.3.3/dist/aframe-environment-component.min.js"></script>
+
+    <!-- important: allow touchevents in AR -->
+    <style type="text/css"> canvas.a-dom-overlay:not(.a-no-style) { padding: 0; pointer-events: auto; }</style>
+
+  </head>
+  <body>
+    <a-scene xr-mode-ui="XRMode: xr"  
+             renderer="colorManagement: true"
+             device-orientation-permission-ui
+             light="defaultLightsEnabled: true"
+             xrf>
+
+      <a-entity xrf="#pos=place1" environment>
+
+        <a-entity id="place1">
+          <a-plane position="0 0.01 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane>
+          <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
+          <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
+          <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
+          <a-box position="0 1.2 -2" depth="0.1" width="1.2" height="0.6" color="#222222" href="#pos=place2" billboard>
+            <a-text value="click me" position="-0.4 0.02 0.1"></a-text>
+          </a-box>
+        </a-entity>
+
+        <a-entity id="place2" position="0 0 3">
+          <a-plane position="0 0.01 0" rotation="-90 0 0" width="4" height="4" color="#FF00FF"></a-plane>
+        </a-entity>
+
+      </a-entity>
+
+      <a-entity id="player" movement-controls touch-controls wasd-controls="fly:false" look-controls="magicWindowTrackingEnabled:true">
+        <a-entity camera="fov:90" position="0 1.6 0" id="camera"></a-entity>
+        <a-entity id="left-hand" hand-tracking-grab-controls="hand:left;modelColor:#cccccc" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: .floor">
+          <a-entity rotation="-35 0 0" position="0 0.1 0" id="navigator"> 
+            <a-entity id="back" xrf-button="label: <; width:0.05; action: history.back()"    position="-0.025 0 0" class="ray"></a-entity>
+            <a-entity id="next" xrf-button="label: >; width:0.05; action: history.forward()" position=" 0.025 0 0" class="ray"></a-entity>
+          </a-entity>
+        </a-entity>
+        <a-entity id="right-hand" hand-tracking-grab-controls="hand:right;modelColor:#cccccc" laser-controls="hand: right" raycaster="objects:.ray" blink-controls="cameraRig:#player; teleportOrigin: #camera; collisionEntities: .floor" xrf-pinchmove="rig: #player"></a-entity>
+      </a-entity>
+
+    </a-scene>
+
+    <div class="menu">
+      <b>WARNING:</b> this AFRAME-to-Model exporter is very incomplete<br><br>
+      <button onclick="exportModel()">export to 3D model</button>
+    </div>
+
+    <style type="text/css">
+      .menu { position:fixed; width: 300px; height: 90px; background: #000; display: block; top: 0px; left: 0px; padding: 20px; color: #CCC; font-family: Arial; }
+    </style>
+
+    <!-- billboarding component -->
+    <script>
+      AFRAME.registerComponent('billboard', {
+        schema: {
+          target: {type: 'string', default: 'camera'}
+        },
+        init: function () { },
+        update: function () { },
+        tick: function () {
+          const targetEl = document.getElementById(this.data.target).object3D;
+          const el = this.el.object3D;
+          const vec = new THREE.Vector3();
+          targetEl.getWorldDirection(vec);
+          vec.y = 0;
+          vec.add(el.position)
+          el.lookAt(vec);
+        }
+      });
+
+      function exportModel(){
+        function download(dataurl, filename) {
+          var a = document.createElement("a");
+          a.href = URL.createObjectURL( new Blob([dataurl]) );
+          a.setAttribute("download", filename);
+          a.click();
+          return false;
+        }
+        // setup exporters
+        let defaultExporter = THREE.GLTFExporter
+        xrf.loaders['gltf'].exporter    = defaultExporter
+        xrf.loaders['glb'].exporter     = defaultExporter
+        const exporter = new THREE.GLTFExporter() 
+        exporter.parse(
+          xrf.model.scene,
+          function ( glb   ) { download(glb, `index.glb`) },    // ready
+          function ( error ) { console.error(error) },   // error
+          {
+            binary:true, 
+            onlyVisible: false, 
+            animations: xrf.model.animations,
+            includeCustomExtensions: true,
+            trs:true
+          } 
+        );
+      }
+
+    </script>
+
+  </body>
+</html>
