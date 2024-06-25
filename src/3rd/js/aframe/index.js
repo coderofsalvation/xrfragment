@@ -15,6 +15,8 @@ window.AFRAME.registerComponent('xrf', {
       }
     }
 
+    if( !AFRAME.scenes[0] ) return // ignore if no scene yet
+
     if( !AFRAME.XRF ){
 
       let camera = document.querySelector('[camera]')
@@ -160,6 +162,27 @@ window.AFRAME.registerComponent('xrf', {
                               let gets = [ ...document.querySelectorAll('[xrf-get]') ]
                               gets.map( (g) => g.emit('update') )
                             })
+      }else{ 
+        // load current AFRAME scene as model
+        let sceneEl = aScene.querySelector('[xrf]')
+        if( !sceneEl.object3D ) return console.error("please model your XR Fragments scene within <a-entity xrf> .... </a-entity>")
+        const scene = sceneEl.object3D
+        // name THREE objects according to AFRAME element ids
+        scene.traverse( (m) => {
+          if( !m.name && m.el && m.el.id ) m.name = m.el.id
+        })
+        // load current scene as model
+        xrf.model = {scene,animations:[]}
+        xrf.scene = scene
+        //xrf.loadModel( xrf.model, "#", true )
+        ////if( sceneEl.components.xrf.data ){
+        ////  xrf.navigator.to(sceneEl.components.xrf.data ) // eval default fragment
+        ////  console.log("evaluating default fragments")
+        ////  sceneEl.object3D.userData['#'] = sceneEl.components.xrf.data
+        ////}
+        //if( document.location.hash ){
+        //  xrf.hashbus.pub( document.location.hash, xrf.model) // eval url 
+        AFRAME.fade.out()
       }
 
       aScene.emit('XRF',{})

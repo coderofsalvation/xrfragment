@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Mon Jun 17 02:44:21 PM UTC 2024
+ * v0.5.1 generated at Tue Jun 25 01:51:16 PM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -2074,7 +2074,6 @@ xrf.navigator.to = (url,flags,loader,data) => {
       if( URI.duplicatePos || (!URI.fragment && !URI.file && !URI.fileExt) ){ 
         return resolve(xrf.model) // nothing we can do here
       }
-
       if( xrf.model && !URI.fileChange && URI.hashChange && !URI.hasPos  ){
         evalFragment()
         return resolve(xrf.model)                         // eval non-positional fragments (no loader needed)
@@ -2096,22 +2095,24 @@ xrf.navigator.to = (url,flags,loader,data) => {
         // force relative path for files which dont include protocol or relative path
         if( directory ) directory = directory[0] == '.' || directory.match("://") ? directory : `.${directory}`
 
-        loader = loader || new Loader().setPath( URI.URN )
-        const onLoad = (model) => {
-          xrf.loadModel(model,url)
-          resolve(model)
-        }
-  
-        if( data ){  // file upload
-          loader.parse(data, "", onLoad )
-        }else{
-          try{
-            loader.load(file, onLoad )
-          }catch(e){ 
-            console.error(e)
-            xrf.emit('navigateError',{url})
+        if( loader || Loader ){
+          const onLoad = (model) => {
+            xrf.loadModel(model,url)
+            resolve(model)
           }
-        }
+    
+          loader = loader || new Loader().setPath( URI.URN )
+          if( data ){  // file upload
+            loader.parse(data, "", onLoad )
+          }else{
+            try{
+              loader.load(file, onLoad )
+            }catch(e){ 
+              console.error(e)
+              xrf.emit('navigateError',{url})
+            }
+          }
+        }else xrf.emit('navigateError',{url,URI})
       })
     })
   })
@@ -2412,7 +2413,6 @@ xrf.frag.pos = function(v, opts){
   }
 
   if( xrf.debug ) console.log(`#pos.js: setting camera to position ${pos.x},${pos.y},${pos.z}`)
-
   xrf.frag.pos.last = v.string // remember
   xrf.frag.pos.lastVector3 = camera.position.clone()
 
@@ -4108,6 +4108,21 @@ let videoMimeTypes = [
   'video/mp4'
 ]
 videoMimeTypes.map( (mimetype) =>  xrf.frag.src.type[ mimetype ] = loadVideo(mimetype) )
+window.AFRAME.registerComponent('href', {
+  schema: {
+  },
+
+  init: function () {
+    if( !this.data ) return
+    this.el.object3D.traverse( (m) => {
+      if( m.geometry ){ 
+        m.userData.href = this.data
+      }
+    })
+  }
+
+});
+
 window.AFRAME.registerComponent('xrf', {
   schema: {
     http: { type:'string'},
@@ -4124,6 +4139,8 @@ window.AFRAME.registerComponent('xrf', {
         this.data = `${document.location.search.substr(1)}${document.location.hash}`
       }
     }
+
+    if( !AFRAME.scenes[0] ) return // ignore if no scene yet
 
     if( !AFRAME.XRF ){
 
@@ -4270,6 +4287,27 @@ window.AFRAME.registerComponent('xrf', {
                               let gets = [ ...document.querySelectorAll('[xrf-get]') ]
                               gets.map( (g) => g.emit('update') )
                             })
+      }else{ 
+        // load current AFRAME scene as model
+        let sceneEl = aScene.querySelector('[xrf]')
+        if( !sceneEl.object3D ) return console.error("please model your XR Fragments scene within <a-entity xrf> .... </a-entity>")
+        const scene = sceneEl.object3D
+        // name THREE objects according to AFRAME element ids
+        scene.traverse( (m) => {
+          if( !m.name && m.el && m.el.id ) m.name = m.el.id
+        })
+        // load current scene as model
+        xrf.model = {scene,animations:[]}
+        xrf.scene = scene
+        //xrf.loadModel( xrf.model, "#", true )
+        ////if( sceneEl.components.xrf.data ){
+        ////  xrf.navigator.to(sceneEl.components.xrf.data ) // eval default fragment
+        ////  console.log("evaluating default fragments")
+        ////  sceneEl.object3D.userData['#'] = sceneEl.components.xrf.data
+        ////}
+        //if( document.location.hash ){
+        //  xrf.hashbus.pub( document.location.hash, xrf.model) // eval url 
+        AFRAME.fade.out()
       }
 
       aScene.emit('XRF',{})

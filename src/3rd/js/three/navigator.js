@@ -46,7 +46,6 @@ xrf.navigator.to = (url,flags,loader,data) => {
       if( URI.duplicatePos || (!URI.fragment && !URI.file && !URI.fileExt) ){ 
         return resolve(xrf.model) // nothing we can do here
       }
-
       if( xrf.model && !URI.fileChange && URI.hashChange && !URI.hasPos  ){
         evalFragment()
         return resolve(xrf.model)                         // eval non-positional fragments (no loader needed)
@@ -68,22 +67,24 @@ xrf.navigator.to = (url,flags,loader,data) => {
         // force relative path for files which dont include protocol or relative path
         if( directory ) directory = directory[0] == '.' || directory.match("://") ? directory : `.${directory}`
 
-        loader = loader || new Loader().setPath( URI.URN )
-        const onLoad = (model) => {
-          xrf.loadModel(model,url)
-          resolve(model)
-        }
-  
-        if( data ){  // file upload
-          loader.parse(data, "", onLoad )
-        }else{
-          try{
-            loader.load(file, onLoad )
-          }catch(e){ 
-            console.error(e)
-            xrf.emit('navigateError',{url})
+        if( loader || Loader ){
+          const onLoad = (model) => {
+            xrf.loadModel(model,url)
+            resolve(model)
           }
-        }
+    
+          loader = loader || new Loader().setPath( URI.URN )
+          if( data ){  // file upload
+            loader.parse(data, "", onLoad )
+          }else{
+            try{
+              loader.load(file, onLoad )
+            }catch(e){ 
+              console.error(e)
+              xrf.emit('navigateError',{url})
+            }
+          }
+        }else xrf.emit('navigateError',{url,URI})
       })
     })
   })

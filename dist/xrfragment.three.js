@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Mon Jun 17 02:44:21 PM UTC 2024
+ * v0.5.1 generated at Tue Jun 25 01:51:16 PM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -2072,7 +2072,6 @@ xrf.navigator.to = (url,flags,loader,data) => {
       if( URI.duplicatePos || (!URI.fragment && !URI.file && !URI.fileExt) ){ 
         return resolve(xrf.model) // nothing we can do here
       }
-
       if( xrf.model && !URI.fileChange && URI.hashChange && !URI.hasPos  ){
         evalFragment()
         return resolve(xrf.model)                         // eval non-positional fragments (no loader needed)
@@ -2094,22 +2093,24 @@ xrf.navigator.to = (url,flags,loader,data) => {
         // force relative path for files which dont include protocol or relative path
         if( directory ) directory = directory[0] == '.' || directory.match("://") ? directory : `.${directory}`
 
-        loader = loader || new Loader().setPath( URI.URN )
-        const onLoad = (model) => {
-          xrf.loadModel(model,url)
-          resolve(model)
-        }
-  
-        if( data ){  // file upload
-          loader.parse(data, "", onLoad )
-        }else{
-          try{
-            loader.load(file, onLoad )
-          }catch(e){ 
-            console.error(e)
-            xrf.emit('navigateError',{url})
+        if( loader || Loader ){
+          const onLoad = (model) => {
+            xrf.loadModel(model,url)
+            resolve(model)
           }
-        }
+    
+          loader = loader || new Loader().setPath( URI.URN )
+          if( data ){  // file upload
+            loader.parse(data, "", onLoad )
+          }else{
+            try{
+              loader.load(file, onLoad )
+            }catch(e){ 
+              console.error(e)
+              xrf.emit('navigateError',{url})
+            }
+          }
+        }else xrf.emit('navigateError',{url,URI})
       })
     })
   })
@@ -2410,7 +2411,6 @@ xrf.frag.pos = function(v, opts){
   }
 
   if( xrf.debug ) console.log(`#pos.js: setting camera to position ${pos.x},${pos.y},${pos.z}`)
-
   xrf.frag.pos.last = v.string // remember
   xrf.frag.pos.lastVector3 = camera.position.clone()
 
