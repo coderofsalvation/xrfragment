@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Tue Jun 25 01:51:16 PM UTC 2024
+ * v0.5.1 generated at Wed Jun 26 11:16:30 AM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -2122,7 +2122,7 @@ xrf.navigator.init = () => {
   xrf.navigator.URI = xrfragment.URI.parse(document.location.href)
 
   window.addEventListener('popstate', function (event){
-    if( !xrf.navigator.updateHash.active ){ // ignore programmatic hash updates (causes infinite recursion)
+    if( xrf.navigator.updateHash.active ){ // ignore programmatic hash updates (causes infinite recursion)
       xrf.navigator.to( document.location.href.replace(/.*\?/,'') )
     }
   })
@@ -2189,9 +2189,10 @@ xrf.navigator.reactifyHash = ( obj ) => {
     get(me,k)  { return me[k] },
     set(me,k,v){ 
       me[k] = v 
-      if( xrf.navigator.reactifyHash.enabled ){
+      if( xrf.navigator.updateHash.active ){
         xrf.navigator.to( "#" + this.toString(me) )
       }
+      xrf.navigator.URI.fragment = this.toString(me)
     },
     toString(me){
       let parts = []
@@ -2202,7 +2203,6 @@ xrf.navigator.reactifyHash = ( obj ) => {
     }
   })
 }
-xrf.navigator.reactifyHash.enabled = true
 /**
  * 
  * navigation, portals & mutations
