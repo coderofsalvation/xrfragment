@@ -284,10 +284,11 @@ window.frontend = (opts) => new Proxy({
 
   updateHashPosition(randomize){
     const pos = xrf.frag.pos.get()
-    xrf.navigator.reactifyHash.enabled = false // prevent teleport
+    xrf.navigator.updateHash.active = false // prevent teleport
     xrf.navigator.URI.hash.pos = `${pos.x},${pos.y},${pos.z}`
-    xrf.navigator.reactifyHash.enabled = true
-    this.copyToClipboard( window.location.href );
+    document.location.hash = `#${xrf.navigator.URI.fragment}`
+    xrf.navigator.updateHash.active = true
+    return document.location.href
   },
 
   copyToClipboard(text){
@@ -305,11 +306,8 @@ window.frontend = (opts) => new Proxy({
     if( network.meetingLink && !xrf.navigator.URI.hash.meet ){
       xrf.navigator.URI.hash.meet = network.meetingLink
     }
-    if( !xrf.navigator.URI.hash.pos && (network.posName || network.pos) ){
-      xrf.navigator.URI.hash.pos = network.posName || network.pos
-    }else frontend.updateHashPosition()
-
-    let url = window.location.href
+    let url = frontend.updateHashPosition()
+    console.log(url)
     if( opts.linkonly ) return url
     this.copyToClipboard( url )
     // End of *TODO*
