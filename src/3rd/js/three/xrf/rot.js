@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+//
+// SPDX-License-Identifier: MPL-2.0
+
 xrf.frag.rot = function(v, opts){
   let { frag, mesh, model, camera, scene, renderer, THREE} = opts
   if( xrf.debug ) console.log("#rot.js: setting camera rotation to "+v.string)

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+//
+// SPDX-License-Identifier: MPL-2.0
+
 let loadVideo = (mimetype) => function(url,opts){
   let {mesh,src,camera} = opts
   const THREE = xrf.THREE

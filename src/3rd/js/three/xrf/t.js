@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+//
+// SPDX-License-Identifier: MPL-2.0
+
 // this ns the global #t mediafragment handler (which affects the 3D animation)
 
 xrf.frag.t = function(v, opts){

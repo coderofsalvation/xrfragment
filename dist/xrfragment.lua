@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+--
+-- SPDX-License-Identifier: MPL-2.0
+
 local _hx_hidden = {__id__=true, hx__closures=true, super=true, prototype=true, __fields__=true, __ifields__=true, __class__=true, __properties__=true, __fields__=true, __name__=true}
 
 _hx_array_mt = {

@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+//
+// SPDX-License-Identifier: MPL-2.0
 
 const doFilter = (opts) => {
   let {scene,id,match,v} = opts

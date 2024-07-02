@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+//
+// SPDX-License-Identifier: MPL-2.0
+
 /*
  * v0.5.1 generated at Wed Jun 26 11:16:30 AM UTC 2024
  * https://xrfragment.org

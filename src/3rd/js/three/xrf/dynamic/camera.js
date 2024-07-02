@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+//
+// SPDX-License-Identifier: MPL-2.0
+
 // switch camera when multiple cameras for url #mycameraname
 
 xrf.addEventListener('dynamicKey', (opts) => {

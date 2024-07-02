@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+//
+// SPDX-License-Identifier: MPL-2.0
+
 // look-controls turns off autoUpdateMatrix (of player) which 
 // will break teleporting and other stuff
 // overriding this is easier then adding updateMatrixWorld() everywhere else

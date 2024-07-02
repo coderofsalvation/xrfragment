@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+//
+// SPDX-License-Identifier: MPL-2.0
+
 // poor man's way to move forward using hand gesture pinch
 
 window.AFRAME.registerComponent('xrf-pinchmove', {

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+//
+// SPDX-License-Identifier: MPL-2.0
+
 //// this makes WebXR hand controls able to click things (by touching it)
 
 AFRAME.registerSystem('xrf-hands',{

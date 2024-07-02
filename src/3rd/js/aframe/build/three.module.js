@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+//
+// SPDX-License-Identifier: MPL-2.0
+
 import * as SUPER_THREE from 'super-three';
 import { DRACOLoader } from 'super-three/examples/jsm/loaders/DRACOLoader';
 import { GLTFLoader } from 'super-three/examples/jsm/loaders/GLTFLoader';
