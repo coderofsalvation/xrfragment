@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+//
+// SPDX-License-Identifier: MPL-2.0
+
 // spec 8: https://xrfragment.org/doc/RFC_XR_Macros.html#embedding-xr-content-using-src
 
 xrf.portalNonEuclidian = function(opts){

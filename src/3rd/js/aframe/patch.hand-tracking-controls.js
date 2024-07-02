@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+//
+// SPDX-License-Identifier: MPL-2.0
+
 AFRAME.components['hand-tracking-controls'].Component.prototype.onModelLoaded = function(onModelLoaded){
   return function(e){
     onModelLoaded.apply(this);

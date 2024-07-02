@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+//
+// SPDX-License-Identifier: MPL-2.0
+
 xrf.addEventListener('dynamicKey', (opts) => {
   let {scene,id,match,v} = opts
   if( !scene ) return 

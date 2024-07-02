@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+//
+// SPDX-License-Identifier: MPL-2.0
+
 window.AFRAME.registerComponent('xrf-wear', {
   schema:{
     el: {type:"selector"}, 
