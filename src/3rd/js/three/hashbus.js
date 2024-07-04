@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+//
+// SPDX-License-Identifier: MPL-2.0
+
 // the hashbus (QueryString eventBus) is mentioned in the spec 
 //
 // it allows metadata-keys ('foo' e.g.) of 3D scene-nodes (.userData.foo e.g.) to 

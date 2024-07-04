@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+//
+// SPDX-License-Identifier: MPL-2.0
 
 // this holds all the URI Template variables (https://www.rfc-editor.org/rfc/rfc6570)
 

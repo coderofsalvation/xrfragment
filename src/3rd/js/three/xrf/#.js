@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+//
+// SPDX-License-Identifier: MPL-2.0
+
 // this is called by navigator.js rather than by a URL e.g.
 
 xrf.frag.defaultPredefinedViews = (opts) => {

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+#
+# SPDX-License-Identifier: MPL-2.0
+
 import sys
 
 import math as python_lib_Math

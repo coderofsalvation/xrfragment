@@ -1,5 +1,8 @@
-// SPDX-License-Identifier: MPL-2.0        
-// Copyright (c) 2023 Leon van Kammen/NLNET 
+// SPDX-FileCopyrightText: 2023 Leon van Kammen/NLNET
+//
+// SPDX-License-Identifier: MPL-2.0
+
+
 
 var xrf = {}
 
