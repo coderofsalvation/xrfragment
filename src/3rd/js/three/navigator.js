@@ -1,11 +1,12 @@
+
 xrf.navigator = {
-  URI:{
-    scheme:    document.location.protocol.replace(/:$/,''),
-    directory: document.location.pathname,
-    host:      document.location.hostname,
-    port:      document.location.port,
-    file:      'index.glb'
-  }
+  URI: xrf.URI.parse(document.location.href)
+ //   scheme:    document.location.protocol.replace(/:$/,''),
+ //   directory: document.location.pathname,
+ //   host:      document.location.hostname,
+ //   port:      document.location.port,
+ //   file:      'index.glb'
+ // }
 }
 
 xrf.navigator.to = (url,flags,loader,data) => {
@@ -15,6 +16,8 @@ xrf.navigator.to = (url,flags,loader,data) => {
   URI.hash          = xrf.navigator.reactifyHash(URI.hash) // automatically reflect hash-changes to navigator.to(...)
   // decorate with extra state
   URI.fileChange    = URI.file && URI.URN + URI.file != xrf.navigator.URI.URN + xrf.navigator.URI.file 
+  console.log( URI.URN + URI.file )
+  console.log( xrf.navigator.URI.URN + xrf.navigator.URI.file  )
   URI.external      = URI.file && URI.URN != document.location.origin + document.location.pathname 
   URI.hasPos        = URI.hash.pos ? true : false
   URI.duplicatePos  = URI.source == xrf.navigator.URI.source && URI.hasPos
@@ -146,14 +149,14 @@ xrf.navigator.setupNavigateFallbacks = () => {
 xrf.navigator.updateHash = (hash,opts) => {
   if( hash.replace(/^#/,'') == document.location.hash.substr(1) || hash.match(/\|/) ) return  // skip unnecesary pushState triggers
   console.log(`URI: ${document.location.search.substr(1)}#${hash}`)
-  xrf.navigator.updateHash.active = true  // important to prevent recursion
+  xrf.navigator.updateHash.active = false  // important to prevent recursion
   document.location.hash = hash
-  xrf.navigator.updateHash.active = false
+  xrf.navigator.updateHash.active = true
 }
 
 xrf.navigator.pushState = (file,hash) => {
   if( file == document.location.search.substr(1) ) return // page is in its default state
-  window.history.pushState({},`${file}#${hash}`, document.location.pathname + `?${xrf.navigator.URI.source}#${hash}` )
+  window.history.pushState({}, '', document.location.pathname + `?${xrf.navigator.URI.source.replace(/#.*/,'')}#${hash}` )
   xrf.emit('pushState', {file, hash} )
 }
 

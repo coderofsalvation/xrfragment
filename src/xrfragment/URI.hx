@@ -434,6 +434,8 @@ class URI {
         if (newURI.directory != null)
         {
             if( newUrl.charAt(0) != '/' && newUrl.indexOf("://") == -1 ){
+              var stripRelative : EReg = ~/\.\/.*/;
+              directory = stripRelative.replace( directory, '');
               directory += newURI.directory;
             }else{
               directory = newURI.directory;
@@ -448,7 +450,7 @@ class URI {
         }else{
             resultURI.file = url.file;
         }
-        
+       
         resultURI.path = resultURI.directory + resultURI.file;
         
         if (newURI.query != null)

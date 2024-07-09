@@ -1,7 +1,8 @@
 // this is called by navigator.js rather than by a URL e.g.
 
-xrf.frag.defaultPredefinedViews = (opts) => {
+xrf.frag['#'] = xrf.frag.defaultPredefinedViews = (opts) => {
   let {scene,model} = opts;
+  if( !scene ) return
   let defaultFragment;
   scene.traverse( (n) => {
     if( n.userData && n.userData['#'] ){

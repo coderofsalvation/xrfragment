@@ -55,6 +55,14 @@ window.AFRAME.registerComponent('xrf', {
         if( VRbutton ) VRbutton.addEventListener('click', () => AFRAME.XRF.hashbus.pub( '#VR' ) )
       })
 
+      // not part of the spec, but convenient to only show AR button when negative VR-tag was defined in default fragment ('#' in rootscene file)
+      xrf.addEventListener('#', function(e){
+        if( e.frag['#'].string.match(/-VR/) ){
+          aScene.removeAttribute('xr-mode-ui')
+          aScene.setAttribute('xr-mode-ui',"XRMode: ar")
+        }
+      })
+
       let repositionUser = (scale) => () => {
           // sometimes AFRAME resets the user position to 0,0,0 when entering VR (not sure why)
           setTimeout( () => {
@@ -67,6 +75,7 @@ window.AFRAME.registerComponent('xrf', {
       aScene.addEventListener('enter-ar', repositionUser(2) )
 
       xrf.addEventListener('navigateLoaded', (opts) => {
+
         setTimeout( () => AFRAME.fade.out(),500) 
         let isLocal = opts.url.match(/^#/)
         if( isLocal ) return 
