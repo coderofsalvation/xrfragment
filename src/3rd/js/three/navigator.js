@@ -42,8 +42,7 @@ xrf.navigator.to = (url,flags,loader,data) => {
         loader = loader || new Loader().setPath( URI.URN )
       }
 
-
-      if( URI.duplicatePos || (!URI.fragment && !URI.file && !URI.fileExt) ){ 
+      if( URI.duplicatePos || (!Object.values(URI.XRF).length && !URI.file && !URI.fileExt) ){ 
         return resolve(xrf.model) // nothing we can do here
       }
       if( xrf.model && !URI.fileChange && URI.hashChange && !URI.hasPos  ){
@@ -154,7 +153,7 @@ xrf.navigator.updateHash = (hash,opts) => {
 
 xrf.navigator.pushState = (file,hash) => {
   if( file == document.location.search.substr(1) ) return // page is in its default state
-  window.history.pushState({},`${file}#${hash}`, document.location.pathname + `?${file}#${hash}` )
+  window.history.pushState({},`${file}#${hash}`, document.location.pathname + `?${xrf.navigator.URI.source}#${hash}` )
   xrf.emit('pushState', {file, hash} )
 }
 

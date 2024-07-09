@@ -39,12 +39,13 @@ pub.fragment = (k, opts ) => { // evaluate one fragment
   if( !opts.skipXRWG && isPVorMediaFrag ) pub.XRWG(k,opts)
 
   // call native function (xrf/env.js e.g.), or pass it to user decorator
-  xrf.emit(k,opts)
-  .then( () => {
-    let func = xrf.frag[k] || function(){} 
-    if( typeof xrf[k] == 'function' ) xrf[k]( func, frag, opts)
-    else func( frag, opts)
-  })
+  if( xrf.frag[k] ){
+    xrf.emit(k,opts)
+    .then( () => {
+      let func = xrf.frag[k] || function(){} 
+      func( frag, opts)
+    })
+  }
 }
 
 pub.XRWG = (word,opts) => {

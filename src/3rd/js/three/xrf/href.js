@@ -38,7 +38,8 @@ xrf.frag.href = function(v, opts){
     if( !mesh.material || !mesh.material.visible ) return // ignore invisible nodes
 
     // update our values to the latest value (might be edited)
-    xrf.Parser.parse( "href", mesh.userData.href, frag )
+    let URI = xrf.URI.template( mesh.userData.href, xrf.URI.vars.__object )
+    xrf.Parser.parse( "href", URI, frag )
     const v  = frag.href
 
     // bubble up!

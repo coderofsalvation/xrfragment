@@ -26,8 +26,8 @@ xrf.addEventListener('parseModel', (opts) => {
 
     if( n.userData ){
       for( let i in n.userData ){
-        if( i[0] == '#' || i.match(/^(href|tag)$/) ) continue // ignore XR Fragment aliases
-        if( i == 'src' ){
+        //if( i[0] == '#' || i.match(/^(href|tag)$/) ) continue // ignore XR Fragment aliases
+        if( i.match(/^(src|href|tag)/) ){
           // lets declare empty variables found in src-values ('https://foo.com/video.mp4#{somevar}') e.g.
           if( n.userData[i].match(variables) ){
             let vars = [].concat( n.userData[i].match(variables) )
@@ -56,10 +56,11 @@ xrf.addEventListener('dynamicKeyValue', (opts) => {
   if( !xrf.URI.vars[ v.string ] )           return console.error(`'${v.string}' metadata-key not found in scene`)        
   //if( xrf.URI.vars[ id ] && !match.length ) return console.error(`'${id}'       object/tag/metadata-key not found in scene`)
 
-  if( xrf.debug ) console.log(`URI.vars[${id}]='${v.string}'`)
+  if( xrf.debug ) console.log(`URI.vars[${id}] => '${v.string}'`)
 
   if( xrf.URI.vars[id] ){
     xrf.URI.vars[ id ] = xrf.URI.vars[ v.string ]     // update var
+    if( xrf.debug ) console.log(`URI.vars[${id}] => '${xrf.URI.vars[ v.string ]()}'`)
     xrf.scene.traverse( (n) => {                      
       // re-expand src-values which use the updated URI Template var 
       if( n.userData && n.userData.src && n.userData.srcTemplate && n.userData.srcTemplate.match(`{${id}}`) ){

@@ -40,10 +40,17 @@ xrf.frag.t.default = {
 xrf.addEventListener('parseModel', (opts) => {
   let {model} = opts
   let mixer   = model.mixer = new xrf.THREE.AnimationMixer(model.scene)
+
   mixer.model = model
   mixer.loop      = {timeStart:0,timeStop:0,speed:1.0}
   mixer.i         = xrf.mixers.length
   mixer.actions   = []
+  
+  // calculate total duration/frame based on longest animation
+  mixer.duration  = 0
+  if( model.animations.length ){
+    model.animations.map( (a) => mixer.duration = ( a.duration > mixer.duration ) ? a.duration : mixer.duration )
+  }
 
   model.animations.map( (anim) => { 
     anim.optimize()
@@ -64,7 +71,7 @@ xrf.addEventListener('parseModel', (opts) => {
   mixer.updateLoop = (t) => {
     if( t ){
       mixer.loop.timeStart = t.x != undefined ? t.x : mixer.loop.timeStart
-      mixer.loop.timeStop  = t.y != undefined ? t.y : mixer.duration
+      mixer.loop.timeStop  = t.y != undefined ? t.y : mixer.loop.timeStop
     }
     mixer.actions.map( (action) => { 
       if( mixer.loop.timeStart != undefined ){
@@ -87,7 +94,6 @@ xrf.addEventListener('parseModel', (opts) => {
     mixer.update = function(time){
       mixer.time = Math.abs(mixer.time)
       if( time == 0 ) return update.call(this,time)
-
       // loop jump
       if( mixer.loop.timeStop > 0 && mixer.time > mixer.loop.timeStop ){ 
         if( mixer.loop.enabled ){
@@ -97,12 +103,6 @@ xrf.addEventListener('parseModel', (opts) => {
       return update.call( this, time )
     }
     mixer.update.patched = true
-  }
-
-  // calculate total duration/frame based on longest animation
-  mixer.duration  = 0
-  if( model.animations.length ){
-    model.animations.map( (a) => mixer.duration = ( a.duration > mixer.duration ) ? a.duration : mixer.duration )
   }
 
   xrf.mixers.push(mixer)
