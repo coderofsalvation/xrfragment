@@ -9,6 +9,7 @@ window.AFRAME.registerComponent('envmap', {
     const onLoad = (texture) => {
       texture.colorSpace = THREE.SRGBColorSpace;
       texture.mapping = THREE.EquirectangularReflectionMapping;
+      texture.needsUpdate = true
       xrf.scene.environment = texture 
       xrf.scene.texture = texture 
     }
@@ -18,6 +19,7 @@ window.AFRAME.registerComponent('envmap', {
       xrf.scene.traverse( (n) => {
         if( n.material && n.material.isMeshPhysicalMaterial){
           n.material.envMap = xrf.scene.environment
+          n.material.needsUpdate = true
         }
       })
     })

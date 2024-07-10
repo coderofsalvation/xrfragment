@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Wed Jul 10 10:00:28 AM UTC 2024
+ * v0.5.1 generated at Wed Jul 10 10:20:14 AM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -4114,6 +4114,7 @@ window.AFRAME.registerComponent('envmap', {
     const onLoad = (texture) => {
       texture.colorSpace = THREE.SRGBColorSpace;
       texture.mapping = THREE.EquirectangularReflectionMapping;
+      texture.needsUpdate = true
       xrf.scene.environment = texture 
       xrf.scene.texture = texture 
     }
@@ -4122,8 +4123,8 @@ window.AFRAME.registerComponent('envmap', {
     xrf.addEventListener('navigateLoaded', () => {
       xrf.scene.traverse( (n) => {
         if( n.material && n.material.isMeshPhysicalMaterial){
-          console.dir(n.material)
           n.material.envMap = xrf.scene.environment
+          n.material.needsUpdate = true
         }
       })
     })
