@@ -1,5 +1,5 @@
 /*
- * v0.5.1 generated at Tue Jul  9 04:28:50 PM UTC 2024
+ * v0.5.1 generated at Wed Jul 10 10:00:28 AM UTC 2024
  * https://xrfragment.org
  * SPDX-License-Identifier: MPL-2.0
  */
@@ -4103,6 +4103,33 @@ let videoMimeTypes = [
   'video/mp4'
 ]
 videoMimeTypes.map( (mimetype) =>  xrf.frag.src.type[ mimetype ] = loadVideo(mimetype) )
+// poor man's way to move forward using hand gesture pinch
+
+window.AFRAME.registerComponent('envmap', {
+  schema:{
+    src: {type: "string"}
+  }, 
+  init: function(){
+    const loader = new THREE.TextureLoader();
+    const onLoad = (texture) => {
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.mapping = THREE.EquirectangularReflectionMapping;
+      xrf.scene.environment = texture 
+      xrf.scene.texture = texture 
+    }
+    new THREE.TextureLoader().load( this.data.src, onLoad, null, console.error );
+
+    xrf.addEventListener('navigateLoaded', () => {
+      xrf.scene.traverse( (n) => {
+        if( n.material && n.material.isMeshPhysicalMaterial){
+          console.dir(n.material)
+          n.material.envMap = xrf.scene.environment
+        }
+      })
+    })
+
+  }, 
+})
 window.AFRAME.registerComponent('href', {
   schema: {
   },
