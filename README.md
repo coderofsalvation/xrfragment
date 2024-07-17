@@ -1,3 +1,7 @@
+# MOVED TO https://codeberg.org/xrfragment/coderofsalvation
+
+> this repo is outdated
+
 <link rel="stylesheet" href="doc/style.css"/>
 <link href="https://fonts.cdnfonts.com/css/montserrat" rel="stylesheet"/>
 
