@@ -1,4 +1,4 @@
-# MOVED TO NONPROFIT ORG https://codeberg.org/coderofsalvation/coderofsalvation
+# MOVED TO NONPROFIT ORG https://codeberg.org/coderofsalvation/xrfragment
 
 > this repo is outdated
 
